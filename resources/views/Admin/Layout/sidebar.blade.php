@@ -48,7 +48,7 @@
                 Manajemen
             </p>
             <div class="space-y-1">
-                <a href="{{ route('admin.users.index') }}" class="nav-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold {{ request()->routeIs('admin.users.*') ? 'bg-zinc-900 text-zinc-50 dark:bg-zinc-50 dark:text-zinc-900 shadow-md' : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-50 hover:bg-black/5 dark:hover:bg-white/10' }}">
+                <a href="{{ route('admin.user.index') }}" class="nav-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold {{ request()->routeIs('admin.user.*') ? 'bg-zinc-900 text-zinc-50 dark:bg-zinc-50 dark:text-zinc-900 shadow-md' : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-50 hover:bg-black/5 dark:hover:bg-white/10' }}">
                     <i data-lucide="users" class="w-[18px] h-[18px] shrink-0"></i>
                     <span class="nav-label">Kelola User Admin</span>
                 </a>
@@ -81,14 +81,14 @@
     <div class="p-3 border-t border-black/5 dark:border-white/10 shrink-0">
         <div class="w-full flex items-center gap-3 px-3 py-2 rounded-xl bg-black/5 dark:bg-white/5">
             <span class="grid place-items-center w-8 h-8 rounded-full bg-gradient-to-br from-zinc-700 to-zinc-900 text-white text-xs font-bold shrink-0">
-                {{ Auth::check() ? strtoupper(substr(Auth::user()->nama, 0, 2)) : 'AD' }}
+                {{ Auth::check() ? strtoupper(substr(Auth::user()->username, 0, 2)) : 'AD' }}
             </span>
             <div class="user-info text-left min-w-0 flex-1">
                 <span class="block font-bold text-[13px] leading-tight truncate">
-                    {{ Auth::check() ? Auth::user()->nama : 'Admin Petugas' }}
+                    {{ Auth::check() ? Auth::user()->username : 'Admin Petugas' }}
                 </span>
-                <span class="block text-[11px] font-normal text-zinc-400 leading-tight truncate">
-                    {{ Auth::check() ? '@' . Auth::user()->username : 'Petugas Lab' }}
+                <span class="block text-[11px] font-normal text-zinc-400 leading-tight truncate capitalize">
+                    {{ Auth::check() ? Auth::user()->role : 'Petugas Lab' }}
                 </span>
             </div>
             <a href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();" class="text-zinc-400 hover:text-rose-500 transition-colors p-1" title="Keluar / Logout">

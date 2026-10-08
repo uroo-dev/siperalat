@@ -28,7 +28,14 @@ class KategoriController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $data = $request->validate([
+            'nama_kategori' => 'required',
+            'deskripsi' => 'required',
+            'status' => 'required',
+        ]);
+
+        Kategori::create($data);
+        return redirect()->back()->with('success', 'Data Kategori Berhasil Ditambahkan');
     }
 
     /**
@@ -52,8 +59,9 @@ class KategoriController extends Controller
      */
     public function update(Request $request, Kategori $kategori)
     {
-        //
+        
     }
+
 
     /**
      * Remove the specified resource from storage.
