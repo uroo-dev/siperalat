@@ -27,15 +27,33 @@
         <!-- Actions -->
         <div class="flex items-center gap-3">
             @guest
-                <a href="{{ route('login') }}" class="u-btn u-btn-ghost u-btn-sm text-xs border border-black/10 dark:border-white/10 hidden sm:inline-flex">
-                    <i data-lucide="log-in" class="w-3.5 h-3.5"></i> Masuk Petugas
+                <a href="{{ route('login') }}" class="u-btn u-btn-ghost u-btn-sm text-xs border border-black/10 dark:border-white/10">
+                    <i data-lucide="log-in" class="w-3.5 h-3.5"></i> Masuk
+                </a>
+                <a href="{{ route('register') }}" class="u-btn u-btn-primary u-btn-sm text-xs hidden sm:inline-flex">
+                    <i data-lucide="user-plus" class="w-3.5 h-3.5"></i> Daftar
                 </a>
             @endguest
 
             @auth
-                <a href="{{ route('admin.dashboard') }}" class="u-btn u-btn-primary u-btn-sm text-xs hidden sm:inline-flex">
-                    <i data-lucide="shield" class="w-3.5 h-3.5"></i> Panel Admin
-                </a>
+                @if(in_array(Auth::user()->role, ['admin', 'petugas']))
+                    <a href="{{ route('admin.dashboard') }}" class="u-btn u-btn-primary u-btn-sm text-xs">
+                        <i data-lucide="shield" class="w-3.5 h-3.5"></i> Panel Admin
+                    </a>
+                @else
+                    <div class="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-zinc-100 dark:bg-zinc-800 text-xs font-bold text-zinc-700 dark:text-zinc-200 border border-black/5 dark:border-white/10">
+                        <i data-lucide="user" class="w-3.5 h-3.5 text-zinc-500"></i>
+                        <span>{{ Auth::user()->username }}</span>
+                    </div>
+                @endif
+
+                <form action="{{ route('logout') }}" method="POST" class="inline">
+                    @csrf
+                    <button type="submit" class="u-btn u-btn-ghost u-btn-sm text-xs text-rose-600 hover:bg-rose-500/10 dark:hover:bg-rose-500/20 flex items-center gap-1.5" title="Keluar">
+                        <i data-lucide="log-out" class="w-3.5 h-3.5"></i>
+                        <span>Keluar</span>
+                    </button>
+                </form>
             @endauth
 
             <!-- Theme Toggle -->

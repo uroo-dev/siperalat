@@ -17,7 +17,10 @@ class AuthController extends Controller
     public function login()
     {
         if (Auth::check()) {
-            return redirect()->route('admin.dashboard');
+            if (in_array(Auth::user()->role, ['admin', 'petugas'])) {
+                return redirect()->route('admin.dashboard');
+            }
+            return redirect()->route('public.home');
         }
 
         return view('Auth.Login.index');
@@ -62,11 +65,17 @@ class AuthController extends Controller
             Log::create([
                 'user' => $user->username,
                 'aksi' => 'Login',
-                'deskripsi' => "{$user->username} berhasil masuk ke sistem.",
+                'deskripsi' => "{$user->username} ({$user->role}) berhasil masuk ke sistem.",
             ]);
 
-            return redirect()->intended(route('admin.dashboard'))
-                ->with('succes', 'Selamat datang kembali, ' . $user->username);
+            // Pengalihan berdasarkan Role
+            if (in_array($user->role, ['admin', 'petugas'])) {
+                return redirect()->intended(route('admin.dashboard'))
+                    ->with('succes', 'Selamat datang kembali, ' . $user->username);
+            }
+
+            return redirect()->intended(route('public.home'))
+                ->with('succes_trx', 'Login berhasil! Selamat datang, ' . $user->username);
         }
 
         return back()->withErrors([
