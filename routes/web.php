@@ -33,11 +33,9 @@ Route::middleware(['auth'])->group(function () {
 
     // Kategori Management
     Route::get('admin/kategori', [KategoriController::class, 'index'])->name('admin.kategori.index');
-    Route::post('admin/kategori', [KategoriController::class, 'store'])-> name('admin.kategori.store');
-    Route::put('admin/kategori/{kategori}', [KategoriController::class, 'update'])-> name('admin.kategori.update');
-    Route::destroy('admin/kategori/{kategori}', [KategoriController::class, 'destroy'])-> name('admin.kategori.destroy');
-
-
+    Route::post('admin/kategori', [KategoriController::class, 'store'])->name('admin.kategori.store');
+    Route::put('admin/kategori/{kategori}', [KategoriController::class, 'update'])->name('admin.kategori.update');
+    Route::delete('admin/kategori/{kategori}', [KategoriController::class, 'destroy'])->name('admin.kategori.destroy');
 
     // Logout Process
     Route::post('/logout', [AuthController::class, 'logout_proses'])->name('logout');

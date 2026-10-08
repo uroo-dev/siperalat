@@ -52,7 +52,7 @@
                     <i data-lucide="users" class="w-[18px] h-[18px] shrink-0"></i>
                     <span class="nav-label">Kelola User Admin</span>
                 </a>
-                <a href="javascript:void(0)" onclick="toast('Menu Kategori Alat dibuka', 'tag')" class="nav-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-50 hover:bg-black/5 dark:hover:bg-white/10">
+                <a href="{{ route('admin.kategori.index') }}" class="nav-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold {{ request()->routeIs('admin.kategori.*') ? 'bg-zinc-900 text-zinc-50 dark:bg-zinc-50 dark:text-zinc-900 shadow-md' : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-50 hover:bg-black/5 dark:hover:bg-white/10' }}">
                     <i data-lucide="tag" class="w-[18px] h-[18px] shrink-0"></i>
                     <span class="nav-label">Kategori Alat</span>
                 </a>
