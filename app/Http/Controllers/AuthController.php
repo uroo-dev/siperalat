@@ -71,18 +71,17 @@ class AuthController extends Controller
 
                 $greeting = $user->nama ?? $user->username;
                 return redirect()->intended(route('admin.dashboard'))
-                                 ->with('succes', 'Selamat datang kembali, ' . $greeting);
+                    ->with('succes', 'Selamat datang kembali, ' . $greeting);
             }
 
             return back()->withErrors([
                 'username' => 'Username atau password yang Anda masukkan salah.',
             ])->onlyInput('username');
-
         } catch (ValidationException $e) {
             throw $e;
         } catch (Exception $e) {
             return back()->withInput($request->only('username'))
-                         ->with('error', 'Terjadi kesalahan saat memproses login: ' . $e->getMessage());
+                ->with('error', 'Terjadi kesalahan saat memproses login: ' . $e->getMessage());
         }
     }
 
@@ -138,14 +137,13 @@ class AuthController extends Controller
             DB::commit();
 
             return redirect()->route('login')->with('succes', 'Registrasi berhasil! Silakan masuk menggunakan akun Anda.');
-
         } catch (ValidationException $e) {
             DB::rollBack();
             throw $e;
         } catch (Exception $e) {
             DB::rollBack();
             return back()->withInput($request->except('password', 'password_confirmation'))
-                         ->with('error', 'Terjadi kesalahan saat registrasi: ' . $e->getMessage());
+                ->with('error', 'Terjadi kesalahan saat registrasi: ' . $e->getMessage());
         }
     }
 
@@ -169,7 +167,6 @@ class AuthController extends Controller
             ]);
 
             return redirect()->route('login')->with('succes', 'Selamat Tinggal');
-
         } catch (Exception $e) {
             return redirect()->route('login')->with('succes', 'Selamat Tinggal');
         }
@@ -190,8 +187,8 @@ class AuthController extends Controller
             $search = $request->search;
             $query->where(function ($q) use ($search) {
                 $q->where('nama', 'like', "%{$search}%")
-                  ->orWhere('username', 'like', "%{$search}%")
-                  ->orWhere('email', 'like', "%{$search}%");
+                    ->orWhere('username', 'like', "%{$search}%")
+                    ->orWhere('email', 'like', "%{$search}%");
             });
         }
 
@@ -260,15 +257,14 @@ class AuthController extends Controller
             DB::commit();
 
             return redirect()->route('admin.users.index')
-                             ->with('succes', 'Pengguna baru berhasil ditambahkan.');
-
+                ->with('succes', 'Pengguna baru berhasil ditambahkan.');
         } catch (ValidationException $e) {
             DB::rollBack();
             throw $e;
         } catch (Exception $e) {
             DB::rollBack();
             return back()->withInput($request->except('password'))
-                         ->with('error', 'Terjadi kesalahan saat menambahkan pengguna: ' . $e->getMessage());
+                ->with('error', 'Terjadi kesalahan saat menambahkan pengguna: ' . $e->getMessage());
         }
     }
 
@@ -349,15 +345,14 @@ class AuthController extends Controller
             DB::commit();
 
             return redirect()->route('admin.users.index')
-                             ->with('succes', 'Data pengguna berhasil diperbarui.');
-
+                ->with('succes', 'Data pengguna berhasil diperbarui.');
         } catch (ValidationException $e) {
             DB::rollBack();
             throw $e;
         } catch (Exception $e) {
             DB::rollBack();
             return back()->withInput($request->except('password'))
-                         ->with('error', 'Terjadi kesalahan saat memperbarui pengguna: ' . $e->getMessage());
+                ->with('error', 'Terjadi kesalahan saat memperbarui pengguna: ' . $e->getMessage());
         }
     }
 
@@ -389,8 +384,7 @@ class AuthController extends Controller
             DB::commit();
 
             return redirect()->route('admin.users.index')
-                             ->with('succes', 'Pengguna berhasil dihapus.');
-
+                ->with('succes', 'Pengguna berhasil dihapus.');
         } catch (Exception $e) {
             DB::rollBack();
             return back()->with('error', 'Gagal menghapus pengguna: ' . $e->getMessage());

@@ -24,10 +24,10 @@ return new class extends Migration
 
             // Foreign Key
             $table->foreign('user_id')
-                  ->references('id')
-                  ->on('users')
-                  ->onUpdate('cascade')
-                  ->onDelete('cascade');
+                ->references('id')
+                ->on('users')
+                ->onUpdate('cascade')
+                ->onDelete('cascade');
 
             // Indexing data
             $table->index('user_id');
