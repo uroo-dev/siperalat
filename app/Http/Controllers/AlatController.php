@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Alat;
 use App\Models\Kategori;
+use App\Models\Log;
 use Illuminate\Http\Request;
 
 class AlatController extends Controller
@@ -51,7 +52,10 @@ class AlatController extends Controller
         $data['stok_dipinjam'] = $data['stok_dipinjam'] ?? 0;
         $data['stok_rusak'] = $data['stok_rusak'] ?? 0;
 
-        Alat::create($data);
+        $alat = Alat::create($data);
+
+        Log::record('Tambah Alat', "Menambahkan alat inventaris baru: {$alat->nama_alat} ({$alat->kode_alat})");
+
         return redirect()->back()->with('success', 'Data Alat Berhasil Di Tambahkan');
     }
 
@@ -96,6 +100,8 @@ class AlatController extends Controller
 
         $alat->update($data);
 
+        Log::record('Update Alat', "Memperbarui data alat inventaris: {$alat->nama_alat} ({$alat->kode_alat})");
+
         return redirect()->back()->with('success', 'Data Alat Berhail Di Ubah');
     }
 
@@ -104,7 +110,11 @@ class AlatController extends Controller
      */
     public function destroy(Alat $alat)
     {
+        $namaAlat = $alat->nama_alat;
+        $kodeAlat = $alat->kode_alat;
         $alat->delete();
+
+        Log::record('Hapus Alat', "Menghapus alat inventaris: {$namaAlat} ({$kodeAlat})");
 
         return redirect()->back()->with('success', 'Data Alat Berhasil Dihapus');
     }

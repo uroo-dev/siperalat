@@ -83,29 +83,21 @@ class AuthController extends Controller
     }
 
     /**
-     * Memproses pendaftaran user baru.
+     * Memproses pendaftaran user baru khusus peminjam.
      */
     public function register_proses(Request $request)
     {
         $validated = $request->validate([
-            'username' => ['required', 'string', 'max:50', 'unique:users,username'],
-            'email' => ['required', 'email', 'max:100', 'unique:users,email'],
-            'password' => ['required', 'string', 'min:6', 'confirmed'],
-        ], [
-            'username.required' => 'Username wajib diisi.',
-            'username.unique' => 'Username sudah digunakan oleh akun lain.',
-            'email.required' => 'Email wajib diisi.',
-            'email.unique' => 'Email sudah terdaftar.',
-            'password.required' => 'Password wajib diisi.',
-            'password.min' => 'Password minimal 6 karakter.',
-            'password.confirmed' => 'Konfirmasi password tidak cocok.',
+            'username' => 'required',
+            'email' => 'required',
+            'password' => 'required',
         ]);
 
         $user = User::create([
             'username' => $validated['username'],
             'email' => $validated['email'],
             'password' => Hash::make($validated['password']),
-            'role' => 'petugas',
+            'role' => 'peminjam',
             'status' => 'aktif',
         ]);
 
@@ -113,7 +105,7 @@ class AuthController extends Controller
         Log::create([
             'user' => $user->username,
             'aksi' => 'Register',
-            'deskripsi' => "Akun pengguna baru {$user->username} berhasil didaftarkan.",
+            'deskripsi' => "Akun peminjam baru {$user->username} berhasil didaftarkan.",
         ]);
 
         return redirect()->route('login')->with('succes', 'Registrasi berhasil! Silakan masuk menggunakan akun Anda.');
@@ -142,11 +134,11 @@ class AuthController extends Controller
 
 
     /**
-     * Menampilkan daftar semua pengguna.
+     * Menampilkan daftar pengguna admin & petugas.
      */
     public function user_index(Request $request)
     {
-        $users = User::latest()->paginate(10)->withQueryString();
+        $users = User::whereIn('role', ['admin', 'petugas'])->latest()->paginate(10)->withQueryString();
 
         return view('Admin.User.index', compact('users'));
     }
@@ -193,7 +185,6 @@ class AuthController extends Controller
         $validated = $request->validate([
             'username' => 'required',
             'email' => 'required',
-            'password' => 'required',
             'role' => 'required',
             'status' => 'required',
         ]);
@@ -203,8 +194,8 @@ class AuthController extends Controller
         $user->role = $validated['role'];
         $user->status = $validated['status'];
 
-        if (!empty($validated['password'])) {
-            $user->password = Hash::make($validated['password']);
+        if (!empty($request->password)) {
+            $user->password = Hash::make($request->password);
         }
 
         $user->save();

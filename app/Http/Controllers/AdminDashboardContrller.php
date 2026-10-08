@@ -2,6 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Alat;
+use App\Models\Peminjaman;
+use App\Models\Pengembalian;
+use App\Models\User;
+use App\Models\Log;
 use Illuminate\Http\Request;
 
 class AdminDashboardContrller extends Controller
@@ -11,54 +16,25 @@ class AdminDashboardContrller extends Controller
      */
     public function index()
     {
-        return view('Admin.Dashboard.index');
-    }
+        $totalAlat = Alat::count();
+        $stokTersedia = Alat::sum('stok_tersedia');
+        $totalDipinjam = Peminjaman::whereIn('status', ['dipinjam', 'sebagian_dikembalikan'])->count();
+        $menungguApproval = Peminjaman::where('status', 'menunggu')->count();
+        $totalPengembalian = Pengembalian::count();
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
+        $recentLogs = Log::latest()->take(8)->get();
+        $recentPeminjamans = Peminjaman::with(['peminjam.user', 'detailPeminjaman.alat'])->latest()->take(5)->get();
+        $recentAlats = Alat::with('kategori')->latest()->take(5)->get();
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
+        return view('Admin.Dashboard.index', compact(
+            'totalAlat',
+            'stokTersedia',
+            'totalDipinjam',
+            'menungguApproval',
+            'totalPengembalian',
+            'recentLogs',
+            'recentPeminjamans',
+            'recentAlats'
+        ));
     }
 }

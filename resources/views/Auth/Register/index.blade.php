@@ -1,6 +1,6 @@
 @extends('Auth.Layout.index')
 
-@section('title', 'Registrasi Petugas Baru')
+@section('title', 'Registrasi Peminjam Baru')
 
 @section('content')
 <div class="glass-panel rounded-3xl p-8 sm:p-10 shadow-2xl border border-black/5 dark:border-white/10">
@@ -11,16 +11,16 @@
         </span>
         <div>
             <span class="text-xl font-extrabold tracking-tight text-zinc-900 dark:text-white block leading-none">SIPERALAT</span>
-            <span class="text-[10px] font-bold uppercase tracking-wider text-zinc-400 dark:text-zinc-500">Registrasi Petugas</span>
+            <span class="text-[10px] font-bold uppercase tracking-wider text-zinc-400 dark:text-zinc-500">Registrasi Peminjam</span>
         </div>
     </a>
 
     <!-- Header Text -->
     <h1 class="mt-7 text-2xl font-extrabold tracking-tight text-zinc-900 dark:text-white">
-        Daftar Akun Baru
+        Daftar Akun Peminjam
     </h1>
     <p class="mt-1 text-xs sm:text-sm text-zinc-500 dark:text-zinc-400">
-        Buat akun petugas untuk mengelola inventaris peminjaman alat.
+        Buat akun peminjam untuk melakukan permohonan peminjaman alat laboratorium.
     </p>
 
     <!-- Error Message Alert -->
@@ -39,32 +39,35 @@
     <form action="{{ route('register.proses') }}" method="POST" class="mt-6 space-y-4">
         @csrf
 
-        <!-- Nama Lengkap -->
-        <div>
-            <label for="nama" class="block text-xs font-bold mb-1.5 text-zinc-700 dark:text-zinc-300">
-                Nama Lengkap Petugas
-            </label>
-            <div class="u-form-wrap">
-                <i data-lucide="user" class="u-ic-l w-4 h-4"></i>
-                <input id="nama" name="nama" type="text" required class="u-field" placeholder="Contoh: Ahmad Subagja" value="{{ old('nama') }}" autofocus />
-            </div>
-        </div>
+        <!-- Hidden Role: Peminjam -->
+        <input type="hidden" name="role" value="peminjam">
 
         <!-- Username -->
         <div>
             <label for="username" class="block text-xs font-bold mb-1.5 text-zinc-700 dark:text-zinc-300">
-                Username Akun
+                Username Akun <span class="text-rose-500">*</span>
             </label>
             <div class="u-form-wrap">
                 <i data-lucide="at-sign" class="u-ic-l w-4 h-4"></i>
-                <input id="username" name="username" type="text" required class="u-field" placeholder="Contoh: ahmad_lab" value="{{ old('username') }}" autocomplete="username" />
+                <input id="username" name="username" type="text" required class="u-field" placeholder="Contoh: peminjam_lab" value="{{ old('username') }}" autofocus autocomplete="username" />
+            </div>
+        </div>
+
+        <!-- Email -->
+        <div>
+            <label for="email" class="block text-xs font-bold mb-1.5 text-zinc-700 dark:text-zinc-300">
+                Alamat Email <span class="text-rose-500">*</span>
+            </label>
+            <div class="u-form-wrap">
+                <i data-lucide="mail" class="u-ic-l w-4 h-4"></i>
+                <input id="email" name="email" type="email" required class="u-field" placeholder="Contoh: user@gmail.com" value="{{ old('email') }}" autocomplete="email" />
             </div>
         </div>
 
         <!-- Password -->
         <div>
             <label for="passInput" class="block text-xs font-bold mb-1.5 text-zinc-700 dark:text-zinc-300">
-                Kata Sandi (Min. 6 Karakter)
+                Kata Sandi <span class="text-rose-500">*</span>
             </label>
             <div class="u-form-wrap">
                 <i data-lucide="lock" class="u-ic-l w-4 h-4"></i>
@@ -75,23 +78,9 @@
             </div>
         </div>
 
-        <!-- Konfirmasi Password -->
-        <div>
-            <label for="passConfirmInput" class="block text-xs font-bold mb-1.5 text-zinc-700 dark:text-zinc-300">
-                Ulangi Kata Sandi
-            </label>
-            <div class="u-form-wrap">
-                <i data-lucide="shield-check" class="u-ic-l w-4 h-4"></i>
-                <input id="passConfirmInput" name="password_confirmation" type="password" required class="u-field pr-12" placeholder="••••••••" autocomplete="new-password" />
-                <button type="button" onclick="togglePasswordVisibility('passConfirmInput', 'eyeIcon2')" class="u-ic-r p-2 text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 transition-colors" aria-label="Tampilkan kata sandi">
-                    <i id="eyeIcon2" data-lucide="eye" class="w-4 h-4"></i>
-                </button>
-            </div>
-        </div>
-
         <!-- Submit Button -->
         <button type="submit" class="u-btn u-btn-primary w-full py-3 mt-4 text-sm font-bold shadow-xl">
-            <i data-lucide="user-check" class="w-4 h-4"></i> Buat Akun Petugas
+            <i data-lucide="user-plus" class="w-4 h-4"></i> Buat Akun Peminjam
         </button>
     </form>
 

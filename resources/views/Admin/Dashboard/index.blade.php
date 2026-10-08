@@ -74,14 +74,14 @@
         <!-- Stat 1 -->
         <div class="glass-panel rounded-2xl p-5 border border-black/5 dark:border-white/10">
             <div class="flex items-center justify-between">
-                <span class="text-xs font-semibold text-zinc-500 dark:text-zinc-400">Total Inventaris Alat</span>
+                <span class="text-xs font-semibold text-zinc-500 dark:text-zinc-400">Total Jenis Alat</span>
                 <span class="grid place-items-center w-9 h-9 rounded-xl bg-black/5 dark:bg-white/10 text-zinc-600 dark:text-zinc-300">
                     <i data-lucide="boxes" class="w-4 h-4"></i>
                 </span>
             </div>
-            <p class="mt-3 text-3xl font-extrabold tracking-tight text-zinc-900 dark:text-white">148</p>
+            <p class="mt-3 text-3xl font-extrabold tracking-tight text-zinc-900 dark:text-white">{{ $totalAlat ?? 0 }}</p>
             <p class="mt-1 text-xs font-semibold text-emerald-600 dark:text-emerald-400 inline-flex items-center gap-1">
-                <i data-lucide="check" class="w-3.5 h-3.5"></i> 116 Siap Pakai
+                <i data-lucide="check" class="w-3.5 h-3.5"></i> {{ $stokTersedia ?? 0 }} Unit Stok Siap Pakai
             </p>
         </div>
 
@@ -93,9 +93,9 @@
                     <i data-lucide="hand-metal" class="w-4 h-4"></i>
                 </span>
             </div>
-            <p class="mt-3 text-3xl font-extrabold tracking-tight text-zinc-900 dark:text-white">32</p>
+            <p class="mt-3 text-3xl font-extrabold tracking-tight text-zinc-900 dark:text-white">{{ $totalDipinjam ?? 0 }}</p>
             <p class="mt-1 text-xs font-semibold text-sky-600 dark:text-sky-400 inline-flex items-center gap-1">
-                <i data-lucide="clock" class="w-3.5 h-3.5"></i> 18 Transaksi Aktif
+                <i data-lucide="clock" class="w-3.5 h-3.5"></i> Transaksi Aktif
             </p>
         </div>
 
@@ -107,7 +107,7 @@
                     <i data-lucide="user-check" class="w-4 h-4"></i>
                 </span>
             </div>
-            <p class="mt-3 text-3xl font-extrabold tracking-tight text-zinc-900 dark:text-white">7</p>
+            <p class="mt-3 text-3xl font-extrabold tracking-tight text-zinc-900 dark:text-white">{{ $menungguApproval ?? 0 }}</p>
             <p class="mt-1 text-xs font-semibold text-amber-600 dark:text-amber-400 inline-flex items-center gap-1">
                 <i data-lucide="alert-circle" class="w-3.5 h-3.5"></i> Perlu Tindakan
             </p>
@@ -116,15 +116,50 @@
         <!-- Stat 4 -->
         <div class="glass-panel rounded-2xl p-5 border border-black/5 dark:border-white/10">
             <div class="flex items-center justify-between">
-                <span class="text-xs font-semibold text-zinc-500 dark:text-zinc-400">Telat Pengembalian</span>
-                <span class="grid place-items-center w-9 h-9 rounded-xl bg-rose-500/15 text-rose-600 dark:text-rose-400">
-                    <i data-lucide="alarm-clock-off" class="w-4 h-4"></i>
+                <span class="text-xs font-semibold text-zinc-500 dark:text-zinc-400">Total Pengembalian</span>
+                <span class="grid place-items-center w-9 h-9 rounded-xl bg-emerald-500/15 text-emerald-600 dark:text-emerald-400">
+                    <i data-lucide="rotate-ccw" class="w-4 h-4"></i>
                 </span>
             </div>
-            <p class="mt-3 text-3xl font-extrabold tracking-tight text-zinc-900 dark:text-white">3</p>
-            <p class="mt-1 text-xs font-semibold text-rose-600 dark:text-rose-400 inline-flex items-center gap-1">
-                <i data-lucide="alert-triangle" class="w-3.5 h-3.5"></i> Jatuh Tempo
+            <p class="mt-3 text-3xl font-extrabold tracking-tight text-zinc-900 dark:text-white">{{ $totalPengembalian ?? 0 }}</p>
+            <p class="mt-1 text-xs font-semibold text-emerald-600 dark:text-emerald-400 inline-flex items-center gap-1">
+                <i data-lucide="check-check" class="w-3.5 h-3.5"></i> Riwayat Selesai
             </p>
+        </div>
+    </div>
+
+    <!-- LOG AKTIVITAS SISTEM REALTIME -->
+    <div class="glass-panel rounded-2xl p-5 border border-black/5 dark:border-white/10 shadow-xl space-y-3">
+        <div class="flex items-center justify-between border-b border-black/5 dark:border-white/10 pb-3">
+            <div class="flex items-center gap-2">
+                <div class="w-8 h-8 rounded-xl bg-zinc-900 text-white dark:bg-white dark:text-zinc-900 grid place-items-center font-bold">
+                    <i data-lucide="activity" class="w-4 h-4"></i>
+                </div>
+                <div>
+                    <h3 class="text-sm font-bold text-zinc-900 dark:text-white">Log Aktivitas Pengguna & Sistem</h3>
+                    <p class="text-[11px] text-zinc-400">Rekaman jejak aksi login, perubahan status peminjaman, pengembalian, dan data inventaris.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="space-y-2 max-h-72 overflow-y-auto pr-1 divide-y divide-black/5 dark:divide-white/5">
+            @forelse($recentLogs ?? [] as $log)
+                <div class="pt-2 first:pt-0 flex items-start justify-between gap-3 text-xs">
+                    <div class="flex items-start gap-2.5">
+                        <span class="w-2 h-2 rounded-full bg-zinc-400 dark:bg-zinc-500 mt-1.5 shrink-0"></span>
+                        <div>
+                            <div class="flex items-center gap-2">
+                                <span class="font-bold text-zinc-900 dark:text-white">{{ $log->user ?? 'Sistem' }}</span>
+                                <span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-black/5 dark:bg-white/10 text-zinc-600 dark:text-zinc-300">{{ $log->aksi }}</span>
+                            </div>
+                            <p class="text-zinc-500 dark:text-zinc-400 text-[11px] mt-0.5">{{ $log->deskripsi }}</p>
+                        </div>
+                    </div>
+                    <span class="text-[10px] font-mono text-zinc-400 shrink-0">{{ $log->created_at ? $log->created_at->diffForHumans() : '-' }}</span>
+                </div>
+            @empty
+                <p class="text-xs text-zinc-400 py-3 text-center">Belum ada aktivitas yang tercatat.</p>
+            @endforelse
         </div>
     </div>
 

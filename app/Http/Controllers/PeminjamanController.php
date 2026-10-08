@@ -3,7 +3,17 @@
 namespace App\Http\Controllers;
 
 use App\Models\Peminjaman;
+use App\Models\DetailPeminjaman;
+use App\Models\Pengembalian;
+use App\Models\DetailPengembalian;
+use App\Models\KondisiAlat;
+use App\Models\Peminjam;
+use App\Models\Alat;
+use App\Models\User;
+use App\Models\Log;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
 
 class PeminjamanController extends Controller
 {
@@ -12,15 +22,26 @@ class PeminjamanController extends Controller
      */
     public function index()
     {
-        //
-    }
+        // Pastikan setiap user peminjam memiliki profil peminjam
+        $usersPeminjam = User::where('role', 'peminjam')->get();
+        foreach ($usersPeminjam as $u) {
+            Peminjam::firstOrCreate(
+                ['user_id' => $u->id],
+                [
+                    'nama' => $u->username,
+                    'no_identitas' => 'ID-' . str_pad($u->id, 4, '0', STR_PAD_LEFT),
+                    'no_telepon' => '-',
+                    'alamat' => '-',
+                    'status_peminjam' => 'aktif',
+                ]
+            );
+        }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
+        $peminjamans = Peminjaman::with(['peminjam.user', 'detailPeminjaman.alat', 'disetujuiOleh'])->latest()->paginate(10);
+        $peminjams = Peminjam::with('user')->where('status_peminjam', 'aktif')->get();
+        $alats = Alat::where('status', 'tersedia')->where('stok_tersedia', '>', 0)->get();
+
+        return view('Admin.Peminjaman.index', compact('peminjamans', 'peminjams', 'alats'));
     }
 
     /**
@@ -28,38 +49,208 @@ class PeminjamanController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $request->validate([
+            'id_peminjam' => 'required',
+            'tanggal_pinjam' => 'required|date',
+            'tanggal_kembali_rencana' => 'required|date|after_or_equal:tanggal_pinjam',
+            'keperluan' => 'required',
+            'id_alat' => 'required|array',
+            'id_alat.*' => 'required|exists:alat,id_alat',
+            'jumlah' => 'required|array',
+            'jumlah.*' => 'required|integer|min:1',
+        ]);
+
+        $tglPinjam = \Carbon\Carbon::parse($request->tanggal_pinjam);
+        $tglKembali = \Carbon\Carbon::parse($request->tanggal_kembali_rencana);
+        $lamaPinjam = max(1, $tglPinjam->diffInDays($tglKembali));
+
+        $status = $request->status ?? 'menunggu';
+        $disetujuiOleh = in_array($status, ['disetujui', 'dipinjam']) ? Auth::id() : null;
+        $disetujuiAt = in_array($status, ['disetujui', 'dipinjam']) ? now() : null;
+
+        $peminjaman = Peminjaman::create([
+            'kode_transaksi' => 'TRX-' . strtoupper(Str::random(6)),
+            'id_peminjam' => $request->id_peminjam,
+            'tanggal_pengajuan' => now(),
+            'tanggal_pinjam' => $request->tanggal_pinjam,
+            'tanggal_kembali_rencana' => $request->tanggal_kembali_rencana,
+            'lama_pinjam' => $lamaPinjam,
+            'keperluan' => $request->keperluan,
+            'subtotal' => 0,
+            'total_denda' => 0,
+            'total_tagihan' => 0,
+            'status' => $status,
+            'disetujui_oleh' => $disetujuiOleh,
+            'disetujui_at' => $disetujuiAt,
+        ]);
+
+        $totalSubtotal = 0;
+        foreach ($request->id_alat as $index => $idAlat) {
+            $alat = Alat::find($idAlat);
+            $qty = (int) ($request->jumlah[$index] ?? 1);
+
+            if ($alat) {
+                $subtotal = $alat->harga_sewa * $qty * $lamaPinjam;
+                $totalSubtotal += $subtotal;
+
+                DetailPeminjaman::create([
+                    'id_peminjaman' => $peminjaman->id_peminjaman,
+                    'id_alat' => $alat->id_alat,
+                    'jumlah' => $qty,
+                    'harga_per_hari' => $alat->harga_sewa,
+                    'lama_pinjam' => $lamaPinjam,
+                    'subtotal' => $subtotal,
+                ]);
+
+                // Update stok alat jika langsung disetujui / dipinjam
+                if (in_array($status, ['disetujui', 'dipinjam'])) {
+                    $alat->decrement('stok_tersedia', $qty);
+                    $alat->increment('stok_dipinjam', $qty);
+                    if ($alat->stok_tersedia <= 0) {
+                        $alat->update(['status' => 'habis']);
+                    }
+                }
+            }
+        }
+
+        $peminjaman->update([
+            'subtotal' => $totalSubtotal,
+            'total_tagihan' => $totalSubtotal,
+        ]);
+
+        Log::record('Tambah Peminjaman', "Membuat transaksi peminjaman baru: {$peminjaman->kode_transaksi}");
+
+        return redirect()->back()->with('success', 'Data Peminjaman Berhasil Ditambahkan');
     }
 
     /**
-     * Display the specified resource.
+     * Update status peminjaman (approve, reject, pinjamkan, batalkan).
      */
-    public function show(Peminjaman $peminjaman)
+    public function update_status(Request $request, $id)
     {
-        //
-    }
+        $peminjaman = Peminjaman::with('detailPeminjaman.alat')->findOrFail($id);
+        $statusLama = $peminjaman->status;
+        $statusBaru = $request->status;
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Peminjaman $peminjaman)
-    {
-        //
-    }
+        $peminjaman->status = $statusBaru;
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Peminjaman $peminjaman)
-    {
-        //
+        if (in_array($statusBaru, ['disetujui', 'dipinjam'])) {
+            $peminjaman->disetujui_oleh = Auth::id();
+            $peminjaman->disetujui_at = now();
+
+            // Potong stok alat jika sebelumnya berstatus menunggu/ditolak/dibatalkan
+            if (!in_array($statusLama, ['disetujui', 'dipinjam', 'sebagian_dikembalikan', 'dikembalikan'])) {
+                foreach ($peminjaman->detailPeminjaman as $detail) {
+                    if ($detail->alat) {
+                        $detail->alat->decrement('stok_tersedia', $detail->jumlah);
+                        $detail->alat->increment('stok_dipinjam', $detail->jumlah);
+                        if ($detail->alat->stok_tersedia <= 0) {
+                            $detail->alat->update(['status' => 'habis']);
+                        }
+                    }
+                }
+            }
+        } elseif (in_array($statusBaru, ['ditolak', 'dibatalkan'])) {
+            if ($request->filled('alasan_penolakan')) {
+                $peminjaman->alasan_penolakan = $request->alasan_penolakan;
+            }
+
+            // Kembalikan stok jika sebelumnya sempat dipotong
+            if (in_array($statusLama, ['disetujui', 'dipinjam'])) {
+                foreach ($peminjaman->detailPeminjaman as $detail) {
+                    if ($detail->alat) {
+                        $detail->alat->increment('stok_tersedia', $detail->jumlah);
+                        $detail->alat->decrement('stok_dipinjam', $detail->jumlah);
+                        if ($detail->alat->status === 'habis' && $detail->alat->stok_tersedia > 0) {
+                            $detail->alat->update(['status' => 'tersedia']);
+                        }
+                    }
+                }
+            }
+        } elseif ($statusBaru === 'dikembalikan') {
+            // Pulihkan sisa stok alat yang masih dipinjam & catat ke riwayat pengembalian
+            if (in_array($statusLama, ['dipinjam', 'sebagian_dikembalikan', 'disetujui'])) {
+                $kondisiBaik = KondisiAlat::firstOrCreate(
+                    ['nama_kondisi' => 'Baik'],
+                    ['deskripsi' => 'Alat berfungsi normal dan dalam kondisi baik', 'dapat_dipinjam' => 1]
+                );
+
+                $pengembalian = Pengembalian::create([
+                    'kode_pengembalian' => 'RTN-' . strtoupper(Str::random(6)),
+                    'id_peminjaman' => $peminjaman->id_peminjaman,
+                    'diproses_oleh' => Auth::id(),
+                    'tanggal_pengembalian' => now()->toDateString(),
+                    'total_denda' => 0,
+                    'status_pengembalian' => 'selesai',
+                    'catatan' => 'Pengembalian selesai dicatat melalui perubahan status.',
+                ]);
+
+                foreach ($peminjaman->detailPeminjaman as $detail) {
+                    $sisa = $detail->jumlah - $detail->jumlah_dikembalikan;
+                    if ($sisa > 0) {
+                        DetailPengembalian::create([
+                            'id_pengembalian' => $pengembalian->id_pengembalian,
+                            'id_detail_peminjaman' => $detail->id_detail,
+                            'jumlah_kembali' => $sisa,
+                            'id_kondisi' => $kondisiBaik->id_kondisi,
+                            'keterangan_kondisi' => 'Kondisi Baik',
+                        ]);
+
+                        $detail->increment('jumlah_dikembalikan', $sisa);
+
+                        if ($detail->alat) {
+                            $detail->alat->increment('stok_tersedia', $sisa);
+                            $detail->alat->decrement('stok_dipinjam', $sisa);
+                            if ($detail->alat->status === 'habis' && $detail->alat->stok_tersedia > 0) {
+                                $detail->alat->update(['status' => 'tersedia']);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        $peminjaman->save();
+
+        Log::record('Update Status Peminjaman', "Mengubah status transaksi {$peminjaman->kode_transaksi} dari {$statusLama} menjadi {$statusBaru}");
+
+        return redirect()->back()->with('success', 'Status Peminjaman Berhasil Diperbarui');
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Peminjaman $peminjaman)
+    public function destroy($id)
     {
-        //
+        $peminjaman = Peminjaman::with('detailPeminjaman.alat')->findOrFail($id);
+        $kodeTransaksi = $peminjaman->kode_transaksi;
+
+        if (in_array($peminjaman->status, ['disetujui', 'dipinjam'])) {
+            foreach ($peminjaman->detailPeminjaman as $detail) {
+                if ($detail->alat) {
+                    $detail->alat->increment('stok_tersedia', $detail->jumlah);
+                    $detail->alat->decrement('stok_dipinjam', $detail->jumlah);
+                    if ($detail->alat->status === 'habis' && $detail->alat->stok_tersedia > 0) {
+                        $detail->alat->update(['status' => 'tersedia']);
+                    }
+                }
+            }
+        }
+
+        $peminjaman->delete();
+
+        Log::record('Hapus Peminjaman', "Menghapus transaksi peminjaman: {$kodeTransaksi}");
+
+        return redirect()->back()->with('success', 'Data Peminjaman Berhasil Dihapus');
+    }
+
+    /**
+     * Tampilkan cetak nota / invoice peminjaman.
+     */
+    public function nota($id)
+    {
+        $peminjaman = Peminjaman::with(['peminjam.user', 'detailPeminjaman.alat', 'disetujuiOleh'])->findOrFail($id);
+        return view('Admin.Peminjaman.nota', compact('peminjaman'));
     }
 }
+

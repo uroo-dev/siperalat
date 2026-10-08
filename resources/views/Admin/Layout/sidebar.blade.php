@@ -20,24 +20,23 @@
 
     <!-- Navigation List -->
     <nav class="flex-1 overflow-y-auto px-3 py-4 space-y-6">
-        <!-- Group Utama -->
+        <!-- Group Utama / Transaksi -->
         <div>
             <p class="group-title flex items-center nav-label px-3 mb-2 text-[10px] font-bold uppercase tracking-[0.18em] text-zinc-400 dark:text-zinc-500">
-                Utama
+                Utama & Transaksi
             </p>
             <div class="space-y-1">
                 <a href="{{ route('admin.dashboard') }}" class="nav-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold {{ request()->routeIs('admin.dashboard') ? 'bg-zinc-900 text-zinc-50 dark:bg-zinc-50 dark:text-zinc-900 shadow-md' : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-50 hover:bg-black/5 dark:hover:bg-white/10' }}">
                     <i data-lucide="layout-dashboard" class="w-[18px] h-[18px] shrink-0"></i>
                     <span class="nav-label">Dashboard</span>
                 </a>
-                <a href="{{ route('admin.dashboard') }}#tabel-peminjaman" class="nav-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-50 hover:bg-black/5 dark:hover:bg-white/10">
+                <a href="{{ route('admin.peminjaman.index') }}" class="nav-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold {{ request()->routeIs('admin.peminjaman.*') ? 'bg-zinc-900 text-zinc-50 dark:bg-zinc-50 dark:text-zinc-900 shadow-md' : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-50 hover:bg-black/5 dark:hover:bg-white/10' }}">
                     <i data-lucide="clipboard-list" class="w-[18px] h-[18px] shrink-0"></i>
-                    <span class="nav-label flex-1">Peminjaman</span>
-                    <span class="nav-label inline-flex items-center justify-center px-2 py-0.5 text-[10px] font-bold rounded-full bg-amber-500/15 text-amber-600 dark:text-amber-400">7 Baru</span>
+                    <span class="nav-label">Peminjaman</span>
                 </a>
-                <a href="{{ route('admin.alat.index') }}" class="nav-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold {{ request()->routeIs('admin.alat.*') ? 'bg-zinc-900 text-zinc-50 dark:bg-zinc-50 dark:text-zinc-900 shadow-md' : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-50 hover:bg-black/5 dark:hover:bg-white/10' }}">
-                    <i data-lucide="box" class="w-[18px] h-[18px] shrink-0"></i>
-                    <span class="nav-label">Data Inventaris</span>
+                <a href="{{ route('admin.pengembalian.index') }}" class="nav-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold {{ request()->routeIs('admin.pengembalian.*') ? 'bg-zinc-900 text-zinc-50 dark:bg-zinc-50 dark:text-zinc-900 shadow-md' : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-50 hover:bg-black/5 dark:hover:bg-white/10' }}">
+                    <i data-lucide="rotate-ccw" class="w-[18px] h-[18px] shrink-0"></i>
+                    <span class="nav-label">Pengembalian</span>
                 </a>
             </div>
         </div>
@@ -50,14 +49,18 @@
             <div class="space-y-1">
                 <a href="{{ route('admin.user.index') }}" class="nav-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold {{ request()->routeIs('admin.user.*') ? 'bg-zinc-900 text-zinc-50 dark:bg-zinc-50 dark:text-zinc-900 shadow-md' : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-50 hover:bg-black/5 dark:hover:bg-white/10' }}">
                     <i data-lucide="users" class="w-[18px] h-[18px] shrink-0"></i>
-                    <span class="nav-label">Kelola User Admin</span>
+                    <span class="nav-label">Admin & Petugas</span>
+                </a>
+                <a href="{{ route('admin.pelanggan.index') }}" class="nav-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold {{ request()->routeIs('admin.pelanggan.*') ? 'bg-zinc-900 text-zinc-50 dark:bg-zinc-50 dark:text-zinc-900 shadow-md' : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-50 hover:bg-black/5 dark:hover:bg-white/10' }}">
+                    <i data-lucide="user-check" class="w-[18px] h-[18px] shrink-0"></i>
+                    <span class="nav-label">Data Pelanggan</span>
                 </a>
                 <a href="{{ route('admin.kategori.index') }}" class="nav-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold {{ request()->routeIs('admin.kategori.*') ? 'bg-zinc-900 text-zinc-50 dark:bg-zinc-50 dark:text-zinc-900 shadow-md' : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-50 hover:bg-black/5 dark:hover:bg-white/10' }}">
                     <i data-lucide="tag" class="w-[18px] h-[18px] shrink-0"></i>
                     <span class="nav-label">Kelola Kategori</span>
                 </a>
                 <a href="{{ route('admin.alat.index') }}" class="nav-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold {{ request()->routeIs('admin.alat.*') ? 'bg-zinc-900 text-zinc-50 dark:bg-zinc-50 dark:text-zinc-900 shadow-md' : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-50 hover:bg-black/5 dark:hover:bg-white/10' }}">
-                    <i data-lucide="command" class="w-[18px] h-[18px] shrink-0"></i>
+                    <i data-lucide="box" class="w-[18px] h-[18px] shrink-0"></i>
                     <span class="nav-label">Kelola Alat</span>
                 </a>
             </div>
@@ -69,9 +72,13 @@
                 Laporan & Sistem
             </p>
             <div class="space-y-1">
-                <a href="javascript:void(0)" onclick="toast('Laporan peminjaman siap diekspor ke PDF/Excel', 'file-spreadsheet')" class="nav-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-50 hover:bg-black/5 dark:hover:bg-white/10">
+                <a href="{{ route('admin.laporan.index') }}" class="nav-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold {{ request()->routeIs('admin.laporan.*') ? 'bg-zinc-900 text-zinc-50 dark:bg-zinc-50 dark:text-zinc-900 shadow-md' : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-50 hover:bg-black/5 dark:hover:bg-white/10' }}">
                     <i data-lucide="file-text" class="w-[18px] h-[18px] shrink-0"></i>
                     <span class="nav-label">Laporan Rekap</span>
+                </a>
+                <a href="{{ route('admin.log.index') }}" class="nav-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold {{ request()->routeIs('admin.log.*') ? 'bg-zinc-900 text-zinc-50 dark:bg-zinc-50 dark:text-zinc-900 shadow-md' : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-50 hover:bg-black/5 dark:hover:bg-white/10' }}">
+                    <i data-lucide="activity" class="w-[18px] h-[18px] shrink-0"></i>
+                    <span class="nav-label">Log Aktivitas</span>
                 </a>
                 <a href="{{ url('/') }}" class="nav-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-50 hover:bg-black/5 dark:hover:bg-white/10">
                     <i data-lucide="external-link" class="w-[18px] h-[18px] shrink-0"></i>

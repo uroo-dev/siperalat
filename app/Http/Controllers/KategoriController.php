@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Kategori;
+use App\Models\Log;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 
@@ -29,7 +30,9 @@ class KategoriController extends Controller
             'status' => 'required',
         ]);
     
-        Kategori::create($data);
+        $kategori = Kategori::create($data);
+
+        Log::record('Tambah Kategori', "Menambahkan kategori baru: {$kategori->nama_kategori}");
 
         return redirect()->route('admin.kategori.index')->with('succes', 'Data Kategori Berhasil Ditambahkan');
     }
@@ -47,6 +50,8 @@ class KategoriController extends Controller
 
         $kategori->update($data);
 
+        Log::record('Update Kategori', "Memperbarui data kategori: {$kategori->nama_kategori}");
+
         return redirect()->route('admin.kategori.index')->with('succes', 'Data Kategori Berhasil Diperbarui');
     }
 
@@ -59,7 +64,10 @@ class KategoriController extends Controller
             return back()->with('error', 'Kategori tidak dapat dihapus karena masih digunakan oleh data alat inventaris.');
         }
 
+        $namaKategori = $kategori->nama_kategori;
         $kategori->delete();
+
+        Log::record('Hapus Kategori', "Menghapus kategori: {$namaKategori}");
 
         return redirect()->route('admin.kategori.index')->with('succes', 'Data Kategori Berhasil Dihapus');
     }

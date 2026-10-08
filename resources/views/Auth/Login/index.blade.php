@@ -57,7 +57,7 @@
         <!-- Username -->
         <div>
             <label for="username" class="block text-xs font-bold mb-1.5 text-zinc-700 dark:text-zinc-300">
-                Username Petugas
+                Username
             </label>
             <div class="u-form-wrap">
                 <i data-lucide="user" class="u-ic-l w-4 h-4"></i>
@@ -71,9 +71,6 @@
                 <label for="passInput" class="block text-xs font-bold text-zinc-700 dark:text-zinc-300">
                     Kata Sandi
                 </label>
-                <a href="javascript:void(0)" onclick="alert('Silakan hubungi koordinator laboratorium untuk reset password.')" class="text-[11px] font-semibold text-zinc-500 hover:text-zinc-900 dark:hover:text-white">
-                    Lupa sandi?
-                </a>
             </div>
             <div class="u-form-wrap">
                 <i data-lucide="lock" class="u-ic-l w-4 h-4"></i>
@@ -82,14 +79,6 @@
                     <i id="eyeIcon" data-lucide="eye" class="w-4 h-4"></i>
                 </button>
             </div>
-        </div>
-
-        <!-- Remember Me -->
-        <div class="flex items-center justify-between pt-1">
-            <label class="flex items-center gap-2 cursor-pointer text-xs font-semibold text-zinc-600 dark:text-zinc-400">
-                <input type="checkbox" name="remember" class="rounded border-zinc-300 text-zinc-900 focus:ring-zinc-900" />
-                <span>Ingat saya di perangkat ini</span>
-            </label>
         </div>
 
         <!-- Submit Button -->
@@ -101,9 +90,9 @@
     <!-- Register Link -->
     <div class="mt-6 pt-5 border-t border-black/5 dark:border-white/10 text-center text-xs text-zinc-500 dark:text-zinc-400 space-y-1">
         <div>
-            Belum punya akun admin?
+            Belum punya akun?
             <a href="{{ route('register') }}" class="font-bold text-zinc-900 dark:text-white hover:underline">
-                Daftar Petugas Baru
+                Daftar Akun Baru
             </a>
         </div>
         <div>

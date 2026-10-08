@@ -1,6 +1,6 @@
 @extends('Admin.Layout.index')
 
-@section('title', 'Manajemen Pengguna')
+@section('title', 'Manajemen Admin & Petugas')
 
 @section('content')
 <div class="space-y-6">
@@ -14,30 +14,30 @@
                 </button>
                 <span>Panel Admin</span>
                 <span>/</span>
-                <span class="text-zinc-700 dark:text-zinc-300">Manajemen Pengguna</span>
+                <span class="text-zinc-700 dark:text-zinc-300">Admin & Petugas</span>
             </div>
             <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight text-zinc-900 dark:text-white mt-1">
-                Data Pengguna
+                Data Admin & Petugas
             </h1>
             <p class="text-xs sm:text-sm text-zinc-500 dark:text-zinc-400 mt-0.5">
-                Kelola akun admin, petugas laboratorium, dan akun peminjam dalam sistem SIPERALAT.
+                Kelola akun administrator dan staf petugas laboratorium.
             </p>
         </div>
 
         <div class="flex items-center gap-2">
             <button onclick="openModal('modal-tambah-user')" class="u-btn u-btn-primary text-xs sm:text-sm shadow-lg">
-                <i data-lucide="user-plus" class="w-4 h-4"></i> Tambah Pengguna Baru
+                <i data-lucide="user-plus" class="w-4 h-4"></i> Tambah User Baru
             </button>
         </div>
     </div>
 
     <!-- Alert Notifications -->
-    @if(session('succes'))
+    @if(session('succes') || session('success'))
         <div class="u-alert u-alert-success">
             <div class="u-alert-icon"><i data-lucide="check-circle" class="w-5 h-5"></i></div>
             <div class="flex-1 min-w-0">
                 <h4 class="u-alert-title text-zinc-900 dark:text-zinc-100">Berhasil</h4>
-                <p class="u-alert-desc">{{ session('succes') }}</p>
+                <p class="u-alert-desc">{{ session('succes') ?? session('success') }}</p>
             </div>
             <button onclick="this.closest('.u-alert').remove()" class="text-zinc-400 hover:text-zinc-600 p-1"><i data-lucide="x" class="w-4 h-4"></i></button>
         </div>
@@ -71,40 +71,16 @@
 
     <!-- Tabel Pengguna -->
     <div class="glass-panel rounded-2xl overflow-hidden border border-black/5 dark:border-white/10 shadow-xl space-y-4 p-5">
-        <!-- Filter & Search -->
-        <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-3 pb-3 border-b border-black/5 dark:border-white/10">
+        <div class="flex items-center justify-between pb-3 border-b border-black/5 dark:border-white/10">
             <div>
                 <h3 class="text-base font-bold text-zinc-900 dark:text-white flex items-center gap-2">
                     <i data-lucide="users" class="w-5 h-5 text-zinc-500"></i>
-                    Daftar Akun Pengguna
+                    Daftar Akun Admin & Petugas
                 </h3>
             </div>
-            <form action="{{ route('admin.user.index') }}" method="GET" class="flex flex-wrap items-center gap-2">
-                <select name="role" onchange="this.form.submit()" class="u-select py-1.5 px-3 text-xs w-auto">
-                    <option value="">Semua Role</option>
-                    <option value="admin" {{ request('role') == 'admin' ? 'selected' : '' }}>Admin</option>
-                    <option value="petugas" {{ request('role') == 'petugas' ? 'selected' : '' }}>Petugas</option>
-                    <option value="peminjam" {{ request('role') == 'peminjam' ? 'selected' : '' }}>Peminjam</option>
-                </select>
-
-                <select name="status" onchange="this.form.submit()" class="u-select py-1.5 px-3 text-xs w-auto">
-                    <option value="">Semua Status</option>
-                    <option value="aktif" {{ request('status') == 'aktif' ? 'selected' : '' }}>Aktif</option>
-                    <option value="nonaktif" {{ request('status') == 'nonaktif' ? 'selected' : '' }}>Nonaktif</option>
-                </select>
-
-                <div class="flex items-center gap-1">
-                    <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari username / email..." class="u-input py-1.5 px-3 text-xs w-44 sm:w-56" />
-                    <button type="submit" class="u-btn u-btn-ghost u-btn-sm text-xs" title="Cari">
-                        <i data-lucide="search" class="w-3.5 h-3.5"></i>
-                    </button>
-                    @if(request('search') || request('role') || request('status'))
-                        <a href="{{ route('admin.user.index') }}" class="u-btn u-btn-ghost u-btn-sm text-xs text-rose-500" title="Reset Filter">
-                            <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i>
-                        </a>
-                    @endif
-                </div>
-            </form>
+            <div class="text-xs text-zinc-400">
+                Total: <span class="font-bold text-zinc-700 dark:text-zinc-200">{{ $users->total() }}</span> akun
+            </div>
         </div>
 
         <div class="overflow-x-auto">
@@ -141,10 +117,8 @@
                             <td class="py-3.5 px-4">
                                 @if($u->role === 'admin')
                                     <span class="px-2.5 py-1 rounded-md text-[11px] font-semibold bg-purple-500/15 text-purple-600 dark:text-purple-400">Admin</span>
-                                @elseif($u->role === 'petugas')
-                                    <span class="px-2.5 py-1 rounded-md text-[11px] font-semibold bg-sky-500/15 text-sky-600 dark:text-sky-400">Petugas</span>
                                 @else
-                                    <span class="px-2.5 py-1 rounded-md text-[11px] font-semibold bg-zinc-500/15 text-zinc-600 dark:text-zinc-400">Peminjam</span>
+                                    <span class="px-2.5 py-1 rounded-md text-[11px] font-semibold bg-sky-500/15 text-sky-600 dark:text-sky-400">Petugas</span>
                                 @endif
                             </td>
                             <td class="py-3.5 px-4">
@@ -182,7 +156,7 @@
                     @empty
                         <tr>
                             <td colspan="7" class="py-8 text-center text-zinc-400 text-xs">
-                                Tidak ada data pengguna yang ditemukan.
+                                Tidak ada data pengguna admin/petugas yang ditemukan.
                             </td>
                         </tr>
                     @endforelse
@@ -209,8 +183,8 @@
                     <i data-lucide="user-plus" class="w-5 h-5"></i>
                 </div>
                 <div>
-                    <h3 class="text-base font-bold text-zinc-900 dark:text-white">Tambah Pengguna Baru</h3>
-                    <p class="text-xs text-zinc-500 dark:text-zinc-400">Buat akun admin, petugas, atau peminjam baru.</p>
+                    <h3 class="text-base font-bold text-zinc-900 dark:text-white">Tambah Akun Baru</h3>
+                    <p class="text-xs text-zinc-500 dark:text-zinc-400">Buat akun untuk administrator atau staf petugas.</p>
                 </div>
             </div>
             <button onclick="closeModal('modal-tambah-user')" class="p-1.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 text-zinc-400">
@@ -239,7 +213,6 @@
                         <select name="role" required class="u-select">
                             <option value="petugas" {{ old('role') == 'petugas' ? 'selected' : '' }}>Petugas</option>
                             <option value="admin" {{ old('role') == 'admin' ? 'selected' : '' }}>Admin</option>
-                            <option value="peminjam" {{ old('role') == 'peminjam' ? 'selected' : '' }}>Peminjam</option>
                         </select>
                     </div>
                     <div>
@@ -272,7 +245,7 @@
                 </div>
                 <div>
                     <h3 class="text-base font-bold text-zinc-900 dark:text-white">Edit Data Pengguna</h3>
-                    <p class="text-xs text-zinc-500 dark:text-zinc-400">Perbarui informasi akun, role, atau ubah password.</p>
+                    <p class="text-xs text-zinc-500 dark:text-zinc-400">Perbarui akun admin / petugas atau ganti kata sandi.</p>
                 </div>
             </div>
             <button onclick="closeModal('modal-edit-user')" class="p-1.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 text-zinc-400">
@@ -300,9 +273,8 @@
                     <div>
                         <label class="u-field-label">Role <span class="u-req">*</span></label>
                         <select id="editRole" name="role" required class="u-select">
-                            <option value="admin">Admin</option>
                             <option value="petugas">Petugas</option>
-                            <option value="peminjam">Peminjam</option>
+                            <option value="admin">Admin</option>
                         </select>
                     </div>
                     <div>
