@@ -1,0 +1,707 @@
+<!DOCTYPE html>
+<html lang="id" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Uroo UI - Checkout</title>
+  <script src="../../assets/js/tailwind.js"></script>
+  <script src="../../assets/js/lucide.js"></script>
+  <script>tailwind.config={darkMode:'class',theme:{extend:{colors:{glass:{light:'rgba(255,255,255,0.65)','light-border':'rgba(255,255,255,0.8)',dark:'rgba(18,18,20,0.65)','dark-border':'rgba(255,255,255,0.1)'}}}}}</script>
+  <link rel="stylesheet" href="../../assets/css/uroo.css">
+  <style>
+    .u-bg{position:fixed;inset:0;z-index:-10;transition:opacity .35s ease}
+    .u-bg-light{background:linear-gradient(135deg,#dfe3ea,#f4f4f5)}
+    .u-bg-dark{background:linear-gradient(135deg,#0a0a0b,#1a1a1e);opacity:0}
+    body.dark .u-bg-light{opacity:0}
+    body.dark .u-bg-dark{opacity:1}
+    .u-glow{position:fixed;border-radius:9999px;filter:blur(90px);z-index:-9;pointer-events:none;transition:background-color .35s ease;background:rgba(0,0,0,0.06)}
+    body.dark .u-glow{background:rgba(255,255,255,0.05)}
+    .u-glow-1{width:420px;height:420px;top:-140px;left:-140px}
+    .u-glow-2{width:520px;height:520px;bottom:-200px;right:-140px}
+    .u-glow-3{width:300px;height:300px;top:42%;left:58%}
+
+    html{background:#e7e8ec}
+    html.dark{background:#0a0a0c}
+    body:not(.dark) .u-ic-sun{display:none}
+    body.dark .u-ic-moon{display:none}
+
+    .u-field{width:100%;height:48px;border-radius:14px;background:rgba(255,255,255,.6);border:1px solid rgba(24,24,27,.10);color:#18181b;font-size:14px;padding:0 44px;outline:none;transition:border-color .2s ease,box-shadow .2s ease,background-color .2s ease}
+    body.dark .u-field{background:rgba(255,255,255,.05);border-color:rgba(255,255,255,.12);color:#f4f4f5}
+    .u-field::placeholder{color:#a1a1aa}
+    .u-field:focus{border-color:rgba(24,24,27,.5);box-shadow:0 0 0 4px rgba(24,24,27,.08)}
+    body.dark .u-field:focus{border-color:rgba(255,255,255,.55);box-shadow:0 0 0 4px rgba(255,255,255,.08)}
+    .u-field.u-invalid,.u-field-sel.u-invalid{border-color:#dc2626!important;box-shadow:0 0 0 4px rgba(220,38,38,.10)}
+    body.dark .u-field.u-invalid{border-color:#f87171!important;box-shadow:0 0 0 4px rgba(248,113,113,.12)}
+    .u-form-wrap{position:relative}
+    .u-ic-l{position:absolute;left:16px;top:50%;transform:translateY(-50%);color:#a1a1aa;pointer-events:none}
+    .u-field-err{display:none;font-size:12px;font-weight:600;color:#dc2626;margin-top:6px}
+    body.dark .u-field-err{color:#f87171}
+
+    .u-search{width:100%;height:48px;border-radius:14px;background:rgba(255,255,255,.6);border:1px solid rgba(24,24,27,.10);color:#18181b;font-size:14px;padding:0 16px 0 40px;outline:none;transition:border-color .2s ease,box-shadow .2s ease,background-color .2s ease}
+    body.dark .u-search{background:rgba(255,255,255,.05);border-color:rgba(255,255,255,.12);color:#f4f4f5}
+    .u-search::placeholder{color:#a1a1aa}
+    .u-search:focus{border-color:rgba(24,24,27,.5);box-shadow:0 0 0 4px rgba(24,24,27,.08)}
+    body.dark .u-search:focus{border-color:rgba(255,255,255,.55);box-shadow:0 0 0 4px rgba(255,255,255,.08)}
+
+    .u-pane{display:none}
+    .u-pane.u-on{display:block;animation:u-slide-up .3s cubic-bezier(.16,1,.3,1)}
+
+    .u-step{display:flex;align-items:center;gap:10px}
+    .u-step .dot{width:38px;height:38px;border-radius:9999px;display:inline-flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;flex-shrink:0;transition:background-color .25s ease,color .25s ease,border-color .25s ease}
+    .u-step .lbl{font-size:13px;font-weight:700;white-space:nowrap}
+    .u-step.u-idle .dot{border:2px solid rgba(24,24,27,.16);color:#a1a1aa;background:transparent}
+    .u-step.u-idle .lbl{color:#a1a1aa}
+    body.dark .u-step.u-idle .dot{border-color:rgba(255,255,255,.22);color:#71717a}
+    body.dark .u-step.u-idle .lbl{color:#71717a}
+    .u-step.u-active .dot{border:2px solid #18181b;color:#18181b;background:transparent}
+    .u-step.u-active .lbl{color:#18181b}
+    body.dark .u-step.u-active .dot{border-color:#f4f4f5;color:#f4f4f5}
+    body.dark .u-step.u-active .lbl{color:#f4f4f5}
+    .u-step.u-done .dot{background:#18181b;color:#fff;border-color:#18181b}
+    body.dark .u-step.u-done .dot{background:#f4f4f5;color:#18181b;border-color:#f4f4f5}
+    .u-step-line{flex:1;height:2px;border-radius:9999px;background:rgba(24,24,27,.12)}
+    .u-step-line.u-done{background:#18181b}
+    body.dark .u-step-line{background:rgba(255,255,255,.14)}
+    body.dark .u-step-line.u-done{background:#f4f4f5}
+
+    .u-opt{position:relative;display:flex;align-items:flex-start;gap:14px;cursor:pointer;border:1px solid rgba(24,24,27,.10);background:rgba(255,255,255,.5);border-radius:18px;padding:16px;transition:border-color .2s ease,background-color .2s ease,box-shadow .2s ease,transform .2s ease}
+    body.dark .u-opt{background:rgba(255,255,255,.04);border-color:rgba(255,255,255,.10)}
+    .u-opt:hover{transform:translateY(-1px)}
+    .u-opt input{position:absolute;opacity:0;pointer-events:none}
+    .u-opt .u-radio{width:20px;height:20px;border-radius:9999px;border:2px solid rgba(24,24,27,.25);flex-shrink:0;margin-top:2px;position:relative;transition:border-color .2s ease,box-shadow .2s ease}
+    body.dark .u-opt .u-radio{border-color:rgba(255,255,255,.3)}
+    .u-opt.u-on{border-color:#18181b;box-shadow:0 0 0 3px rgba(24,24,27,.08)}
+    body.dark .u-opt.u-on{border-color:#f4f4f5;box-shadow:0 0 0 3px rgba(255,255,255,.08)}
+    .u-opt.u-on .u-radio{border-color:#18181b;box-shadow:inset 0 0 0 5px #18181b}
+    body.dark .u-opt.u-on .u-radio{border-color:#f4f4f5;box-shadow:inset 0 0 0 5px #f4f4f5}
+    .u-opt .u-ic{width:42px;height:42px;border-radius:14px;display:inline-flex;align-items:center;justify-content:center;background:rgba(24,24,27,.06);color:#52525b;flex-shrink:0}
+    body.dark .u-opt .u-ic{background:rgba(255,255,255,.08);color:#d4d4d8}
+    .u-opt.u-on .u-ic{background:#18181b;color:#fff}
+    body.dark .u-opt.u-on .u-ic{background:#f4f4f5;color:#18181b}
+
+    .u-btn{transition:transform .2s ease,box-shadow .2s ease,background-color .2s ease}
+    .u-btn:hover{transform:translateY(-1px)}
+    .u-btn:active{transform:scale(.96)}
+    .u-btn.u-disabled{opacity:.4;pointer-events:none}
+
+    .u-sec{display:flex;align-items:center;gap:12px}
+    .u-sec .bar{width:4px;height:22px;border-radius:9999px;background:#18181b}
+    body.dark .u-sec .bar{background:#f4f4f5}
+  </style>
+</head>
+<body class="min-h-screen font-sans antialiased text-zinc-800 dark dark:text-zinc-100">
+  <script>(function initTheme(){var saved=null;try{saved=localStorage.getItem('uroo-theme')}catch(e){};var dark=(saved==='dark')||(!saved&&window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches);var de=document.documentElement;if(dark){de.classList.add('dark');de.classList.remove('light');if(document.body){document.body.classList.add('dark');document.body.classList.remove('light');}}else{de.classList.remove('dark');de.classList.add('light');if(document.body){document.body.classList.remove('dark');document.body.classList.add('light');}}})();</script>
+
+
+<div class="u-bg u-bg-light"></div>
+<div class="u-bg u-bg-dark"></div>
+<div class="u-glow u-glow-1"></div>
+<div class="u-glow u-glow-2"></div>
+<div class="u-glow u-glow-3"></div>
+
+<button onclick="toggleTheme()" aria-label="Ganti tema" title="Ganti tema"
+  class="fixed top-4 right-4 z-50 glass-panel rounded-full p-2.5 text-zinc-600 dark:text-zinc-200 hover:scale-110 transition-transform">
+  <i data-lucide="sun" class="u-ic-sun w-5 h-5"></i>
+  <i data-lucide="moon" class="u-ic-moon w-5 h-5"></i>
+</button>
+
+<div class="max-w-6xl mx-auto px-4 sm:px-8 pr-16">
+  <div class="h-16 flex items-center justify-between gap-4">
+    <a href="#" onclick="event.preventDefault();toast('Mengembalikan Anda ke katalog produk')" class="inline-flex items-center gap-2 text-sm font-semibold text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-colors">
+      <i data-lucide="arrow-left" class="w-4 h-4"></i>
+      Kembali belanja
+    </a>
+    <span class="inline-flex items-center gap-2.5">
+      <span class="inline-flex items-center justify-center w-9 h-9 rounded-2xl bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900">
+        <i data-lucide="layers" class="w-5 h-5"></i>
+      </span>
+      <span class="hidden sm:block text-lg font-extrabold tracking-tight text-zinc-900 dark:text-white">Uroo Goods</span>
+    </span>
+    <span id="topOrder" class="inline-flex items-center gap-2 text-xs font-bold text-zinc-400 dark:text-zinc-500">
+      <i data-lucide="file-text" class="w-4 h-4"></i>
+      ORD-2026-0812
+    </span>
+  </div>
+</div>
+
+<main class="max-w-6xl mx-auto px-4 sm:px-8 pt-4 pb-24">
+  <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight text-zinc-900 dark:text-white">Checkout</h1>
+  <p class="mt-1.5 text-sm text-zinc-500 dark:text-zinc-400">Lengkapi detail di bawah untuk menyelesaikan pesanan Anda.</p>
+
+  <div class="mt-8 lg:grid lg:grid-cols-5 gap-8 items-start">
+
+    <div class="lg:col-span-3">
+      <div class="flex items-center gap-3">
+        <div class="u-step u-done" id="stp-1">
+          <span class="dot" id="dot-1">1</span>
+          <span class="lbl">Kontak</span>
+        </div>
+        <div class="u-step-line" id="ln-1"></div>
+        <div class="u-step u-active" id="stp-2">
+          <span class="dot" id="dot-2">2</span>
+          <span class="lbl hidden sm:block">Pengiriman</span>
+        </div>
+        <div class="u-step-line" id="ln-2"></div>
+        <div class="u-step u-idle" id="stp-3">
+          <span class="dot" id="dot-3">3</span>
+          <span class="lbl hidden sm:block">Pembayaran</span>
+        </div>
+      </div>
+
+      <div class="mt-8">
+        <div class="u-pane u-on glass-panel rounded-3xl p-6 sm:p-8" data-step="1">
+          <div class="u-sec">
+            <span class="bar"></span>
+            <h2 class="text-lg font-bold text-zinc-900 dark:text-white">Informasi Kontak</h2>
+          </div>
+          <div class="mt-6 space-y-5">
+            <div>
+              <label for="cEmail" class="block text-[13px] font-semibold mb-1.5 text-zinc-700 dark:text-zinc-300">Alamat email</label>
+              <div class="u-form-wrap">
+                <i data-lucide="mail" class="u-ic-l w-4 h-4"></i>
+                <input id="cEmail" type="email" class="u-field" placeholder="nama@email.com" autocomplete="email">
+              </div>
+              <p id="cEmailErr" class="u-field-err"></p>
+            </div>
+            <div>
+              <label for="cPhone" class="block text-[13px] font-semibold mb-1.5 text-zinc-700 dark:text-zinc-300">Nomor ponsel</label>
+              <div class="u-form-wrap">
+                <i data-lucide="phone" class="u-ic-l w-4 h-4"></i>
+                <input id="cPhone" type="tel" class="u-field" placeholder="08xxxxxxxxxx" autocomplete="tel">
+              </div>
+              <p id="cPhoneErr" class="u-field-err"></p>
+            </div>
+          </div>
+          <div class="mt-8 flex items-center justify-between gap-4">
+            <p class="text-xs text-zinc-400 dark:text-zinc-500 flex items-center gap-1.5"><i data-lucide="shield-check" class="w-3.5 h-3.5"></i> Data Anda terenkripsi</p>
+            <button onclick="nextStep(1)" class="u-btn inline-flex items-center gap-2 rounded-full bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900 px-6 py-3 text-sm font-bold">
+              Lanjut ke Pengiriman
+              <i data-lucide="arrow-right" class="w-4 h-4"></i>
+            </button>
+          </div>
+        </div>
+
+        <div class="u-pane glass-panel rounded-3xl p-6 sm:p-8" data-step="2">
+          <div class="u-sec">
+            <span class="bar"></span>
+            <h2 class="text-lg font-bold text-zinc-900 dark:text-white">Alamat Pengiriman</h2>
+          </div>
+          <div class="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-5">
+            <div>
+              <label for="sName" class="block text-[13px] font-semibold mb-1.5 text-zinc-700 dark:text-zinc-300">Nama penerima</label>
+              <div class="u-form-wrap">
+                <i data-lucide="user" class="u-ic-l w-4 h-4"></i>
+                <input id="sName" type="text" class="u-field" placeholder="Nama penerima">
+              </div>
+              <p id="sNameErr" class="u-field-err"></p>
+            </div>
+            <div>
+              <label for="sPhone" class="block text-[13px] font-semibold mb-1.5 text-zinc-700 dark:text-zinc-300">Nomor ponsel penerima</label>
+              <div class="u-form-wrap">
+                <i data-lucide="phone" class="u-ic-l w-4 h-4"></i>
+                <input id="sPhone" type="tel" class="u-field" placeholder="08xxxxxxxxxx" autocomplete="tel">
+              </div>
+              <p id="sPhoneErr" class="u-field-err"></p>
+            </div>
+            <div class="sm:col-span-2">
+              <label for="sAddress" class="block text-[13px] font-semibold mb-1.5 text-zinc-700 dark:text-zinc-300">Alamat lengkap</label>
+              <div class="u-form-wrap">
+                <i data-lucide="map-pin" class="u-ic-l w-4 h-4" style="top:16px;transform:none"></i>
+                <textarea id="sAddress" rows="3" class="u-field !h-auto py-3" style="height:auto" placeholder="Nama jalan, gedung, nomor rumah"></textarea>
+              </div>
+              <p id="sAddressErr" class="u-field-err"></p>
+            </div>
+            <div>
+              <label for="sCity" class="block text-[13px] font-semibold mb-1.5 text-zinc-700 dark:text-zinc-300">Kota / Kabupaten</label>
+              <div class="u-form-wrap">
+                <i data-lucide="building-2" class="u-ic-l w-4 h-4"></i>
+                <input id="sCity" type="text" class="u-field" placeholder="Contoh: Jakarta Selatan">
+              </div>
+              <p id="sCityErr" class="u-field-err"></p>
+            </div>
+            <div>
+              <label for="sProv" class="block text-[13px] font-semibold mb-1.5 text-zinc-700 dark:text-zinc-300">Provinsi</label>
+              <div class="u-form-wrap">
+                <i data-lucide="globe" class="u-ic-l w-4 h-4"></i>
+                <select id="sProv" class="u-field u-field-sel appearance-none cursor-pointer">
+                  <option value="">Pilih provinsi</option>
+                  <option>DKI Jakarta</option>
+                  <option>Jawa Barat</option>
+                  <option>Banten</option>
+                  <option>Jawa Tengah</option>
+                  <option>DI Yogyakarta</option>
+                  <option>Jawa Timur</option>
+                  <option>Bali</option>
+                  <option>Sumatera Utara</option>
+                  <option>Kalimantan Timur</option>
+                  <option>Sulawesi Selatan</option>
+                </select>
+                <i data-lucide="chevron-down" class="u-ic-l w-4 h-4 pointer-events-none" style="left:auto;right:16px"></i>
+              </div>
+              <p id="sProvErr" class="u-field-err"></p>
+            </div>
+            <div>
+              <label for="sZip" class="block text-[13px] font-semibold mb-1.5 text-zinc-700 dark:text-zinc-300">Kode pos</label>
+              <div class="u-form-wrap">
+                <i data-lucide="mail" class="u-ic-l w-4 h-4"></i>
+                <input id="sZip" type="text" class="u-field" placeholder="Contoh: 12730" inputmode="numeric" maxlength="5">
+              </div>
+              <p id="sZipErr" class="u-field-err"></p>
+            </div>
+          </div>
+
+          <div class="mt-8">
+            <h3 class="text-[13px] font-bold text-zinc-700 dark:text-zinc-300">Metode pengiriman</h3>
+            <div class="mt-4 space-y-3">
+              <label class="u-opt u-on" data-ship="Reguler" data-cost="20000" data-time="3-5 hari kerja">
+                <input type="radio" name="ship" value="Reguler" checked>
+                <span class="u-radio"></span>
+                <span class="u-ic"><i data-lucide="truck" class="w-5 h-5"></i></span>
+                <span class="flex-1">
+                  <span class="block text-sm font-bold text-zinc-900 dark:text-white">Reguler</span>
+                  <span class="block text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">Pengiriman 3-5 hari kerja</span>
+                </span>
+                <span class="text-sm font-extrabold text-zinc-900 dark:text-white">Rp 20.000</span>
+              </label>
+              <label class="u-opt" data-ship="Express" data-cost="40000" data-time="1-2 hari kerja">
+                <input type="radio" name="ship" value="Express">
+                <span class="u-radio"></span>
+                <span class="u-ic"><i data-lucide="zap" class="w-5 h-5"></i></span>
+                <span class="flex-1">
+                  <span class="block text-sm font-bold text-zinc-900 dark:text-white">Express</span>
+                  <span class="block text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">Pengiriman 1-2 hari kerja</span>
+                </span>
+                <span class="text-sm font-extrabold text-zinc-900 dark:text-white">Rp 40.000</span>
+              </label>
+              <label class="u-opt" data-ship="Same Day" data-cost="75000" data-time="tiba hari ini">
+                <input type="radio" name="ship" value="Same Day">
+                <span class="u-radio"></span>
+                <span class="u-ic"><i data-lucide="timer" class="w-5 h-5"></i></span>
+                <span class="flex-1">
+                  <span class="block text-sm font-bold text-zinc-900 dark:text-white">Same Day</span>
+                  <span class="block text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">Pesanan tiba hari ini di Jabodetabek</span>
+                </span>
+                <span class="text-sm font-extrabold text-zinc-900 dark:text-white">Rp 75.000</span>
+              </label>
+            </div>
+          </div>
+
+          <div class="mt-8 flex items-center justify-between gap-4">
+            <button onclick="goStep(1)" class="u-btn inline-flex items-center gap-2 rounded-full glass-panel px-6 py-3 text-sm font-bold text-zinc-700 dark:text-zinc-200">
+              <i data-lucide="arrow-left" class="w-4 h-4"></i>
+              Kembali
+            </button>
+            <button onclick="nextStep(2)" class="u-btn inline-flex items-center gap-2 rounded-full bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900 px-6 py-3 text-sm font-bold">
+              Lanjut ke Pembayaran
+              <i data-lucide="arrow-right" class="w-4 h-4"></i>
+            </button>
+          </div>
+        </div>
+
+        <div class="u-pane glass-panel rounded-3xl p-6 sm:p-8" data-step="3">
+          <div class="u-sec">
+            <span class="bar"></span>
+            <h2 class="text-lg font-bold text-zinc-900 dark:text-white">Metode Pembayaran</h2>
+          </div>
+          <div class="mt-6 space-y-3">
+            <label class="u-opt u-on" data-pay="Transfer Bank">
+              <input type="radio" name="pay" value="Transfer Bank" checked>
+              <span class="u-radio"></span>
+              <span class="u-ic"><i data-lucide="landmark" class="w-5 h-5"></i></span>
+              <span class="flex-1">
+                <span class="block text-sm font-bold text-zinc-900 dark:text-white">Transfer Bank</span>
+                <span class="block text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">BCA, BRI, Mandiri - verifikasi otomatis</span>
+              </span>
+            </label>
+            <label class="u-opt" data-pay="E-Wallet">
+              <input type="radio" name="pay" value="E-Wallet">
+              <span class="u-radio"></span>
+              <span class="u-ic"><i data-lucide="wallet" class="w-5 h-5"></i></span>
+              <span class="flex-1">
+                <span class="block text-sm font-bold text-zinc-900 dark:text-white">E-Wallet</span>
+                <span class="block text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">GoPay, OVO, DANA</span>
+              </span>
+            </label>
+            <label class="u-opt" data-pay="Kartu Kredit / Debit">
+              <input type="radio" name="pay" value="Kartu Kredit / Debit">
+              <span class="u-radio"></span>
+              <span class="u-ic"><i data-lucide="credit-card" class="w-5 h-5"></i></span>
+              <span class="flex-1">
+                <span class="block text-sm font-bold text-zinc-900 dark:text-white">Kartu Kredit / Debit</span>
+                <span class="block text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">Visa, Mastercard, JCB - cicilan 0%</span>
+              </span>
+            </label>
+            <label class="u-opt" data-pay="Bayar di Tempat">
+              <input type="radio" name="pay" value="Bayar di Tempat">
+              <span class="u-radio"></span>
+              <span class="u-ic"><i data-lucide="banknote" class="w-5 h-5"></i></span>
+              <span class="flex-1">
+                <span class="block text-sm font-bold text-zinc-900 dark:text-white">Bayar di Tempat (COD)</span>
+                <span class="block text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">Hanya untuk area yang didukung</span>
+              </span>
+              <span class="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider text-zinc-400 dark:text-zinc-500"><i data-lucide="info" class="w-3.5 h-3.5"></i> Verifikasi</span>
+            </label>
+          </div>
+
+          <div id="payExtra" class="mt-5 hidden">
+            <div class="rounded-2xl border border-zinc-900/10 dark:border-white/10 bg-zinc-900/5 dark:bg-white/5 p-5 space-y-4">
+              <div>
+                <label for="pCard" class="block text-[13px] font-semibold mb-1.5 text-zinc-700 dark:text-zinc-300">Nomor kartu</label>
+                <div class="u-form-wrap">
+                  <i data-lucide="credit-card" class="u-ic-l w-4 h-4"></i>
+                  <input id="pCard" type="text" class="u-field" placeholder="xxxx xxxx xxxx xxxx" inputmode="numeric" maxlength="19">
+                </div>
+                <p id="pCardErr" class="u-field-err"></p>
+              </div>
+              <div class="grid grid-cols-2 gap-4">
+                <div>
+                  <label for="pExp" class="block text-[13px] font-semibold mb-1.5 text-zinc-700 dark:text-zinc-300">Masa berlaku</label>
+                  <div class="u-form-wrap">
+                    <i data-lucide="calendar" class="u-ic-l w-4 h-4"></i>
+                    <input id="pExp" type="text" class="u-field" placeholder="MM/YY" maxlength="5">
+                  </div>
+                  <p id="pExpErr" class="u-field-err"></p>
+                </div>
+                <div>
+                  <label for="pCvv" class="block text-[13px] font-semibold mb-1.5 text-zinc-700 dark:text-zinc-300">CVV</label>
+                  <div class="u-form-wrap">
+                    <i data-lucide="lock" class="u-ic-l w-4 h-4"></i>
+                    <input id="pCvv" type="password" class="u-field" placeholder="3 digit" maxlength="4">
+                  </div>
+                  <p id="pCvvErr" class="u-field-err"></p>
+                </div>
+              </div>
+              <p class="text-xs text-zinc-400 dark:text-zinc-500 flex items-center gap-1.5"><i data-lucide="shield-check" class="w-3.5 h-3.5"></i> Data kartu dienkripsi - kami tidak menyimpan informasinya.</p>
+            </div>
+          </div>
+
+          <div class="mt-8 flex items-center justify-between gap-4">
+            <button onclick="goStep(2)" class="u-btn inline-flex items-center gap-2 rounded-full glass-panel px-6 py-3 text-sm font-bold text-zinc-700 dark:text-zinc-200">
+              <i data-lucide="arrow-left" class="w-4 h-4"></i>
+              Kembali
+            </button>
+            <button onclick="submitOrder()" class="u-btn inline-flex items-center gap-2 rounded-full bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900 px-6 py-3 text-sm font-bold">
+              <i data-lucide="lock" class="w-4 h-4"></i>
+              Buat Pesanan
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <aside class="lg:col-span-2 mt-8 lg:mt-0">
+      <div class="glass-panel rounded-3xl p-6 sm:p-7 lg:sticky lg:top-20">
+        <div class="flex items-center justify-between">
+          <h2 class="text-lg font-bold text-zinc-900 dark:text-white">Ringkasan Pesanan</h2>
+          <span class="text-xs font-bold text-zinc-400 dark:text-zinc-500" id="itemCount"></span>
+        </div>
+
+        <div id="orderItems" class="mt-5 space-y-4"></div>
+
+        <div class="mt-6 pt-5 border-t border-zinc-900/10 dark:border-white/10 space-y-3">
+          <div class="relative">
+            <i data-lucide="tag" class="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-400 pointer-events-none"></i>
+            <input id="promo" type="text" class="u-search" placeholder="Kode promo (contoh: UROO10)">
+          </div>
+          <button id="promoBtn" class="u-btn w-full inline-flex items-center justify-center gap-2 rounded-full glass-panel px-5 py-2.5 text-sm font-bold text-zinc-700 dark:text-zinc-200">
+            Terapkan Kode
+          </button>
+          <p id="promoMsg" class="text-xs font-semibold hidden"></p>
+        </div>
+
+        <div class="mt-6 pt-5 border-t border-zinc-900/10 dark:border-white/10 space-y-3 text-sm">
+          <div class="flex items-center justify-between text-zinc-500 dark:text-zinc-400">
+            <span>Subtotal</span>
+            <span id="sSubtotal" class="font-bold text-zinc-900 dark:text-white"></span>
+          </div>
+          <div id="discRow" class="hidden flex items-center justify-between text-emerald-600 dark:text-emerald-400">
+            <span class="inline-flex items-center gap-1.5 font-semibold"><i data-lucide="badge-percent" class="w-4 h-4"></i> Diskon UROO10 (10%)</span>
+            <span id="sDisc" class="font-bold"></span>
+          </div>
+          <div class="flex items-center justify-between text-zinc-500 dark:text-zinc-400">
+            <span>Ongkir - <span id="sShipName">Reguler</span></span>
+            <span id="sShip" class="font-bold text-zinc-900 dark:text-white"></span>
+          </div>
+          <div class="flex items-center justify-between text-zinc-500 dark:text-zinc-400">
+            <span>PPN 11%</span>
+            <span id="sTax" class="font-bold text-zinc-900 dark:text-white"></span>
+          </div>
+          <div class="pt-3 border-t border-zinc-900/10 dark:border-white/10 flex items-center justify-between">
+            <span class="font-extrabold text-zinc-900 dark:text-white">Total</span>
+            <span id="sTotal" class="text-xl font-extrabold tracking-tight text-zinc-900 dark:text-white"></span>
+          </div>
+          <p id="sETA" class="text-xs text-zinc-400 dark:text-zinc-500 flex items-center gap-1.5"><i data-lucide="truck" class="w-3.5 h-3.5"></i> Estimasi tiba: <span id="sETATime">3-5 hari kerja</span></p>
+        </div>
+
+        <div class="mt-6 pt-5 border-t border-zinc-900/10 dark:border-white/10">
+          <button onclick="submitOrder()" class="u-btn w-full inline-flex items-center justify-center gap-2 rounded-full bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900 px-5 py-3.5 text-sm font-bold">
+            <i data-lucide="lock" class="w-4 h-4"></i>
+            Buat Pesanan
+          </button>
+          <p class="mt-3 text-[11px] text-center text-zinc-400 dark:text-zinc-500 flex items-center justify-center gap-1.5">
+            <i data-lucide="shield-check" class="w-3.5 h-3.5"></i> Pembayaran aman & pengiriman terasuransi
+          </p>
+        </div>
+      </div>
+    </aside>
+  </div>
+</main>
+
+<div id="modal" class="hidden fixed inset-0 z-[70] items-center justify-center p-4">
+  <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" onclick="closeModal()"></div>
+  <div class="relative glass-panel w-full max-w-md rounded-3xl p-8 text-center anim-scale-in">
+    <span class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 mx-auto">
+      <i data-lucide="circle-check" class="w-8 h-8"></i>
+    </span>
+    <h3 class="mt-5 text-xl font-extrabold tracking-tight text-zinc-900 dark:text-white">Pesanan Berhasil Dibuat!</h3>
+    <p class="mt-2 text-sm leading-relaxed text-zinc-500 dark:text-zinc-400">
+      Nomor pesanan <span class="font-bold text-zinc-900 dark:text-white">ORD-2026-0812</span> telah dibuat dan konfirmasi dikirim ke email Anda.
+    </p>
+    <div class="mt-6 rounded-2xl bg-white/50 dark:bg-white/5 border border-zinc-900/10 dark:border-white/10 p-4 space-y-2.5 text-sm text-left">
+      <div class="flex items-center justify-between">
+        <span class="text-zinc-500 dark:text-zinc-400">Total pembayaran</span>
+        <span id="mTotal" class="font-extrabold text-zinc-900 dark:text-white"></span>
+      </div>
+      <div class="flex items-center justify-between">
+        <span class="text-zinc-500 dark:text-zinc-400">Metode pembayaran</span>
+        <span id="mPay" class="font-bold text-zinc-900 dark:text-white"></span>
+      </div>
+      <div class="flex items-center justify-between">
+        <span class="text-zinc-500 dark:text-zinc-400">Estimasi tiba</span>
+        <span id="mETA" class="font-bold text-zinc-900 dark:text-white"></span>
+      </div>
+    </div>
+    <button onclick="closeModal()" class="u-btn mt-7 w-full inline-flex items-center justify-center gap-2 rounded-full bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900 px-5 py-3 text-sm font-bold">
+      Selesai
+    </button>
+  </div>
+</div>
+
+<script>
+  lucide.createIcons();
+  function toggleTheme(){const h=document.documentElement,b=document.body;h.classList.toggle('dark');b.classList.toggle('dark');try{localStorage.setItem('uroo-theme',b.classList.contains('dark')?'dark':'light')}catch(e){};lucide.createIcons();}
+
+  var toastT;
+  function toast(msg){
+    var t=document.createElement('div');
+    t.className='fixed bottom-6 left-1/2 -translate-x-1/2 z-[60] glass-panel rounded-full px-5 py-3 flex items-center gap-2.5 text-sm font-semibold anim-toast-in';
+    t.innerHTML='<i data-lucide="check" class="w-4 h-4"></i><span>'+msg+'</span>';
+    document.body.appendChild(t);
+    lucide.createIcons();
+    setTimeout(function(){t.style.cssText+=';opacity:0;transition:opacity .4s ease'},2400);
+    setTimeout(function(){t.remove()},2900);
+  }
+
+  var ITEMS=[
+    {name:'Headphone Studio Aero',qty:1,price:1290000,icon:'headphones'},
+    {name:'Kopi Arabika Gayo 250g',qty:2,price:85000,icon:'coffee'},
+    {name:'Kabel Magfast 100W',qty:2,price:129000,icon:'usb'}
+  ];
+
+  var currentStep=1;
+  var shippingCost=20000;
+  var shippingName='Reguler';
+  var shippingETA='3-5 hari kerja';
+  var payMethod='Transfer Bank';
+  var promoApplied=false;
+  var promoAppliedCode='';
+
+  function fmtRp(n){return 'Rp '+n.toLocaleString('id-ID')}
+
+  function subtotal(){return ITEMS.reduce(function(a,it){return a+it.price*it.qty},0)}
+  function discount(){return promoApplied?Math.round(subtotal()*0.10):0}
+  function tax(){return Math.round((subtotal()-discount())*0.11)}
+  function total(){return subtotal()-discount()+shippingCost+tax()}
+
+  function renderItems(){
+    var h='';
+    ITEMS.forEach(function(it){
+      h+='<div class="flex items-center gap-3">'+
+           '<span class="inline-flex items-center justify-center w-11 h-11 rounded-2xl bg-gradient-to-br from-zinc-200 to-zinc-400 dark:from-zinc-700 dark:to-zinc-900 text-zinc-700 dark:text-zinc-200 shrink-0">'+
+             '<i data-lucide="'+it.icon+'" class="w-5 h-5"></i>'+
+           '</span>'+
+           '<div class="flex-1 min-w-0">'+
+             '<p class="text-[13px] font-bold text-zinc-900 dark:text-white truncate">'+it.name+'</p>'+
+             '<p class="text-xs text-zinc-400 dark:text-zinc-500 mt-0.5">'+it.qty+'x '+fmtRp(it.price)+'</p>'+
+           '</div>'+
+           '<span class="text-[13px] font-bold text-zinc-900 dark:text-white">'+fmtRp(it.price*it.qty)+'</span>'+
+         '</div>';
+    });
+    document.getElementById('orderItems').innerHTML=h;
+    document.getElementById('itemCount').textContent=ITEMS.reduce(function(a,it){return a+it.qty},0)+' item';
+    lucide.createIcons();
+  }
+
+  function refreshTotals(){
+    document.getElementById('sSubtotal').textContent=fmtRp(subtotal());
+    document.getElementById('sDisc').textContent='- '+fmtRp(discount());
+    document.getElementById('discRow').classList.toggle('hidden',!promoApplied);
+    document.getElementById('sShip').textContent=fmtRp(shippingCost);
+    document.getElementById('sShipName').textContent=shippingName;
+    document.getElementById('sTax').textContent=fmtRp(tax());
+    document.getElementById('sTotal').textContent=fmtRp(total());
+    document.getElementById('sETATime').textContent=shippingETA;
+  }
+
+  document.querySelectorAll('.u-opt').forEach(function(opt){
+    opt.addEventListener('click',function(){
+      var group=this.querySelector('input').name;
+      document.querySelectorAll('input[name="'+group+'"]').forEach(function(r){r.checked=false});
+      var input=this.querySelector('input');
+      input.checked=true;
+      document.querySelectorAll('.u-opt').forEach(function(o){
+        var same=o.querySelector('input')&&o.querySelector('input').name===group;
+        if(same)o.classList.remove('u-on');
+      });
+      this.classList.add('u-on');
+      var icon=this.querySelector('.u-ic');
+      if(icon)icon.style.color='';
+      if(group==='ship'){
+        shippingCost=parseInt(this.getAttribute('data-cost'),10);
+        shippingName=this.getAttribute('data-ship');
+        shippingETA=this.getAttribute('data-time');
+        refreshTotals();
+      }else if(group==='pay'){
+        payMethod=this.getAttribute('data-pay');
+        var extra=this.getAttribute('data-pay')==='Kartu Kredit / Debit';
+        document.getElementById('payExtra').classList.toggle('hidden',!extra);
+      }
+    });
+  });
+
+  function setStep(n){
+    currentStep=n;
+    document.querySelectorAll('.u-pane').forEach(function(p){
+      p.classList.toggle('u-on',parseInt(p.getAttribute('data-step'),10)===n);
+    });
+    for(var i=1;i<=3;i++){
+      var st=document.getElementById('stp-'+i);
+      st.classList.remove('u-done','u-active','u-idle');
+      st.classList.add(i<n?'u-done':(i===n?'u-active':'u-idle'));
+      var dot=document.getElementById('dot-'+i);
+      if(i<n){
+        dot.innerHTML='<i data-lucide="check" class="w-4 h-4"></i>';
+        if(i<3)document.getElementById('ln-'+i).classList.add('u-done');
+      }else{
+        dot.textContent=i;
+        if(i<3)document.getElementById('ln-'+i).classList.remove('u-done');
+      }
+    }
+    lucide.createIcons();
+  }
+
+  function goStep(n){setStep(n)}
+
+  function nextStep(from){
+    if(validateStep(from)){
+      goStep(from+1);
+      if(from===2)toast('Sisa satu langkah lagi.');
+    }
+  }
+
+  function markErr(id,msg){
+    var f=document.getElementById(id),e=document.getElementById(id+'Err');
+    f.classList.add('u-invalid');
+    if(e){e.textContent=msg;e.style.display='block';}
+    f.addEventListener('input',function clr(){
+      f.classList.remove('u-invalid');
+      e.style.display='none';
+      f.removeEventListener('input',clr);
+    });
+  }
+  function ok(id){document.getElementById(id).classList.remove('u-invalid')}
+
+  function validateStep(n){
+    var valid=true;
+    if(n===1){
+      var em=document.getElementById('cEmail').value.trim(),ph=document.getElementById('cPhone').value.trim();
+      if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em)){markErr('cEmail','Masukkan alamat email yang valid.');valid=false;}else ok('cEmail');
+      if(!/^08\d{7,12}$/.test(ph)){markErr('cPhone','Nomor ponsel harus diawali 08 (min. 9 digit).');valid=false;}else ok('cPhone');
+    }else if(n===2){
+      var f={
+        sName:document.getElementById('sName').value.trim(),
+        sPhone:document.getElementById('sPhone').value.trim(),
+        sAddress:document.getElementById('sAddress').value.trim(),
+        sCity:document.getElementById('sCity').value.trim(),
+        sProv:document.getElementById('sProv').value,
+        sZip:document.getElementById('sZip').value.trim()
+      };
+      var rules=[
+        ['sName',f.sName.length>=3,'Nama penerima minimal 3 karakter.'],
+        ['sPhone',/^08\d{7,12}$/.test(f.sPhone),'Nomor ponsel harus diawali 08 (min. 9 digit).'],
+        ['sAddress',f.sAddress.length>=10,'Alamat lengkap minimal 10 karakter.'],
+        ['sCity',f.sCity.length>=3,'Lengkapi nama kota tempat tujuan.'],
+        ['sProv',f.sProv!=='', 'Pilih provinsi tujuan.'],
+        ['sZip',/^\d{5}$/.test(f.sZip),'Kode pos harus 5 digit angka.']
+      ];
+      rules.forEach(function(r){
+        if(!r[1]){markErr(r[0],r[2]);valid=false;}else ok(r[0]);
+      });
+    }
+    return valid;
+  }
+
+  function submitOrder(){
+    var s1=validateStep(1);
+    if(!s1){goStep(1);toast('Lengkapi informasi kontak terlebih dahulu.');return;}
+    var s2=validateStep(2);
+    if(!s2){goStep(2);toast('Lengkapi alamat pengiriman terlebih dahulu.');return;}
+
+    var extra=document.getElementById('payExtra').classList.contains('hidden')?false:true;
+    if(extra){
+      var cardOK=true;
+      var cv=document.getElementById('pCard').value.replace(/\s/g,'');
+      if(!/^\d{15,16}$/.test(cv)){markErr('pCard','Nomor kartu harus 15-16 digit.');cardOK=false;}else ok('pCard');
+      if(!/^\d{2}\/\d{2}$/.test(document.getElementById('pExp').value)){markErr('pExp','Gunakan format MM/YY.');cardOK=false;}else ok('pExp');
+      if(!/^\d{3,4}$/.test(document.getElementById('pCvv').value)){markErr('pCvv','CVV harus 3-4 digit.');cardOK=false;}else ok('pCvv');
+      if(!cardOK){goStep(3);toast('Periksa kembali detail kartu Anda.');return;}
+    }
+
+    goStep(3);
+    document.getElementById('mTotal').textContent=fmtRp(total());
+    document.getElementById('mPay').textContent=payMethod;
+    document.getElementById('mETA').textContent=shippingETA;
+    document.getElementById('modal').classList.remove('hidden');
+    document.getElementById('modal').classList.add('flex');
+  }
+
+  function closeModal(){
+    document.getElementById('modal').classList.add('hidden');
+    document.getElementById('modal').classList.remove('flex');
+    toast('Terima kasih! Pesanan Anda sedang diproses.');
+  }
+
+  document.getElementById('promoBtn').addEventListener('click',function(){
+    var box=document.getElementById('promo'),msg=document.getElementById('promoMsg');
+    var code=box.value.trim().toUpperCase();
+    if(promoApplied){
+      msg.textContent='Kode '+promoAppliedCode+' sudah diterapkan.';
+      msg.className='text-xs font-semibold text-zinc-400 dark:text-zinc-500';
+      msg.style.display='block';
+      return;
+    }
+    if(code==='UROO10'){
+      promoApplied=true;
+      promoAppliedCode=code;
+      box.value=code;
+      box.disabled=true;
+      box.classList.add('opacity-50');
+      msg.textContent='Kode berhasil diterapkan! Anda hemat '+fmtRp(discount())+'.';
+      msg.className='text-xs font-semibold text-emerald-600 dark:text-emerald-400';
+      msg.style.display='block';
+      refreshTotals();
+      toast('Promo UROO10 diterapkan');
+    }else{
+      msg.textContent='Kode promo tidak valid. Coba UROO10.';
+      msg.className='text-xs font-semibold text-red-600 dark:text-red-400';
+      msg.style.display='block';
+    }
+  });
+
+  renderItems();
+  refreshTotals();
+  setStep(1);
+</script>
+<script src="../../assets/js/uroo-nav.js"></script>
+</body>
+</html>

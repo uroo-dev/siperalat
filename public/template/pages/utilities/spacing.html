@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="id" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Uroo UI — Foundation: Spacing</title>
+  <script src="../../assets/js/tailwind.js"></script>
+  <script src="../../assets/js/lucide.js"></script>
+  <script>
+    tailwind.config = { darkMode: 'class', theme: { extend: { colors: { glass: {
+      light: 'rgba(255,255,255,0.65)', 'light-border': 'rgba(255,255,255,0.8)',
+      dark: 'rgba(18,18,20,0.65)', 'dark-border': 'rgba(255,255,255,0.1)'
+    } } } } };
+  </script>
+  <link rel="stylesheet" href="../../assets/css/uroo.css">
+  <style>
+    .u-bg{position:fixed;inset:0;z-index:-10;transition:opacity .35s ease}
+    .u-bg-light{background:linear-gradient(135deg,#dfe3ea,#f4f4f5)}
+    .u-bg-dark{background:linear-gradient(135deg,#0a0a0b,#1a1a1e);opacity:0}
+    body.dark .u-bg-light{opacity:0}
+    body.dark .u-bg-dark{opacity:1}
+    .u-glow{position:fixed;border-radius:9999px;filter:blur(90px);z-index:-9;pointer-events:none;background:rgba(0,0,0,0.06);transition:background-color .35s ease}
+    body.dark .u-glow{background:rgba(255,255,255,0.05)}
+    .u-glow-1{width:420px;height:420px;top:-140px;left:-140px}
+    .u-glow-2{width:520px;height:520px;bottom:-200px;right:-140px}
+    .u-glow-3{width:300px;height:300px;top:42%;left:58%}
+    .s-row{display:flex;align-items:center;gap:1rem;margin-bottom:1rem}
+    .s-bar{flex:none;height:16px;border-radius:6px;background:linear-gradient(90deg,rgba(0,0,0,0.25),rgba(0,0,0,0.06))}
+    body.dark .s-bar{background:linear-gradient(90deg,rgba(255,255,255,0.3),rgba(255,255,255,0.06))}
+    .s-spec{flex:none;width:8rem;font-size:.68rem;color:#71717a;font-family:ui-monospace,monospace}
+  </style>
+</head>
+<body class="min-h-screen font-sans antialiased text-zinc-800 dark:text-zinc-100">
+  <script>(function initTheme(){var saved=null;try{saved=localStorage.getItem('uroo-theme')}catch(e){};var dark=(saved==='dark')||(!saved&&window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches);var de=document.documentElement;if(dark){de.classList.add('dark');de.classList.remove('light');if(document.body){document.body.classList.add('dark');document.body.classList.remove('light');}}else{de.classList.remove('dark');de.classList.add('light');if(document.body){document.body.classList.remove('dark');document.body.classList.add('light');}}})();</script>
+  <div class="u-bg u-bg-light" aria-hidden="true"></div>
+  <div class="u-bg u-bg-dark" aria-hidden="true"></div>
+  <div class="u-glow u-glow-1" aria-hidden="true"></div>
+  <div class="u-glow u-glow-2" aria-hidden="true"></div>
+  <div class="u-glow u-glow-3" aria-hidden="true"></div>
+
+  <button onclick="toggleTheme()" class="fixed top-4 right-4 z-50 p-2 rounded-full glass-panel shadow-2xl" title="Toggle tema">
+    <i data-lucide="sun" class="w-4 h-4 hidden dark:block"></i>
+    <i data-lucide="moon" class="w-4 h-4 block dark:hidden"></i>
+  </button>
+
+  <main class="max-w-4xl mx-auto px-5 py-10 space-y-6">
+
+    <header class="glass-panel rounded-3xl p-6 sm:p-8">
+      <span class="inline-flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-1 rounded-full bg-black/5 dark:bg-white/5 mb-3">
+        <i data-lucide="ruler" class="w-3 h-3"></i> Foundation
+      </span>
+      <h1 class="text-3xl font-extrabold tracking-tight">Spacing</h1>
+      <p class="text-sm text-zinc-500 dark:text-zinc-400 mt-1">Skala jarak berbasis 4px — padanan kelas Tailwind & CSS variable.</p>
+    </header>
+
+    <section class="glass-panel rounded-3xl p-6 sm:p-8" data-copy data-lang="html">
+      <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-zinc-400 dark:text-zinc-500 mb-5">Skala Spacing</p>
+      <div class="s-row"><span class="s-spec">0 · 0px</span><div class="s-bar" style="width:0;background:transparent"></div></div>
+      <div class="s-row"><span class="s-spec">0.5 · 2px</span><div class="s-bar" style="width:2px"></div></div>
+      <div class="s-row"><span class="s-spec">1 · 4px</span><div class="s-bar" style="width:4px"></div></div>
+      <div class="s-row"><span class="s-spec">2 · 8px</span><div class="s-bar" style="width:8px"></div></div>
+      <div class="s-row"><span class="s-spec">3 · 12px</span><div class="s-bar" style="width:12px"></div></div>
+      <div class="s-row"><span class="s-spec">4 · 16px</span><div class="s-bar" style="width:16px"></div></div>
+      <div class="s-row"><span class="s-spec">5 · 20px</span><div class="s-bar" style="width:20px"></div></div>
+      <div class="s-row"><span class="s-spec">6 · 24px</span><div class="s-bar" style="width:24px"></div></div>
+      <div class="s-row"><span class="s-spec">8 · 32px</span><div class="s-bar" style="width:32px"></div></div>
+      <div class="s-row"><span class="s-spec">10 · 40px</span><div class="s-bar" style="width:40px"></div></div>
+      <div class="s-row"><span class="s-spec">12 · 48px</span><div class="s-bar" style="width:48px"></div></div>
+      <div class="s-row"><span class="s-spec">16 · 64px</span><div class="s-bar" style="width:64px"></div></div>
+      <div class="s-row"><span class="s-spec">20 · 80px</span><div class="s-bar" style="width:80px"></div></div>
+      <div class="s-row"><span class="s-spec">24 · 96px</span><div class="s-bar" style="width:96px"></div></div>
+    </section>
+
+    <section class="glass-panel rounded-3xl p-6 sm:p-8" data-copy data-lang="css">
+      <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-zinc-400 dark:text-zinc-500 mb-4">Contoh Penerapan</p>
+      <div class="flex gap-4">
+        <div class="flex-1 rounded-2xl bg-black/5 dark:bg-white/5 p-4">
+          <p class="text-xs font-semibold mb-2">gap-4</p>
+          <div class="flex gap-4">
+            <div class="w-10 h-10 rounded-xl bg-black/10 dark:bg-white/10"></div>
+            <div class="w-10 h-10 rounded-xl bg-black/10 dark:bg-white/10"></div>
+            <div class="w-10 h-10 rounded-xl bg-black/10 dark:bg-white/10"></div>
+          </div>
+        </div>
+        <div class="flex-1 rounded-2xl bg-black/5 dark:bg-white/5 p-6">
+          <p class="text-xs font-semibold mb-3">space-y-3</p>
+          <div class="space-y-3">
+            <div class="h-4 rounded-md bg-black/10 dark:bg-white/10"></div>
+            <div class="h-4 rounded-md bg-black/10 dark:bg-white/10"></div>
+            <div class="h-4 rounded-md bg-black/10 dark:bg-white/10"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    lucide.createIcons();
+    function toggleTheme() {
+      const h = document.documentElement, b = document.body;
+      h.classList.toggle('dark'); b.classList.toggle('dark');
+      try { localStorage.setItem('uroo-theme', b.classList.contains('dark') ? 'dark' : 'light'); } catch (e) {}
+      lucide.createIcons();
+    }
+  </script>
+  <script src="../../assets/js/uroo-copy.js"></script>
+<script src="../../assets/js/uroo-nav.js"></script>
+</body>
+</html>

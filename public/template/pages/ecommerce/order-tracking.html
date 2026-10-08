@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="id" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Uroo UI - Lacak Pesanan</title>
+  <script src="../../assets/js/tailwind.js"></script>
+  <script src="../../assets/js/lucide.js"></script>
+  <script>tailwind.config={darkMode:'class',theme:{extend:{colors:{glass:{light:'rgba(255,255,255,0.65)','light-border':'rgba(255,255,255,0.8)',dark:'rgba(18,18,20,0.65)','dark-border':'rgba(255,255,255,0.1)'}}}}}</script>
+  <link rel="stylesheet" href="../../assets/css/uroo.css">
+  <style>
+    .u-bg{position:fixed;inset:0;z-index:-10;transition:opacity .35s ease}
+    .u-bg-light{background:linear-gradient(135deg,#dfe3ea,#f4f4f5)}
+    .u-bg-dark{background:linear-gradient(135deg,#0a0a0b,#1a1a1e);opacity:0}
+    body.dark .u-bg-light{opacity:0}
+    body.dark .u-bg-dark{opacity:1}
+    .u-glow{position:fixed;border-radius:9999px;filter:blur(90px);z-index:-9;pointer-events:none;transition:background-color .35s ease;background:rgba(0,0,0,0.06)}
+    body.dark .u-glow{background:rgba(255,255,255,0.05)}
+    .u-glow-1{width:420px;height:420px;top:-140px;left:-140px}
+    .u-glow-2{width:520px;height:520px;bottom:-200px;right:-140px}
+    .u-glow-3{width:300px;height:300px;top:42%;left:58%}
+
+    html{background:#e7e8ec}
+    html.dark{background:#0a0a0c}
+    body:not(.dark) .u-ic-sun{display:none}
+    body.dark .u-ic-moon{display:none}
+
+    .u-search{width:100%;height:48px;border-radius:9999px;background:rgba(255,255,255,.6);border:1px solid rgba(24,24,27,.10);color:#18181b;font-size:14px;padding:0 42px 0 46px;outline:none;transition:border-color .2s ease,box-shadow .2s ease}
+    body.dark .u-search{background:rgba(255,255,255,.05);border-color:rgba(255,255,255,.12);color:#f4f4f5}
+    .u-search::placeholder{color:#a1a1aa}
+    .u-search:focus{border-color:rgba(24,24,27,.5);box-shadow:0 0 0 4px rgba(24,24,27,.08)}
+    body.dark .u-search:focus{border-color:rgba(255,255,255,.55);box-shadow:0 0 0 4px rgba(255,255,255,.08)}
+    .u-search.u-invalid{border-color:#dc2626!important;box-shadow:0 0 0 4px rgba(220,38,38,.10)}
+    body.dark .u-search.u-invalid{border-color:#f87171!important;box-shadow:0 0 0 4px rgba(248,113,113,.12)}
+
+    .u-btn{transition:transform .2s ease,box-shadow .2s ease,background-color .2s ease}
+    .u-btn:hover{transform:translateY(-1px)}
+    .u-btn:active{transform:scale(.96)}
+    .u-btn[disabled]{opacity:.6;pointer-events:none}
+
+    .u-tstep{position:relative;flex:1;min-width:0;padding-bottom:8px}
+    .u-tstep .dot{width:46px;height:46px;border-radius:9999px;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.55);border:1px solid rgba(24,24,27,.12);color:#d4d4d8;position:relative;z-index:1;transition:background-color .3s ease,color .3s ease,border-color .3s ease}
+    body.dark .u-tstep .dot{background:rgba(255,255,255,.05);border-color:rgba(255,255,255,.12);color:#52525b}
+    .u-tstep.u-done .dot{background:#18181b;border-color:#18181b;color:#fff;box-shadow:0 8px 20px -6px rgba(0,0,0,.4)}
+    body.dark .u-tstep.u-done .dot{background:#f4f4f5;border-color:#f4f4f5;color:#18181b}
+    .u-tstep.u-active .dot{background:#18181b;border-color:#18181b;color:#fff;box-shadow:0 0 0 6px rgba(24,24,27,.10)}
+    body.dark .u-tstep.u-active .dot{background:#f4f4f5;border-color:#f4f4f5;color:#18181b;box-shadow:0 0 0 6px rgba(255,255,255,.08)}
+    .u-tstep .track{position:absolute;top:23px;left:calc(50% + 28px);right:calc(-50% + 28px);height:2px;background:rgba(24,24,27,.10);z-index:0;transition:background-color .3s ease}
+    body.dark .u-tstep .track{background:rgba(255,255,255,.10)}
+    .u-tstep.u-done .track{background:rgba(24,24,27,.75)}
+    body.dark .u-tstep.u-done .track{background:rgba(255,255,255,.75)}
+    .u-tstep:last-child .track{display:none}
+
+    .u-log{position:relative;padding-left:56px;padding-bottom:28px}
+    .u-log::before{content:'';position:absolute;left:19px;top:40px;bottom:0;width:2px;background:rgba(24,24,27,.10)}
+    body.dark .u-log::before{background:rgba(255,255,255,.10)}
+    .u-log:last-child{padding-bottom:0}
+    .u-log:last-child::before{display:none}
+    .u-log .ic{position:absolute;left:0;top:0;width:40px;height:40px;border-radius:9999px;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.55);border:1px solid rgba(24,24,27,.12);color:#71717a}
+    body.dark .u-log .ic{background:rgba(255,255,255,.05);border-color:rgba(255,255,255,.12);color:#a1a1aa}
+    .u-log.u-done .ic{background:#18181b;border-color:#18181b;color:#fff}
+    body.dark .u-log.u-done .ic{background:#f4f4f5;border-color:#f4f4f5;color:#18181b}
+    .u-log.u-live .ic{animation:u-pulse 2s infinite}
+    @keyframes u-pulse{0%{box-shadow:0 0 0 0 rgba(0,0,0,.25)}70%{box-shadow:0 0 0 10px rgba(0,0,0,0)}100%{box-shadow:0 0 0 0 rgba(0,0,0,0)}}
+    body.dark .u-log.u-live .ic{animation-name:u-pulse-dark}
+    @keyframes u-pulse-dark{0%{box-shadow:0 0 0 0 rgba(255,255,255,.3)}70%{box-shadow:0 0 0 10px rgba(255,255,255,0)}100%{box-shadow:0 0 0 0 rgba(255,255,255,0)}}
+  </style>
+</head>
+<body class="min-h-screen font-sans antialiased text-zinc-800 dark dark:text-zinc-100">
+  <script>(function initTheme(){var saved=null;try{saved=localStorage.getItem('uroo-theme')}catch(e){};var dark=(saved==='dark')||(!saved&&window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches);var de=document.documentElement;if(dark){de.classList.add('dark');de.classList.remove('light');if(document.body){document.body.classList.add('dark');document.body.classList.remove('light');}}else{de.classList.remove('dark');de.classList.add('light');if(document.body){document.body.classList.remove('dark');document.body.classList.add('light');}}})();</script>
+
+
+<div class="u-bg u-bg-light"></div>
+<div class="u-bg u-bg-dark"></div>
+<div class="u-glow u-glow-1"></div>
+<div class="u-glow u-glow-2"></div>
+<div class="u-glow u-glow-3"></div>
+
+<button onclick="toggleTheme()" aria-label="Ganti tema" title="Ganti tema"
+  class="fixed top-4 right-4 z-50 glass-panel rounded-full p-2.5 text-zinc-600 dark:text-zinc-200 hover:scale-110 transition-transform">
+  <i data-lucide="sun" class="u-ic-sun w-5 h-5"></i>
+  <i data-lucide="moon" class="u-ic-moon w-5 h-5"></i>
+</button>
+
+<header class="sticky top-0 z-40 glass-panel rounded-none border-x-0 border-t-0">
+  <div class="max-w-5xl mx-auto h-16 px-4 sm:px-8 pr-16 flex items-center gap-4">
+    <a href="catalog.html" class="inline-flex items-center gap-2.5 shrink-0">
+      <span class="inline-flex items-center justify-center w-9 h-9 rounded-2xl bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900">
+        <i data-lucide="layers" class="w-5 h-5"></i>
+      </span>
+      <span class="hidden sm:block text-lg font-extrabold tracking-tight text-zinc-900 dark:text-white">Uroo Goods</span>
+    </a>
+    <nav class="ml-auto flex items-center gap-6 text-sm font-semibold text-zinc-500 dark:text-zinc-400">
+      <a href="catalog.html" class="hover:text-zinc-900 dark:hover:text-white transition-colors">Katalog</a>
+      <a href="cart.html" class="hover:text-zinc-900 dark:hover:text-white transition-colors">Keranjang</a>
+    </nav>
+  </div>
+</header>
+
+<main class="relative max-w-5xl mx-auto px-4 sm:px-8 pt-12 pb-28">
+  <!-- Search hero -->
+  <section class="text-center max-w-2xl mx-auto anim-slide-up">
+    <span class="inline-flex items-center justify-center w-14 h-14 rounded-2xl glass-panel text-zinc-700 dark:text-zinc-200 mx-auto">
+      <i data-lucide="package-search" class="w-7 h-7"></i>
+    </span>
+    <h1 class="mt-6 text-3xl sm:text-4xl font-extrabold tracking-tight text-zinc-900 dark:text-white">Lacak Pesanan Anda</h1>
+    <p class="mt-3 text-sm leading-relaxed text-zinc-500 dark:text-zinc-400">
+      Masukkan nomor pesanan yang tertera di email konfirmasi untuk melihat status terkini pengiriman Anda.
+    </p>
+
+    <form id="trackForm" class="mt-7 relative" novalidate>
+      <div class="relative">
+        <i data-lucide="package" class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-zinc-400 pointer-events-none"></i>
+        <input id="orderInput" type="text" class="u-search" placeholder="Contoh: URO-4821551-903" aria-label="Nomor pesanan" autocomplete="off">
+      </div>
+      <button type="submit" class="u-btn mt-3 w-full sm:w-auto sm:absolute sm:right-1.5 sm:top-1.5 sm:mt-0 inline-flex items-center justify-center gap-2 rounded-full bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900 px-7 py-2.5 text-sm font-bold hover:shadow-lg">
+        <i data-lucide="search" class="w-4 h-4"></i>
+        Lacak Pesanan
+      </button>
+      <p id="trackErr" class="mt-2 text-xs font-semibold text-red-600 dark:text-red-400 text-center"></p>
+    </form>
+
+    <div class="mt-6 flex items-center justify-center gap-2 flex-wrap text-xs font-semibold text-zinc-400 dark:text-zinc-500">
+      <span>Coba contoh:</span>
+      <button data-example="URO-4821551-903" class="example-btn glass-panel rounded-full px-3 py-1.5 font-mono text-[11px] hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors">URO-4821551-903</button>
+      <button data-example="URO-7319224-712" class="example-btn glass-panel rounded-full px-3 py-1.5 font-mono text-[11px] hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors">URO-7319224-712</button>
+    </div>
+  </section>
+
+  <!-- Results -->
+  <div id="results" class="hidden mt-12 space-y-6 anim-slide-up">
+
+    <div class="glass-panel rounded-3xl p-6 sm:p-7">
+      <div class="flex flex-wrap items-center justify-between gap-4">
+        <div>
+          <p class="text-[11px] font-bold uppercase tracking-widest text-zinc-400 dark:text-zinc-500">No. Pesanan</p>
+          <p id="oid" class="mt-1 text-xl font-extrabold tracking-tight text-zinc-900 dark:text-white"></p>
+        </div>
+        <div class="text-right">
+          <p class="text-[11px] font-bold uppercase tracking-widest text-zinc-400 dark:text-zinc-500">Status</p>
+          <span id="statusBadge" class="mt-1 inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-xs font-bold"></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Timeline stepper -->
+    <div class="glass-panel rounded-3xl p-6 sm:p-8">
+      <div class="flex items-start justify-between gap-2 overflow-x-auto pb-2" id="timeline">
+        <div class="u-tstep" data-stage="0"><div class="dot"><i data-lucide="clipboard-list" style="width:20px;height:20px"></i></div><p class="mt-2.5 text-[11px] sm:text-xs font-bold whitespace-nowrap">Pesanan</p><p class="text-[10px] text-zinc-400 dark:text-zinc-500 whitespace-nowrap">Dibuat</p></div>
+        <div class="u-tstep" data-stage="1"><div class="dot"><i data-lucide="settings" style="width:20px;height:20px"></i></div><p class="mt-2.5 text-[11px] sm:text-xs font-bold whitespace-nowrap">Diproses</p><p class="text-[10px] text-zinc-400 dark:text-zinc-500 whitespace-nowrap">Dikemas</p></div>
+        <div class="u-tstep" data-stage="2"><div class="dot"><i data-lucide="truck" style="width:20px;height:20px"></i></div><p class="mt-2.5 text-[11px] sm:text-xs font-bold whitespace-nowrap">Dikirim</p><p class="text-[10px] text-zinc-400 dark:text-zinc-500 whitespace-nowrap">Dalam perjalanan</p></div>
+        <div class="u-tstep" data-stage="3"><div class="dot"><i data-lucide="house" style="width:20px;height:20px"></i></div><p class="mt-2.5 text-[11px] sm:text-xs font-bold whitespace-nowrap">Selesai</p><p class="text-[10px] text-zinc-400 dark:text-zinc-500 whitespace-nowrap">Diterima</p></div>
+      </div>
+
+      <div class="mt-8">
+        <div class="flex items-center justify-between text-xs">
+          <span class="font-bold text-zinc-500 dark:text-zinc-400" id="progressLabel"></span>
+          <span class="font-extrabold text-zinc-900 dark:text-white" id="progressPct"></span>
+        </div>
+        <div class="mt-2 h-3 rounded-full bg-zinc-900/5 dark:bg-white/10 overflow-hidden">
+          <div id="progressBar" class="h-full rounded-full bg-zinc-900 dark:bg-zinc-100 transition-all duration-700 ease-out" style="width:0%"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid lg:grid-cols-3 gap-6">
+      <!-- Delivery estimate + action -->
+      <div class="lg:col-span-1 space-y-5">
+        <div class="glass-panel rounded-3xl p-6">
+          <div class="flex items-center gap-3">
+            <span class="inline-flex items-center justify-center w-11 h-11 rounded-2xl bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900">
+              <i data-lucide="calendar-clock" class="w-5 h-5"></i>
+            </span>
+            <div>
+              <p class="text-sm font-extrabold text-zinc-900 dark:text-white">Estimasi Tiba</p>
+              <p id="etaLabel" class="text-xs text-zinc-500 dark:text-zinc-400">Minggu, 6 September 2026</p>
+            </div>
+          </div>
+          <div class="mt-5 pt-5 border-t border-zinc-900/10 dark:border-white/10 space-y-3 text-[13px]">
+            <div class="flex items-center justify-between">
+              <span class="text-zinc-500 dark:text-zinc-400">Kurir</span>
+              <span id="curierVal" class="font-bold text-zinc-900 dark:text-white">JNE Reguler</span>
+            </div>
+            <div class="flex items-center justify-between">
+              <span class="text-zinc-500 dark:text-zinc-400">Resi</span>
+              <span id="resiVal" class="font-mono font-bold text-zinc-900 dark:text-white">JNE0094821551</span>
+            </div>
+          </div>
+          <button id="liveBtn" class="u-btn mt-6 w-full inline-flex items-center justify-center gap-2 rounded-full bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900 px-5 py-3 text-sm font-bold hover:shadow-lg">
+            <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+            <span>Perbarui Status</span>
+          </button>
+        </div>
+
+        <div class="glass-panel rounded-3xl p-6">
+          <p class="text-sm font-extrabold text-zinc-900 dark:text-white">Butuh bantuan?</p>
+          <p class="mt-2 text-xs leading-relaxed text-zinc-500 dark:text-zinc-400">
+            Pesanan belum sampai? Hubungi tim kami setiap hari 08.00-21.00 WIB.
+          </p>
+          <div class="mt-4 space-y-2.5 text-[13px] font-bold">
+            <a href="#" onclick="event.preventDefault()" class="flex items-center gap-2.5 text-zinc-700 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-white transition-colors"><i data-lucide="phone" class="w-4 h-4 text-zinc-400"></i> +62 21 5090 8800</a>
+            <a href="#" onclick="event.preventDefault()" class="flex items-center gap-2.5 text-zinc-700 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-white transition-colors"><i data-lucide="message-circle" class="w-4 h-4 text-zinc-400"></i> Chat WhatsApp</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tracking log + items -->
+      <div class="lg:col-span-2 space-y-5">
+        <div class="glass-panel rounded-3xl p-6 sm:p-7">
+          <h2 class="text-lg font-extrabold tracking-tight text-zinc-900 dark:text-white">Riwayat Pelacakan</h2>
+          <p class="text-xs text-zinc-400 dark:text-zinc-500 mt-1">Diperbarui: <span id="lastUpdate"></span></p>
+          <div class="mt-6" id="logCol"></div>
+        </div>
+
+        <div class="glass-panel rounded-3xl p-6 sm:p-7">
+          <div class="flex items-center justify-between gap-4">
+            <h2 class="text-lg font-extrabold tracking-tight text-zinc-900 dark:text-white">Barang dalam Pesanan</h2>
+            <span id="itemTotal" class="text-lg font-extrabold tracking-tight text-zinc-900 dark:text-white"></span>
+          </div>
+          <div class="mt-5 space-y-4" id="itemsCol"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script>
+  lucide.createIcons();
+  function toggleTheme(){const h=document.documentElement,b=document.body;h.classList.toggle('dark');b.classList.toggle('dark');try{localStorage.setItem('uroo-theme',b.classList.contains('dark')?'dark':'light')}catch(e){};lucide.createIcons();}
+
+  var toastT;
+  function toast(msg){
+    var t=document.createElement('div');
+    t.className='fixed bottom-6 left-1/2 -translate-x-1/2 z-[60] glass-panel rounded-full px-5 py-3 flex items-center gap-2.5 text-sm font-semibold anim-toast-in';
+    t.innerHTML='<i data-lucide="check" class="w-4 h-4"></i><span>'+msg+'</span>';
+    document.body.appendChild(t);
+    lucide.createIcons();
+    setTimeout(function(){t.style.cssText+=';opacity:0;transition:opacity .4s ease'},2400);
+    setTimeout(function(){t.remove()},2900);
+  }
+
+  var GRADS=['from-zinc-200 via-zinc-300 to-zinc-400 dark:from-zinc-700 dark:via-zinc-800 dark:to-zinc-600',
+             'from-zinc-300 via-zinc-400 to-zinc-600 dark:from-zinc-800 dark:via-zinc-700 dark:to-zinc-900',
+             'from-zinc-100 via-zinc-300 to-zinc-500 dark:from-zinc-600 dark:via-zinc-800 dark:to-zinc-950'];
+
+  var ORDERS={
+    'URO-4821551-903':{
+      items:[
+        {name:'Headphone Studio Aero',variant:'Hitam · One Size',price:1290000,qty:1,icon:'headphones'},
+        {name:'Serum Glow Vitamin C',variant:'30 ml',price:165000,qty:1,icon:'droplets'}
+      ],
+      curier:'JNE Reguler',resi:'JNE0094821551',stage:2,eta:'Kamis, 3 September 2026',
+      log:[
+        {t:'Barang telah diterima di Hub Transit Jakarta, Kebayoran Lama',d:'29 Agu 2026 · 14:32 WIB',stage:2,icon:'package'},
+        {t:'Paket sedang dalam perjalanan menuju Jakarta Selatan',d:'29 Agu 2026 · 07:15 WIB',stage:2,icon:'truck'},
+        {t:'Paket telah dikirim dari gudang Uroo Goods Cibitung',d:'28 Agu 2026 · 18:40 WIB',stage:2,icon:'package-check'},
+        {t:'Pesanan sedang dikemas dan siap dikirim',d:'28 Agu 2026 · 11:05 WIB',stage:1,icon:'package'},
+        {t:'Pesanan Anda telah dibuat dan dikonfirmasi',d:'27 Agu 2026 · 20:22 WIB',stage:0,icon:'clipboard-check'}
+      ]
+    },
+    'URO-7319224-712':{
+      items:[
+        {name:'Tas Kulit Garut',variant:'Cokelat · Tas Selempang',price:780000,qty:1,icon:'shopping-bag'},
+        {name:'Kopi Arabika Gayo 250g',variant:'250 g',price:85000,qty:2,icon:'coffee'}
+      ],
+      curier:'SiCepat BEST',resi:'SPX009731922',stage:1,eta:'Sabtu, 5 September 2026',
+      log:[
+        {t:'Pesanan sedang dikemas oleh tim gudang',d:'29 Agu 2026 · 09:48 WIB',stage:1,icon:'settings'},
+        {t:'Pembayaran berhasil diverifikasi',d:'28 Agu 2026 · 21:03 WIB',stage:1,icon:'credit-card'},
+        {t:'Pesanan Anda telah dibuat dan dikonfirmasi',d:'28 Agu 2026 · 19:11 WIB',stage:0,icon:'clipboard-check'}
+      ]
+    }
+  };
+
+  var fmtRp=function(n){return 'Rp '+n.toLocaleString('id-ID')};
+
+  function statusBadge(stage){
+    if(stage===0)return '<span class="bg-zinc-900/5 dark:bg-white/10 text-zinc-700 dark:text-zinc-300">Pesanan Dibuat</span>';
+    if(stage===1)return '<span class="bg-amber-500/10 text-amber-700 dark:text-amber-300"><i data-lucide="settings" class="w-3.5 h-3.5"></i> Diproses</span>';
+    if(stage===2)return '<span class="bg-blue-500/10 text-blue-700 dark:text-blue-300"><i data-lucide="truck" class="w-3.5 h-3.5"></i> Sedang Dikirim</span>';
+    return '<span class="bg-emerald-500/10 text-emerald-700 dark:text-emerald-300"><i data-lucide="check" class="w-3.5 h-3.5"></i> Selesai</span>';
+  }
+
+  function renderOrder(oid){
+    currentKey=oid;
+    var o=ORDERS[oid];
+    document.getElementById('oid').textContent=oid;
+    document.getElementById('statusBadge').outerHTML='<span id="statusBadge" class="mt-1 inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-xs font-bold">'+statusBadge(o.stage)+'</span>';
+
+    // Timeline
+    var steps=document.querySelectorAll('#timeline .u-tstep');
+    steps.forEach(function(s,i){
+      s.classList.toggle('u-done',i<o.stage);
+      s.classList.toggle('u-active',i===o.stage);
+      var dot=s.querySelector('.dot');
+      var icons=['clipboard-list','settings','truck','house'];
+      if(i<o.stage){
+        dot.innerHTML='<i data-lucide="check" style="width:20px;height:20px"></i>';
+      }else{
+        dot.innerHTML='<i data-lucide="'+icons[i]+'" style="width:20px;height:20px"></i>';
+      }
+    });
+
+    // Progress
+    var pct=Math.round((o.stage/3)*100);
+    document.getElementById('progressPct').textContent=pct+'%';
+    var labels=['Pesanan diterima oleh Uroo Goods','Pesanan sedang diproses gudang','Pesanan sedang dalam perjalanan','Pesanan telah diterima. Terima kasih!'];
+    document.getElementById('progressLabel').textContent=labels[o.stage];
+    document.getElementById('progressBar').style.width=pct+'%';
+
+    // Delivery
+    document.getElementById('etaLabel').textContent=o.eta;
+    document.getElementById('curierVal').textContent=o.curier;
+    document.getElementById('resiVal').textContent=o.resi;
+
+    // Log
+    var log='';
+    o.log.forEach(function(l,i){
+      var latest=i===0;
+      log+='<div class="u-log'+(latest?' u-live':'')+' '+(l.stage<=o.stage?'u-done':'')+'">'+
+        '<span class="ic"><i data-lucide="'+l.icon+'" class="w-4 h-4"></i></span>'+
+        '<div class="pt-1">'+
+          '<p class="text-sm font-bold text-zinc-900 dark:text-white'+(latest?'':'')+'">'+l.t+'</p>'+
+          '<p class="mt-0.5 text-xs text-zinc-400 dark:text-zinc-500">'+l.d+'</p>'+
+        '</div>'+
+      '</div>';
+    });
+    document.getElementById('logCol').innerHTML=log;
+    document.getElementById('lastUpdate').textContent='hari ini, '+new Date().toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'})+' WIB';
+
+    // Items
+    document.getElementById('itemsCol').innerHTML=o.items.map(function(it,j){
+      return '<div class="flex items-center gap-4">'+
+        '<span class="shrink-0 w-16 h-16 rounded-2xl bg-gradient-to-br '+GRADS[j%GRADS.length]+' flex items-center justify-center"><span class="inline-flex items-center justify-center w-8 h-8 rounded-xl bg-white/40 backdrop-blur-md text-zinc-800 dark:bg-black/30 dark:text-zinc-100"><i data-lucide="'+it.icon+'" class="w-4 h-4"></i></span></span>'+
+        '<div class="flex-1 min-w-0"><p class="text-sm font-bold text-zinc-900 dark:text-white">'+it.name+'</p><p class="text-xs text-zinc-400 dark:text-zinc-500">'+it.variant+' · x'+it.qty+'</p></div>'+
+        '<p class="text-sm font-extrabold text-zinc-900 dark:text-white">'+fmtRp(it.price*it.qty)+'</p>'+
+      '</div>';
+    }).join('');
+    var total=o.items.reduce(function(a,it){return a+it.price*it.qty},0);
+    document.getElementById('itemTotal').textContent=fmtRp(total);
+
+    document.getElementById('results').classList.remove('hidden');
+    document.getElementById('results').style.animation='none';void document.getElementById('results').offsetWidth;document.getElementById('results').style.animation='';
+    document.getElementById('results').scrollIntoView({behavior:'smooth',block:'start'});
+    lucide.createIcons();
+  }
+
+  document.getElementById('trackForm').addEventListener('submit',function(e){
+    e.preventDefault();
+    var raw=document.getElementById('orderInput').value.trim().toUpperCase();
+    var err=document.getElementById('trackErr');
+    var field=document.getElementById('orderInput');
+    var key=Object.keys(ORDERS).find(function(k){
+      return k===raw||k.split('-').pop()===raw||('URO-'+k.split('-')[1])===raw;
+    });
+    if(!key){
+      field.classList.add('u-invalid');
+      err.textContent='Nomor pesanan tidak ditemukan. Periksa kembali atau coba contoh di bawah.';
+      field.addEventListener('input',function clr(){field.classList.remove('u-invalid');err.textContent='';field.removeEventListener('input',clr)});
+      return;
+    }
+    field.classList.remove('u-invalid');
+    err.textContent='';
+    field.value=key;
+    renderOrder(key);
+  });
+
+  document.querySelectorAll('.example-btn').forEach(function(b){
+    b.addEventListener('click',function(){
+      document.getElementById('orderInput').value=this.getAttribute('data-example');
+      renderOrder(this.getAttribute('data-example'));
+    });
+  });
+
+  var liveTimer,currentKey=null;
+  var stageCount=0;
+  document.getElementById('liveBtn').addEventListener('click',function(){
+    if(!currentKey){toast('Lacak pesanan terlebih dahulu untuk memperbarui status');return;}
+    var o=ORDERS[currentKey];
+    if(o.stage>=3){
+      var b=document.getElementById('liveBtn');
+      b.classList.add('opacity-60');
+      b.querySelector('span').textContent='Pesanan telah selesai';
+      lucide.createIcons();
+      toast('Pesanan telah sampai. Terima kasih sudah berbelanja!');
+      return;
+    }
+    var btn=this;
+    btn.classList.add('pointer-events-none');
+    btn.querySelector('span').textContent='Memperbarui...';
+    btn.querySelector('i').outerHTML='<span class="anim-spin inline-block w-4 h-4 rounded-full border-2 border-white/40 dark:border-zinc-900/40 border-t-white dark:border-t-zinc-900"></span>';
+    lucide.createIcons();
+    setTimeout(function(){
+      o.stage=Math.min(3,o.stage+1);
+      var icons=['clipboard-check','settings','truck','house'];
+      var msgs=[
+        'Pesanan Anda telah dibuat dan dikonfirmasi',
+        'Pembayaran berhasil diverifikasi, paket sedang dikemas',
+        'Paket telah dikirim dari gudang dan dalam perjalanan',
+        'Paket telah diterima oleh penerima'
+      ];
+      if(o.stage>0){
+        o.log.unshift({t:msgs[o.stage],d:'30 Agu 2026 · '+new Date().toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'})+' WIB (live)',stage:o.stage,icon:icons[o.stage]});
+      }
+      renderOrder(currentKey);
+      var done=o.stage>=3;
+      btn.classList.remove('pointer-events-none');
+      btn.querySelector('span').textContent=done?'Pesanan telah selesai':'Perbarui Status';
+      btn.querySelector('.anim-spin').remove();
+      btn.innerHTML=done
+        ?'<i data-lucide="check" class="w-4 h-4"></i><span>Pesanan telah selesai</span>'
+        :'<i data-lucide="refresh-cw" class="w-4 h-4"></i><span>Perbarui Status</span>';
+      btn.classList.toggle('opacity-60',done);
+      lucide.createIcons();
+      if(done)toast('Pesanan telah tiba. Selamat menikmati!');
+      else toast('Status diperbarui: '+msgs[o.stage]);
+    },1200);
+  });
+</script>
+<script src="../../assets/js/uroo-nav.js"></script>
+</body>
+</html>

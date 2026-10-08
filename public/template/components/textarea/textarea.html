@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="id" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Uroo UI - Textarea</title>
+  <script src="../../assets/js/tailwind.js"></script>
+  <script src="../../assets/js/lucide.js"></script>
+  <script>tailwind.config={darkMode:'class',theme:{extend:{colors:{glass:{light:'rgba(255,255,255,0.65)','light-border':'rgba(255,255,255,0.8)',dark:'rgba(18,18,20,0.65)','dark-border':'rgba(255,255,255,0.1)'}}}}}</script>
+  <link rel="stylesheet" href="../../assets/css/uroo.css">
+  <style>
+    .u-bg{position:fixed;inset:0;z-index:-10;transition:opacity .35s ease}
+    .u-bg-light{background:linear-gradient(135deg,#dfe3ea,#f4f4f5)}
+    .u-bg-dark{background:linear-gradient(135deg,#0a0a0b,#1a1a1e);opacity:0}
+    body.dark .u-bg-light{opacity:0}
+    body.dark .u-bg-dark{opacity:1}
+    .u-glow{position:fixed;border-radius:9999px;filter:blur(90px);z-index:-9;pointer-events:none;transition:background-color .35s ease;background:rgba(0,0,0,0.06)}
+    body.dark .u-glow{background:rgba(255,255,255,0.05)}
+    .u-glow-1{width:420px;height:420px;top:-140px;left:-140px}
+    .u-glow-2{width:520px;height:520px;bottom:-200px;right:-140px}
+    .u-glow-3{width:300px;height:300px;top:42%;left:58%}
+
+    .ui-ta{width:100%;min-height:8rem;border-radius:0.75rem;border:1px solid rgba(24,24,27,0.14);background:rgba(255,255,255,0.7);padding:0.75rem 1rem;font-size:0.875rem;line-height:1.6;color:#3f3f46;outline:none;resize:vertical;transition:border-color .2s ease,box-shadow .2s ease,background-color .2s ease;}
+    .ui-ta::placeholder{color:#a1a1aa;}
+    .ui-ta:focus{border-color:rgba(24,24,27,0.55);box-shadow:0 0 0 3px rgba(24,24,27,0.08);background:#ffffff;}
+    .ui-ta:disabled{opacity:.55;cursor:not-allowed;resize:none;}
+    .dark .ui-ta{color:#d4d4d8;border-color:rgba(255,255,255,0.14);background:rgba(24,24,27,0.6);}
+    .dark .ui-ta::placeholder{color:#52525b;}
+    .dark .ui-ta:focus{border-color:rgba(255,255,255,0.5);box-shadow:0 0 0 3px rgba(255,255,255,0.12);background:rgba(24,24,27,0.85);}
+    .ui-ta.has-error{border-color:#dc2626;box-shadow:0 0 0 3px rgba(220,38,38,0.12);}
+    .ui-ta.has-success{border-color:#16a34a;box-shadow:0 0 0 3px rgba(22,163,74,0.12);}
+    .ui-ta.has-warn{border-color:#d97706;box-shadow:0 0 0 3px rgba(217,119,6,0.12);}
+    .dark .ui-ta.has-error{border-color:#f87171;}
+    .dark .ui-ta.has-success{border-color:#4ade80;}
+    .dark .ui-ta.has-warn{border-color:#fbbf24;}
+    .ui-ta--noresize{resize:none;overflow:hidden;min-height:7rem;}
+
+    .cnt-bar-track{height:0.25rem;border-radius:9999px;background:rgba(24,24,27,0.1);overflow:hidden;flex:1;}
+    .dark .cnt-bar-track{background:rgba(255,255,255,0.1);}
+    .cnt-bar-fill{height:100%;width:0%;border-radius:9999px;background:#18181b;transition:width .2s ease,background-color .2s ease;}
+    .dark .cnt-bar-fill{background:#fafafa;}
+    .cnt-bar-fill.is-warn{background:#d97706;}
+    .cnt-bar-fill.is-err{background:#dc2626;}
+    .dark .cnt-bar-fill.is-warn{background:#fbbf24;}
+    .dark .cnt-bar-fill.is-err{background:#f87171;}
+
+    .u-mini{display:inline-flex;align-items:center;gap:0.375rem;border-radius:0.625rem;border:1px solid rgba(24,24,27,0.16);background:rgba(255,255,255,0.7);padding:0.4375rem 0.875rem;font-size:0.75rem;font-weight:600;color:#3f3f46;cursor:pointer;transition:all .2s ease;}
+    .u-mini:hover{border-color:rgba(24,24,27,0.4);}
+    .u-mini:disabled{opacity:.5;cursor:not-allowed;}
+    .dark .u-mini{border-color:rgba(255,255,255,0.16);background:rgba(255,255,255,0.06);color:#d4d4d8;}
+    .dark .u-mini:hover{border-color:rgba(255,255,255,0.4);}
+    .u-mini--solid{background:#18181b;color:#fafafa;border-color:#18181b;}
+    .u-mini--solid:hover{background:#27272a;}
+    .dark .u-mini--solid{background:#fafafa;color:#18181b;border-color:#fafafa;}
+    .dark .u-mini--solid:hover{background:#e4e4e7;}
+
+    .u-note{position:fixed;left:50%;bottom:2rem;transform:translate(-50%,1rem);z-index:80;display:flex;align-items:center;gap:0.5rem;padding:0.625rem 1rem 0.625rem 0.875rem;border-radius:0.75rem;font-size:0.8125rem;font-weight:600;color:#18181b;opacity:0;pointer-events:none;transition:opacity .25s ease,transform .25s ease;background:rgba(255,255,255,0.85);border:1px solid rgba(24,24,27,0.12);box-shadow:0 18px 40px -18px rgba(0,0,0,0.3);backdrop-filter:blur(16px);}
+    .dark .u-note{color:#fafafa;background:rgba(24,24,27,0.9);border:1px solid rgba(255,255,255,0.12);}
+    .u-note.show{opacity:1;transform:translate(-50%,0);}
+    .u-note .lucide{width:1rem;height:1rem;}
+  </style>
+</head>
+<body class="min-h-screen p-6 font-sans antialiased text-zinc-800 dark:text-zinc-100">
+  <script>(function initTheme(){var saved=null;try{saved=localStorage.getItem('uroo-theme')}catch(e){};var dark=(saved==='dark')||(!saved&&window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches);var de=document.documentElement;if(dark){de.classList.add('dark');de.classList.remove('light');if(document.body){document.body.classList.add('dark');document.body.classList.remove('light');}}else{de.classList.remove('dark');de.classList.add('light');if(document.body){document.body.classList.remove('dark');document.body.classList.add('light');}}})();</script>
+  <div class="u-bg u-bg-light" aria-hidden="true"></div>
+  <div class="u-bg u-bg-dark" aria-hidden="true"></div>
+  <div class="u-glow u-glow-1" aria-hidden="true"></div>
+  <div class="u-glow u-glow-2" aria-hidden="true"></div>
+  <div class="u-glow u-glow-3" aria-hidden="true"></div>
+
+  <div class="relative mx-auto max-w-6xl">
+    <header class="relative mb-10">
+      <p class="text-xs font-semibold uppercase tracking-[0.25em] text-zinc-500 dark:text-zinc-500">Uroo UI - Komponen</p>
+      <h1 class="mt-2 text-3xl font-bold tracking-tight md:text-4xl">Textarea</h1>
+      <p class="mt-3 max-w-2xl text-sm leading-relaxed text-zinc-500 dark:text-zinc-400">Area teks multibaris dengan berbagai kondisi: label, status validasi, penghitung karakter, meluas otomatis, serta footer aksi.</p>
+    </header>
+
+    <main class="relative grid gap-6 md:grid-cols-2">
+
+      <section data-copy class="glass-panel rounded-2xl p-6 md:p-8">
+        <p class="text-xs font-semibold uppercase tracking-[0.2em] text-zinc-500 dark:text-zinc-500">Variasi - Default</p>
+        <div class="mt-5">
+          <textarea class="ui-ta" placeholder="Tulis garis besar rapat di sini..."></textarea>
+          <p class="mt-1.5 text-xs text-zinc-500 dark:text-zinc-500">Kotak dapat ditarik dari sudut kanan bawah (resize vertikal).</p>
+        </div>
+      </section>
+
+      <section data-copy class="glass-panel rounded-2xl p-6 md:p-8">
+        <p class="text-xs font-semibold uppercase tracking-[0.2em] text-zinc-500 dark:text-zinc-500">Variasi - Dengan label</p>
+        <div class="mt-5 space-y-5">
+          <div>
+            <label for="taDeskripsi" class="mb-1.5 block text-sm font-semibold">Deskripsi singkat produk</label>
+            <textarea id="taDeskripsi" class="ui-ta" placeholder="Fitur unggulan, manfaat, dan target pengguna..."></textarea>
+            <p class="mt-1.5 text-xs text-zinc-500 dark:text-zinc-500">Tulis maksimal dalam 3 kalimat agar mudah dibaca.</p>
+          </div>
+          <div>
+            <label for="taAlamat" class="mb-1.5 block text-sm font-semibold">Alamat pengiriman</label>
+            <textarea id="taAlamat" class="ui-ta" rows="3" placeholder="Jalan, nomor rumah, kecamatan, kota, kode pos"></textarea>
+          </div>
+        </div>
+      </section>
+
+      <section data-copy class="glass-panel rounded-2xl p-6 md:p-8">
+        <p class="text-xs font-semibold uppercase tracking-[0.2em] text-zinc-500 dark:text-zinc-500">Variasi - Status error dan sukses</p>
+        <div class="mt-5 space-y-5">
+          <div>
+            <label class="mb-1.5 block text-sm font-semibold">Pesan keluhan</label>
+            <textarea class="ui-ta has-error" rows="3">Hubungi laporansaya@mail.com bukan yang ini .
+</textarea>
+            <p class="mt-1.5 flex items-center gap-1.5 text-xs font-medium text-red-600 dark:text-red-400"><i data-lucide="circle-alert" class="h-3.5 w-3.5"></i>Alamat email tidak dikenali. Gunakan format nama@perusahaan.id.</p>
+          </div>
+          <div>
+            <label class="mb-1.5 block text-sm font-semibold">Catatan rapat</label>
+            <textarea class="ui-ta has-success" rows="3">Agenda Q2 disetujui. Timeline penyerahan: 12-16 Agustus, PIC Tim Produk.</textarea>
+            <p class="mt-1.5 flex items-center gap-1.5 text-xs font-medium text-emerald-600 dark:text-emerald-400"><i data-lucide="circle-check" class="h-3.5 w-3.5"></i>Catatan tersimpan dan terverifikasi.</p>
+          </div>
+        </div>
+      </section>
+
+      <section data-copy class="glass-panel rounded-2xl p-6 md:p-8">
+        <p class="text-xs font-semibold uppercase tracking-[0.2em] text-zinc-500 dark:text-zinc-500">Variasi - Otomatis meluas</p>
+        <div class="mt-5">
+          <label for="taAuto" class="mb-1.5 block text-sm font-semibold">Ringkasan harian</label>
+          <textarea id="taAuto" class="ui-ta ui-ta--noresize" data-autoresize rows="3" placeholder="Ketik beberapa baris dan tinggi kolom akan menyesuaikan...">Senin - Dispatched 3 tiket dukungan, rapat sprint, draf SOP onboarding.
+Kamis - Revisi dokumentasi API bersama tim backend terselesaikan.</textarea>
+          <p class="mt-1.5 text-xs text-zinc-500 dark:text-zinc-500">Coba tekan Enter beberapa kali untuk melihat kolom berkembang otomatis.</p>
+        </div>
+      </section>
+
+      <section data-copy class="glass-panel rounded-2xl p-6 md:p-8">
+        <p class="text-xs font-semibold uppercase tracking-[0.2em] text-zinc-500 dark:text-zinc-500">Variasi - Penghitung karakter</p>
+        <div class="mt-5">
+          <label for="taCount" class="mb-1.5 block text-sm font-semibold">Status sosial media</label>
+          <textarea id="taCount" class="ui-ta ui-ta--noresize" maxlength="160" placeholder="Bagikan kabar terbaru tim Anda (maksimal 160 karakter)"></textarea>
+          <div class="mt-3 flex items-center gap-4">
+            <div class="cnt-bar-track"><div id="cntBar" class="cnt-bar-fill"></div></div>
+            <span id="cntVal" class="w-20 text-right text-xs font-semibold tabular-nums text-zinc-500 dark:text-zinc-400">0 / 160</span>
+          </div>
+          <p class="mt-1.5 text-xs text-zinc-500 dark:text-zinc-500">Bilah berubah menjadi peringatan saat mendekati batas 160 karakter.</p>
+        </div>
+      </section>
+
+      <section data-copy class="glass-panel rounded-2xl p-6 md:p-8">
+        <p class="text-xs font-semibold uppercase tracking-[0.2em] text-zinc-500 dark:text-zinc-500">Variasi - Nonaktif</p>
+        <div class="mt-5 space-y-5">
+          <div>
+            <label class="mb-1.5 block text-sm font-semibold">Kutipan kunci (kunci)</label>
+            <textarea class="ui-ta" disabled rows="3">Kolom ini terkunci pada level pembaca dan tidak dapat diedit.</textarea>
+          </div>
+          <div>
+            <label class="mb-1.5 block text-sm font-semibold">Log audit</label>
+            <textarea class="ui-ta" disabled rows="2" placeholder="Tidak ada aktivitas untuk periode terpilih"></textarea>
+          </div>
+        </div>
+      </section>
+
+      <section data-copy class="glass-panel rounded-2xl p-6 md:p-8 md:col-span-2">
+        <p class="text-xs font-semibold uppercase tracking-[0.2em] text-zinc-500 dark:text-zinc-500">Interaktif - Validasi ulasan</p>
+        <div class="mt-5">
+          <label for="taUlas" class="mb-1.5 block text-sm font-semibold">Tulis ulasan Anda</label>
+          <textarea id="taUlas" class="ui-ta ui-ta--noresize" rows="3" placeholder="Ceritakan pengalaman menggunakan layanan kami (minimal 20 karakter)"></textarea>
+          <p id="ulasMsg" class="mt-1.5 text-xs text-zinc-500 dark:text-zinc-500">Ulasan yang baik memuat kendala, solusi, dan rekomendasi.</p>
+          <div class="mt-3 flex justify-end">
+            <button id="ulasBtn" class="u-mini u-mini--solid" disabled>Kirim ulasan</button>
+          </div>
+        </div>
+      </section>
+
+      <section data-copy class="glass-panel rounded-2xl p-6 md:p-8 md:col-span-2">
+        <p class="text-xs font-semibold uppercase tracking-[0.2em] text-zinc-500 dark:text-zinc-500">Variasi - Dengan footer aksi</p>
+        <div class="mt-5 rounded-xl border border-zinc-300/40 bg-white/50 p-4 dark:border-white/10 dark:bg-white/5">
+          <label for="taNote" class="mb-1.5 block text-sm font-semibold">Catatan rapat kecil</label>
+          <textarea id="taNote" class="ui-ta ui-ta--noresize" rows="4" placeholder="Tulis catatan rapat agar dapat dibagikan nanti..."></textarea>
+          <div class="mt-3 flex flex-wrap items-center justify-between gap-3">
+            <span id="footCount" class="text-xs tabular-nums text-zinc-500 dark:text-zinc-500">0 karakter · 0 kata</span>
+            <div class="flex gap-2">
+              <button id="footReset" class="u-mini" type="button">Bersihkan</button>
+              <button id="footSave" class="u-mini u-mini--solid" type="button"><i data-lucide="save" class="h-3.5 w-3.5"></i>Simpan catatan</button>
+            </div>
+          </div>
+          <p class="mt-3 text-xs text-zinc-500 dark:text-zinc-500">Footer memperlihatkan ringkasan isi sekaligus menyediakan aksi utama dalam satu kotak.</p>
+        </div>
+      </section>
+    </main>
+
+    <footer class="relative mt-12 flex items-center justify-between border-t border-zinc-400/30 py-6 text-xs text-zinc-500 dark:border-white/10 dark:text-zinc-500">
+      <span>Uroo UI - Glassmorphism monokrom</span>
+      <span id="year"></span>
+    </footer>
+  </div>
+
+  <button onclick="toggleTheme()" class="glass-panel fixed right-4 top-4 z-50 inline-flex items-center justify-center rounded-full p-2.5" aria-label="Ganti tema">
+    <i data-lucide="sun" class="h-5 w-5 text-zinc-700 dark:hidden"></i>
+    <i data-lucide="moon" class="hidden h-5 w-5 text-zinc-200 dark:block"></i>
+  </button>
+
+  <script>
+    lucide.createIcons();
+    function toggleTheme(){const h=document.documentElement,b=document.body;h.classList.toggle('dark');b.classList.toggle('dark');try{localStorage.setItem('uroo-theme',b.classList.contains('dark')?'dark':'light')}catch(e){};lucide.createIcons();}
+    (function(){if(document.documentElement.classList.contains('dark')){document.body.classList.add('dark');}else{document.body.classList.remove('dark');}})();
+    document.getElementById('year').textContent = 'Uroo Dev - ' + new Date().getFullYear();
+
+    function note(msg, ok){
+      var n = document.querySelector('.u-note');
+      if(!n){ n = document.createElement('div'); n.className='u-note'; document.body.appendChild(n); }
+      n.innerHTML = '<i data-lucide="' + (ok?'circle-check':'circle-alert') + '" class="' + (ok?'text-emerald-500':'text-red-500') + '"></i><span>' + msg + '</span>';
+      lucide.createIcons();
+      n.classList.add('show');
+      clearTimeout(n._t);
+      n._t = setTimeout(function(){ n.classList.remove('show'); }, 2200);
+    }
+
+    function autoResizeTa(el){
+      el.style.height = 'auto';
+      el.style.height = el.scrollHeight + 'px';
+    }
+    document.querySelectorAll('[data-autoresize]').forEach(function(ta){
+      ta.addEventListener('input', function(){ autoResizeTa(ta); });
+      autoResizeTa(ta);
+    });
+
+    var taCount = document.getElementById('taCount');
+    var cntVal = document.getElementById('cntVal');
+    var cntBar = document.getElementById('cntBar');
+    function upCount(){
+      var n = taCount.value.length, max = 160;
+      cntVal.textContent = n + ' / ' + max;
+      cntBar.style.width = Math.min(100, n / max * 100) + '%';
+      cntBar.classList.toggle('is-err', n >= max);
+      cntBar.classList.toggle('is-warn', n >= max * 0.75 && n < max);
+      taCount.classList.toggle('has-error', n >= max);
+      taCount.classList.toggle('has-warn', n >= max * 0.75 && n < max);
+    }
+    taCount.addEventListener('input', upCount);
+    upCount();
+
+    var taUlas = document.getElementById('taUlas');
+    var ulasMsg = document.getElementById('ulasMsg');
+    var ulasBtn = document.getElementById('ulasBtn');
+    function upUlas(){
+      var n = taUlas.value.trim().length;
+      var ok = n >= 20;
+      taUlas.classList.toggle('has-error', !ok);
+      ulasBtn.disabled = !ok;
+      if(ok){
+        ulasMsg.textContent = 'Ulasan ' + n + ' karakter, siap dikirim.';
+        ulasMsg.className = 'mt-1.5 text-xs font-medium text-emerald-600 dark:text-emerald-400';
+      }else{
+        ulasMsg.textContent = 'Tulis minimal 20 karakter (sekarang ' + n + ').';
+        ulasMsg.className = 'mt-1.5 text-xs text-zinc-500 dark:text-zinc-500';
+      }
+    }
+    ulasBtn.disabled = true;
+    taUlas.addEventListener('input', upUlas);
+    ulasBtn.addEventListener('click', function(){
+      taUlas.value = '';
+      upUlas();
+      note('Ulasan berhasil dikirim', true);
+    });
+
+    var taNote = document.getElementById('taNote');
+    function upFoot(){
+      var v = taNote.value;
+      var chars = v.length;
+      var words = v.trim() ? v.trim().split(/\s+/).length : 0;
+      document.getElementById('footCount').textContent = chars + ' karakter · ' + words + ' kata';
+    }
+    taNote.addEventListener('input', upFoot);
+    upFoot();
+    document.getElementById('footReset').addEventListener('click', function(){
+      taNote.value = '';
+      upFoot();
+      note('Catatan dikosongkan', true);
+    });
+    document.getElementById('footSave').addEventListener('click', function(){
+      if(!taNote.value.trim()){ note('Tulis catatan terlebih dahulu'); return; }
+      note('Catatan disimpan ke draf', true);
+    });
+  </script>
+<script src="../../assets/js/uroo-copy.js"></script>
+<script src="../../assets/js/uroo-nav.js"></script>
+</body>
+</html>

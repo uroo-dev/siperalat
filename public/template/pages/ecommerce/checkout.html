@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="id" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Uroo UI - Checkout</title>
+  <script src="../../assets/js/tailwind.js"></script>
+  <script src="../../assets/js/lucide.js"></script>
+  <script>tailwind.config={darkMode:'class',theme:{extend:{colors:{glass:{light:'rgba(255,255,255,0.65)','light-border':'rgba(255,255,255,0.8)',dark:'rgba(18,18,20,0.65)','dark-border':'rgba(255,255,255,0.1)'}}}}}</script>
+  <link rel="stylesheet" href="../../assets/css/uroo.css">
+  <style>
+    .u-bg{position:fixed;inset:0;z-index:-10;transition:opacity .35s ease}
+    .u-bg-light{background:linear-gradient(135deg,#dfe3ea,#f4f4f5)}
+    .u-bg-dark{background:linear-gradient(135deg,#0a0a0b,#1a1a1e);opacity:0}
+    body.dark .u-bg-light{opacity:0}
+    body.dark .u-bg-dark{opacity:1}
+    .u-glow{position:fixed;border-radius:9999px;filter:blur(90px);z-index:-9;pointer-events:none;transition:background-color .35s ease;background:rgba(0,0,0,0.06)}
+    body.dark .u-glow{background:rgba(255,255,255,0.05)}
+    .u-glow-1{width:420px;height:420px;top:-140px;left:-140px}
+    .u-glow-2{width:520px;height:520px;bottom:-200px;right:-140px}
+    .u-glow-3{width:300px;height:300px;top:42%;left:58%}
+
+    html{background:#e7e8ec}
+    html.dark{background:#0a0a0c}
+    body:not(.dark) .u-ic-sun{display:none}
+    body.dark .u-ic-moon{display:none}
+
+    .u-field{width:100%;height:46px;border-radius:12px;background:rgba(255,255,255,.6);border:1px solid rgba(24,24,27,.10);color:#18181b;font-size:14px;padding:0 14px;outline:none;transition:border-color .2s ease,box-shadow .2s ease}
+    body.dark .u-field{background:rgba(255,255,255,.05);border-color:rgba(255,255,255,.12);color:#f4f4f5}
+    .u-field::placeholder{color:#a1a1aa}
+    .u-field:focus{border-color:rgba(24,24,27,.5);box-shadow:0 0 0 4px rgba(24,24,27,.08)}
+    body.dark .u-field:focus{border-color:rgba(255,255,255,.55);box-shadow:0 0 0 4px rgba(255,255,255,.08)}
+    .u-field.u-invalid{border-color:#dc2626!important;box-shadow:0 0 0 4px rgba(220,38,38,.10)}
+    body.dark .u-field.u-invalid{border-color:#f87171!important;box-shadow:0 0 0 4px rgba(248,113,113,.12)}
+    body.dark .u-field option{background:#18181b;color:#f4f4f5}
+
+    .u-search{width:100%;height:42px;border-radius:9999px;background:rgba(255,255,255,.55);border:1px solid rgba(24,24,27,.10);color:#18181b;font-size:13px;padding:0 18px 0 18px;outline:none;transition:border-color .2s ease,box-shadow .2s ease}
+    body.dark .u-search{background:rgba(255,255,255,.05);border-color:rgba(255,255,255,.12);color:#f4f4f5}
+    .u-search::placeholder{color:#a1a1aa}
+    .u-search:focus{border-color:rgba(24,24,27,.45);box-shadow:0 0 0 4px rgba(24,24,27,.08)}
+    body.dark .u-search:focus{border-color:rgba(255,255,255,.5);box-shadow:0 0 0 4px rgba(255,255,255,.08)}
+
+    .u-btn{transition:transform .2s ease,box-shadow .2s ease,background-color .2s ease}
+    .u-btn:hover{transform:translateY(-1px)}
+    .u-btn:active{transform:scale(.96)}
+    .u-btn[disabled]{opacity:.6;pointer-events:none}
+
+    .u-step{position:relative;display:flex;flex-direction:column;align-items:center;gap:8px;flex:1;min-width:0}
+    .u-step .dot{width:44px;height:44px;border-radius:9999px;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.55);border:1px solid rgba(24,24,27,.12);color:#a1a1aa;font-size:14px;font-weight:800;position:relative;z-index:1;transition:background-color .3s ease,color .3s ease,border-color .3s ease,transform .3s ease}
+    body.dark .u-step .dot{background:rgba(255,255,255,.05);border-color:rgba(255,255,255,.12)}
+    .u-step.u-done .dot,.u-step.u-active .dot{background:#18181b;border-color:#18181b;color:#fff;box-shadow:0 8px 20px -6px rgba(0,0,0,.4)}
+    body.dark .u-step.u-done .dot,body.dark .u-step.u-active .dot{background:#f4f4f5;border-color:#f4f4f5;color:#18181b}
+    .u-step .bar{position:absolute;top:22px;left:calc(50% + 26px);right:calc(-50% + 26px);height:2px;background:rgba(24,24,27,.10);z-index:0}
+    body.dark .u-step .bar{background:rgba(255,255,255,.10)}
+    .u-step.u-done .bar{background:#18181b}
+    body.dark .u-step.u-done .bar{background:#f4f4f5}
+    .u-step:last-child .bar{display:none}
+    body:not(.dark) .u-step.u-active .dot,.u-step.u-done .dot{transform:scale(1.05)}
+
+    .u-radio-card{display:flex;align-items:center;gap:14px;width:100%;text-align:left;padding:16px;border-radius:16px;border:1px solid rgba(24,24,27,.12);background:rgba(255,255,255,.5);cursor:pointer;transition:border-color .2s ease,background-color .2s ease,transform .2s ease}
+    body.dark .u-radio-card{background:rgba(255,255,255,.05);border-color:rgba(255,255,255,.12)}
+    .u-radio-card:hover{transform:translateY(-1px)}
+    .u-radio-card.u-on{border-color:rgba(24,24,27,.7);background:rgba(24,24,27,.04)}
+    body.dark .u-radio-card.u-on{border-color:rgba(255,255,255,.55);background:rgba(255,255,255,.06)}
+    .u-radio-card .radio{width:20px;height:20px;border-radius:9999px;border:2px solid rgba(24,24,27,.25);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:border-color .2s ease}
+    body.dark .u-radio-card .radio{border-color:rgba(255,255,255,.3)}
+    .u-radio-card.u-on .radio{border-color:#18181b}
+    body.dark .u-radio-card.u-on .radio{border-color:#f4f4f5}
+    .u-radio-card.u-on .radio::after{content:'';width:10px;height:10px;border-radius:9999px;background:#18181b}
+    body.dark .u-radio-card.u-on .radio::after{background:#f4f4f5}
+
+    .u-pane{display:none}
+    .u-pane.u-on{display:block;animation:u-slide-up .35s cubic-bezier(.16,1,.3,1)}
+  </style>
+</head>
+<body class="min-h-screen font-sans antialiased text-zinc-800 dark dark:text-zinc-100">
+  <script>(function initTheme(){var saved=null;try{saved=localStorage.getItem('uroo-theme')}catch(e){};var dark=(saved==='dark')||(!saved&&window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches);var de=document.documentElement;if(dark){de.classList.add('dark');de.classList.remove('light');if(document.body){document.body.classList.add('dark');document.body.classList.remove('light');}}else{de.classList.remove('dark');de.classList.add('light');if(document.body){document.body.classList.remove('dark');document.body.classList.add('light');}}})();</script>
+
+
+<div class="u-bg u-bg-light"></div>
+<div class="u-bg u-bg-dark"></div>
+<div class="u-glow u-glow-1"></div>
+<div class="u-glow u-glow-2"></div>
+<div class="u-glow u-glow-3"></div>
+
+<button onclick="toggleTheme()" aria-label="Ganti tema" title="Ganti tema"
+  class="fixed top-4 right-4 z-50 glass-panel rounded-full p-2.5 text-zinc-600 dark:text-zinc-200 hover:scale-110 transition-transform">
+  <i data-lucide="sun" class="u-ic-sun w-5 h-5"></i>
+  <i data-lucide="moon" class="u-ic-moon w-5 h-5"></i>
+</button>
+
+<header class="sticky top-0 z-40 glass-panel rounded-none border-x-0 border-t-0">
+  <div class="max-w-5xl mx-auto h-16 px-4 sm:px-8 pr-16 flex items-center gap-4">
+    <a href="catalog.html" class="inline-flex items-center gap-2.5 shrink-0">
+      <span class="inline-flex items-center justify-center w-9 h-9 rounded-2xl bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900">
+        <i data-lucide="layers" class="w-5 h-5"></i>
+      </span>
+      <span class="hidden sm:block text-lg font-extrabold tracking-tight text-zinc-900 dark:text-white">Uroo Goods</span>
+    </a>
+    <a href="cart.html" class="ml-auto inline-flex items-center gap-2 text-[13px] font-bold text-zinc-600 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors">
+      <i data-lucide="arrow-left" class="w-4 h-4"></i> Kembali ke keranjang
+    </a>
+  </div>
+</header>
+
+<main class="relative max-w-5xl mx-auto px-4 sm:px-8 pt-8 pb-28">
+  <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight text-zinc-900 dark:text-white">Checkout</h1>
+
+  <!-- Stepper -->
+  <div class="mt-8 flex items-start" id="stepper">
+    <div class="u-step u-active" data-step="0"><div class="dot"><i data-lucide="map-pin" class="" style="width:18px;height:18px"></i></div><span class="text-[11px] sm:text-xs font-bold text-zinc-900 dark:text-white">Alamat</span></div>
+    <div class="u-step" data-step="1"><div class="dot"><i data-lucide="truck" class="" style="width:18px;height:18px"></i></div><span class="text-[11px] sm:text-xs font-bold text-zinc-400 dark:text-zinc-500">Pengiriman</span></div>
+    <div class="u-step" data-step="2"><div class="dot"><i data-lucide="credit-card" class="" style="width:18px;height:18px"></i></div><span class="text-[11px] sm:text-xs font-bold text-zinc-400 dark:text-zinc-500">Pembayaran</span></div>
+    <div class="u-step" data-step="3"><div class="dot"><i data-lucide="clipboard-check" class="" style="width:18px;height:18px"></i></div><span class="text-[11px] sm:text-xs font-bold text-zinc-400 dark:text-zinc-500">Ringkasan</span></div>
+  </div>
+
+  <div class="mt-8 grid lg:grid-cols-3 gap-6">
+    <div class="lg:col-span-2">
+
+      <!-- Step 1: Alamat -->
+      <section id="step0" class="u-pane u-on">
+        <div class="glass-panel rounded-3xl p-6 sm:p-7">
+          <h2 class="text-lg font-extrabold tracking-tight text-zinc-900 dark:text-white">Alamat Pengiriman</h2>
+          <form id="addrForm" class="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-4" novalidate>
+            <div>
+              <label for="fullName" class="block text-[13px] font-semibold mb-1.5 text-zinc-700 dark:text-zinc-300">Nama penerima</label>
+              <input id="fullName" type="text" class="u-field" placeholder="Nama lengkap" autocomplete="name">
+            </div>
+            <div>
+              <label for="phoneNo" class="block text-[13px] font-semibold mb-1.5 text-zinc-700 dark:text-zinc-300">Nomor HP</label>
+              <input id="phoneNo" type="tel" class="u-field" placeholder="08xxxxxxxxxx" autocomplete="tel">
+            </div>
+            <div class="sm:col-span-2">
+              <label for="streetAddr" class="block text-[13px] font-semibold mb-1.5 text-zinc-700 dark:text-zinc-300">Alamat lengkap</label>
+              <input id="streetAddr" type="text" class="u-field" placeholder="Jalan, RT/RW, kelurahan, blok, nomor rumah" autocomplete="street-address">
+            </div>
+            <div>
+              <label for="cityInput" class="block text-[13px] font-semibold mb-1.5 text-zinc-700 dark:text-zinc-300">Kota/Kabupaten</label>
+              <input id="cityInput" type="text" class="u-field" placeholder="Contoh: Jakarta Selatan" autocomplete="address-level2">
+            </div>
+            <div>
+              <label for="zipInput" class="block text-[13px] font-semibold mb-1.5 text-zinc-700 dark:text-zinc-300">Kode pos</label>
+              <input id="zipInput" type="text" class="u-field" placeholder="12190" autocomplete="postal-code" inputmode="numeric">
+            </div>
+            <label class="sm:col-span-2 inline-flex items-start gap-2 text-[13px] font-medium text-zinc-600 dark:text-zinc-300 cursor-pointer select-none">
+              <input id="saveAddr" type="checkbox" class="mt-0.5 h-4 w-4 rounded accent-zinc-900 dark:accent-zinc-100" checked>
+              Simpan alamat ini sebagai alamat utama
+            </label>
+            <div class="sm:col-span-2 flex items-center justify-between gap-4 pt-2">
+              <p class="text-xs text-zinc-400 dark:text-zinc-500 flex items-center gap-1.5"><i data-lucide="lock" class="w-3.5 h-3.5"></i> Data Anda dienkripsi dan dijamin aman.</p>
+              <button type="submit" class="u-btn inline-flex items-center gap-2 rounded-full bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900 px-6 py-3 text-sm font-bold hover:shadow-lg">
+                Lanjutkan
+                <i data-lucide="arrow-right" class="w-4 h-4"></i>
+              </button>
+            </div>
+          </form>
+        </div>
+      </section>
+
+      <!-- Step 2: Pengiriman -->
+      <section id="step1" class="u-pane">
+        <div class="glass-panel rounded-3xl p-6 sm:p-7">
+          <h2 class="text-lg font-extrabold tracking-tight text-zinc-900 dark:text-white">Metode Pengiriman</h2>
+          <p class="mt-1 text-sm text-zinc-500 dark:text-zinc-400">Pilih kurir yang paling sesuai dengan kebutuhan Anda.</p>
+          <div class="mt-6 space-y-3" id="shipOptions"></div>
+          <p id="shipNote" class="mt-4 text-xs text-zinc-400 dark:text-zinc-500"></p>
+          <div class="mt-6 flex items-center justify-between gap-4">
+            <button type="button" data-prev class="u-btn inline-flex items-center gap-2 rounded-full glass-panel px-6 py-3 text-sm font-bold text-zinc-700 dark:text-zinc-200">
+              <i data-lucide="arrow-left" class="w-4 h-4"></i> Kembali
+            </button>
+            <button type="button" id="shipNext" class="u-btn inline-flex items-center gap-2 rounded-full bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900 px-6 py-3 text-sm font-bold hover:shadow-lg">
+              Lanjutkan
+              <i data-lucide="arrow-right" class="w-4 h-4"></i>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Step 3: Pembayaran -->
+      <section id="step2" class="u-pane">
+        <div class="glass-panel rounded-3xl p-6 sm:p-7">
+          <h2 class="text-lg font-extrabold tracking-tight text-zinc-900 dark:text-white">Metode Pembayaran</h2>
+          <p class="mt-1 text-sm text-zinc-500 dark:text-zinc-400">Semua transaksi dilindungi sistem enkripsi.</p>
+          <div class="mt-6 grid sm:grid-cols-2 gap-3" id="payOptions">
+            <button class="u-radio-card" data-pay="Va BCA">
+              <span class="radio"></span>
+              <span class="text-sm font-bold text-zinc-900 dark:text-white">Virtual Account BCA</span>
+            </button>
+            <button class="u-radio-card" data-pay="GoPay">
+              <span class="radio"></span>
+              <span class="text-sm font-bold text-zinc-900 dark:text-white">GoPay</span>
+            </button>
+            <button class="u-radio-card" data-pay="OVO">
+              <span class="radio"></span>
+              <span class="text-sm font-bold text-zinc-900 dark:text-white">OVO</span>
+            </button>
+            <button class="u-radio-card" data-pay="Kartu Kredit">
+              <span class="radio"></span>
+              <span class="text-sm font-bold text-zinc-900 dark:text-white">Kartu Kredit / Debit</span>
+            </button>
+            <button class="u-radio-card" data-pay="QRIS">
+              <span class="radio"></span>
+              <span class="text-sm font-bold text-zinc-900 dark:text-white">QRIS</span>
+            </button>
+            <button class="u-radio-card" data-pay="Cicilan 0%">
+              <span class="radio"></span>
+              <span class="text-sm font-bold text-zinc-900 dark:text-white">Cicilan 0% 3 bulan</span>
+            </button>
+          </div>
+          <p id="payNote" class="mt-4 text-xs font-bold text-zinc-500 dark:text-zinc-400"></p>
+          <div class="mt-6 flex items-center justify-between gap-4">
+            <button type="button" data-prev class="u-btn inline-flex items-center gap-2 rounded-full glass-panel px-6 py-3 text-sm font-bold text-zinc-700 dark:text-zinc-200">
+              <i data-lucide="arrow-left" class="w-4 h-4"></i> Kembali
+            </button>
+            <button type="button" id="payNext" class="u-btn inline-flex items-center gap-2 rounded-full bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900 px-6 py-3 text-sm font-bold hover:shadow-lg">
+              Tinjau Pesanan
+              <i data-lucide="arrow-right" class="w-4 h-4"></i>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Step 4: Ringkasan -->
+      <section id="step3" class="u-pane">
+        <div class="glass-panel rounded-3xl p-6 sm:p-7">
+          <h2 class="text-lg font-extrabold tracking-tight text-zinc-900 dark:text-white">Ringkasan Pesanan</h2>
+          <div class="mt-5 space-y-3">
+            <div class="flex items-start gap-3 glass-panel rounded-2xl px-4 py-3.5">
+              <i data-lucide="map-pin" class="w-4 h-4 shrink-0 mt-0.5 text-zinc-400"></i>
+              <div class="text-sm">
+                <p class="font-bold text-zinc-900 dark:text-white" id="reviewName"></p>
+                <p class="text-zinc-500 dark:text-zinc-400" id="reviewAddr"></p>
+              </div>
+            </div>
+            <div class="flex items-start gap-3 glass-panel rounded-2xl px-4 py-3.5">
+              <i data-lucide="truck" class="w-4 h-4 shrink-0 mt-0.5 text-zinc-400"></i>
+              <div class="text-sm">
+                <p class="font-bold text-zinc-900 dark:text-white" id="reviewShip"></p>
+                <p class="text-zinc-500 dark:text-zinc-400">Estimasi tiba 2-3 hari kerja</p>
+              </div>
+            </div>
+            <div class="flex items-start gap-3 glass-panel rounded-2xl px-4 py-3.5">
+              <i data-lucide="credit-card" class="w-4 h-4 shrink-0 mt-0.5 text-zinc-400"></i>
+              <div class="text-sm">
+                <p class="font-bold text-zinc-900 dark:text-white" id="reviewPay"></p>
+                <p class="text-zinc-500 dark:text-zinc-400">Pembayaran didebit saat pesanan diproses</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="flex items-center gap-2.5 mt-6">
+            <div class="relative flex-1">
+              <i data-lucide="tag" class="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-400 pointer-events-none"></i>
+              <input id="promoInput" type="text" class="u-search" placeholder="Kode promo (UROO10, HEMAT50K)" aria-label="Kode promo">
+            </div>
+            <button id="promoBtn" class="u-btn shrink-0 inline-flex items-center justify-center rounded-full bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900 px-5 py-2.5 text-xs font-bold">Pakai</button>
+          </div>
+          <p id="promoMsg" class="hidden mt-2.5 text-xs font-bold text-emerald-600 dark:text-emerald-400"></p>
+
+          <div class="mt-6 flex items-center justify-between gap-4">
+            <button type="button" data-prev class="u-btn inline-flex items-center gap-2 rounded-full glass-panel px-6 py-3 text-sm font-bold text-zinc-700 dark:text-zinc-200">
+              <i data-lucide="arrow-left" class="w-4 h-4"></i> Kembali
+            </button>
+            <button id="placeBtn" type="button" class="u-btn inline-flex items-center gap-2 rounded-full bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900 px-7 py-3.5 text-sm font-bold hover:shadow-xl">
+              <span id="placeLabel">Buat Pesanan</span>
+              <span id="placeIcon"><i data-lucide="shield-check" class="w-4 h-4"></i></span>
+            </button>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- Order summary -->
+    <aside class="lg:sticky lg:top-24 self-start">
+      <div class="glass-panel rounded-3xl p-6">
+        <h2 class="text-lg font-extrabold tracking-tight text-zinc-900 dark:text-white">Detail Pesanan <span id="sumCount" class="text-sm font-bold text-zinc-400 dark:text-zinc-500"></span></h2>
+        <div class="mt-5 space-y-3.5" id="sumItems"></div>
+        <div class="mt-5 pt-4 border-t border-zinc-900/10 dark:border-white/10 space-y-3 text-sm">
+          <div class="flex justify-between"><span class="text-zinc-500 dark:text-zinc-400">Subtotal</span><span id="sumSub" class="font-bold text-zinc-900 dark:text-white"></span></div>
+          <div class="flex justify-between"><span class="text-zinc-500 dark:text-zinc-400">Ongkir</span><span id="sumShip" class="font-bold text-zinc-900 dark:text-white"></span></div>
+          <div id="sumDiscRow" class="hidden flex justify-between"><span class="text-zinc-500 dark:text-zinc-400">Diskon promo</span><span id="sumDisc" class="font-bold text-emerald-600 dark:text-emerald-400"></span></div>
+          <div class="pt-4 border-t border-zinc-900/10 dark:border-white/10 flex justify-between items-center">
+            <span class="font-bold text-zinc-900 dark:text-white">Total</span>
+            <span id="sumTotal" class="text-xl font-extrabold tracking-tight text-zinc-900 dark:text-white"></span>
+          </div>
+        </div>
+      </div>
+    </aside>
+  </div>
+</main>
+
+<!-- Success modal -->
+<div id="successModal" class="hidden fixed inset-0 z-[70] items-center justify-center p-6">
+  <div id="modalBackdrop" class="absolute inset-0 bg-black/50 backdrop-blur-sm"></div>
+  <div class="relative glass-panel rounded-[28px] max-w-md w-full p-8 sm:p-10 text-center anim-scale-in">
+    <span class="inline-flex items-center justify-center w-18 h-18 rounded-full bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900 mx-auto anim-scale-in" style="width:72px;height:72px">
+      <i data-lucide="check" class="w-9 h-9"></i>
+    </span>
+    <h3 class="mt-6 text-2xl font-extrabold tracking-tight text-zinc-900 dark:text-white">Pesanan berhasil dibuat!</h3>
+    <p class="mt-2 text-sm leading-relaxed text-zinc-500 dark:text-zinc-400">
+      Terima kasih atas pembelian Anda. Nomor pesanan Anda:
+    </p>
+    <div class="mt-5 glass-panel rounded-2xl px-6 py-4 inline-flex items-center gap-2.5">
+      <i data-lucide="package" class="w-5 h-5 text-zinc-400"></i>
+      <span id="orderId" class="text-lg font-extrabold tracking-tight text-zinc-900 dark:text-white"></span>
+    </div>
+    <p class="mt-4 text-xs leading-relaxed text-zinc-400 dark:text-zinc-500">
+      Bukti pesanan telah dikirim ke email Anda. Kami akan segera memproses pesanan Anda.
+    </p>
+    <div class="mt-7 grid grid-cols-2 gap-3">
+      <a href="order-tracking.html" class="inline-flex items-center justify-center gap-2 rounded-full glass-panel px-5 py-3 text-sm font-bold text-zinc-700 dark:text-zinc-200 hover:scale-105 transition-transform">
+        Lacak Pesanan
+      </a>
+      <a href="catalog.html" class="inline-flex items-center justify-center gap-2 rounded-full bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900 px-5 py-3 text-sm font-bold hover:shadow-lg">
+        Lanjut Belanja
+      </a>
+    </div>
+  </div>
+</div>
+
+<script>
+  lucide.createIcons();
+  function toggleTheme(){const h=document.documentElement,b=document.body;h.classList.toggle('dark');b.classList.toggle('dark');try{localStorage.setItem('uroo-theme',b.classList.contains('dark')?'dark':'light')}catch(e){};lucide.createIcons();}
+
+  var toastT;
+  function toast(msg){
+    var t=document.createElement('div');
+    t.className='fixed bottom-6 left-1/2 -translate-x-1/2 z-[60] glass-panel rounded-full px-5 py-3 flex items-center gap-2.5 text-sm font-semibold anim-toast-in';
+    t.innerHTML='<i data-lucide="check" class="w-4 h-4"></i><span>'+msg+'</span>';
+    document.body.appendChild(t);
+    lucide.createIcons();
+    setTimeout(function(){t.style.cssText+=';opacity:0;transition:opacity .4s ease'},2400);
+    setTimeout(function(){t.remove()},2900);
+  }
+  function toastBad(msg){
+    var t=document.createElement('div');
+    t.className='fixed bottom-6 left-1/2 -translate-x-1/2 z-[60] glass-panel rounded-full px-5 py-3 flex items-center gap-2.5 text-sm font-semibold anim-toast-in';
+    t.innerHTML='<i data-lucide="info" class="w-4 h-4"></i><span>'+msg+'</span>';
+    document.body.appendChild(t);
+    lucide.createIcons();
+    setTimeout(function(){t.style.cssText+=';opacity:0;transition:opacity .4s ease'},2400);
+    setTimeout(function(){t.remove()},2900);
+  }
+
+  var GRADS=['from-zinc-200 via-zinc-300 to-zinc-400 dark:from-zinc-700 dark:via-zinc-800 dark:to-zinc-600',
+             'from-zinc-300 via-zinc-400 to-zinc-600 dark:from-zinc-800 dark:via-zinc-700 dark:to-zinc-900',
+             'from-zinc-100 via-zinc-300 to-zinc-500 dark:from-zinc-600 dark:via-zinc-800 dark:to-zinc-950'];
+
+  var ITEMS=[
+    {name:'Headphone Studio Aero',variant:'Hitam · One Size',price:1290000,qty:1,icon:'headphones'},
+    {name:'Tas Kulit Garut',variant:'Cokelat · Tas Selempang',price:780000,qty:1,icon:'shopping-bag'},
+    {name:'Serum Glow Vitamin C',variant:'30 ml',price:165000,qty:1,icon:'droplets'}
+  ];
+
+  var SHIPS=[
+    {id:'jne',name:'JNE Reguler',desc:'Estimasi 2-4 hari',price:25000,days:'2-4'},
+    {id:'sicepat',name:'SiCepat BEST',desc:'Estimasi 2-3 hari',price:32000,days:'2-3'},
+    {id:'jnt',name:'J&T Express',desc:'Estimasi 2-3 hari',price:28000,days:'2-3'},
+    {id:'anteraja',name:'AnterAja',desc:'Estimasi 1-2 hari',price:38000,days:'1-2'}
+  ];
+  var chosenShip=null;
+  var chosenPay=null;
+  var chosenAddr=null;
+  var promo=null;
+  var FREE_OGKIR=750000;
+
+  function fmtRp(n){return 'Rp '+n.toLocaleString('id-ID')}
+  function subtotal(){return ITEMS.reduce(function(a,i){return a+i.price*i.qty},0)}
+  function ongkir(){
+    if(!chosenShip)return 0;
+    return subtotal()>=FREE_OGKIR?0:chosenShip.price;
+  }
+  function discount(){
+    var sub=subtotal();
+    if(!promo)return 0;
+    var map={'UROO10':0.10,'HEMAT50K':50000};
+    if(promo==='UROO10')return Math.round(sub*0.10);
+    if(promo==='HEMAT50K')return Math.min(50000,sub);
+    return 0;
+  }
+  function total(){return subtotal()+ongkir()-discount()}
+
+  function calcShip(){
+    var ship=ongkir();
+    document.getElementById('sumShip').textContent=ship===0&&chosenShip?'Gratis':fmtRp(ship);
+  }
+
+  function renderVanilla(){
+    var shipFree=subtotal()>=FREE_OGKIR;
+    var html='';
+    SHIPS.forEach(function(s){
+      var on=shipFree?0:s.price;
+      html+='<button class="u-radio-card" data-ship="'+s.id+'">'+
+            '<span class="radio"></span>'+
+            '<span class="flex-1 text-sm"><span class="font-bold block text-zinc-900 dark:text-white">'+s.name+'</span>'+
+            '<span class="text-xs text-zinc-500 dark:text-zinc-400">'+s.desc+'</span></span>'+
+            '<span class="text-sm font-extrabold text-zinc-900 dark:text-white">'+fmtRp(on)+'</span>'+
+            '</button>';
+    });
+    document.getElementById('shipOptions').innerHTML=html;
+    document.getElementById('shipNote').textContent=shipFree?'Anda berhak atas GRATIS ongkir untuk pesanan di atas '+fmtRp(FREE_OGKIR)+'.':'';
+    document.querySelectorAll('[data-ship]').forEach(function(b){
+      b.addEventListener('click',function(){
+        var id=this.getAttribute('data-ship');
+        chosenShip=SHIPS.find(function(x){return x.id===id});
+        document.querySelectorAll('[data-ship]').forEach(function(x){x.classList.remove('u-on')});
+        this.classList.add('u-on');
+        document.getElementById('shipNote').textContent=this.querySelector('.text-xs').textContent+'. Kurir dipilih: '+chosenShip.name;
+        calcShip();
+        renderSummary();
+      });
+    });
+    if(chosenShip){
+      var cur=document.querySelector('[data-ship="'+chosenShip.id+'"]');
+      if(cur)cur.classList.add('u-on');
+    }
+  }
+
+  function renderPay(){
+    document.querySelectorAll('[data-pay]').forEach(function(b){
+      b.addEventListener('click',function(){
+        chosenPay=this.getAttribute('data-pay');
+        document.querySelectorAll('[data-pay]').forEach(function(x){x.classList.remove('u-on')});
+        this.classList.add('u-on');
+        document.getElementById('payNote').textContent='Metode pembayaran: '+chosenPay;
+      });
+    });
+  }
+
+  function renderSummary(){
+    document.getElementById('sumCount').textContent='('+ITEMS.length+' jenis barang)';
+    document.getElementById('sumItems').innerHTML=ITEMS.map(function(i){
+      var g=ITEMS.indexOf(i)%GRADS.length;
+      return '<div class="flex items-center gap-3">'+
+        '<span class="shrink-0 w-12 h-12 rounded-xl bg-gradient-to-br '+GRADS[g]+' flex items-center justify-center"><span class="inline-flex items-center justify-center w-6 h-6 rounded-lg bg-white/40 backdrop-blur-md text-zinc-800 dark:bg-black/30 dark:text-zinc-100"><i data-lucide="'+i.icon+'" class="w-3.5 h-3.5"></i></span></span>'+
+        '<div class="flex-1 min-w-0"><p class="text-[13px] font-bold text-zinc-900 dark:text-white truncate">'+i.name+'</p><p class="text-[11px] text-zinc-400 dark:text-zinc-500">'+i.variant+'</p></div>'+
+        '<div class="text-right"><p class="text-[13px] font-extrabold text-zinc-900 dark:text-white">'+fmtRp(i.price*i.qty)+'</p><p class="text-[11px] text-zinc-400 dark:text-zinc-500">x'+i.qty+'</p></div>'+
+        '</div>';
+    }).join('');
+    document.getElementById('sumSub').textContent=fmtRp(subtotal());
+    calcShip();
+    var dr=document.getElementById('sumDiscRow'),d=discount();
+    dr.classList.toggle('hidden',d===0);
+    document.getElementById('sumDisc').textContent='-'+fmtRp(d);
+    document.getElementById('sumTotal').textContent=fmtRp(total());
+    lucide.createIcons();
+  }
+
+  var STEP_NUM=0;
+  var DOC_TITLE={0:'Checkout - Alamat',1:'Checkout - Pengiriman',2:'Checkout - Pembayaran',3:'Checkout - Ringkasan'};
+  function goStep(n){
+    n=Math.max(0,Math.min(3,n));
+    STEP_NUM=n;
+    document.querySelectorAll('.u-pane').forEach(function(p){p.classList.remove('u-on')});
+    document.getElementById('step'+n).classList.add('u-on');
+    var steps=document.querySelectorAll('#stepper .u-step');
+    steps.forEach(function(s,i){
+      s.classList.toggle('u-active',i===n);
+      s.classList.toggle('u-done',i<n);
+      var dot=s.querySelector('.dot');
+      var icons=['map-pin','truck','credit-card','clipboard-check'];
+      dot.innerHTML=i<n
+        ?'<i data-lucide="check" style="width:18px;height:18px"></i>'
+        :'<i data-lucide="'+icons[i]+'" style="width:18px;height:18px"></i>';
+      var lbl=s.querySelector('span:last-child');
+      lbl.classList.toggle('text-zinc-900',i<=n);
+      lbl.classList.toggle('dark:text-white',i<=n);
+      lbl.classList.toggle('text-zinc-400',i>n);
+      lbl.classList.toggle('dark:text-zinc-500',i>n);
+    });
+    document.title=DOC_TITLE[n];
+    lucide.createIcons();
+    window.scrollTo({top:0,behavior:'smooth'});
+  }
+
+  document.querySelectorAll('[data-prev]').forEach(function(b){
+    b.addEventListener('click',function(){goStep(STEP_NUM-1)});
+  });
+
+  document.getElementById('addrForm').addEventListener('submit',function(e){
+    e.preventDefault();
+    var fields=['fullName','phoneNo','streetAddr','cityInput','zipInput'];
+    var ok=true;
+    var vals={};
+    fields.forEach(function(id){
+      var f=document.getElementById(id),v=f.value.trim();
+      if(!v){markBad(f);ok=false;return;}
+      vals[id]=v;
+    });
+    if(vals.phoneNo&&!/^(\+62|62|0)?8\d{8,11}$/.test(vals.phoneNo.replace(/\s/g,''))){document.getElementById('phoneNo').classList.add('u-invalid');ok=false;}
+    if(vals.zipInput&&!document.getElementById('zipInput').classList.contains('u-invalid')&&!/^\d{5}$/.test(vals.zipInput)){document.getElementById('zipInput').classList.add('u-invalid');ok=false;}
+    if(!ok){toastBad('Lengkapi semua kolom alamat dengan benar');return;}
+    chosenAddr=vals;
+    renderVanilla();
+    goStep(1);
+  });
+
+  function markBad(f){
+    f.classList.add('u-invalid');
+    f.addEventListener('input',function clr(){f.classList.remove('u-invalid');f.removeEventListener('input',clr)});
+  }
+
+  document.getElementById('shipNext').addEventListener('click',function(){
+    if(!chosenShip){toastBad('Silakan pilih metode pengiriman terlebih dahulu');return;}
+    goStep(2);
+  });
+  document.getElementById('payNext').addEventListener('click',function(){
+    if(!chosenPay){toastBad('Silakan pilih metode pembayaran terlebih dahulu');return;}
+    document.getElementById('reviewName').textContent=chosenAddr.fullName+' · '+chosenAddr.phoneNo;
+    document.getElementById('reviewAddr').textContent=chosenAddr.streetAddr+', '+chosenAddr.cityInput+' '+chosenAddr.zipInput;
+    document.getElementById('reviewShip').textContent=chosenShip.name+' — '+fmtRp(ongkir())+' (estimasi '+chosenShip.days+' hari)';
+    document.getElementById('reviewPay').textContent=chosenPay;
+    goStep(3);
+  });
+
+  document.getElementById('promoBtn').addEventListener('click',function(){
+    var code=document.getElementById('promoInput').value.trim().toUpperCase();
+    if(!code){toastBad('Masukkan kode promo');return;}
+    if(code!=='UROO10'&&code!=='HEMAT50K'){toastBad('Kode promo tidak valid');return;}
+    promo=code;
+    document.getElementById('promoInput').value='';
+    var m=document.getElementById('promoMsg');
+    m.textContent='Kode '+code+' diterapkan: potongan '+fmtRp(discount())+' berhasil dibuka.';
+    m.classList.remove('hidden');
+    renderSummary();
+    toast('Kode promo '+code+' diterapkan');
+  });
+
+  document.getElementById('placeBtn').addEventListener('click',function(){
+    var btn=this;
+    btn.classList.add('opacity-70','pointer-events-none');
+    document.getElementById('placeLabel').textContent='Memproses...';
+    document.getElementById('placeIcon').innerHTML='<span class="anim-spin inline-block w-4 h-4 rounded-full border-2 border-white/40 dark:border-zinc-900/40 border-t-white dark:border-t-zinc-900"></span>';
+    lucide.createIcons();
+    setTimeout(function(){
+      var oid='URO-'+Date.now().toString().slice(-7)+'-'+Math.floor(100+Math.random()*900);
+      document.getElementById('orderId').textContent=oid;
+      btn.classList.remove('opacity-70','pointer-events-none');
+      document.getElementById('placeLabel').textContent='Buat Pesanan';
+      document.getElementById('placeIcon').innerHTML='<i data-lucide="shield-check" class="w-4 h-4"></i>';
+      lucide.createIcons();
+      var m=document.getElementById('successModal');
+      m.classList.remove('hidden');
+      m.classList.add('flex');
+      document.body.style.overflow='hidden';
+    },1600);
+  });
+
+  document.getElementById('successModal').addEventListener('click',function(e){
+    if(e.target.id==='successModal'||e.target.id==='modalBackdrop'){this.classList.add('hidden');this.classList.remove('flex');document.body.style.overflow='';}
+  });
+
+  renderVanilla();
+  renderPay();
+  renderSummary();
+</script>
+<script src="../../assets/js/uroo-nav.js"></script>
+</body>
+</html>

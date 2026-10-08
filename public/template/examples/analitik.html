@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="id" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Analitik - Showcase</title>
+  <script src="../assets/js/tailwind.js"></script>
+  <script src="../assets/js/lucide.js"></script>
+  <script>tailwind.config={darkMode:'class',theme:{extend:{colors:{glass:{light:'rgba(255,255,255,0.65)','light-border':'rgba(255,255,255,0.8)',dark:'rgba(18,18,20,0.65)','dark-border':'rgba(255,255,255,0.1)'}}}}}</script>
+  <link rel="stylesheet" href="../assets/css/uroo.css">
+  <style>
+    .u-bg{position:fixed;inset:0;z-index:-10;transition:opacity .35s ease}
+    .u-bg-light{background:linear-gradient(135deg,#dfe3ea,#f4f4f5)}
+    .u-bg-dark{background:linear-gradient(135deg,#0a0a0b,#1a1a1e);opacity:0}
+    body.dark .u-bg-light{opacity:0}
+    body.dark .u-bg-dark{opacity:1}
+    .u-glow{position:fixed;border-radius:9999px;filter:blur(90px);z-index:-9;pointer-events:none;background:rgba(0,0,0,0.06);transition:background-color .35s ease}
+    body.dark .u-glow{background:rgba(255,255,255,0.05)}
+    .u-glow-1{width:420px;height:420px;top:-140px;left:-140px}
+    .u-glow-2{width:520px;height:520px;bottom:-200px;right:-140px}
+    .u-glow-3{width:300px;height:300px;top:42%;left:58%}
+    #sidebar{width:16rem;transition:transform .28s cubic-bezier(.16,1,.3,1),width .28s cubic-bezier(.16,1,.3,1)}
+    #sidebar.collapsed{width:4.75rem}
+    #sidebar .nav-label{transition:opacity .15s ease,width .15s ease}
+    #sidebar.collapsed .nav-label{opacity:0;width:0;overflow:hidden;white-space:nowrap}
+    #sidebar.collapsed .nav-link{justify-content:center;padding-left:0;padding-right:0}
+    #sidebar.collapsed .group-title{justify-content:center;padding-left:0;padding-right:0}
+    #sidebar.collapsed .nav-text{display:none}
+    #sidebar.collapsed .logo-text{display:none}
+    #sidebar .badge-dot{transition:opacity .15s}
+    #sidebar.collapsed .badge-dot{opacity:0}
+    @media (max-width:767px){
+      #sidebar{position:fixed;top:1rem;bottom:1rem;left:1rem;z-index:50;transform:translateX(-130%);}
+      #sidebar.open{transform:translateX(0);}
+    }
+    :root{--u-chart:#18181b;--u-chart-mid:#71717a;--u-grid:rgba(113,113,122,0.18)}
+    .dark{--u-chart:#fafafa;--u-chart-mid:#a1a1aa;--u-grid:rgba(255,255,255,0.08)}
+    .bar-u{fill:var(--u-chart-mid);opacity:.65}
+    .bar-u.last{fill:var(--u-chart);opacity:1}
+  </style>
+</head>
+<body class="min-h-screen font-sans antialiased text-zinc-800 dark:text-zinc-100">
+  <script>(function initTheme(){var saved=null;try{saved=localStorage.getItem('uroo-theme')}catch(e){};var dark=(saved==='dark')||(!saved&&window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches);var de=document.documentElement;if(dark){de.classList.add('dark');de.classList.remove('light');if(document.body){document.body.classList.add('dark');document.body.classList.remove('light');}}else{de.classList.remove('dark');de.classList.add('light');if(document.body){document.body.classList.remove('dark');document.body.classList.add('light');}}})();</script>
+  <div class="u-bg u-bg-light" aria-hidden="true"></div>
+  <div class="u-bg u-bg-dark" aria-hidden="true"></div>
+  <div class="u-glow u-glow-1" aria-hidden="true"></div>
+  <div class="u-glow u-glow-2" aria-hidden="true"></div>
+  <div class="u-glow u-glow-3" aria-hidden="true"></div>
+
+  <div id="overlay" class="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm opacity-0 pointer-events-none transition-opacity duration-300 md:hidden" onclick="closeDrawer()"></div>
+
+  <div class="md:flex md:gap-4 md:p-4 min-h-screen">
+    <aside id="sidebar" class="glass-panel rounded-2xl flex flex-col overflow-hidden shrink-0 md:sticky md:top-4 md:h-[calc(100vh-2rem)]">
+      <div class="flex items-center gap-3 px-5 h-16 border-b border-black/5 dark:border-white/10 shrink-0">
+        <img src="../assets/img/uroo_ui.png" alt="Uroo UI" class="w-9 h-9 rounded-xl object-cover shadow-lg shrink-0">
+        <div class="logo-text min-w-0">
+          <p class="font-extrabold text-[15px] leading-none tracking-tight">Uroo UI</p>
+          <p class="mt-0.5 text-[10px] font-semibold uppercase tracking-[0.18em] text-zinc-400 dark:text-zinc-500">Showcase</p>
+        </div>
+        <button onclick="closeDrawer()" class="ml-auto md:hidden p-1.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/10"><i data-lucide="x" class="w-4 h-4"></i></button>
+        <button onclick="toggleSidebar()" class="hidden md:block ml-auto p-1.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 text-zinc-400"><i data-lucide="panel-left-close" class="w-4 h-4"></i></button>
+      </div>
+
+      <nav class="flex-1 overflow-y-auto px-3 py-4 space-y-6">
+        <div>
+          <p class="group-title flex items-center nav-label px-3 mb-2 text-[10px] font-bold uppercase tracking-[0.18em] text-zinc-400 dark:text-zinc-500">Menu</p>
+          <div class="space-y-1">
+            <a href="dashboard-showcase.html" class="nav-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-50 hover:bg-black/5 dark:hover:bg-white/10"><i data-lucide="layout-dashboard" class="w-[18px] h-[18px] shrink-0"></i><span class="nav-label">Ringkasan</span></a>
+            <a href="analitik.html" class="nav-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold bg-zinc-900 text-zinc-50 dark:bg-zinc-50 dark:text-zinc-900 shadow-lg"><i data-lucide="chart-column-big" class="w-[18px] h-[18px] shrink-0"></i><span class="nav-label">Analitik</span></a>
+            <a href="laporan.html" class="nav-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-50 hover:bg-black/5 dark:hover:bg-white/10"><i data-lucide="bar-chart-3" class="w-[18px] h-[18px] shrink-0"></i><span class="nav-label">Laporan</span></a>
+          </div>
+        </div>
+        <div>
+          <p class="group-title flex items-center nav-label px-3 mb-2 text-[10px] font-bold uppercase tracking-[0.18em] text-zinc-400 dark:text-zinc-500">Tim</p>
+          <div class="space-y-1">
+            <a href="anggota.html" class="nav-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-50 hover:bg-black/5 dark:hover:bg-white/10"><i data-lucide="users" class="w-[18px] h-[18px] shrink-0"></i><span class="nav-label">Anggota</span></a>
+            <a href="proyek.html" class="nav-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-50 hover:bg-black/5 dark:hover:bg-white/10"><i data-lucide="kanban" class="w-[18px] h-[18px] shrink-0"></i><span class="nav-label">Proyek</span></a>
+          </div>
+        </div>
+        <div>
+          <p class="group-title flex items-center nav-label px-3 mb-2 text-[10px] font-bold uppercase tracking-[0.18em] text-zinc-400 dark:text-zinc-500">Sistem</p>
+          <div class="space-y-1">
+            <a href="pengaturan.html" class="nav-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-50 hover:bg-black/5 dark:hover:bg-white/10"><i data-lucide="settings" class="w-[18px] h-[18px] shrink-0"></i><span class="nav-label">Pengaturan</span></a>
+            <a href="bantuan.html" class="nav-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-50 hover:bg-black/5 dark:hover:bg-white/10"><i data-lucide="help-circle" class="w-[18px] h-[18px] shrink-0"></i><span class="nav-label">Bantuan</span></a>
+          </div>
+        </div>
+      </nav>
+
+      <div class="p-3 border-t border-black/5 dark:border-white/10 shrink-0">
+        <button class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-50 hover:bg-black/5 dark:hover:bg-white/10">
+          <span class="grid place-items-center w-8 h-8 rounded-full bg-gradient-to-br from-zinc-500 to-zinc-800 dark:from-zinc-300 dark:to-zinc-600 text-white dark:text-zinc-900 text-xs font-bold shrink-0">DB</span>
+          <span class="nav-label text-left min-w-0">
+            <span class="block font-bold text-[13px] leading-tight">Dita Baskoro</span>
+            <span class="block text-[11px] font-normal text-zinc-400 leading-tight">Administrator</span>
+          </span>
+        </button>
+      </div>
+    </aside>
+
+      <!-- CONTENT -->
+      <main class="flex-1 py-6 min-w-0">
+        <div class="mb-6 flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <p class="text-[11px] font-bold uppercase tracking-[0.2em] text-zinc-400 dark:text-zinc-500">Menu / Analitik</p>
+            <h1 class="text-2xl md:text-3xl font-bold tracking-tight mt-1">Analitik</h1>
+            <p class="mt-1 text-sm text-zinc-500 dark:text-zinc-400">Pantau performa situs dalam satu dasbor waktu nyata.</p>
+          </div>
+          <div class="flex items-center gap-2">
+            <label class="flex items-center gap-2 px-3.5 h-10 rounded-xl bg-black/5 dark:bg-white/10 text-sm font-semibold text-zinc-500 dark:text-zinc-400">
+              <i data-lucide="calendar-days" class="w-4 h-4"></i>
+              <select id="rangeSel" onchange="setRange(this.value)" class="bg-transparent outline-none font-semibold text-zinc-700 dark:text-zinc-200">
+                <option value="r30" selected>30 Hari Terakhir</option>
+                <option value="r90">90 Hari Terakhir</option>
+                <option value="r365">12 Bulan</option>
+              </select>
+            </label>
+            <button onclick="toast('Sesi aktivitas diperbarui','refresh-cw')" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-zinc-900 dark:bg-zinc-50 text-zinc-50 dark:text-zinc-900 text-sm font-bold hover:opacity-90 shadow-lg"><i data-lucide="refresh-cw" class="w-4 h-4"></i> Segarkan</button>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 mb-4">
+          <div class="glass-panel rounded-2xl p-5">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-semibold text-zinc-500 dark:text-zinc-400">Kunjungan</span>
+              <span class="grid place-items-center w-9 h-9 rounded-xl bg-black/5 dark:bg-white/10 text-zinc-600 dark:text-zinc-300"><i data-lucide="eye" class="w-4 h-4"></i></span>
+            </div>
+            <p class="mt-3 text-3xl font-extrabold tracking-tight">128.4rb</p>
+            <p class="mt-1 text-xs font-semibold text-emerald-600 dark:text-emerald-400 inline-flex items-center gap-1"><i data-lucide="trending-up" class="w-3.5 h-3.5"></i> +18,2%</p>
+          </div>
+          <div class="glass-panel rounded-2xl p-5">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-semibold text-zinc-500 dark:text-zinc-400">Sesi</span>
+              <span class="grid place-items-center w-9 h-9 rounded-xl bg-sky-500/15 text-sky-600 dark:text-sky-400"><i data-lucide="activity" class="w-4 h-4"></i></span>
+            </div>
+            <p class="mt-3 text-3xl font-extrabold tracking-tight">64.2rb</p>
+            <p class="mt-1 text-xs font-semibold text-emerald-600 dark:text-emerald-400 inline-flex items-center gap-1"><i data-lucide="trending-up" class="w-3.5 h-3.5"></i> +12,9%</p>
+          </div>
+          <div class="glass-panel rounded-2xl p-5">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-semibold text-zinc-500 dark:text-zinc-400">Bounce Rate</span>
+              <span class="grid place-items-center w-9 h-9 rounded-xl bg-emerald-500/15 text-emerald-600 dark:text-emerald-400"><i data-lucide="log-out" class="w-4 h-4"></i></span>
+            </div>
+            <p class="mt-3 text-3xl font-extrabold tracking-tight">34%</p>
+            <p class="mt-1 text-xs font-semibold text-emerald-600 dark:text-emerald-400 inline-flex items-center gap-1"><i data-lucide="trending-down" class="w-3.5 h-3.5"></i> -4,1%</p>
+          </div>
+          <div class="glass-panel rounded-2xl p-5">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-semibold text-zinc-500 dark:text-zinc-400">Durasi Rata-rata</span>
+              <span class="grid place-items-center w-9 h-9 rounded-xl bg-amber-500/15 text-amber-600 dark:text-amber-400"><i data-lucide="timer" class="w-4 h-4"></i></span>
+            </div>
+            <p class="mt-3 text-3xl font-extrabold tracking-tight">4m 12s</p>
+            <p class="mt-1 text-xs font-semibold text-emerald-600 dark:text-emerald-400 inline-flex items-center gap-1"><i data-lucide="trending-up" class="w-3.5 h-3.5"></i> +6,8%</p>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 xl:grid-cols-3 gap-4 mb-4">
+          <div class="xl:col-span-2">
+          <div class="glass-panel rounded-2xl p-5">
+            <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
+              <div>
+                <h2 class="font-bold tracking-tight">Tren Kunjungan</h2>
+                <p id="lineCaption" class="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">Sesi harian periode berjalan</p>
+              </div>
+              <div class="flex items-center gap-4 text-xs font-semibold text-zinc-400">
+                <span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full" style="background:var(--u-chart)"></span> Kunjungan</span>
+                <span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full" style="background:var(--u-chart-mid)"></span> Sesi</span>
+              </div>
+            </div>
+            <svg id="lineChart" viewBox="0 0 720 260" class="w-full" role="img" aria-label="Tren Kunjungan">
+              <g stroke="var(--u-grid)" stroke-width="1">
+                <line x1="14" y1="20" x2="706" y2="20"/><line x1="14" y1="70" x2="706" y2="70"/><line x1="14" y1="120" x2="706" y2="120"/><line x1="14" y1="170" x2="706" y2="170"/><line x1="14" y1="220" x2="706" y2="220"/>
+              </g>
+              <g id="lineArea"></g>
+              <g id="lineGroup"></g>
+              <g id="lineLab"></g>
+            </svg>
+          </div>
+          </div>
+          <div class="glass-panel rounded-2xl p-5">
+            <h2 class="font-bold tracking-tight mb-1">Sumber Trafik</h2>
+            <p class="text-xs text-zinc-500 dark:text-zinc-400 mb-4">Kontribusi kanal utama</p>
+            <div class="flex items-center justify-center mb-4">
+              <svg viewBox="0 0 160 160" class="w-44 h-44 -rotate-90" role="img" aria-label="Sumber Trafik">
+                <circle cx="80" cy="80" r="62" fill="none" stroke="var(--u-grid)" stroke-width="22"/>
+                <g id="donutSeg"></g>
+              </svg>
+              <div class="absolute"></div>
+            </div>
+            <div class="space-y-3" id="donutLegend"></div>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 gap-4">
+          <div class="glass-panel rounded-2xl overflow-hidden">
+            <div class="px-5 py-4 border-b border-black/5 dark:border-white/10 flex items-center justify-between">
+              <h2 class="font-bold tracking-tight">Halaman Teratas</h2>
+              <span class="text-[11px] font-semibold text-zinc-400">Berdasarkan kunjungan</span>
+            </div>
+            <div class="overflow-x-auto">
+              <table class="w-full text-sm">
+                <thead><tr class="border-b border-black/5 dark:border-white/10 bg-black/5 dark:bg-white/5"><th class="text-left px-5 py-3 font-bold text-[11px] uppercase tracking-wider text-zinc-400">Halaman</th><th class="text-left px-5 py-3 font-bold text-[11px] uppercase tracking-wider text-zinc-400">Kunjungan</th><th class="text-left px-5 py-3 font-bold text-[11px] uppercase tracking-wider text-zinc-400">Durasi</th><th class="text-left px-5 py-3 font-bold text-[11px] uppercase tracking-wider text-zinc-400">%</th></tr></thead>
+                <tbody>
+<tr class="border-b border-black/5 dark:border-white/10 hover:bg-black/5 dark:hover:bg-white/5"><td class="px-5 py-3 font-semibold">/</td><td class="px-5 py-3">31.204</td><td class="px-5 py-3">3m 41s</td><td class="px-5 py-3 font-bold">24,3%</td></tr>
+<tr class="border-b border-black/5 dark:border-white/10 hover:bg-black/5 dark:hover:bg-white/5"><td class="px-5 py-3 font-semibold">/produk</td><td class="px-5 py-3">22.871</td><td class="px-5 py-3">4m 12s</td><td class="px-5 py-3 font-bold">17,8%</td></tr>
+<tr class="border-b border-black/5 dark:border-white/10 hover:bg-black/5 dark:hover:bg-white/5"><td class="px-5 py-3 font-semibold">/blog</td><td class="px-5 py-3">18.205</td><td class="px-5 py-3">5m 02s</td><td class="px-5 py-3 font-bold">14,2%</td></tr>
+<tr class="border-b border-black/5 dark:border-white/10 hover:bg-black/5 dark:hover:bg-white/5"><td class="px-5 py-3 font-semibold">/harga</td><td class="px-5 py-3">12.690</td><td class="px-5 py-3">2m 58s</td><td class="px-5 py-3 font-bold">9,9%</td></tr>
+<tr class="hover:bg-black/5 dark:hover:bg-white/5"><td class="px-5 py-3 font-semibold">/karier</td><td class="px-5 py-3">9.428</td><td class="px-5 py-3">2m 06s</td><td class="px-5 py-3 font-bold">7,3%</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <button onclick="toggleTheme()" class="fixed top-5 right-5 z-[80] p-2.5 rounded-full glass-panel shadow-2xl text-zinc-600 dark:text-zinc-300 md:top-[1.6rem] md:right-[1.6rem]">
+    <i data-lucide="moon" class="w-4 h-4 hidden dark:block"></i>
+    <i data-lucide="sun" class="w-4 h-4 block dark:hidden"></i>
+  </button>
+
+  <script>
+    lucide.createIcons();
+    function toggleTheme(){document.documentElement.classList.toggle('dark');document.body.classList.toggle('dark');try{localStorage.setItem('uroo-theme',document.documentElement.classList.contains('dark')?'dark':'light')}catch(e){};lucide.createIcons();drawAll();}
+    const sidebar=document.getElementById('sidebar');
+    function toggleSidebar(){
+      if(window.innerWidth>=768){sidebar.classList.toggle('collapsed');}
+      else{sidebar.classList.toggle('open');document.getElementById('overlay').classList.toggle('opacity-0',!sidebar.classList.contains('open'));document.getElementById('overlay').classList.toggle('pointer-events-none',!sidebar.classList.contains('open'));}
+    }
+    function openDrawer(){sidebar.classList.add('open');document.getElementById('overlay').classList.remove('opacity-0','pointer-events-none');}
+    function closeDrawer(){sidebar.classList.remove('open');document.getElementById('overlay').classList.add('opacity-0','pointer-events-none');}
+
+    function toast(msg,type){
+      const t=document.createElement('div');
+      t.className='fixed bottom-5 right-5 z-[85] glass-panel rounded-xl px-4 py-3 text-sm font-semibold shadow-2xl anim-toast-in flex items-center gap-2.5 pointer-events-none max-w-sm';
+      t.innerHTML='<i data-lucide="'+(type||'check-circle')+'" class="w-4 h-4 shrink-0"></i><span>'+msg+'</span>';
+      document.body.appendChild(t);lucide.createIcons();
+      setTimeout(()=>{t.style.opacity='0';t.style.transition='opacity .3s';setTimeout(()=>t.remove(),320)},2600);
+    }
+
+    const LIGHT=[0,0,0.6,0,0,0.3,0,0,1,0,0,0.7,0,0,0.4,0,0,0.9,0,0,0.2,0,0,0.8,0,0,0.5,0,0,0.3,0,0,0.95];
+    const DARK=[0,0,0,0.4,0,0,0.1,0,0,0.8,0,0,0.6,0,0,0,0,0,0,0.7,0,0,0.5,0,0,0.2,0,0,0,0,0,0,0];
+    const X=[14,38,62,86,110,134,158,182,206,230,254,278,302,326,350,374,398,422,446,470,494,518,542,566,590,614,638,662,686,710];
+    function poly(points){
+      return points.map((p,i)=>i===0?('M'+p[0]+' '+p[1]):('L'+p[0]+' '+p[1])).join(' ');
+    }
+    function areaPath(coords,baseY){
+      const d=coords.map((p,i)=>i===0?('M'+p[0]+' '+p[1]):('L'+p[0]+' '+p[1])).join(' ');
+      return d+' L'+coords[coords.length-1][0]+' '+baseY+' L'+coords[0][0]+' '+baseY+' Z';
+    }
+    let curRange='r30';
+    const seriesMap={r30:LIGHT,r90:LIGHT.slice(0,20),r365:LIGHT};
+    function drawAll(){
+      const data=seriesMap[curRange];
+      const W=720,H=260,x0=14,x1=710,bmax=190,bTop=20;
+      const max=Math.max(...data,1);
+      const coords=data.map((v,i)=>{
+        const x=x0+(x1-x0)*i/(data.length-1);
+        const y=bTop+bmax-(v/max*bmax);
+        return [x.toFixed(1),y.toFixed(1)];
+      });
+      const baseY=bTop+bmax;
+      const area=document.getElementById('lineArea');
+      area.innerHTML='<path d="'+areaPath(coords,baseY)+'" fill="var(--u-chart-mid)" opacity="0.14"/>';
+      const g=document.getElementById('lineGroup');
+      g.innerHTML='<path d="'+poly(coords)+'" fill="none" stroke="var(--u-chart)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>';
+      const lab=document.getElementById('lineLab');
+      const step=Math.min(data.length,6);
+      lab.innerHTML=coords.filter((c,i)=>i%step===0).map((c,i)=>{
+        const val=Math.round(data[i*step]);
+        return '<circle cx="'+c[0]+'" cy="'+c[1]+'" r="3.5" fill="var(--u-chart)"/><text x="'+c[0]+'" y="'+(parseFloat(c[1])-10)+'" text-anchor="middle" font-size="11" font-weight="700" fill="var(--u-chart-mid)">'+val+'</text>';
+      }).join('');
+
+      const segEl=document.getElementById('donutSeg');
+      segEl.innerHTML='<circle cx="80" cy="80" r="62" fill="none" stroke="var(--u-chart)" stroke-width="22" stroke-dasharray="389.6 389.6" stroke-dashoffset="0" stroke-linecap="round"/>';
+      const legendEl=document.getElementById('donutLegend');
+      legendEl.innerHTML=legendRows(segEl);
+    }
+    function legendRows(el){
+      const items=[
+        {n:'Organik',v:'52%',hex:'var(--u-chart)'},
+        {n:'Referensi',v:'27%',hex:'var(--u-chart-mid)'},
+        {n:'Sosial',v:'14%',hex:'rgba(120,113,108,0.6)'},
+        {n:'Langsung',v:'7%',hex:'var(--u-grid)'}
+      ];
+      return items.map(it=>'<div class="flex items-center justify-between text-sm"><span class="flex items-center gap-2 text-zinc-500 dark:text-zinc-400"><span class="w-2.5 h-2.5 rounded-full" style="background:'+it.hex+'"></span>'+it.n+'</span><span class="font-bold">'+it.v+'</span></div>').join('');
+    }
+    function setRange(r){curRange=r;drawAll();}
+    drawAll();
+  </script>
+<script src="../assets/js/uroo-nav.js"></script>
+</body>
+</html>

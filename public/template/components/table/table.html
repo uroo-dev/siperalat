@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="id" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Uroo UI - Table</title>
+  <script src="../../assets/js/tailwind.js"></script>
+  <script src="../../assets/js/lucide.js"></script>
+  <script>tailwind.config={darkMode:'class',theme:{extend:{colors:{glass:{light:'rgba(255,255,255,0.65)','light-border':'rgba(255,255,255,0.8)',dark:'rgba(18,18,20,0.65)','dark-border':'rgba(255,255,255,0.1)'}}}}}</script>
+  <link rel="stylesheet" href="../../assets/css/uroo.css">
+  <style>
+    .u-bg{position:fixed;inset:0;z-index:-10;transition:opacity .35s ease}
+    .u-bg-light{background:linear-gradient(135deg,#dfe3ea,#f4f4f5)}
+    .u-bg-dark{background:linear-gradient(135deg,#0a0a0b,#1a1a1e);opacity:0}
+    body.dark .u-bg-light{opacity:0}
+    body.dark .u-bg-dark{opacity:1}
+    .u-glow{position:fixed;border-radius:9999px;filter:blur(90px);z-index:-9;pointer-events:none;transition:background-color .35s ease;background:rgba(0,0,0,0.06)}
+    body.dark .u-glow{background:rgba(255,255,255,0.05)}
+    .u-glow-1{width:420px;height:420px;top:-140px;left:-140px}
+    .u-glow-2{width:520px;height:520px;bottom:-200px;right:-140px}
+    .u-glow-3{width:300px;height:300px;top:42%;left:58%}
+
+    /* ---- Table primitives ---- */
+    .u-wrap{overflow:auto;border-radius:1.1rem;border:1px solid rgba(0,0,0,.07);background:rgba(255,255,255,.5)}
+    body.dark .u-wrap{background:rgba(24,24,27,.4);border:1px solid rgba(255,255,255,.07)}
+    .u-table{width:100%;border-collapse:collapse;font-size:.85rem;color:#3f3f46}
+    body.dark .u-table{color:#e4e4e7}
+    .u-table th{text-align:left;padding:.8rem 1rem;font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#a1a1aa;border-bottom:1px solid rgba(0,0,0,.08)}
+    body.dark .u-table th{color:#a1a1aa;border-bottom-color:rgba(255,255,255,.09)}
+    .u-table td{padding:.85rem 1rem;border-bottom:1px solid rgba(0,0,0,.05);vertical-align:middle}
+    body.dark .u-table td{border-bottom-color:rgba(255,255,255,.06)}
+    .u-table tbody tr:last-child td{border-bottom:none}
+    .u-table .num{font-variant-numeric:tabular-nums;text-align:right}
+
+    .u-table-striped tbody tr:nth-child(odd){background:rgba(0,0,0,.03)}
+    body.dark .u-table-striped tbody tr:nth-child(odd){background:rgba(255,255,255,.03)}
+    .u-table-hover tbody tr{transition:background-color .15s ease}
+    .u-table-hover tbody tr:hover{background:rgba(0,0,0,.045)}
+    body.dark .u-table-hover tbody tr:hover{background:rgba(255,255,255,.05)}
+
+    .u-th-sort{cursor:pointer;user-select:none;display:inline-flex;align-items:center;gap:.3rem}
+    .u-badge{display:inline-flex;align-items:center;gap:.3rem;font-weight:600;font-size:.72rem;padding:.28rem .6rem;border-radius:9999px;white-space:nowrap}
+    .u-badge-success{background:rgba(16,185,129,.14);color:#047857}
+    body.dark .u-badge-success{background:rgba(52,211,153,.16);color:#6ee7b7}
+    .u-badge-warning{background:rgba(245,158,11,.16);color:#b45309}
+    body.dark .u-badge-warning{background:rgba(251,191,36,.18);color:#fcd34d}
+    .u-badge-danger{background:rgba(220,38,38,.12);color:#b91c1c}
+    body.dark .u-badge-danger{background:rgba(248,113,113,.16);color:#fca5a5}
+    .u-badge-muted{background:rgba(113,113,122,.16);color:#52525b}
+    body.dark .u-badge-muted{background:rgba(161,161,170,.18);color:#d4d4d8}
+
+    .u-avatar{display:inline-flex;align-items:center;justify-content:center;width:2rem;height:2rem;border-radius:9999px;font-size:.72rem;font-weight:700;color:#fff;background:linear-gradient(135deg,#52525b,#18181b)}
+    .u-row-ico{color:#71717a;transition:color .15s ease;cursor:pointer}
+    body.dark .u-row-ico{color:#a1a1aa}
+    .u-row-ico:hover{color:#18181b}
+    body.dark .u-row-ico:hover{color:#fff}
+  </style>
+</head>
+<body class="min-h-screen p-6 font-sans antialiased text-zinc-800 dark:text-zinc-100">
+  <script>(function initTheme(){var saved=null;try{saved=localStorage.getItem('uroo-theme')}catch(e){};var dark=(saved==='dark')||(!saved&&window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches);var de=document.documentElement;if(dark){de.classList.add('dark');de.classList.remove('light');if(document.body){document.body.classList.add('dark');document.body.classList.remove('light');}}else{de.classList.remove('dark');de.classList.add('light');if(document.body){document.body.classList.remove('dark');document.body.classList.add('light');}}})();</script>
+  <div class="u-bg u-bg-light" aria-hidden="true"></div>
+  <div class="u-bg u-bg-dark" aria-hidden="true"></div>
+  <div class="u-glow u-glow-1" aria-hidden="true"></div>
+  <div class="u-glow u-glow-2" aria-hidden="true"></div>
+  <div class="u-glow u-glow-3" aria-hidden="true"></div>
+
+  <main class="relative z-10 mx-auto max-w-4xl">
+
+    <header class="mb-10">
+      <div class="flex items-center gap-4">
+        <div class="glass-panel rounded-2xl p-3 shadow-2xl">
+          <i data-lucide="table-2" class="w-6 h-6"></i>
+        </div>
+        <div>
+          <p class="text-[11px] font-bold uppercase tracking-[0.2em] text-zinc-400 dark:text-zinc-500">Uroo UI - Komponen Data</p>
+          <h1 class="text-2xl md:text-4xl font-bold tracking-tight">Table</h1>
+        </div>
+      </div>
+      <p class="mt-4 max-w-2xl text-sm leading-relaxed text-zinc-500 dark:text-zinc-400">
+        Tabel data yang rapi dengan header, konten realistis, aksi baris,
+        kolom yang dapat diurutkan, serta varian garis, bergaris, dan hover.
+      </p>
+    </header>
+
+    <div class="grid gap-8">
+
+      <section data-copy class="glass-panel rounded-2xl shadow-2xl p-6 md:p-8 anim-fade-in">
+        <header class="mb-6 flex flex-wrap items-end justify-between gap-3">
+          <div>
+            <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-zinc-400 dark:text-zinc-500">Demo 01 - Dasar</p>
+            <h2 class="mt-1 text-lg font-bold tracking-tight">Kartu Transaksi</h2>
+          </div>
+          <p class="text-xs text-zinc-500 dark:text-zinc-400">Tabel sederhana berisi data mutasi</p>
+        </header>
+        <div class="u-wrap">
+          <table class="u-table">
+            <thead>
+              <tr>
+                <th>Transaksi</th>
+                <th>Tanggal</th>
+                <th class="num">Nominal</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td>Transfer masuk</td><td>28 Agu 2026</td><td class="num">Rp 2.500.000</td><td><span class="u-badge u-badge-success">Berhasil</span></td></tr>
+              <tr><td>Top up e-wallet</td><td>27 Agu 2026</td><td class="num">Rp 150.000</td><td><span class="u-badge u-badge-success">Berhasil</span></td></tr>
+              <tr><td>Pembayaran tagihan</td><td>26 Agu 2026</td><td class="num">Rp 780.000</td><td><span class="u-badge u-badge-warning">Menunggu</span></td></tr>
+              <tr><td>Transfer keluar</td><td>24 Agu 2026</td><td class="num">Rp 1.200.000</td><td><span class="u-badge u-badge-danger">Gagal</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section data-copy class="glass-panel rounded-2xl shadow-2xl p-6 md:p-8 anim-fade-in">
+        <header class="mb-6 flex flex-wrap items-end justify-between gap-3">
+          <div>
+            <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-zinc-400 dark:text-zinc-500">Demo 02 - Bergaris dan Hover</p>
+            <h2 class="mt-1 text-lg font-bold tracking-tight">Daftar Pengguna</h2>
+          </div>
+          <p class="text-xs text-zinc-500 dark:text-zinc-400">Garis berwarna + sorotan hover</p>
+        </header>
+        <div class="u-wrap">
+          <table class="u-table u-table-striped u-table-hover">
+            <thead>
+              <tr>
+                <th>Pengguna</th>
+                <th>Peran</th>
+                <th>Kota</th>
+                <th class="num">Poin</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><span class="flex items-center gap-2.5"><span class="u-avatar">AS</span><span class="font-semibold">Ayu Sari</span></span></td>
+                <td><span class="u-badge u-badge-muted">Penjual</span></td>
+                <td>Jakarta</td><td class="num">824</td>
+              </tr>
+              <tr>
+                <td><span class="flex items-center gap-2.5"><span class="u-avatar">BP</span><span class="font-semibold">Bagas Putra</span></span></td>
+                <td><span class="u-badge u-badge-success">Admin</span></td>
+                <td>Bandung</td><td class="num">412</td>
+              </tr>
+              <tr>
+                <td><span class="flex items-center gap-2.5"><span class="u-avatar">DR</span><span class="font-semibold">Dewi Rahma</span></span></td>
+                <td><span class="u-badge u-badge-muted">Pembeli</span></td>
+                <td>Surabaya</td><td class="num">150</td>
+              </tr>
+              <tr>
+                <td><span class="flex items-center gap-2.5"><span class="u-avatar">RD</span><span class="font-semibold">Rizki Dwi</span></span></td>
+                <td><span class="u-badge u-badge-warning">Moderator</span></td>
+                <td>Yogyakarta</td><td class="num">960</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section data-copy class="glass-panel rounded-2xl shadow-2xl p-6 md:p-8 anim-fade-in">
+        <header class="mb-6 flex flex-wrap items-end justify-between gap-3">
+          <div>
+            <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-zinc-400 dark:text-zinc-500">Demo 03 - Dengan Aksi</p>
+            <h2 class="mt-1 text-lg font-bold tracking-tight">Daftar Pesanan</h2>
+          </div>
+          <p class="text-xs text-zinc-500 dark:text-zinc-400">Aksi per baris; klik ikon untuk mencoba</p>
+        </header>
+        <div class="u-wrap">
+          <table class="u-table u-table-hover">
+            <thead>
+              <tr>
+                <th>No. Pesanan</th>
+                <th>Pelanggan</th>
+                <th class="num">Total</th>
+                <th class="text-right">Aksi</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="font-semibold">#INV-2048</td>
+                <td>Uroo Furniture</td><td class="num">Rp 3.250.000</td>
+                <td>
+                  <div class="flex items-center justify-end gap-3">
+                    <i data-lucide="eye" class="u-row-ico w-4 h-4" onclick="rowAction('Melihat #INV-2048')"></i>
+                    <i data-lucide="pencil" class="u-row-ico w-4 h-4" onclick="rowAction('Mengedit #INV-2048')"></i>
+                    <i data-lucide="trash-2" class="u-row-ico w-4 h-4" onclick="rowAction('Menghapus #INV-2048')"></i>
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <td class="font-semibold">#INV-2047</td>
+                <td>Soreida Kitchen</td><td class="num">Rp 1.875.000</td>
+                <td>
+                  <div class="flex items-center justify-end gap-3">
+                    <i data-lucide="eye" class="u-row-ico w-4 h-4" onclick="rowAction('Melihat #INV-2047')"></i>
+                    <i data-lucide="pencil" class="u-row-ico w-4 h-4" onclick="rowAction('Mengedit #INV-2047')"></i>
+                    <i data-lucide="trash-2" class="u-row-ico w-4 h-4" onclick="rowAction('Menghapus #INV-2047')"></i>
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <td class="font-semibold">#INV-2046</td>
+                <td>Anda Studio</td><td class="num">Rp 920.000</td>
+                <td>
+                  <div class="flex items-center justify-end gap-3">
+                    <i data-lucide="eye" class="u-row-ico w-4 h-4" onclick="rowAction('Melihat #INV-2046')"></i>
+                    <i data-lucide="pencil" class="u-row-ico w-4 h-4" onclick="rowAction('Mengedit #INV-2046')"></i>
+                    <i data-lucide="trash-2" class="u-row-ico w-4 h-4" onclick="rowAction('Menghapus #INV-2046')"></i>
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <td class="font-semibold">#INV-2045</td>
+                <td>Toko Koi Bali</td><td class="num">Rp 2.100.000</td>
+                <td>
+                  <div class="flex items-center justify-end gap-3">
+                    <i data-lucide="eye" class="u-row-ico w-4 h-4" onclick="rowAction('Melihat #INV-2045')"></i>
+                    <i data-lucide="pencil" class="u-row-ico w-4 h-4" onclick="rowAction('Mengedit #INV-2045')"></i>
+                    <i data-lucide="trash-2" class="u-row-ico w-4 h-4" onclick="rowAction('Menghapus #INV-2045')"></i>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p id="row-hint" class="mt-4 text-xs text-zinc-500 dark:text-zinc-400"></p>
+      </section>
+
+      <section data-copy class="glass-panel rounded-2xl shadow-2xl p-6 md:p-8 anim-fade-in">
+        <header class="mb-6 flex flex-wrap items-end justify-between gap-3">
+          <div>
+            <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-zinc-400 dark:text-zinc-500">Demo 04 - Kolom Terurut</p>
+            <h2 class="mt-1 text-lg font-bold tracking-tight">Klasemen Produk</h2>
+          </div>
+          <p class="text-xs text-zinc-500 dark:text-zinc-400">Klik kop kolom untuk mengurutkan</p>
+        </header>
+        <div class="u-wrap">
+          <table class="u-table u-table-hover" id="sortable-table">
+            <thead>
+              <tr>
+                <th><span class="u-th-sort" data-key="nama">Produk <i data-lucide="chevrons-up-down" class="w-3.5 h-3.5"></i></span></th>
+                <th><span class="u-th-sort" data-key="terjual">Terjual <i data-lucide="chevrons-up-down" class="w-3.5 h-3.5"></i></span></th>
+                <th><span class="u-th-sort" data-key="harga">Harga <i data-lucide="chevrons-up-down" class="w-3.5 h-3.5"></i></span></th>
+                <th>Stok</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr data-nama="Kursi Rotan" data-terjual="142" data-harga="850000"><td class="font-semibold">Kursi Rotan</td><td class="num">142</td><td class="num">Rp 850.000</td><td><span class="u-badge u-badge-success">Tersedia</span></td></tr>
+              <tr data-nama="Meja Kopi" data-terjual="98" data-harga="1250000"><td class="font-semibold">Meja Kopi</td><td class="num">98</td><td class="num">Rp 1.250.000</td><td><span class="u-badge u-badge-warning">Sedikit</span></td></tr>
+              <tr data-nama="Lampu Gantung" data-terjual="210" data-harga="640000"><td class="font-semibold">Lampu Gantung</td><td class="num">210</td><td class="num">Rp 640.000</td><td><span class="u-badge u-badge-success">Tersedia</span></td></tr>
+              <tr data-nama="Rak Buku" data-terjual="57" data-harga="1560000"><td class="font-semibold">Rak Buku</td><td class="num">57</td><td class="num">Rp 1.560.000</td><td><span class="u-badge u-badge-danger">Habis</span></td></tr>
+              <tr data-nama="Tas Kulit" data-terjual="184" data-harga="420000"><td class="font-semibold">Tas Kulit</td><td class="num">184</td><td class="num">Rp 420.000</td><td><span class="u-badge u-badge-success">Tersedia</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p id="sort-hint" class="mt-4 text-xs text-zinc-500 dark:text-zinc-400"></p>
+      </section>
+
+      <section data-copy class="glass-panel rounded-2xl shadow-2xl p-6 md:p-8 anim-fade-in">
+        <header class="mb-6 flex flex-wrap items-end justify-between gap-3">
+          <div>
+            <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-zinc-400 dark:text-zinc-500">Demo 05 - Responsif</p>
+            <h2 class="mt-1 text-lg font-bold tracking-tight">Gulir Horisontal</h2>
+          </div>
+          <p class="text-xs text-zinc-500 dark:text-zinc-400">Sempitkan jendela untuk melihat gulir</p>
+        </header>
+        <div class="u-wrap">
+          <table class="u-table" style="min-width:720px">
+            <thead>
+              <tr>
+                <th>Bulan</th><th>Penjualan</th><th>Beban Operasional</th><th>Laba Kotor</th><th>Margin</th><th>Catatan</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td>Januari</td><td class="num">Rp 85.000.000</td><td class="num">Rp 52.000.000</td><td class="num">Rp 33.000.000</td><td class="num">38,8%</td><td>Kampanye diskon</td></tr>
+              <tr><td>Februari</td><td class="num">Rp 92.400.000</td><td class="num">Rp 54.300.000</td><td class="num">Rp 38.100.000</td><td class="num">41,2%</td><td>Promo musiman</td></tr>
+              <tr><td>Maret</td><td class="num">Rp 79.200.000</td><td class="num">Rp 51.100.000</td><td class="num">Rp 28.100.000</td><td class="num">35,5%</td><td>Maintenance gudang</td></tr>
+              <tr><td>April</td><td class="num">Rp 97.800.000</td><td class="num">Rp 53.600.000</td><td class="num">Rp 44.200.000</td><td class="num">45,2%</td><td>Rilis produk baru</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <button onclick="toggleTheme()" class="fixed top-4 right-4 z-50 p-2 rounded-full glass-panel shadow-2xl" title="Toggle theme">
+    <i data-lucide="sun" class="w-4 h-4 hidden dark:block"></i>
+    <i data-lucide="moon" class="w-4 h-4 block dark:hidden"></i>
+  </button>
+
+  <script>
+  lucide.createIcons();
+  function toggleTheme(){const b=document.body;const h=document.documentElement;b.classList.toggle('dark');h.classList.toggle('dark');const saved=b.classList.contains('dark')?'dark':'light';try{localStorage.setItem('uroo-theme',saved)}catch(e){};lucide.createIcons();}
+
+  /* Row actions demo */
+  function rowAction(msg){
+    var hint = document.getElementById('row-hint');
+    if(hint) hint.textContent = 'Aksi dijalankan: ' + msg + ' — ' + new Date().toLocaleTimeString('id-ID');
+  }
+
+  /* Sortable columns */
+  var sortState = {};
+  document.querySelectorAll('#sortable-table .u-th-sort').forEach(function(th){
+    th.addEventListener('click', function(){
+      var key = th.getAttribute('data-key');
+      var dir = sortState[key] === 'asc' ? 'desc' : 'asc';
+      sortState[key] = dir;
+      var tbody = document.querySelector('#sortable-table tbody');
+      var rows = Array.prototype.slice.call(tbody.querySelectorAll('tr'));
+      rows.sort(function(a,b){
+        var va = a.getAttribute('data-' + key);
+        var vb = b.getAttribute('data-' + key);
+        var na = parseFloat(va), nb = parseFloat(vb);
+        var cmp = isNaN(na) ? va.localeCompare(vb, 'id') : na - nb;
+        return dir === 'asc' ? cmp : -cmp;
+      });
+      rows.forEach(function(r){ tbody.appendChild(r); });
+      th.innerHTML = '<i data-lucide="' + (dir === 'asc' ? 'arrow-up' : 'arrow-down') + '" class="w-3.5 h-3.5"></i> ' + th.childNodes[0].textContent.trim();
+      lucide.createIcons();
+      document.getElementById('sort-hint').textContent = 'Diurutkan berdasarkan "' + key + '" (' + (dir === 'asc' ? 'naik' : 'turun') + ')';
+    });
+  });
+  </script>
+<script src="../../assets/js/uroo-copy.js"></script>
+<script src="../../assets/js/uroo-nav.js"></script>
+</body>
+</html>

@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="id" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Uroo UI - Toast</title>
+  <script src="../../assets/js/tailwind.js"></script>
+  <script src="../../assets/js/lucide.js"></script>
+  <script>tailwind.config={darkMode:'class',theme:{extend:{colors:{glass:{light:'rgba(255,255,255,0.65)','light-border':'rgba(255,255,255,0.8)',dark:'rgba(18,18,20,0.65)','dark-border':'rgba(255,255,255,0.1)'}}}}}</script>
+  <link rel="stylesheet" href="../../assets/css/uroo.css">
+  <style>
+    .u-bg{position:fixed;inset:0;z-index:-10;transition:opacity .35s ease}
+    .u-bg-light{background:linear-gradient(135deg,#dfe3ea,#f4f4f5)}
+    .u-bg-dark{background:linear-gradient(135deg,#0a0a0b,#1a1a1e);opacity:0}
+    body.dark .u-bg-light{opacity:0}
+    body.dark .u-bg-dark{opacity:1}
+    .u-glow{position:fixed;border-radius:9999px;filter:blur(90px);z-index:-9;pointer-events:none;transition:background-color .35s ease;background:rgba(0,0,0,0.06)}
+    body.dark .u-glow{background:rgba(255,255,255,0.05)}
+    .u-glow-1{width:420px;height:420px;top:-140px;left:-140px}
+    .u-glow-2{width:520px;height:520px;bottom:-200px;right:-140px}
+    .u-glow-3{width:300px;height:300px;top:42%;left:58%}
+
+    .u-trig{display:inline-flex;align-items:center;gap:0.5rem;padding:0.625rem 1rem;border-radius:0.75rem;font-size:0.8125rem;font-weight:600;color:#3f3f46;border:1px solid rgba(24,24,27,0.16);background:rgba(255,255,255,0.7);cursor:pointer;transition:all .2s ease;}
+    .u-trig .lucide{width:0.9375rem;height:0.9375rem;}
+    .u-trig:hover{border-color:rgba(24,24,27,0.45);transform:translateY(-1px);}
+    .u-trig:active{transform:translateY(0);}
+    .dark .u-trig{color:#d4d4d8;border-color:rgba(255,255,255,0.16);background:rgba(255,255,255,0.06);}
+    .dark .u-trig:hover{border-color:rgba(255,255,255,0.45);}
+    .u-trig--solid{background:#18181b;color:#fafafa;border-color:#18181b;}
+    .u-trig--solid:hover{background:#27272a;}
+    .dark .u-trig--solid{background:#fafafa;color:#18181b;border-color:#fafafa;}
+    .dark .u-trig--solid:hover{background:#e4e4e7;}
+
+    .u-toast{position:relative;display:flex;align-items:flex-start;gap:0.75rem;width:100%;overflow:hidden;padding:0.9375rem 1rem 1.125rem;border-radius:0.875rem;border:1px solid rgba(24,24,27,0.12);background:rgba(250,250,250,0.85);box-shadow:0 24px 50px -24px rgba(0,0,0,0.45);backdrop-filter:blur(20px) saturate(180%);animation:u-toast-in .35s cubic-bezier(0.16,1,0.3,1);transition:opacity .3s ease,transform .3s ease,height .3s ease,margin .3s ease,padding .3s ease,border-color .3s ease;}
+    .dark .u-toast{background:rgba(24,24,27,0.9);border-color:rgba(255,255,255,0.12);}
+    .u-toast-out{opacity:0;transform:translateX(1.5rem) scale(0.98);}
+    .u-toast-ic{flex:none;width:1.125rem;height:1.125rem;margin-top:0.125rem;}
+    .u-toast-title{font-size:0.8125rem;font-weight:700;}
+    .u-toast-msg{font-size:0.75rem;line-height:1.5;margin-top:0.125rem;color:rgba(24,24,27,0.62);}
+    .dark .u-toast-msg{color:rgba(255,255,255,0.58);}
+    .u-toast-btn{flex:none;align-self:center;margin-left:auto;border:1px solid rgba(24,24,27,0.22);background:rgba(24,24,27,0.06);color:#18181b;border-radius:0.625rem;padding:0.375rem 0.6875rem;font-size:0.6875rem;font-weight:700;letter-spacing:0.04em;text-transform:uppercase;cursor:pointer;transition:all .2s ease;}
+    .u-toast-btn:hover{background:#18181b;color:#fafafa;}
+    .dark .u-toast-btn{border-color:rgba(255,255,255,0.24);background:rgba(255,255,255,0.08);color:#fafafa;}
+    .dark .u-toast-btn:hover{background:#fafafa;color:#18181b;}
+    .u-toast-close{flex:none;align-self:flex-start;border:0;background:transparent;color:rgba(24,24,27,0.4);cursor:pointer;padding:0.1875rem;border-radius:0.375rem;transition:color .2s ease;margin-left:0.25rem;}
+    .u-toast-close .lucide{width:0.875rem;height:0.875rem;}
+    .u-toast-close:hover{color:#18181b;}
+    .dark .u-toast-close{color:rgba(255,255,255,0.4);}
+    .dark .u-toast-close:hover{color:#fafafa;}
+    .u-toast-progress{position:absolute;left:0;right:0;bottom:0;height:3px;background:rgba(24,24,27,0.85);transform:scaleX(1);transform-origin:left;transition:transform linear 4200ms;}
+    .dark .u-toast-progress{background:rgba(255,255,255,0.9);}
+    .u-toast-progress.run{transform:scaleX(0);}
+    .u-toast-success .u-toast-ic{color:#16a34a;}
+    .dark .u-toast-success .u-toast-ic{color:#4ade80;}
+    .u-toast-success .u-toast-progress{background:#16a34a;}
+    .dark .u-toast-success .u-toast-progress{background:#4ade80;}
+    .u-toast-error .u-toast-ic{color:#dc2626;}
+    .dark .u-toast-error .u-toast-ic{color:#f87171;}
+    .u-toast-error .u-toast-progress{background:#dc2626;}
+    .dark .u-toast-error .u-toast-progress{background:#f87171;}
+    .u-toast-warning .u-toast-ic{color:#d97706;}
+    .dark .u-toast-warning .u-toast-ic{color:#fbbf24;}
+    .u-toast-warning .u-toast-progress{background:#d97706;}
+    .dark .u-toast-warning .u-toast-progress{background:#fbbf24;}
+    .u-toast-info .u-toast-ic{color:#18181b;}
+    .dark .u-toast-info .u-toast-ic{color:#fafafa;}
+  </style>
+</head>
+<body class="min-h-screen p-6 font-sans antialiased text-zinc-800 dark:text-zinc-100">
+  <script>(function initTheme(){var saved=null;try{saved=localStorage.getItem('uroo-theme')}catch(e){};var dark=(saved==='dark')||(!saved&&window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches);var de=document.documentElement;if(dark){de.classList.add('dark');de.classList.remove('light');if(document.body){document.body.classList.add('dark');document.body.classList.remove('light');}}else{de.classList.remove('dark');de.classList.add('light');if(document.body){document.body.classList.remove('dark');document.body.classList.add('light');}}})();</script>
+  <div class="u-bg u-bg-light" aria-hidden="true"></div>
+  <div class="u-bg u-bg-dark" aria-hidden="true"></div>
+  <div class="u-glow u-glow-1" aria-hidden="true"></div>
+  <div class="u-glow u-glow-2" aria-hidden="true"></div>
+  <div class="u-glow u-glow-3" aria-hidden="true"></div>
+
+  <div class="relative mx-auto max-w-6xl">
+    <header class="relative mb-10">
+      <p class="text-xs font-semibold uppercase tracking-[0.25em] text-zinc-500 dark:text-zinc-500">Uroo UI - Komponen</p>
+      <h1 class="mt-2 text-3xl font-bold tracking-tight md:text-4xl">Toast</h1>
+      <p class="mt-3 max-w-2xl text-sm leading-relaxed text-zinc-500 dark:text-zinc-400">Notifikasi singkat dengan empat gaya, aksi opsional, hilang otomatis berindikator, dan tumpukan. Tekan tombol untuk memunculkan.</p>
+    </header>
+
+    <main class="relative grid gap-6 md:grid-cols-2">
+
+      <section data-copy class="glass-panel rounded-2xl p-6 md:p-8">
+        <p class="text-xs font-semibold uppercase tracking-[0.2em] text-zinc-500 dark:text-zinc-500">Variasi - Empat jenis</p>
+        <div class="mt-5 flex flex-wrap gap-3">
+          <button type="button" class="u-trig" onclick="spawn({variant:'success',title:'Dokumen tersimpan',message:'Laporan.xlsx berhasil disimpan ke folder bagikan.',duration:3800})"><i data-lucide="circle-check" class="text-emerald-500"></i>Berhasil</button>
+          <button type="button" class="u-trig" onclick="spawn({variant:'error',title:'Unggahan gagal',message:'sertifikat.pem lebih besar dari batas 10 MB.',duration:5200})"><i data-lucide="circle-x" class="text-red-500"></i>Gagal</button>
+          <button type="button" class="u-trig" onclick="spawn({variant:'info',title:'Pembaruan tersedia',message:'Versi 2.4.1 siap dipasang dari toko aplikasi.',duration:4200})"><i data-lucide="circle-info" class="text-zinc-500 dark:text-zinc-300"></i>Info</button>
+          <button type="button" class="u-trig" onclick="spawn({variant:'warning',title:'Kuota hampir penuh',message:'Tersisa 6% ruang penyimpanan ruang kerja Anda.',duration:4600})"><i data-lucide="triangle-alert" class="text-amber-500"></i>Peringatan</button>
+        </div>
+        <p class="mt-4 text-xs text-zinc-500 dark:text-zinc-500">Setiap toast menghilang otomatis dan dapat ditutup lewat tombol silang.</p>
+      </section>
+
+      <section data-copy class="glass-panel rounded-2xl p-6 md:p-8">
+        <p class="text-xs font-semibold uppercase tracking-[0.2em] text-zinc-500 dark:text-zinc-500">Variasi - Dengan aksi</p>
+        <div class="mt-5 flex flex-col items-start gap-3">
+          <button type="button" class="u-trig" onclick="spawn({variant:'success',title:'Perubahan disimpan',message:'3 berkas diperbarui di repositori penyimpanan.',action:{label:'Urungkan',val:'undo'},duration:5200})"><i data-lucide="save" class="text-emerald-500"></i>Simpan perubahan</button>
+          <button type="button" class="u-trig" onclick="spawn({variant:'error',title:'Gagal memuat berkas',message:'arsip_rilis.zip tidak ditemukan di folder rilis.',action:{label:'Coba lagi',val:'retry'},duration:5200})"><i data-lucide="download" class="text-red-500"></i>Hapus berkas</button>
+          <button type="button" class="u-trig" onclick="spawn({variant:'info',title:'Undangan terkirim',message:'5 orang baru ditambahkan ke ruang kerja Penjualan.',action:{label:'Lihat daftar',val:'detail'},duration:5200})"><i data-lucide="user-plus" class="text-zinc-500 dark:text-zinc-300"></i>Tambah anggota</button>
+        </div>
+        <p class="mt-4 text-xs text-zinc-500 dark:text-zinc-500">Tombol aksi menutup notifikasi dan melanjutkan ke tindakan terkait.</p>
+      </section>
+
+      <section data-copy class="glass-panel rounded-2xl p-6 md:p-8">
+        <p class="text-xs font-semibold uppercase tracking-[0.2em] text-zinc-500 dark:text-zinc-500">Maju otomatis + indikator</p>
+        <div class="mt-5 flex flex-col items-start gap-3">
+          <button type="button" class="u-trig u-trig--solid" onclick="spawn({variant:'success',title:'Build produksi selesai',message:'Artifact uji coba diunggah. Durasi tampil 6 detik.',duration:6000})"><i data-lucide="hammer" class="text-emerald-400"></i>Mulai proses build</button>
+          <button type="button" class="u-trig" onclick="spawn({variant:'info',title:'Notifikasi menetap',message:'Toast ini tidak hilang otomatis; tutup lewat tombol silang.',autohide:false})"><i data-lucide="pin" class="text-zinc-500 dark:text-zinc-300"></i>Tanpa menghilang</button>
+        </div>
+        <p class="mt-4 flex items-center gap-1.5 text-xs text-zinc-500 dark:text-zinc-500"><i data-lucide="timer" class="h-3.5 w-3.5"></i>Bilah bawah menyusut sebagai sisa waktu; tahan kursor untuk menjeda.</p>
+      </section>
+
+      <section data-copy class="glass-panel rounded-2xl p-6 md:p-8">
+        <p class="text-xs font-semibold uppercase tracking-[0.2em] text-zinc-500 dark:text-zinc-500">Susun bertumpuk</p>
+        <div class="mt-5 flex flex-wrap items-center gap-3">
+          <button type="button" class="u-trig u-trig--solid" onclick="spawnStack()"><i data-lucide="layers" class="text-zinc-300 dark:text-zinc-500"></i>Coba tumpukan</button>
+          <button type="button" class="u-trig" onclick="clearAll()"><i data-lucide="eraser" class="text-red-500"></i>Tutup semua</button>
+          <span class="u-trig pointer-events-none" style="cursor:default" id="liveCount">Aktif: 0</span>
+        </div>
+        <p class="mt-4 text-xs text-zinc-500 dark:text-zinc-500">Beberapa toast ditumpuk di pojok kanan bawah; penghitung memperbarui jumlah yang masih tampil.</p>
+      </section>
+    </main>
+
+    <footer class="relative mt-12 flex items-center justify-between border-t border-zinc-400/30 py-6 text-xs text-zinc-500 dark:border-white/10 dark:text-zinc-500">
+      <span>Uroo UI - Glassmorphism monokrom</span>
+      <span id="year"></span>
+    </footer>
+  </div>
+
+  <button onclick="toggleTheme()" class="glass-panel fixed right-4 top-4 z-50 inline-flex items-center justify-center rounded-full p-2.5" aria-label="Ganti tema">
+    <i data-lucide="sun" class="h-5 w-5 text-zinc-700 dark:hidden"></i>
+    <i data-lucide="moon" class="hidden h-5 w-5 text-zinc-200 dark:block"></i>
+  </button>
+
+  <div id="uToastStack" class="pointer-events-none fixed bottom-5 right-5 z-[70] flex w-full max-w-sm flex-col items-end gap-3" aria-live="polite" aria-label="Notifikasi">
+  </div>
+
+  <script>
+    lucide.createIcons();
+    function toggleTheme(){const h=document.documentElement,b=document.body;h.classList.toggle('dark');b.classList.toggle('dark');try{localStorage.setItem('uroo-theme',b.classList.contains('dark')?'dark':'light')}catch(e){};lucide.createIcons();}
+    (function(){if(document.documentElement.classList.contains('dark')){document.body.classList.add('dark');}else{document.body.classList.remove('dark');}})();
+    document.getElementById('year').textContent = 'Uroo Dev - ' + new Date().getFullYear();
+
+    var stack = document.getElementById('uToastStack');
+    var icons = { success:'circle-check', error:'circle-x', info:'circle-info', warning:'triangle-alert' };
+
+    function countLive(){
+      var n = stack.querySelectorAll('.u-toast:not(.u-toast-out)').length;
+      var el = document.getElementById('liveCount');
+      if(el){ el.textContent = 'Aktif: ' + n; }
+    }
+
+    function spawn(o){
+      o = o || {};
+      var v = o.variant || 'info';
+      var t = document.createElement('div');
+      t.className = 'u-toast u-toast-' + v + ' pointer-events-auto';
+      t.setAttribute('role', v === 'error' ? 'alert' : 'status');
+      var icon = icons[v] || 'circle-info';
+      t.innerHTML =
+        '<i data-lucide="' + icon + '" class="u-toast-ic"></i>' +
+        '<div class="u-toast-txt">' +
+          (o.title ? '<p class="u-toast-title">' + o.title + '</p>' : '') +
+          '<p class="u-toast-msg">' + o.message + '</p>' +
+        '</div>' +
+        (o.action ? '<button type="button" class="u-toast-btn" data-act="' + o.action.val + '">' + o.action.label + '</button>' : '') +
+        '<button type="button" class="u-toast-close" aria-label="Tutup"><i data-lucide="x"></i></button>' +
+        (o.autohide === false ? '' : '<span class="u-toast-progress" style="transition-duration:' + (o.duration || 4200) + 'ms"></span>');
+      stack.appendChild(t);
+      t.classList.add('anim');
+      lucide.createIcons();
+      countLive();
+      schedule(t, o);
+      bindToast(t, o);
+      return t;
+    }
+
+    function schedule(t, o){
+      if(o.autohide === false) return;
+      clearTimeout(t._to);
+      t._bar = t.querySelector('.u-toast-progress');
+      if(t._bar){
+        t._bar.style.transitionDuration = (o.duration || 4200) + 'ms';
+        requestAnimationFrame(function(){ requestAnimationFrame(function(){ t._bar.classList.add('run'); }); });
+      }
+      t._to = setTimeout(function(){ close(t); }, (o.duration || 4200) + 150);
+    }
+
+    function bindToast(t, o){
+      t.addEventListener('mouseenter', function(){
+        clearTimeout(t._to);
+        if(t._bar){ t._bar.classList.remove('run'); t._bar.style.transitionDuration = '300ms'; }
+      });
+      t.addEventListener('mouseleave', function(){
+        if(o.autohide === false) return;
+        if(t._bar){
+          t._bar.style.transitionDuration = (o.duration || 4200) + 'ms';
+          t._bar.classList.add('run');
+        }
+        t._to = setTimeout(function(){ close(t); }, 1400);
+      });
+      t.querySelector('.u-toast-close').addEventListener('click', function(){ close(t); });
+      var act = t.querySelector('.u-toast-btn');
+      if(act){
+        act.addEventListener('click', function(){
+          var v = act.dataset.act;
+          close(t);
+          if(v === 'undo'){ spawn({variant:'info', title:'Perubahan dibatalkan', message:'Pengembalian data ke kondisi sebelumnya telah dilakukan.', duration:3800}); }
+          else if(v === 'retry'){ spawn({variant:'info', title:'Mencoba ulang', message:'Permintaan unduhan dijadwalkan ulang.', duration:3800}); }
+          else if(v === 'detail'){ spawn({variant:'info', title:'Daftar anggota', message:'5 undangan tersimpan di tab Anggota.', duration:3800}); }
+        });
+      }
+    }
+
+    function close(t){
+      if(t._closing) return;
+      t._closing = true;
+      clearTimeout(t._to);
+      var w = getComputedStyle(t).height;
+      t.style.height = w;
+      void t.offsetHeight;
+      t.classList.add('u-toast-out');
+      t.style.height = '0px';
+      t.style.margin = '0px';
+      t.style.paddingTop = '0px';
+      t.style.paddingBottom = '0px';
+      t.style.borderWidth = '0px';
+      t.style.overflow = 'hidden';
+      setTimeout(function(){
+        t.remove();
+        countLive();
+      }, 300);
+    }
+
+    function clearAll(){
+      stack.querySelectorAll('.u-toast').forEach(function(t){ close(t); });
+    }
+
+    function spawnStack(){
+      spawn({variant:'success', title:'Berkas diunggah', message:'diagram_flow.png diunggah ke Galeri.', duration:5200});
+      setTimeout(function(){ spawn({variant:'warning', title:'Izin folder', message:'Folder /Publik belum dibagikan ke tim desain.', duration:4800}); }, 260);
+      setTimeout(function(){ spawn({variant:'info', title:'Komponen diperbarui', message:'Pustaka ikon diperbarui ke rilis 0.5.', duration:4400}); }, 520);
+      setTimeout(function(){ spawn({variant:'success', title:'Undangan diterima', message:'Raka bergabung ke proyek Uroo UI.', duration:5000}); }, 780);
+      setTimeout(function(){ spawn({variant:'error', title:'Sinkronisasi gagal', message:'Autentikasi kedaluwarsa, silakan masuk kembali.', duration:5600}); }, 1040);
+    }
+  </script>
+<script src="../../assets/js/uroo-copy.js"></script>
+<script src="../../assets/js/uroo-nav.js"></script>
+</body>
+</html>

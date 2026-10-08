@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="id" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Uroo UI - Stat Card</title>
+  <script src="../../assets/js/tailwind.js"></script>
+  <script src="../../assets/js/lucide.js"></script>
+  <script>tailwind.config={darkMode:'class',theme:{extend:{colors:{glass:{light:'rgba(255,255,255,0.65)','light-border':'rgba(255,255,255,0.8)',dark:'rgba(18,18,20,0.65)','dark-border':'rgba(255,255,255,0.1)'}}}}}</script>
+  <link rel="stylesheet" href="../../assets/css/uroo.css">
+  <style>
+    .u-bg{position:fixed;inset:0;z-index:-10;transition:opacity .35s ease}
+    .u-bg-light{background:linear-gradient(135deg,#dfe3ea,#f4f4f5)}
+    .u-bg-dark{background:linear-gradient(135deg,#0a0a0b,#1a1a1e);opacity:0}
+    body.dark .u-bg-light{opacity:0}
+    body.dark .u-bg-dark{opacity:1}
+    .u-glow{position:fixed;border-radius:9999px;filter:blur(90px);z-index:-9;pointer-events:none;transition:background-color .35s ease;background:rgba(0,0,0,0.06)}
+    body.dark .u-glow{background:rgba(255,255,255,0.05)}
+    .u-glow-1{width:420px;height:420px;top:-140px;left:-140px}
+    .u-glow-2{width:520px;height:520px;bottom:-200px;right:-140px}
+    .u-glow-3{width:300px;height:300px;top:42%;left:58%}
+
+    /* ---- Stat card primitives ---- */
+    .u-stat{position:relative;border-radius:1.25rem;padding:1.25rem 1.25rem 1.1rem;display:flex;flex-direction:column;gap:.6rem;background:rgba(255,255,255,.55);border:1px solid rgba(255,255,255,.8);box-shadow:0 20px 40px -15px rgba(0,0,0,.05),inset 0 1px 1px 0 rgba(255,255,255,.9);transition:transform .2s ease,box-shadow .2s ease}
+    body.dark .u-stat{background:rgba(24,24,27,.55);border:1px solid rgba(255,255,255,.08);box-shadow:0 20px 40px -15px rgba(0,0,0,.5),inset 0 1px 1px 0 rgba(255,255,255,.1)}
+    .u-stat:hover{transform:translateY(-3px);box-shadow:0 26px 50px -18px rgba(0,0,0,.18),inset 0 1px 1px 0 rgba(255,255,255,.9)}
+    body.dark .u-stat:hover{box-shadow:0 26px 50px -18px rgba(0,0,0,.65),inset 0 1px 1px 0 rgba(255,255,255,.12)}
+
+    .u-stat-top{display:flex;align-items:flex-start;justify-content:space-between;gap:.75rem}
+    .u-stat-label{font-size:.78rem;font-weight:600;color:#71717a}
+    body.dark .u-stat-label{color:#a1a1aa}
+    .u-stat-value{font-size:1.65rem;font-weight:800;letter-spacing:-.03em;line-height:1.1;color:#18181b;font-family:'Plus Jakarta Sans','Inter',sans-serif}
+    body.dark .u-stat-value{color:#fafafa}
+    .u-stat-ico{flex:none;width:2.5rem;height:2.5rem;border-radius:.85rem;display:grid;place-items:center}
+    .u-stat-ico-dark{background:#18181b;color:#fff}
+    body.dark .u-stat-ico-dark{background:#fafafa;color:#18181b}
+    .u-stat-ico-soft{background:rgba(0,0,0,.07);color:#3f3f46}
+    body.dark .u-stat-ico-soft{background:rgba(255,255,255,.1);color:#e4e4e7}
+    .u-stat-ico-tinted{background:rgba(16,185,129,.14);color:#047857}
+    body.dark .u-stat-ico-tinted{background:rgba(52,211,153,.16);color:#6ee7b7}
+    .u-stat-ico-warn{background:rgba(245,158,11,.16);color:#b45309}
+    body.dark .u-stat-ico-warn{background:rgba(251,191,36,.18);color:#fcd34d}
+    .u-stat-ico-danger{background:rgba(220,38,38,.12);color:#b91c1c}
+    body.dark .u-stat-ico-danger{background:rgba(248,113,113,.16);color:#fca5a5}
+
+    .u-trend{display:inline-flex;align-items:center;gap:.3rem;font-size:.74rem;font-weight:700;padding:.25rem .55rem;border-radius:9999px}
+    .u-trend-up{background:rgba(16,185,129,.14);color:#047857}
+    body.dark .u-trend-up{background:rgba(52,211,153,.16);color:#6ee7b7}
+    .u-trend-down{background:rgba(239,68,68,.14);color:#b91c1c}
+    body.dark .u-trend-down{background:rgba(248,113,113,.16);color:#fca5a5}
+    .u-trend-flat{background:rgba(113,113,122,.16);color:#52525b}
+    body.dark .u-trend-flat{background:rgba(161,161,170,.18);color:#d4d4d8}
+
+    .u-stat-foot{display:flex;align-items:center;justify-content:space-between;gap:.5rem;padding-top:.65rem;border-top:1px solid rgba(0,0,0,.06);font-size:.74rem;color:#71717a}
+    body.dark .u-stat-foot{border-top-color:rgba(255,255,255,.08);color:#a1a1aa}
+    .u-stat-link{display:inline-flex;align-items:center;gap:.3rem;font-weight:700;color:#18181b}
+    body.dark .u-stat-link{color:#fafafa}
+  </style>
+</head>
+<body class="min-h-screen p-6 font-sans antialiased text-zinc-800 dark:text-zinc-100">
+  <script>(function initTheme(){var saved=null;try{saved=localStorage.getItem('uroo-theme')}catch(e){};var dark=(saved==='dark')||(!saved&&window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches);var de=document.documentElement;if(dark){de.classList.add('dark');de.classList.remove('light');if(document.body){document.body.classList.add('dark');document.body.classList.remove('light');}}else{de.classList.remove('dark');de.classList.add('light');if(document.body){document.body.classList.remove('dark');document.body.classList.add('light');}}})();</script>
+  <div class="u-bg u-bg-light" aria-hidden="true"></div>
+  <div class="u-bg u-bg-dark" aria-hidden="true"></div>
+  <div class="u-glow u-glow-1" aria-hidden="true"></div>
+  <div class="u-glow u-glow-2" aria-hidden="true"></div>
+  <div class="u-glow u-glow-3" aria-hidden="true"></div>
+
+  <main class="relative z-10 mx-auto max-w-4xl">
+
+    <header class="mb-10">
+      <div class="flex items-center gap-4">
+        <div class="glass-panel rounded-2xl p-3 shadow-2xl">
+          <i data-lucide="bar-chart-3" class="w-6 h-6"></i>
+        </div>
+        <div>
+          <p class="text-[11px] font-bold uppercase tracking-[0.2em] text-zinc-400 dark:text-zinc-500">Uroo UI - Komponen Data</p>
+          <h1 class="text-2xl md:text-4xl font-bold tracking-tight">Stat Card</h1>
+        </div>
+      </div>
+      <p class="mt-4 max-w-2xl text-sm leading-relaxed text-zinc-500 dark:text-zinc-400">
+        Ringkasan metrik dengan ikon, tren naik atau turun, sparkline,
+        dan aksi di bagian bawah. Merespons tema dan interaksi hover.
+      </p>
+    </header>
+
+    <div class="grid gap-8">
+
+      <section data-copy class="glass-panel rounded-2xl shadow-2xl p-6 md:p-8 anim-fade-in">
+        <header class="mb-6 flex flex-wrap items-end justify-between gap-3">
+          <div>
+            <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-zinc-400 dark:text-zinc-500">Demo 01 - Dasar</p>
+            <h2 class="mt-1 text-lg font-bold tracking-tight">Kartu Statistik Sederhana</h2>
+          </div>
+          <p class="text-xs text-zinc-500 dark:text-zinc-400">Ikon dan nilai utama</p>
+        </header>
+        <div class="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          <div class="u-stat">
+            <div class="u-stat-top">
+              <div>
+                <p class="u-stat-label">Total Pengguna</p>
+                <p class="u-stat-value">24.580</p>
+              </div>
+              <span class="u-stat-ico u-stat-ico-dark"><i data-lucide="users" class="w-5 h-5"></i></span>
+            </div>
+            <p class="text-xs text-zinc-500 dark:text-zinc-400">Aktif dalam 30 hari terakhir</p>
+          </div>
+          <div class="u-stat">
+            <div class="u-stat-top">
+              <div>
+                <p class="u-stat-label">Pendapatan Bulan Ini</p>
+                <p class="u-stat-value">Rp 148J</p>
+              </div>
+              <span class="u-stat-ico u-stat-ico-tinted"><i data-lucide="wallet" class="w-5 h-5"></i></span>
+            </div>
+            <p class="text-xs text-zinc-500 dark:text-zinc-400">Termasuk pajak dan tip</p>
+          </div>
+          <div class="u-stat">
+            <div class="u-stat-top">
+              <div>
+                <p class="u-stat-label">Pesanan Diproses</p>
+                <p class="u-stat-value">1.204</p>
+              </div>
+              <span class="u-stat-ico u-stat-ico-soft"><i data-lucide="package" class="w-5 h-5"></i></span>
+            </div>
+            <p class="text-xs text-zinc-500 dark:text-zinc-400">Antrean siap dikemas</p>
+          </div>
+        </div>
+      </section>
+
+      <section data-copy class="glass-panel rounded-2xl shadow-2xl p-6 md:p-8 anim-fade-in">
+        <header class="mb-6 flex flex-wrap items-end justify-between gap-3">
+          <div>
+            <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-zinc-400 dark:text-zinc-500">Demo 02 - Tren</p>
+            <h2 class="mt-1 text-lg font-bold tracking-tight">Naik, Turun, dan Datar</h2>
+          </div>
+          <p class="text-xs text-zinc-500 dark:text-zinc-400">Persentase perubahan dibanding periode lalu</p>
+        </header>
+        <div class="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          <div class="u-stat">
+            <div class="u-stat-top">
+              <div>
+                <p class="u-stat-label">Kunjungan Situs</p>
+                <p class="u-stat-value">86.412</p>
+              </div>
+              <span class="u-stat-ico u-stat-ico-dark"><i data-lucide="mouse-pointer-click" class="w-5 h-5"></i></span>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="u-trend u-trend-up"><i data-lucide="trending-up" class="w-3.5 h-3.5"></i> 12,4%</span>
+              <span class="text-xs text-zinc-500 dark:text-zinc-400">vs bulan lalu</span>
+            </div>
+          </div>
+          <div class="u-stat">
+            <div class="u-stat-top">
+              <div>
+                <p class="u-stat-label">Tingkat Pentalan</p>
+                <p class="u-stat-value">38,2%</p>
+              </div>
+              <span class="u-stat-ico u-stat-ico-danger"><i data-lucide="trending-down" class="w-5 h-5"></i></span>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="u-trend u-trend-down"><i data-lucide="trending-down" class="w-3.5 h-3.5"></i> 3,1%</span>
+              <span class="text-xs text-zinc-500 dark:text-zinc-400">perlu perbaikan</span>
+            </div>
+          </div>
+          <div class="u-stat">
+            <div class="u-stat-top">
+              <div>
+                <p class="u-stat-label">Pesanan Rata-Rata</p>
+                <p class="u-stat-value">Rp 84.500</p>
+              </div>
+              <span class="u-stat-ico u-stat-ico-warn"><i data-lucide="shopping-bag" class="w-5 h-5"></i></span>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="u-trend u-trend-flat"><i data-lucide="minus" class="w-3.5 h-3.5"></i> 0%</span>
+              <span class="text-xs text-zinc-500 dark:text-zinc-400">stabil</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section data-copy class="glass-panel rounded-2xl shadow-2xl p-6 md:p-8 anim-fade-in">
+        <header class="mb-6 flex flex-wrap items-end justify-between gap-3">
+          <div>
+            <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-zinc-400 dark:text-zinc-500">Demo 03 - Sparkline</p>
+            <h2 class="mt-1 text-lg font-bold tracking-tight">Tren Mini Visual</h2>
+          </div>
+          <p class="text-xs text-zinc-500 dark:text-zinc-400">Grafik garis SVG ringkas</p>
+        </header>
+        <div class="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          <div class="u-stat">
+            <div class="u-stat-top">
+              <div>
+                <p class="u-stat-label">Traffic Tahunan</p>
+                <p class="u-stat-value">1,2J</p>
+              </div>
+              <span class="u-trend u-trend-up"><i data-lucide="trending-up" class="w-3.5 h-3.5"></i> 9,7%</span>
+            </div>
+            <svg viewBox="0 0 120 36" class="w-full h-10" preserveAspectRatio="none" aria-hidden="true">
+              <polyline points="0,30 16,26 32,28 48,20 64,22 80,12 96,16 112,6 120,8" fill="none" stroke="#18181b" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+              <polyline points="0,30 16,26 32,28 48,20 64,22 80,12 96,16 112,6 120,8" fill="none" stroke="rgba(24,24,27,0.15)" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <div class="u-stat">
+            <div class="u-stat-top">
+              <div>
+                <p class="u-stat-label">Pengguna Baru</p>
+                <p class="u-stat-value">3.412</p>
+              </div>
+              <span class="u-trend u-trend-up"><i data-lucide="trending-up" class="w-3.5 h-3.5"></i> 6,2%</span>
+            </div>
+            <svg viewBox="0 0 120 36" class="w-full h-10" preserveAspectRatio="none" aria-hidden="true">
+              <polyline points="0,28 14,30 28,22 42,24 56,16 70,18 84,10 98,14 120,6" fill="none" stroke="#10b981" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <div class="u-stat">
+            <div class="u-stat-top">
+              <div>
+                <p class="u-stat-label">Pengeluaran</p>
+                <p class="u-stat-value">Rp 42M</p>
+              </div>
+              <span class="u-trend u-trend-down"><i data-lucide="trending-down" class="w-3.5 h-3.5"></i> 2,4%</span>
+            </div>
+            <svg viewBox="0 0 120 36" class="w-full h-10" preserveAspectRatio="none" aria-hidden="true">
+              <polyline points="0,6 16,10 32,8 48,16 64,14 80,24 96,22 112,30 120,28" fill="none" stroke="#ef4444" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+        </div>
+      </section>
+
+      <section data-copy class="glass-panel rounded-2xl shadow-2xl p-6 md:p-8 anim-fade-in">
+        <header class="mb-6 flex flex-wrap items-end justify-between gap-3">
+          <div>
+            <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-zinc-400 dark:text-zinc-500">Demo 04 - Aksi Bawah</p>
+            <h2 class="mt-1 text-lg font-bold tracking-tight">Ringkasan dengan Tindakan</h2>
+          </div>
+          <p class="text-xs text-zinc-500 dark:text-zinc-400">Klik link untuk mencoba feedback</p>
+        </header>
+        <div class="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          <div class="u-stat">
+            <div class="u-stat-top">
+              <div>
+                <p class="u-stat-label">Saldo Dompet</p>
+                <p class="u-stat-value">Rp 2.450.000</p>
+              </div>
+              <span class="u-stat-ico u-stat-ico-tinted"><i data-lucide="wallet" class="w-5 h-5"></i></span>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="u-trend u-trend-up"><i data-lucide="trending-up" class="w-3.5 h-3.5"></i> 4,8%</span>
+            </div>
+            <div class="u-stat-foot">
+              <span>Terakhir diperbarui hari ini</span>
+              <button class="u-stat-link" onclick="footHint(this,'Deposit dibuka')"><span>Deposit</span> <i data-lucide="arrow-up-right" class="w-3.5 h-3.5"></i></button>
+            </div>
+          </div>
+          <div class="u-stat">
+            <div class="u-stat-top">
+              <div>
+                <p class="u-stat-label">Transaksi Berhasil</p>
+                <p class="u-stat-value">98,6%</p>
+              </div>
+              <span class="u-stat-ico u-stat-ico-dark"><i data-lucide="check-circle-2" class="w-5 h-5"></i></span>
+            </div>
+            <div class="u-stat-foot">
+              <span>965 dari 979 transaksi</span>
+              <button class="u-stat-link" onclick="footHint(this,'Membuka laporan mutasi')"><span>Laporan</span> <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i></button>
+            </div>
+          </div>
+          <div class="u-stat">
+            <div class="u-stat-top">
+              <div>
+                <p class="u-stat-label">Performa Channel</p>
+                <p class="u-stat-value">4,2 / 5</p>
+              </div>
+              <span class="u-stat-ico u-stat-ico-warn"><i data-lucide="star" class="w-5 h-5"></i></span>
+            </div>
+            <div class="u-stat-foot">
+              <span>Berdasarkan 312 ulasan</span>
+              <button class="u-stat-link" onclick="footHint(this,'Melihat detail ulasan')"><span>Detail</span> <i data-lucide="chevron-right" class="w-3.5 h-3.5"></i></button>
+            </div>
+          </div>
+        </div>
+        <p id="foot-hint" class="mt-5 text-xs text-center text-zinc-500 dark:text-zinc-400"></p>
+      </section>
+
+      <section data-copy class="glass-panel rounded-2xl shadow-2xl p-6 md:p-8 anim-fade-in">
+        <header class="mb-6 flex flex-wrap items-end justify-between gap-3">
+          <div>
+            <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-zinc-400 dark:text-zinc-500">Demo 05 - Varian</p>
+            <h2 class="mt-1 text-lg font-bold tracking-tight">Variasi Gaya</h2>
+          </div>
+          <p class="text-xs text-zinc-500 dark:text-zinc-400">Kombinasi ikon dan latar</p>
+        </header>
+        <div class="grid gap-3 sm:grid-cols-1">
+          <div class="rounded-2xl p-5 flex items-center gap-5" style="background:#18181b;color:#fff">
+            <span class="flex items-center justify-center w-12 h-12 rounded-xl" style="background:rgba(255,255,255,.14)"><i data-lucide="rocket" class="w-6 h-6"></i></span>
+            <div class="flex-1">
+              <p class="text-sm text-zinc-300">Pertumbuhan Bisnis</p>
+              <p class="text-2xl font-extrabold">+32,5%</p>
+            </div>
+            <span class="inline-flex items-center gap-1 text-xs font-semibold rounded-full px-3 py-1" style="background:rgba(52,211,153,.18);color:#6ee7b7"><i data-lucide="trending-up" class="w-3.5 h-3.5"></i> kuartal ini</span>
+          </div>
+          <div class="rounded-2xl p-5 flex items-center gap-5" style="background:rgba(24,24,27,.7);color:#fff;border:1px solid rgba(255,255,255,.1)">
+            <span class="flex items-center justify-center w-12 h-12 rounded-xl" style="background:rgba(255,255,255,.16)"><i data-lucide="download" class="w-6 h-6"></i></span>
+            <div class="flex-1">
+              <p class="text-sm text-zinc-300">Unduhan Aplikasi</p>
+              <p class="text-2xl font-extrabold">18.302</p>
+            </div>
+            <button onclick="footHint(this,'Memulai proses unduhan')" class="inline-flex items-center gap-1 text-xs font-semibold rounded-full px-3 py-1" style="background:#fafafa;color:#18181b"><i data-lucide="arrow-down" class="w-3.5 h-3.5"></i> Unduh CSV</button>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <button onclick="toggleTheme()" class="fixed top-4 right-4 z-50 p-2 rounded-full glass-panel shadow-2xl" title="Toggle theme">
+    <i data-lucide="sun" class="w-4 h-4 hidden dark:block"></i>
+    <i data-lucide="moon" class="w-4 h-4 block dark:hidden"></i>
+  </button>
+
+  <script>
+  lucide.createIcons();
+  function toggleTheme(){const b=document.body;const h=document.documentElement;b.classList.toggle('dark');h.classList.toggle('dark');const saved=b.classList.contains('dark')?'dark':'light';try{localStorage.setItem('uroo-theme',saved)}catch(e){};lucide.createIcons();}
+
+  function footHint(el,msg){
+    var hint = document.getElementById('foot-hint');
+    if(!hint) return;
+    hint.textContent = msg + ' (contoh aksi) — ' + new Date().toLocaleTimeString('id-ID');
+  }
+  </script>
+<script src="../../assets/js/uroo-copy.js"></script>
+<script src="../../assets/js/uroo-nav.js"></script>
+</body>
+</html>

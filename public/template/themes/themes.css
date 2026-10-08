@@ -1,0 +1,10 @@
+/* ============================================================
+   UROO UI - Themes Index
+   Import whichever theme you need. Default is the dual light/dark
+   glass system in `assets/css/uroo.css`.
+   For accent theming, add `custom` class and import custom.css.
+   ============================================================ */
+
+@import url('../light/light.css');
+@import url('../dark/dark.css');
+/* @import url('../custom/custom.css');   <- enable to use accent theme */

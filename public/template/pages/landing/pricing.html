@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="id" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Uroo UI - Harga</title>
+  <script src="../../assets/js/tailwind.js"></script>
+  <script src="../../assets/js/lucide.js"></script>
+  <script>tailwind.config={darkMode:'class',theme:{extend:{colors:{glass:{light:'rgba(255,255,255,0.65)','light-border':'rgba(255,255,255,0.8)',dark:'rgba(18,18,20,0.65)','dark-border':'rgba(255,255,255,0.1)'}}}}}</script>
+  <link rel="stylesheet" href="../../assets/css/uroo.css">
+  <style>
+    .u-bg{position:fixed;inset:0;z-index:-10;transition:opacity .35s ease}
+    .u-bg-light{background:linear-gradient(135deg,#dfe3ea,#f4f4f5)}
+    .u-bg-dark{background:linear-gradient(135deg,#0a0a0b,#1a1a1e);opacity:0}
+    body.dark .u-bg-light{opacity:0}
+    body.dark .u-bg-dark{opacity:1}
+    .u-glow{position:fixed;border-radius:9999px;filter:blur(90px);z-index:-9;pointer-events:none;background:rgba(0,0,0,0.06);transition:background-color .35s ease}
+    body.dark .u-glow{background:rgba(255,255,255,0.05)}
+    .u-glow-1{width:420px;height:420px;top:-140px;left:-140px}
+    .u-glow-2{width:520px;height:520px;bottom:-200px;right:-140px}
+    .u-glow-3{width:300px;height:300px;top:42%;left:58%}
+
+    #navbar{transition:background-color .3s ease,border-color .3s ease,box-shadow .3s ease}
+    #navbar.scrolled{box-shadow:0 20px 40px -15px rgba(0,0,0,0.12),inset 0 1px 1px 0 rgba(255,255,255,0.9)}
+    body.dark #navbar.scrolled{box-shadow:0 20px 40px -15px rgba(0,0,0,0.5),inset 0 1px 1px 0 rgba(255,255,255,0.1)}
+    #mobileMenu{transition:max-height .3s cubic-bezier(.16,1,.3,1),opacity .3s;max-height:0!important;overflow:hidden}
+    #mobileMenu.open{max-height:340px!important}
+    @keyframes pulse-ring{0%{box-shadow:0 0 0 0 rgba(16,185,129,0.35)}70%{box-shadow:0 0 0 12px rgba(16,185,129,0)}100%{box-shadow:0 0 0 0 rgba(16,185,129,0)}}
+    #faq .faq-item .faq-body{max-height:0;overflow:hidden;transition:max-height .3s cubic-bezier(.16,1,.3,1),opacity .3s;opacity:0}
+    #faq .faq-item.open .faq-body{max-height:300px;opacity:1}
+    #faq .faq-item.open .faq-icon{transform:rotate(45deg)}
+    .faq-icon{transition:transform .3s ease}
+  </style>
+</head>
+<body class="min-h-screen font-sans antialiased text-zinc-800 dark:text-zinc-100">
+  <script>(function initTheme(){var saved=null;try{saved=localStorage.getItem('uroo-theme')}catch(e){};var dark=(saved==='dark')||(!saved&&window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches);var de=document.documentElement;if(dark){de.classList.add('dark');de.classList.remove('light');if(document.body){document.body.classList.add('dark');document.body.classList.remove('light');}}else{de.classList.remove('dark');de.classList.add('light');if(document.body){document.body.classList.remove('dark');document.body.classList.add('light');}}})();</script>
+
+  <div class="u-bg u-bg-light" aria-hidden="true"></div>
+  <div class="u-bg u-bg-dark" aria-hidden="true"></div>
+  <div class="u-glow u-glow-1" aria-hidden="true"></div>
+  <div class="u-glow u-glow-2" aria-hidden="true"></div>
+  <div class="u-glow u-glow-3" aria-hidden="true"></div>
+
+  <!-- ============================ NAVBAR ============================ -->
+  <header id="navbar" class="fixed top-0 inset-x-0 z-50 glass-panel border-b border-transparent">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16">
+        <a href="hero.html" class="flex items-center gap-2.5">
+          <img src="../../assets/img/uroo_ui.png" alt="Uroo UI" class="w-9 h-9 rounded-xl object-cover shadow-lg shrink-0">
+          <span class="font-extrabold text-lg tracking-tight">Uroo UI</span>
+        </a>
+        <nav class="hidden md:flex items-center gap-1">
+          <a href="features.html" class="px-4 py-2 rounded-xl text-sm font-semibold text-zinc-600 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-zinc-50 hover:bg-black/5 dark:hover:bg-white/10">Fitur</a>
+          <a href="pricing.html" class="px-4 py-2 rounded-xl text-sm font-semibold bg-zinc-900 dark:bg-zinc-50 text-zinc-50 dark:text-zinc-900 shadow-lg">Harga</a>
+          <a href="cta.html" class="px-4 py-2 rounded-xl text-sm font-semibold text-zinc-600 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-zinc-50 hover:bg-black/5 dark:hover:bg-white/10">Mulai</a>
+        </nav>
+        <div class="flex items-center gap-2">
+          <a href="#" class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-zinc-900 dark:bg-zinc-50 text-zinc-50 dark:text-zinc-900 text-sm font-bold hover:opacity-90 shadow-lg">Mulai Gratis</a>
+          <button onclick="toggleMenu()" class="md:hidden p-2.5 rounded-xl hover:bg-black/5 dark:hover:bg-white/10 text-zinc-600 dark:text-zinc-300">
+            <i data-lucide="menu" class="w-5 h-5"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+    <div id="mobileMenu" class="md:hidden overflow-hidden max-h-0 opacity-0">
+      <nav class="px-4 pb-4 pt-2 space-y-1">
+        <a href="features.html" onclick="toggleMenu()" class="block px-4 py-2.5 rounded-xl text-sm font-semibold text-zinc-600 dark:text-zinc-300 hover:bg-black/5 dark:hover:bg-white/10">Fitur</a>
+        <a href="pricing.html" onclick="toggleMenu()" class="block px-4 py-2.5 rounded-xl text-sm font-semibold text-zinc-600 dark:text-zinc-300 hover:bg-black/5 dark:hover:bg-white/10">Harga</a>
+        <a href="cta.html" onclick="toggleMenu()" class="block px-4 py-2.5 rounded-xl text-sm font-semibold text-zinc-600 dark:text-zinc-300 hover:bg-black/5 dark:hover:bg-white/10">Mulai</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- ============================ HERO / PRICING ============================ -->
+  <section class="pt-36 pb-16 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-4xl mx-auto text-center">
+      <p class="text-xs font-bold uppercase tracking-[0.22em] text-zinc-400">Harga Transparan</p>
+      <h1 class="mt-3 text-5xl sm:text-6xl font-extrabold tracking-tight leading-tight">Pilih paket yang <span class="text-zinc-400 dark:text-zinc-500">tepat</span></h1>
+      <p class="mt-5 mx-auto max-w-xl text-lg text-zinc-500 dark:text-zinc-400 leading-relaxed">
+        Mulai gratis, tingkatkan skala saat tim Anda tumbuh. Tidak ada biaya tersembunyi, batalkan kapan saja.
+      </p>
+
+      <!-- Billing toggle -->
+      <div class="mt-9 inline-flex items-center gap-1 p-1.5 rounded-2xl glass-panel">
+        <button id="billMonthly" onclick="setBilling('monthly')" class="px-5 py-2.5 rounded-xl text-sm font-bold transition-colors">Bulanan</button>
+        <button id="billYearly" onclick="setBilling('yearly')" class="px-5 py-2.5 rounded-xl text-sm font-bold transition-colors">Tahunan</button>
+        <span class="hidden sm:inline-flex items-center ml-2 px-3 py-1.5 rounded-xl bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 text-xs font-bold">Hemat 20%</span>
+      </div>
+    </div>
+
+    <!-- Pricing cards -->
+    <div class="max-w-6xl mx-auto mt-14 grid gap-6 lg:grid-cols-4 md:grid-cols-2">
+      <!-- Starter -->
+      <div class="glass-panel rounded-3xl p-7 flex flex-col">
+        <h3 class="font-bold">Starter</h3>
+        <p class="mt-1 text-sm text-zinc-500 dark:text-zinc-400">Untuk proyek pribadi & eksperimen.</p>
+        <div class="mt-6 flex items-baseline gap-1">
+          <span class="text-4xl font-extrabold tracking-tight" data-base="0" data-monthly="0" data-yearly="0">Rp 0</span>
+          <span class="text-sm text-zinc-400 font-medium">/bulan</span>
+        </div>
+        <button class="mt-7 w-full inline-flex items-center justify-center px-5 py-3 rounded-2xl glass-panel font-bold text-sm">Mulai Gratis</button>
+        <ul class="mt-7 space-y-3 text-sm flex-1">
+          <li class="flex items-center gap-2.5"><i data-lucide="check" class="w-4 h-4 text-emerald-500"></i> 3 proyek aktif</li>
+          <li class="flex items-center gap-2.5"><i data-lucide="check" class="w-4 h-4 text-emerald-500"></i> 80+ komponen dasar</li>
+          <li class="flex items-center gap-2.5"><i data-lucide="check" class="w-4 h-4 text-emerald-500"></i> Mode terang & gelap</li>
+          <li class="flex items-center gap-2.5"><i data-lucide="check" class="w-4 h-4 text-emerald-500"></i> Dukungan komunitas</li>
+          <li class="flex items-center gap-2.5 text-zinc-400"><i data-lucide="x" class="w-4 h-4"></i> Komponen premium</li>
+        </ul>
+      </div>
+
+      <!-- Populer (highlighted mid) -->
+      <div class="relative rounded-3xl p-7 flex flex-col bg-zinc-900 dark:bg-zinc-50 text-zinc-50 dark:text-zinc-900 shadow-2xl">
+        <span class="absolute -top-3.5 left-1/2 -translate-x-1/2 inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500 text-white text-[11px] font-bold uppercase tracking-wide" style="animation:pulse-ring 2s infinite">
+          <i data-lucide="sparkles" class="w-3.5 h-3.5"></i> Populer
+        </span>
+        <h3 class="font-bold text-zinc-50 dark:text-zinc-900">Pro</h3>
+        <p class="mt-1 text-sm text-zinc-300 dark:text-zinc-600">Untuk tim & produk dalam skala produksi.</p>
+        <div class="mt-6 flex items-baseline gap-1">
+          <span class="text-4xl font-extrabold tracking-tight">
+            <span class="data-price text-zinc-50 dark:text-zinc-900">Rp 299K</span>
+          </span>
+          <span class="text-sm text-zinc-300 dark:text-zinc-600 font-medium">/bulan</span>
+        </div>
+        <button class="mt-7 w-full inline-flex items-center justify-center px-5 py-3 rounded-2xl bg-zinc-100 dark:bg-zinc-900 text-zinc-900 dark:text-zinc-50 font-bold text-sm hover:opacity-90">Mulai Uji Coba</button>
+        <ul class="mt-7 space-y-3 text-sm">
+          <li class="flex items-center gap-2.5"><i data-lucide="check" class="w-4 h-4"></i> Proyek tanpa batas</li>
+          <li class="flex items-center gap-2.5"><i data-lucide="check" class="w-4 h-4"></i> 120+ komponen lengkap</li>
+          <li class="flex items-center gap-2.5"><i data-lucide="check" class="w-4 h-4"></i> Komponen & templat premium</li>
+          <li class="flex items-center gap-2.5"><i data-lucide="check" class="w-4 h-4"></i> Grafik & dashboard siap pakai</li>
+          <li class="flex items-center gap-2.5"><i data-lucide="check" class="w-4 h-4"></i> Dukungan prioritas</li>
+        </ul>
+      </div>
+
+      <!-- Tim -->
+      <div class="glass-panel rounded-3xl p-7 flex flex-col">
+        <h3 class="font-bold">Tim</h3>
+        <p class="mt-1 text-sm text-zinc-500 dark:text-zinc-400">Untuk tim hingga 20 anggota.</p>
+        <div class="mt-6 flex items-baseline gap-1">
+          <span class="text-4xl font-extrabold tracking-tight">
+            <span class="data-price">Rp 599K</span>
+          </span>
+          <span class="text-sm text-zinc-400 font-medium">/bulan</span>
+        </div>
+        <button class="mt-7 w-full inline-flex items-center justify-center px-5 py-3 rounded-2xl glass-panel font-bold text-sm">Pilih Tim</button>
+        <ul class="mt-7 space-y-3 text-sm flex-1">
+          <li class="flex items-center gap-2.5"><i data-lucide="check" class="w-4 h-4 text-emerald-500"></i> Semua fitur Pro</li>
+          <li class="flex items-center gap-2.5"><i data-lucide="check" class="w-4 h-4 text-emerald-500"></i> Hingga 20 anggota</li>
+          <li class="flex items-center gap-2.5"><i data-lucide="check" class="w-4 h-4 text-emerald-500"></i> Manajemen role & akses</li>
+          <li class="flex items-center gap-2.5"><i data-lucide="check" class="w-4 h-4 text-emerald-500"></i> Audit log & riwayat</li>
+        </ul>
+      </div>
+
+      <!-- Enterprise -->
+      <div class="glass-panel rounded-3xl p-7 flex flex-col">
+        <h3 class="font-bold">Enterprise</h3>
+        <p class="mt-1 text-sm text-zinc-500 dark:text-zinc-400">Untuk organisasi besar & kebutuhan khusus.</p>
+        <div class="mt-6 flex items-baseline gap-1">
+          <span class="text-4xl font-extrabold tracking-tight">Kustom</span>
+        </div>
+        <button class="mt-7 w-full inline-flex items-center justify-center px-5 py-3 rounded-2xl glass-panel font-bold text-sm">Hubungi Sales</button>
+        <ul class="mt-7 space-y-3 text-sm flex-1">
+          <li class="flex items-center gap-2.5"><i data-lucide="check" class="w-4 h-4 text-emerald-500"></i> Semua fitur Tim</li>
+          <li class="flex items-center gap-2.5"><i data-lucide="check" class="w-4 h-4 text-emerald-500"></i> Anggota tanpa batas</li>
+          <li class="flex items-center gap-2.5"><i data-lucide="check" class="w-4 h-4 text-emerald-500"></i> SSO & kepatuhan</li>
+          <li class="flex items-center gap-2.5"><i data-lucide="check" class="w-4 h-4 text-emerald-500"></i> Manajer akun khusus</li>
+        </ul>
+      </div>
+    </div>
+    <p class="mt-8 text-center text-xs text-zinc-400">Semua harga dalam Rupiah dan sudah termasuk PPN.</p>
+  </section>
+
+  <!-- ============================ FAQ ============================ -->
+  <section class="py-16 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-3xl mx-auto">
+      <div class="text-center">
+        <p class="text-xs font-bold uppercase tracking-[0.22em] text-zinc-400">FAQ</p>
+        <h2 class="mt-3 text-4xl font-extrabold tracking-tight">Pertanyaan yang sering diajukan</h2>
+      </div>
+      <div id="faq" class="mt-10 space-y-3">
+        <div class="faq-item glass-panel rounded-2xl overflow-hidden">
+          <button onclick="toggleFaq(this)" class="w-full flex items-center justify-between gap-4 p-5 text-left font-semibold">
+            Apakah ada periode uji coba gratis?
+            <i data-lucide="plus" class="faq-icon w-5 h-5 text-zinc-400 shrink-0"></i>
+          </button>
+          <div class="faq-body px-5 pb-5">
+            <p class="text-sm text-zinc-500 dark:text-zinc-400 leading-relaxed">Ya. Paket Pro dapat dicoba gratis selama 14 hari penuh, tanpa memerlukan kartu kredit. Anda dapat mengakses semua komponen premium selama masa uji coba.</p>
+          </div>
+        </div>
+        <div class="faq-item glass-panel rounded-2xl overflow-hidden">
+          <button onclick="toggleFaq(this)" class="w-full flex items-center justify-between gap-4 p-5 text-left font-semibold">
+            Bisakah saya mengubah atau membatalkan paket kapan saja?
+            <i data-lucide="plus" class="faq-icon w-5 h-5 text-zinc-400 shrink-0"></i>
+          </button>
+          <div class="faq-body px-5 pb-5">
+            <p class="text-sm text-zinc-500 dark:text-zinc-400 leading-relaxed">Tentu. Anda dapat meningkatkan, menurunkan, atau membatalkan paket kapan saja dari halaman pengaturan. Perubahan berlaku pada siklus penagihan berikutnya.</p>
+          </div>
+        </div>
+        <div class="faq-item glass-panel rounded-2xl overflow-hidden">
+          <button onclick="toggleFaq(this)" class="w-full flex items-center justify-between gap-4 p-5 text-left font-semibold">
+            Metode pembayaran apa yang didukung?
+            <i data-lucide="plus" class="faq-icon w-5 h-5 text-zinc-400 shrink-0"></i>
+          </button>
+          <div class="faq-body px-5 pb-5">
+            <p class="text-sm text-zinc-500 dark:text-zinc-400 leading-relaxed">Kami menerima kartu kredit/debit (Visa, Mastercard, JCB), transfer bank lokal, GoPay, OVO, DANA, dan QRIS untuk memudahkan pembayaran dari Indonesia.</p>
+          </div>
+        </div>
+        <div class="faq-item glass-panel rounded-2xl overflow-hidden">
+          <button onclick="toggleFaq(this)" class="w-full flex items-center justify-between gap-4 p-5 text-left font-semibold">
+            Apakah ada diskon untuk startup atau pendidikan?
+            <i data-lucide="plus" class="faq-icon w-5 h-5 text-zinc-400 shrink-0"></i>
+          </button>
+          <div class="faq-body px-5 pb-5">
+            <p class="text-sm text-zinc-500 dark:text-zinc-400 leading-relaxed">Ada. Kami menawarkan diskon hingga 50% untuk startup tahap awal dan pelajar/peneliti. Hubungi tim kami dengan email institusi Anda untuk pengajuan.</p>
+          </div>
+        </div>
+        <div class="faq-item glass-panel rounded-2xl overflow-hidden">
+          <button onclick="toggleFaq(this)" class="w-full flex items-center justify-between gap-4 p-5 text-left font-semibold">
+            Apa yang terjadi setelah masa uji coba berakhir?
+            <i data-lucide="plus" class="faq-icon w-5 h-5 text-zinc-400 shrink-0"></i>
+          </button>
+          <div class="faq-body px-5 pb-5">
+            <p class="text-sm text-zinc-500 dark:text-zinc-400 leading-relaxed">Anda akan otomatis beralih ke paket Starter tanpa biaya. Semua data dan proyek tetap aman, hanya fitur premium yang dinonaktifkan hingga Anda memutakhirkan.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================ CTA ============================ -->
+  <section class="py-16 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-5xl mx-auto glass-panel rounded-3xl p-10 sm:p-14 text-center">
+      <h2 class="text-4xl font-extrabold tracking-tight">Siap membangun dengan Uroo?</h2>
+      <p class="mt-4 text-zinc-500 dark:text-zinc-400 max-w-xl mx-auto">Mulai gratis sekarang dan rasakan perbedaan sistem desain yang dirancang dengan cermat.</p>
+      <div class="mt-8 flex flex-col sm:flex-row gap-3 justify-center">
+        <a href="cta.html" class="inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-2xl bg-zinc-900 dark:bg-zinc-50 text-zinc-50 dark:text-zinc-900 font-bold hover:opacity-90 shadow-lg text-sm">Mulai Gratis Sekarang</a>
+        <a href="#" class="inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-2xl glass-panel font-bold text-sm">Hubungi Sales</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================ FOOTER ============================ -->
+  <footer class="pt-10 pb-8 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-6xl mx-auto glass-panel rounded-3xl">
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-8 p-9">
+        <div class="col-span-2">
+          <a href="hero.html" class="flex items-center gap-2.5">
+            <img src="../../assets/img/uroo_ui.png" alt="Uroo UI" class="w-9 h-9 rounded-xl object-cover shadow-lg shrink-0">
+            <span class="font-extrabold text-lg tracking-tight">Uroo UI</span>
+          </a>
+          <p class="mt-4 text-sm text-zinc-500 dark:text-zinc-400 leading-relaxed">Sistem desain glassmorphic monokrom untuk web Indonesia modern.</p>
+        </div>
+        <div>
+          <p class="text-xs font-bold uppercase tracking-wider text-zinc-400 mb-3">Produk</p>
+          <ul class="space-y-2.5 text-sm">
+            <li><a href="features.html" class="text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-50">Fitur</a></li>
+            <li><a href="pricing.html" class="text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-50">Harga</a></li>
+            <li><a href="cta.html" class="text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-50">Mulai</a></li>
+          </ul>
+        </div>
+        <div>
+          <p class="text-xs font-bold uppercase tracking-wider text-zinc-400 mb-3">Hukum</p>
+          <ul class="space-y-2.5 text-sm">
+            <li><a href="#" class="text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-50">Kebijakan</a></li>
+            <li><a href="#" class="text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-50">Ketentuan</a></li>
+            <li><a href="#" class="text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-50">Privasi</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="px-9 py-5 border-t border-black/5 dark:border-white/10 flex flex-col sm:flex-row items-center justify-between gap-3">
+        <p class="text-xs text-zinc-400">&copy; 2026 Uroo UI. Semua hak dilindungi.</p>
+        <div class="flex items-center gap-3 text-zinc-400">
+          <a href="#" class="hover:text-zinc-900 dark:hover:text-zinc-50"><i data-lucide="twitter" class="w-4 h-4"></i></a>
+          <a href="#" class="hover:text-zinc-900 dark:hover:text-zinc-50"><i data-lucide="github" class="w-4 h-4"></i></a>
+          <a href="#" class="hover:text-zinc-900 dark:hover:text-zinc-50"><i data-lucide="linkedin" class="w-4 h-4"></i></a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <button onclick="toggleTheme()" class="fixed top-5 right-5 z-[60] p-2.5 rounded-full glass-panel shadow-2xl text-zinc-600 dark:text-zinc-300">
+    <i data-lucide="moon" class="w-4 h-4 hidden dark:block"></i>
+    <i data-lucide="sun" class="w-4 h-4 block dark:hidden"></i>
+  </button>
+
+  <script>
+    lucide.createIcons();
+    function toggleTheme(){const b=document.body;const h=document.documentElement;b.classList.toggle('dark');h.classList.toggle('dark');try{localStorage.setItem('uroo-theme',b.classList.contains('dark')?'dark':'light')}catch(e){};lucide.createIcons();}
+    function toggleMenu(){const m=document.getElementById('mobileMenu');m.classList.toggle('open');m.classList.toggle('opacity-0',!m.classList.contains('open'));}
+    window.addEventListener('scroll',()=>{document.getElementById('navbar').classList.toggle('scrolled',window.scrollY>24);},{passive:true});
+
+    const PRICES={monthly:{pro:'Rp 299K',tim:'Rp 599K'},yearly:{pro:'Rp 2.990K',tim:'Rp 5.990K'}};
+    function setBilling(period){
+      document.querySelectorAll('#billMonthly,#billYearly').forEach(b=>{b.classList.remove('bg-zinc-900','dark:bg-zinc-50','text-zinc-50','dark:text-zinc-900','shadow-lg');});
+      const btn=period==='monthly'?document.getElementById('billMonthly'):document.getElementById('billYearly');
+      btn.classList.add('bg-zinc-900','dark:bg-zinc-50','text-zinc-50','dark:text-zinc-900','shadow-lg');
+      document.querySelectorAll('.data-price').forEach((el,i)=>{
+        const v=i===0?PRICES[period].pro:PRICES[period].tim;
+        el.textContent=v;
+      });
+    }
+    setBilling('monthly');
+
+    function toggleFaq(btn){
+      const item=btn.closest('.faq-item');
+      const wasOpen=item.classList.contains('open');
+      document.querySelectorAll('.faq-item.open').forEach(o=>o.classList.remove('open'));
+      if(!wasOpen)item.classList.add('open');
+    }
+  </script>
+<script src="../../assets/js/uroo-nav.js"></script>
+</body>
+</html>

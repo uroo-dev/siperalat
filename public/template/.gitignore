@@ -1,0 +1,20 @@
+# OS
+.DS_Store
+Thumbs.db
+
+# Editors
+.vscode/
+.idea/
+*.swp
+
+# Logs / caches
+*.log
+node_modules/
+.cache/
+
+# Temporary
+/tmp/
+*.tmp
+
+# Local server pid
+*.pid

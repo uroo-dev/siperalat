@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="id" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Uroo UI - Aset Media</title>
+  <script src="../../assets/js/tailwind.js"></script>
+  <script src="../../assets/js/lucide.js"></script>
+  <script>tailwind.config={darkMode:'class',theme:{extend:{colors:{glass:{light:'rgba(255,255,255,0.65)','light-border':'rgba(255,255,255,0.8)',dark:'rgba(18,18,20,0.65)','dark-border':'rgba(255,255,255,0.1)'}}}}}</script>
+  <link rel="stylesheet" href="../../assets/css/uroo.css">
+  <style>
+    .u-bg{position:fixed;inset:0;z-index:-10;transition:opacity .35s ease}
+    .u-bg-light{background:linear-gradient(135deg,#dfe3ea,#f4f4f5)}
+    .u-bg-dark{background:linear-gradient(135deg,#0a0a0b,#1a1a1e);opacity:0}
+    body.dark .u-bg-light{opacity:0}
+    body.dark .u-bg-dark{opacity:1}
+    .u-glow{position:fixed;border-radius:9999px;filter:blur(90px);z-index:-9;pointer-events:none;background:rgba(0,0,0,0.06);transition:background-color .35s ease}
+    body.dark .u-glow{background:rgba(255,255,255,0.05)}
+    .u-glow-1{width:420px;height:420px;top:-140px;left:-140px}
+    .u-glow-2{width:520px;height:520px;bottom:-200px;right:-140px}
+    .u-glow-3{width:300px;height:300px;top:42%;left:58%}
+    #sidebar{width:16rem;transition:transform .28s cubic-bezier(.16,1,.3,1),width .28s cubic-bezier(.16,1,.3,1)}
+    #sidebar.collapsed{width:4.75rem}
+    #sidebar .nav-label{transition:opacity .15s ease,width .15s ease}
+    #sidebar.collapsed .nav-label{opacity:0;width:0;overflow:hidden;white-space:nowrap}
+    #sidebar.collapsed .nav-link{justify-content:center;padding-left:0;padding-right:0}
+    #sidebar.collapsed .group-title{justify-content:center;padding-left:0;padding-right:0}
+    #sidebar.collapsed .nav-text{display:none}
+    #sidebar.collapsed .logo-text{display:none}
+    #sidebar .badge-dot{transition:opacity .15s}
+    #sidebar.collapsed .badge-dot{opacity:0}
+    @media (max-width:767px){
+      #sidebar{position:fixed;top:1rem;bottom:1rem;left:1rem;z-index:50;transform:translateX(-130%);}
+      #sidebar.open{transform:translateX(0);}
+    }
+    :root{--u-chart:#18181b;--u-chart-mid:#71717a}
+    .dark{--u-chart:#fafafa;--u-chart-mid:#a1a1aa}
+    #mediaGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1rem}
+    @media (min-width:768px){#mediaGrid{grid-template-columns:repeat(3,minmax(0,1fr));}}
+    @media (min-width:1280px){#mediaGrid{grid-template-columns:repeat(4,minmax(0,1fr));}}
+    .media-tile{transition:transform .18s ease,box-shadow .18s ease}
+    .media-tile:hover{transform:translateY(-2px);box-shadow:0 14px 32px -14px rgba(0,0,0,0.18)}
+    #mediaGrid.list{display:flex;flex-direction:column;gap:.75rem}
+    #mediaGrid.list .media-tile{display:flex;align-items:center;gap:1rem;padding:1rem}
+    #mediaGrid.list .media-viz{width:5.5rem;flex-shrink:0;aspect-ratio:16/9;border-radius:.75rem}
+    #mediaGrid.list .media-cap{padding:0;min-width:0;flex:1}
+    #mediaGrid.list .media-cap .mt-3{display:none}
+    .media-actions{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;gap:.5rem;background:rgba(0,0,0,.42);opacity:0;transition:opacity .2s ease}
+    .media-tile:hover .media-actions{opacity:1}
+  </style>
+</head>
+<body class="min-h-screen font-sans antialiased text-zinc-800 dark:text-zinc-100">
+  <script>(function initTheme(){var saved=null;try{saved=localStorage.getItem('uroo-theme')}catch(e){};var dark=(saved==='dark')||(!saved&&window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches);var de=document.documentElement;if(dark){de.classList.add('dark');de.classList.remove('light');if(document.body){document.body.classList.add('dark');document.body.classList.remove('light');}}else{de.classList.remove('dark');de.classList.add('light');if(document.body){document.body.classList.remove('dark');document.body.classList.add('light');}}})();</script>
+  <div class="u-bg u-bg-light" aria-hidden="true"></div>
+  <div class="u-bg u-bg-dark" aria-hidden="true"></div>
+  <div class="u-glow u-glow-1" aria-hidden="true"></div>
+  <div class="u-glow u-glow-2" aria-hidden="true"></div>
+  <div class="u-glow u-glow-3" aria-hidden="true"></div>
+
+  <div id="overlay" class="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm opacity-0 pointer-events-none transition-opacity duration-300 md:hidden" onclick="closeDrawer()"></div>
+
+  <div class="md:flex md:gap-4 md:p-4 min-h-screen">
+    <aside id="sidebar" class="glass-panel rounded-2xl flex flex-col overflow-hidden shrink-0 md:sticky md:top-4 md:h-[calc(100vh-2rem)]">
+      <div class="flex items-center gap-3 px-5 h-16 border-b border-black/5 dark:border-white/10 shrink-0">
+        <img src="../../assets/img/uroo_ui.png" alt="Uroo UI" class="w-9 h-9 rounded-xl object-cover shadow-lg shrink-0">
+        <div class="logo-text min-w-0">
+          <p class="font-extrabold text-[15px] leading-none tracking-tight">Uroo UI</p>
+          <p class="mt-0.5 text-[10px] font-semibold uppercase tracking-[0.18em] text-zinc-400 dark:text-zinc-500">Aplikasi</p>
+        </div>
+        <button onclick="closeDrawer()" class="ml-auto md:hidden p-1.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/10"><i data-lucide="x" class="w-4 h-4"></i></button>
+        <button onclick="toggleSidebar()" class="hidden md:block ml-auto p-1.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 text-zinc-400"><i data-lucide="panel-left-close" class="w-4 h-4"></i></button>
+      </div>
+
+      <nav class="flex-1 overflow-y-auto px-3 py-4 space-y-6">
+        <div>
+          <p class="group-title flex items-center nav-label px-3 mb-2 text-[10px] font-bold uppercase tracking-[0.18em] text-zinc-400 dark:text-zinc-500">Menu Utama</p>
+          <div class="space-y-1">
+            <a href="beranda.html" class="nav-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-50 hover:bg-black/5 dark:hover:bg-white/10"><i data-lucide="layout-dashboard" class="w-[18px] h-[18px] shrink-0"></i><span class="nav-label">Beranda</span></a>
+            <a href="app.html" class="nav-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-50 hover:bg-black/5 dark:hover:bg-white/10"><i data-lucide="folder" class="w-[18px] h-[18px] shrink-0"></i><span class="nav-label">Proyek</span></a>
+            <a href="inbox.html" class="nav-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-50 hover:bg-black/5 dark:hover:bg-white/10"><i data-lucide="inbox" class="w-[18px] h-[18px] shrink-0"></i><span class="nav-label">Inbox</span></a>
+            <a href="kalender.html" class="nav-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-50 hover:bg-black/5 dark:hover:bg-white/10"><i data-lucide="calendar" class="w-[18px] h-[18px] shrink-0"></i><span class="nav-label">Kalender</span></a>
+          </div>
+        </div>
+        <div>
+          <p class="group-title flex items-center nav-label px-3 mb-2 text-[10px] font-bold uppercase tracking-[0.18em] text-zinc-400 dark:text-zinc-500">Ruang Kerja</p>
+          <div class="space-y-1">
+            <a href="tim.html" class="nav-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-50 hover:bg-black/5 dark:hover:bg-white/10"><i data-lucide="users" class="w-[18px] h-[18px] shrink-0"></i><span class="nav-label">Tim</span></a>
+            <a href="diskusi.html" class="nav-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-50 hover:bg-black/5 dark:hover:bg-white/10"><i data-lucide="message-square" class="w-[18px] h-[18px] shrink-0"></i><span class="nav-label">Diskusi</span></a>
+            <a href="analitik.html" class="nav-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-50 hover:bg-black/5 dark:hover:bg-white/10"><i data-lucide="bar-chart-3" class="w-[18px] h-[18px] shrink-0"></i><span class="nav-label">Analitik</span></a>
+          </div>
+        </div>
+        <div>
+          <p class="group-title flex items-center nav-label px-3 mb-2 text-[10px] font-bold uppercase tracking-[0.18em] text-zinc-400 dark:text-zinc-500">Source</p>
+          <div class="space-y-1">
+            <a href="dokumen.html" class="nav-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-50 hover:bg-black/5 dark:hover:bg-white/10"><i data-lucide="file-text" class="w-[18px] h-[18px] shrink-0"></i><span class="nav-label">Dokumen</span></a>
+            <a href="aset-media.html" class="nav-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold bg-zinc-900 text-zinc-50 dark:bg-zinc-50 dark:text-zinc-900 shadow-lg"><i data-lucide="image" class="w-[18px] h-[18px] shrink-0"></i><span class="nav-label">Aset Media</span></a>
+            <a href="pengaturan.html" class="nav-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-50 hover:bg-black/5 dark:hover:bg-white/10"><i data-lucide="settings" class="w-[18px] h-[18px] shrink-0"></i><span class="nav-label">Pengaturan</span></a>
+          </div>
+        </div>
+      </nav>
+
+      <div class="p-3 border-t border-black/5 dark:border-white/10 shrink-0">
+        <button class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-50 hover:bg-black/5 dark:hover:bg-white/10">
+          <span class="grid place-items-center w-8 h-8 rounded-full bg-gradient-to-br from-zinc-500 to-zinc-800 dark:from-zinc-300 dark:to-zinc-600 text-white dark:text-zinc-900 text-xs font-bold shrink-0">DB</span>
+          <span class="nav-label text-left min-w-0">
+            <span class="block font-bold text-[13px] leading-tight">Dita Baskoro</span>
+            <span class="block text-[11px] font-normal text-zinc-400 leading-tight">Administrator</span>
+          </span>
+        </button>
+      </div>
+    </aside>
+
+      <!-- CONTENT -->
+      <main class="flex-1 py-6 min-w-0">
+        <div class="mb-6 flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <p class="text-[11px] font-bold uppercase tracking-[0.2em] text-zinc-400 dark:text-zinc-500">Source / Aset Media</p>
+            <h1 class="text-2xl md:text-3xl font-bold tracking-tight mt-1">Aset Media</h1>
+            <p class="mt-1 text-sm text-zinc-500 dark:text-zinc-400">Gambar, video, audio, dan dokumen visual ruang kerja.</p>
+          </div>
+          <button onclick="toast('Dialog unggah aset dibuka','upload-cloud')" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-zinc-900 dark:bg-zinc-50 text-zinc-50 dark:text-zinc-900 text-sm font-bold hover:opacity-90 shadow-lg"><i data-lucide="upload" class="w-4 h-4"></i> Unggah Aset</button>
+        </div>
+
+        <div class="mb-4 flex flex-wrap items-center gap-2">
+          <div class="flex-1 min-w-[220px] flex items-center gap-2 h-10 px-3.5 rounded-xl glass-panel text-sm text-zinc-400">
+            <i data-lucide="search" class="w-4 h-4 shrink-0"></i>
+            <input id="mediaSearch" oninput="searchMedia(this.value)" type="text" placeholder="Cari nama aset…" class="flex-1 min-w-0 bg-transparent outline-none text-sm font-medium text-zinc-700 dark:text-zinc-200">
+          </div>
+          <div class="flex items-center gap-1 rounded-xl glass-panel p-1">
+            <button data-view="grid" onclick="setView('grid')" class="view-pill p-2 rounded-lg bg-zinc-900 text-zinc-50 dark:bg-zinc-50 dark:text-zinc-900 shadow-lg"><i data-lucide="layout-grid" class="w-4 h-4"></i></button>
+            <button data-view="list" onclick="setView('list')" class="view-pill p-2 rounded-lg text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-50"><i data-lucide="list" class="w-4 h-4"></i></button>
+          </div>
+        </div>
+
+        <div class="mb-4 flex flex-wrap items-center gap-2">
+          <button data-mt="semua" onclick="filterMedia('semua')" class="mt-pill inline-flex items-center gap-2 px-3.5 h-9 rounded-xl text-sm font-bold bg-zinc-900 text-zinc-50 dark:bg-zinc-50 dark:text-zinc-900 shadow-lg">Semua <span class="text-[10px] font-extrabold opacity-70">12</span></button>
+          <button data-mt="gambar" onclick="filterMedia('gambar')" class="mt-pill inline-flex items-center gap-2 px-3.5 h-9 rounded-xl text-sm font-semibold text-zinc-500 dark:text-zinc-400 hover:bg-black/5 dark:hover:bg-white/10"><i data-lucide="image" class="w-3.5 h-3.5"></i>Gambar</button>
+          <button data-mt="video" onclick="filterMedia('video')" class="mt-pill inline-flex items-center gap-2 px-3.5 h-9 rounded-xl text-sm font-semibold text-zinc-500 dark:text-zinc-400 hover:bg-black/5 dark:hover:bg-white/10"><i data-lucide="film" class="w-3.5 h-3.5"></i>Video</button>
+          <button data-mt="audio" onclick="filterMedia('audio')" class="mt-pill inline-flex items-center gap-2 px-3.5 h-9 rounded-xl text-sm font-semibold text-zinc-500 dark:text-zinc-400 hover:bg-black/5 dark:hover:bg-white/10"><i data-lucide="audio-lines" class="w-3.5 h-3.5"></i>Audio</button>
+          <button data-mt="dokumen" onclick="filterMedia('dokumen')" class="mt-pill inline-flex items-center gap-2 px-3.5 h-9 rounded-xl text-sm font-semibold text-zinc-500 dark:text-zinc-400 hover:bg-black/5 dark:hover:bg-white/10"><i data-lucide="file-text" class="w-3.5 h-3.5"></i>Dokumen</button>
+        </div>
+
+        <div id="mediaGrid">
+          <figure data-type="gambar" class="media-tile glass-panel rounded-2xl overflow-hidden">
+            <div class="media-viz relative aspect-video bg-gradient-to-br from-sky-400 to-indigo-600">
+              <i data-lucide="image" class="w-8 h-8 text-white/80 absolute inset-0 m-auto"></i>
+              <span class="absolute right-2 top-2 px-2 py-1 rounded-md bg-black/30 text-white text-[10px] font-bold">PNG</span>
+              <div class="media-actions">
+                <button onclick="toast('Pratinjau hero-beranda.png','eye')" class="p-2 rounded-full bg-white/90 text-zinc-900 shadow"><i data-lucide="eye" class="w-4 h-4"></i></button>
+                <button onclick="toast('hero-beranda.png diunduh','download')" class="p-2 rounded-full bg-white/90 text-zinc-900 shadow"><i data-lucide="download" class="w-4 h-4"></i></button>
+              </div>
+            </div>
+            <figcaption class="media-cap px-4 py-3">
+              <p class="font-bold text-sm truncate">hero-beranda.png</p>
+              <p class="mt-0.5 text-[11px] font-semibold text-zinc-400">2,6 MB · Andi Wijaya</p>
+            </figcaption>
+          </figure>
+
+          <figure data-type="gambar" class="media-tile glass-panel rounded-2xl overflow-hidden">
+            <div class="media-viz relative aspect-video bg-gradient-to-br from-zinc-400 to-zinc-600">
+              <i data-lucide="image" class="w-8 h-8 text-white/80 absolute inset-0 m-auto"></i>
+              <span class="absolute right-2 top-2 px-2 py-1 rounded-md bg-black/30 text-white text-[10px] font-bold">SVG</span>
+              <div class="media-actions">
+                <button onclick="toast('Pratinjau logo-uroo.svg','eye')" class="p-2 rounded-full bg-white/90 text-zinc-900 shadow"><i data-lucide="eye" class="w-4 h-4"></i></button>
+                <button onclick="toast('logo-uroo.svg diunduh','download')" class="p-2 rounded-full bg-white/90 text-zinc-900 shadow"><i data-lucide="download" class="w-4 h-4"></i></button>
+              </div>
+            </div>
+            <figcaption class="media-cap px-4 py-3">
+              <p class="font-bold text-sm truncate">logo-uroo.svg</p>
+              <p class="mt-0.5 text-[11px] font-semibold text-zinc-400">48 KB · Dita Baskoro</p>
+            </figcaption>
+          </figure>
+
+          <figure data-type="gambar" class="media-tile glass-panel rounded-2xl overflow-hidden">
+            <div class="media-viz relative aspect-video bg-gradient-to-br from-rose-400 to-orange-500">
+              <i data-lucide="image" class="w-8 h-8 text-white/80 absolute inset-0 m-auto"></i>
+              <span class="absolute right-2 top-2 px-2 py-1 rounded-md bg-black/30 text-white text-[10px] font-bold">PNG</span>
+              <div class="media-actions">
+                <button onclick="toast('Pratinjau screenshot-dashboard.png','eye')" class="p-2 rounded-full bg-white/90 text-zinc-900 shadow"><i data-lucide="eye" class="w-4 h-4"></i></button>
+                <button onclick="toast('screenshot-dashboard.png diunduh','download')" class="p-2 rounded-full bg-white/90 text-zinc-900 shadow"><i data-lucide="download" class="w-4 h-4"></i></button>
+              </div>
+            </div>
+            <figcaption class="media-cap px-4 py-3">
+              <p class="font-bold text-sm truncate">screenshot-dashboard.png</p>
+              <p class="mt-0.5 text-[11px] font-semibold text-zinc-400">3,1 MB · Citra Ayu</p>
+            </figcaption>
+          </figure>
+
+          <figure data-type="gambar" class="media-tile glass-panel rounded-2xl overflow-hidden">
+            <div class="media-viz relative aspect-video bg-gradient-to-br from-violet-400 to-purple-600">
+              <i data-lucide="image" class="w-8 h-8 text-white/80 absolute inset-0 m-auto"></i>
+              <span class="absolute right-2 top-2 px-2 py-1 rounded-md bg-black/30 text-white text-[10px] font-bold">JPG</span>
+              <div class="media-actions">
+                <button onclick="toast('Pratinjau mockup-mobile.jpg','eye')" class="p-2 rounded-full bg-white/90 text-zinc-900 shadow"><i data-lucide="eye" class="w-4 h-4"></i></button>
+                <button onclick="toast('mockup-mobile.jpg diunduh','download')" class="p-2 rounded-full bg-white/90 text-zinc-900 shadow"><i data-lucide="download" class="w-4 h-4"></i></button>
+              </div>
+            </div>
+            <figcaption class="media-cap px-4 py-3">
+              <p class="font-bold text-sm truncate">mockup-mobile.jpg</p>
+              <p class="mt-0.5 text-[11px] font-semibold text-zinc-400">1,8 MB · Raka Ferdiansyah</p>
+            </figcaption>
+          </figure>
+
+          <figure data-type="gambar" class="media-tile glass-panel rounded-2xl overflow-hidden">
+            <div class="media-viz relative aspect-video bg-gradient-to-br from-pink-400 to-rose-600">
+              <i data-lucide="image" class="w-8 h-8 text-white/80 absolute inset-0 m-auto"></i>
+              <span class="absolute right-2 top-2 px-2 py-1 rounded-md bg-black/30 text-white text-[10px] font-bold">PNG</span>
+              <div class="media-actions">
+                <button onclick="toast('Pratinjau iklan-vertikal.png','eye')" class="p-2 rounded-full bg-white/90 text-zinc-900 shadow"><i data-lucide="eye" class="w-4 h-4"></i></button>
+                <button onclick="toast('iklan-vertikal.png diunduh','download')" class="p-2 rounded-full bg-white/90 text-zinc-900 shadow"><i data-lucide="download" class="w-4 h-4"></i></button>
+              </div>
+            </div>
+            <figcaption class="media-cap px-4 py-3">
+              <p class="font-bold text-sm truncate">iklan-vertikal.png</p>
+              <p class="mt-0.5 text-[11px] font-semibold text-zinc-400">890 KB · Salsabila Zahra</p>
+            </figcaption>
+          </figure>
+
+          <figure data-type="gambar" class="media-tile glass-panel rounded-2xl overflow-hidden">
+            <div class="media-viz relative aspect-video bg-gradient-to-br from-emerald-400 to-teal-600">
+              <i data-lucide="image" class="w-8 h-8 text-white/80 absolute inset-0 m-auto"></i>
+              <span class="absolute right-2 top-2 px-2 py-1 rounded-md bg-black/30 text-white text-[10px] font-bold">PNG</span>
+              <div class="media-actions">
+                <button onclick="toast('Pratinjau tekstur-kaca.png','eye')" class="p-2 rounded-full bg-white/90 text-zinc-900 shadow"><i data-lucide="eye" class="w-4 h-4"></i></button>
+                <button onclick="toast('tekstur-kaca.png diunduh','download')" class="p-2 rounded-full bg-white/90 text-zinc-900 shadow"><i data-lucide="download" class="w-4 h-4"></i></button>
+              </div>
+            </div>
+            <figcaption class="media-cap px-4 py-3">
+              <p class="font-bold text-sm truncate">tekstur-kaca.png</p>
+              <p class="mt-0.5 text-[11px] font-semibold text-zinc-400">4,2 MB · Andi Wijaya</p>
+            </figcaption>
+          </figure>
+
+          <figure data-type="video" class="media-tile glass-panel rounded-2xl overflow-hidden">
+            <div class="media-viz relative aspect-video bg-gradient-to-br from-amber-400 to-orange-600">
+              <i data-lucide="film" class="w-8 h-8 text-white/80 absolute inset-0 m-auto"></i>
+              <span class="absolute right-2 top-2 px-2 py-1 rounded-md bg-black/30 text-white text-[10px] font-bold">MP4</span>
+              <span class="absolute left-2 bottom-2 px-2 py-1 rounded-md bg-black/30 text-white text-[10px] font-bold">02:14</span>
+              <div class="media-actions">
+                <button onclick="toast('Pratinjau demo-api.mp4','play')" class="p-2 rounded-full bg-white/90 text-zinc-900 shadow"><i data-lucide="play" class="w-4 h-4"></i></button>
+                <button onclick="toast('demo-api.mp4 diunduh','download')" class="p-2 rounded-full bg-white/90 text-zinc-900 shadow"><i data-lucide="download" class="w-4 h-4"></i></button>
+              </div>
+            </div>
+            <figcaption class="media-cap px-4 py-3">
+              <p class="font-bold text-sm truncate">demo-api.mp4</p>
+              <p class="mt-0.5 text-[11px] font-semibold text-zinc-400">128 MB · Bima Nugraha</p>
+            </figcaption>
+          </figure>
+
+          <figure data-type="video" class="media-tile glass-panel rounded-2xl overflow-hidden">
+            <div class="media-viz relative aspect-video bg-gradient-to-br from-cyan-400 to-blue-600">
+              <i data-lucide="film" class="w-8 h-8 text-white/80 absolute inset-0 m-auto"></i>
+              <span class="absolute right-2 top-2 px-2 py-1 rounded-md bg-black/30 text-white text-[10px] font-bold">MP4</span>
+              <span class="absolute left-2 bottom-2 px-2 py-1 rounded-md bg-black/30 text-white text-[10px] font-bold">01:52</span>
+              <div class="media-actions">
+                <button onclick="toast('Pratinjau cuplikan-peluncuran.mp4','play')" class="p-2 rounded-full bg-white/90 text-zinc-900 shadow"><i data-lucide="play" class="w-4 h-4"></i></button>
+                <button onclick="toast('cuplikan-peluncuran.mp4 diunduh','download')" class="p-2 rounded-full bg-white/90 text-zinc-900 shadow"><i data-lucide="download" class="w-4 h-4"></i></button>
+              </div>
+            </div>
+            <figcaption class="media-cap px-4 py-3">
+              <p class="font-bold text-sm truncate">cuplikan-peluncuran.mp4</p>
+              <p class="mt-0.5 text-[11px] font-semibold text-zinc-400">96 MB · Dewi Lestari</p>
+            </figcaption>
+          </figure>
+
+          <figure data-type="audio" class="media-tile glass-panel rounded-2xl overflow-hidden">
+            <div class="media-viz relative aspect-video bg-gradient-to-br from-fuchsia-400 to-purple-600">
+              <i data-lucide="audio-lines" class="w-8 h-8 text-white/80 absolute inset-0 m-auto"></i>
+              <span class="absolute right-2 top-2 px-2 py-1 rounded-md bg-black/30 text-white text-[10px] font-bold">MP3</span>
+              <div class="media-actions">
+                <button onclick="toast('Memutar voiceover-podcast.mp3','play')" class="p-2 rounded-full bg-white/90 text-zinc-900 shadow"><i data-lucide="play" class="w-4 h-4"></i></button>
+                <button onclick="toast('voiceover-podcast.mp3 diunduh','download')" class="p-2 rounded-full bg-white/90 text-zinc-900 shadow"><i data-lucide="download" class="w-4 h-4"></i></button>
+              </div>
+            </div>
+            <figcaption class="media-cap px-4 py-3">
+              <p class="font-bold text-sm truncate">voiceover-podcast.mp3</p>
+              <p class="mt-0.5 text-[11px] font-semibold text-zinc-400">24 MB · Salsabila Zahra</p>
+            </figcaption>
+          </figure>
+
+          <figure data-type="audio" class="media-tile glass-panel rounded-2xl overflow-hidden">
+            <div class="media-viz relative aspect-video bg-gradient-to-br from-teal-400 to-cyan-600">
+              <i data-lucide="audio-lines" class="w-8 h-8 text-white/80 absolute inset-0 m-auto"></i>
+              <span class="absolute right-2 top-2 px-2 py-1 rounded-md bg-black/30 text-white text-[10px] font-bold">WAV</span>
+              <div class="media-actions">
+                <button onclick="toast('Memutar jingle-pembuka.wav','play')" class="p-2 rounded-full bg-white/90 text-zinc-900 shadow"><i data-lucide="play" class="w-4 h-4"></i></button>
+                <button onclick="toast('jingle-pembuka.wav diunduh','download')" class="p-2 rounded-full bg-white/90 text-zinc-900 shadow"><i data-lucide="download" class="w-4 h-4"></i></button>
+              </div>
+            </div>
+            <figcaption class="media-cap px-4 py-3">
+              <p class="font-bold text-sm truncate">jingle-pembuka.wav</p>
+              <p class="mt-0.5 text-[11px] font-semibold text-zinc-400">18 MB · Fajar Ramadhan</p>
+            </figcaption>
+          </figure>
+
+          <figure data-type="dokumen" class="media-tile glass-panel rounded-2xl overflow-hidden">
+            <div class="media-viz relative aspect-video bg-gradient-to-br from-zinc-300 to-zinc-500">
+              <i data-lucide="file-text" class="w-8 h-8 text-white/80 absolute inset-0 m-auto"></i>
+              <span class="absolute right-2 top-2 px-2 py-1 rounded-md bg-black/30 text-white text-[10px] font-bold">PDF</span>
+              <div class="media-actions">
+                <button onclick="toast('Pratinjau storyboard.pdf','eye')" class="p-2 rounded-full bg-white/90 text-zinc-900 shadow"><i data-lucide="eye" class="w-4 h-4"></i></button>
+                <button onclick="toast('storyboard.pdf diunduh','download')" class="p-2 rounded-full bg-white/90 text-zinc-900 shadow"><i data-lucide="download" class="w-4 h-4"></i></button>
+              </div>
+            </div>
+            <figcaption class="media-cap px-4 py-3">
+              <p class="font-bold text-sm truncate">storyboard.pdf</p>
+              <p class="mt-0.5 text-[11px] font-semibold text-zinc-400">12 MB · Andi Wijaya</p>
+            </figcaption>
+          </figure>
+
+          <figure data-type="dokumen" class="media-tile glass-panel rounded-2xl overflow-hidden">
+            <div class="media-viz relative aspect-video bg-gradient-to-br from-sky-300 to-emerald-400">
+              <i data-lucide="file-text" class="w-8 h-8 text-white/80 absolute inset-0 m-auto"></i>
+              <span class="absolute right-2 top-2 px-2 py-1 rounded-md bg-black/30 text-white text-[10px] font-bold">PDF</span>
+              <div class="media-actions">
+                <button onclick="toast('Pratinjau referensi-palette.pdf','eye')" class="p-2 rounded-full bg-white/90 text-zinc-900 shadow"><i data-lucide="eye" class="w-4 h-4"></i></button>
+                <button onclick="toast('referensi-palette.pdf diunduh','download')" class="p-2 rounded-full bg-white/90 text-zinc-900 shadow"><i data-lucide="download" class="w-4 h-4"></i></button>
+              </div>
+            </div>
+            <figcaption class="media-cap px-4 py-3">
+              <p class="font-bold text-sm truncate">referensi-palette.pdf</p>
+              <p class="mt-0.5 text-[11px] font-semibold text-zinc-400">6 MB · Raka Ferdiansyah</p>
+            </figcaption>
+          </figure>
+        </div>
+
+        <p class="mt-4 text-xs text-zinc-400 text-center">Thumbnail aset adalah placeholder gradien untuk demo desain Uroo UI.</p>
+      </main>
+    </div>
+  </div>
+
+  <button onclick="toggleTheme()" class="fixed top-5 right-5 z-[80] p-2.5 rounded-full glass-panel shadow-2xl text-zinc-600 dark:text-zinc-300 md:top-[1.6rem] md:right-[1.6rem]">
+    <i data-lucide="moon" class="w-4 h-4 hidden dark:block"></i>
+    <i data-lucide="sun" class="w-4 h-4 block dark:hidden"></i>
+  </button>
+
+  <script>
+    lucide.createIcons();
+    function toggleTheme(){document.documentElement.classList.toggle('dark');document.body.classList.toggle('dark');try{localStorage.setItem('uroo-theme',document.documentElement.classList.contains('dark')?'dark':'light')}catch(e){};lucide.createIcons();}
+    const sidebar=document.getElementById('sidebar');
+    function toggleSidebar(){
+      if(window.innerWidth>=768){sidebar.classList.toggle('collapsed');}
+      else{sidebar.classList.toggle('open');document.getElementById('overlay').classList.toggle('opacity-0',!sidebar.classList.contains('open'));document.getElementById('overlay').classList.toggle('pointer-events-none',!sidebar.classList.contains('open'));}
+    }
+    function openDrawer(){sidebar.classList.add('open');document.getElementById('overlay').classList.remove('opacity-0','pointer-events-none');}
+    function closeDrawer(){sidebar.classList.remove('open');document.getElementById('overlay').classList.add('opacity-0','pointer-events-none');}
+
+    function toast(msg,type){
+      const t=document.createElement('div');
+      t.className='fixed bottom-5 right-5 z-[85] glass-panel rounded-xl px-4 py-3 text-sm font-semibold shadow-2xl anim-toast-in flex items-center gap-2.5 pointer-events-none max-w-sm';
+      t.innerHTML='<i data-lucide="'+(type||'check-circle')+'" class="w-4 h-4 shrink-0"></i><span>'+msg+'</span>';
+      document.body.appendChild(t);lucide.createIcons();
+      setTimeout(()=>{t.style.opacity='0';t.style.transition='opacity .3s';setTimeout(()=>t.remove(),320)},2600);
+    }
+
+    let curMT='semua';
+    function filterMedia(t){
+      curMT=t;
+      document.querySelectorAll('.mt-pill').forEach(p=>{
+        const on=p.dataset.mt===t;
+        p.classList.toggle('bg-zinc-900',on);p.classList.toggle('text-zinc-50',on);
+        p.classList.toggle('dark:bg-zinc-50',on);p.classList.toggle('dark:text-zinc-900',on);
+        p.classList.toggle('shadow-lg',on);
+        p.classList.toggle('text-zinc-500',!on);p.classList.toggle('dark:text-zinc-400',!on);
+        p.classList.toggle('hover:bg-black/5',!on);p.classList.toggle('dark:hover:bg-white/10',!on);
+      });
+      updateMedia();
+    }
+    function updateMedia(){
+      const q=(document.getElementById('mediaSearch').value||'').trim().toLowerCase();
+      document.querySelectorAll('#mediaGrid figure').forEach(f=>{
+        const okType=(curMT==='semua'||f.dataset.type===curMT);
+        const okQ=!q||((f.querySelector('figcaption p').textContent||'').toLowerCase().indexOf(q)>=0);
+        f.style.display=(okType&&okQ)?'':'none';
+      });
+    }
+    function searchMedia(v){updateMedia();}
+    function setView(v){
+      document.getElementById('mediaGrid').classList.toggle('list',v==='list');
+      document.querySelectorAll('.view-pill').forEach(p=>{
+        const on=p.dataset.view===v;
+        p.classList.toggle('bg-zinc-900',on);p.classList.toggle('text-zinc-50',on);
+        p.classList.toggle('dark:bg-zinc-50',on);p.classList.toggle('dark:text-zinc-900',on);
+        p.classList.toggle('shadow-lg',on);
+        p.classList.toggle('text-zinc-400',!on);
+      });
+      lucide.createIcons();
+    }
+  </script>
+<script src="../../assets/js/uroo-nav.js"></script>
+</body>
+</html>

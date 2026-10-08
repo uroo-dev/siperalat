@@ -1,0 +1,36 @@
+/* ============================================================
+   UROO UI - Theme: Dark
+   Monochromatic glassmorphism in dark mode.
+   Apply by adding the `dark` class on <html> AND <body>.
+   ============================================================ */
+
+html.dark body,
+body.dark {
+  /* Canvas */
+  --u-canvas: linear-gradient(135deg, #0a0a0b, #1a1a1e);
+
+  /* Surfaces */
+  --u-glass-bg: rgba(24, 24, 27, 0.55);
+  --u-glass-border: rgba(255, 255, 255, 0.08);
+  --u-glass-inset: rgba(255, 255, 255, 0.1);
+
+  /* Text */
+  --u-text: #fafafa;
+  --u-text-muted: #a1a1aa;
+  --u-text-subtle: #71717a;
+
+  /* Brand */
+  --u-primary: #fafafa;
+  --u-primary-fg: #18181b;
+  --u-accent: #2dd4bf;
+
+  /* Shadows */
+  --u-shadow-glass: 0 20px 40px -15px rgba(0, 0, 0, 0.5),
+                    inset 0 1px 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+html.dark .glass-panel {
+  background-color: var(--u-glass-bg);
+  border: 1px solid var(--u-glass-border);
+  box-shadow: var(--u-shadow-glass);
+}

@@ -1,0 +1,1007 @@
+<!DOCTYPE html>
+<html lang="id" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Uroo UI - Modal</title>
+  <script src="../../assets/js/tailwind.js"></script>
+  <script src="../../assets/js/lucide.js"></script>
+  <script>tailwind.config={darkMode:'class',theme:{extend:{colors:{glass:{light:'rgba(255,255,255,0.65)','light-border':'rgba(255,255,255,0.8)',dark:'rgba(18,18,20,0.65)','dark-border':'rgba(255,255,255,0.1)'}}}}}</script>
+  <link rel="stylesheet" href="../../assets/css/uroo.css">
+  <style>
+    .u-bg{position:fixed;inset:0;z-index:-10;transition:opacity .35s ease}
+    .u-bg-light{background:linear-gradient(135deg,#dfe3ea,#f4f4f5)}
+    .u-bg-dark{background:linear-gradient(135deg,#0a0a0b,#1a1a1e);opacity:0}
+    body.dark .u-bg-light{opacity:0}
+    body.dark .u-bg-dark{opacity:1}
+    .u-glow{position:fixed;border-radius:9999px;filter:blur(90px);z-index:-9;pointer-events:none;transition:background-color .35s ease;background:rgba(0,0,0,0.06)}
+    body.dark .u-glow{background:rgba(255,255,255,0.05)}
+    .u-glow-1{width:420px;height:420px;top:-140px;left:-140px}
+    .u-glow-2{width:520px;height:520px;bottom:-200px;right:-140px}
+    .u-glow-3{width:300px;height:300px;top:42%;left:58%}
+    .uroo-kbd{display:inline-flex;align-items:center;justify-content:center;min-width:22px;padding:1px 6px;font-family:ui-monospace,'SF Mono',monospace;font-size:11px;font-weight:600;border-radius:6px;border:1px solid rgba(0,0,0,.12);background:rgba(0,0,0,.05);color:#71717a}
+    .dark .uroo-kbd{border-color:rgba(255,255,255,.16);background:rgba(255,255,255,.06);color:#a1a1aa}
+    .u-btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;font-size:13px;font-weight:600;padding:9px 16px;border-radius:11px;transition:background-color .15s,opacity .15s,color .15s;cursor:pointer;border:0}
+    .u-btn-primary{background:#18181b;color:#fff}
+    .dark .u-btn-primary{background:#fafafa;color:#18181b}
+    .u-btn-primary:hover{opacity:.86}
+    .u-btn-ghost{background:rgba(0,0,0,.05);color:#3f3f46}
+    .dark .u-btn-ghost{background:rgba(255,255,255,.08);color:#e4e4e7}
+    .u-btn-ghost:hover{background:rgba(0,0,0,.09);color:#18181b}
+    .dark .u-btn-ghost:hover{background:rgba(255,255,255,.13);color:#fafafa}
+    .u-btn-danger{background:#dc2626;color:#fff}
+    .u-btn-danger:hover{background:#b91c1c}
+    .u-btn-sm{padding:7px 12px;font-size:12px;border-radius:9px}
+    .u-field-label{display:block;font-size:12px;font-weight:600;margin-bottom:5px;color:#52525b}
+    .dark .u-field-label{color:#a1a1aa}
+    .u-field-label .u-req{color:#dc2626}
+    .dark .u-field-label .u-req{color:#f87171}
+    .u-input,.u-select{width:100%;padding:9px 12px;border-radius:11px;font-size:13.5px;color:#18181b;background:rgba(255,255,255,.6);border:1px solid rgba(0,0,0,.14);transition:border-color .15s ease;outline:none}
+    .dark .u-input,.dark .u-select{color:#fafafa;background:rgba(255,255,255,.05);border-color:rgba(255,255,255,.14)}
+    .u-input:focus,.u-select:focus{border-color:rgba(0,0,0,.55)}
+    .dark .u-input:focus,.dark .u-select:focus{border-color:rgba(255,255,255,.55)}
+    .modal-backdrop{position:fixed;inset:0;z-index:1060;background:rgba(0,0,0,.42);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);transition:opacity .24s ease}
+    .modal-panel{position:fixed;inset:0;z-index:1061;display:flex;align-items:center;justify-content:center;padding:20px;pointer-events:none}
+    .modal-content{width:100%;max-height:min(86vh,760px);display:flex;flex-direction:column;border-radius:20px;transform:translateY(14px) scale(.96);transition:transform .28s cubic-bezier(.16,1,.3,1);pointer-events:auto}
+    .modal-open .modal-content{transform:none}
+    .modal-sm .modal-content{max-width:352px}
+    .modal-md .modal-content{max-width:464px}
+    .modal-lg .modal-content{max-width:648px}
+    .modal-head{display:flex;align-items:flex-start;gap:14px;padding:24px 24px 0}
+    .modal-body{padding:18px 24px 0;min-height:0;overflow-y:auto}
+    .modal-body--scroll{padding-bottom:6px}
+    .modal-foot{display:flex;align-items:center;justify-content:flex-end;gap:8px;padding:18px 24px 22px;border-top:1px solid rgba(0,0,0,.06)}
+    .dark .modal-foot{border-top-color:rgba(255,255,255,.08)}
+  </style>
+</head>
+<body class="min-h-screen p-6 font-sans antialiased text-zinc-800 dark:text-zinc-100">
+  <script>(function(){var s=null;try{s=localStorage.getItem('uroo-theme')}catch(e){};var d=(s==='dark')||(!s&&window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches);var de=document.documentElement;if(d){de.classList.add('dark');de.classList.remove('light');if(document.body){document.body.classList.add('dark');document.body.classList.remove('light');}}else{de.classList.remove('dark');de.classList.add('light');if(document.body){document.body.classList.remove('dark');document.body.classList.add('light');}}})();</script>
+  <div class="u-bg u-bg-light" aria-hidden="true"></div>
+  <div class="u-bg u-bg-dark" aria-hidden="true"></div>
+  <div class="u-glow u-glow-1" aria-hidden="true"></div>
+  <div class="u-glow u-glow-2" aria-hidden="true"></div>
+  <div class="u-glow u-glow-3" aria-hidden="true"></div>
+
+  <main class="relative z-10 mx-auto max-w-5xl">
+
+    <!-- HEADER -->
+    <header class="mb-10">
+      <div class="flex items-center gap-4">
+        <div class="glass-panel rounded-2xl p-3 shadow-2xl">
+          <i data-lucide="scan" class="w-6 h-6"></i>
+        </div>
+        <div>
+          <p class="text-[11px] font-bold uppercase tracking-[0.2em] text-zinc-400 dark:text-zinc-500">Uroo UI - Komponen Overlay</p>
+          <h1 class="text-2xl md:text-4xl font-bold tracking-tight">Modal</h1>
+        </div>
+      </div>
+      <p class="mt-4 max-w-2xl text-sm leading-relaxed text-zinc-500 dark:text-zinc-400">
+        Dialog terpusat dengan tiga ukuran, aksi pada footer, serta formulir bervalidasi.
+        <strong>Sekali copy langsung jalan</strong> — setiap kode sudah termasuk JS-nya.
+      </p>
+    </header>
+
+    <!-- QUICK START -->
+    <section class="glass-panel rounded-2xl shadow-2xl p-6 md:p-8 mb-8 anim-fade-in">
+      <header class="mb-4">
+        <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-zinc-400 dark:text-zinc-500">Quick Start</p>
+        <h2 class="mt-1 text-lg font-bold tracking-tight">Cara Pakai</h2>
+      </header>
+      <div class="space-y-3 text-[13px] leading-relaxed">
+        <div class="flex items-start gap-3">
+          <span class="shrink-0 w-6 h-6 rounded-lg bg-black/5 dark:bg-white/10 flex items-center justify-center text-[11px] font-bold">1</span>
+          <span class="text-zinc-500 dark:text-zinc-400">Klik <strong>"Lihat Kode"</strong> pada contoh di bawah</span>
+        </div>
+        <div class="flex items-start gap-3">
+          <span class="shrink-0 w-6 h-6 rounded-lg bg-black/5 dark:bg-white/10 flex items-center justify-center text-[11px] font-bold">2</span>
+          <span class="text-zinc-500 dark:text-zinc-400">Klik <strong>"Salin"</strong> — seluruh kode (tombol + modal + JS) ter-copy</span>
+        </div>
+        <div class="flex items-start gap-3">
+          <span class="shrink-0 w-6 h-6 rounded-lg bg-black/5 dark:bg-white/10 flex items-center justify-center text-[11px] font-bold">3</span>
+          <span class="text-zinc-500 dark:text-zinc-400">Paste ke halaman Anda — <strong>langsung jalan</strong>, tanpa setup tambahan</span>
+        </div>
+      </div>
+      <div class="mt-4 rounded-xl border border-zinc-200/70 bg-white/40 p-4 text-[12.5px] leading-relaxed text-zinc-600 dark:border-white/10 dark:bg-white/5 dark:text-zinc-300">
+        <strong>CSS yang dibutuhkan:</strong> <code>modal-backdrop</code>, <code>modal-panel</code>, <code>modal-content</code>, <code>modal-head</code>, <code>modal-body</code>, <code>modal-foot</code> — sudah ada di <code>uroo.css</code> atau copy dari style block halaman ini.
+      </div>
+    </section>
+
+    <!-- UKURAN -->
+    <section class="glass-panel rounded-2xl shadow-2xl p-6 md:p-8 mb-8 anim-fade-in">
+      <header class="mb-5">
+        <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-zinc-400 dark:text-zinc-500">Pilihan Ukuran</p>
+        <h2 class="mt-1 text-lg font-bold tracking-tight">Small, Medium, Large</h2>
+      </header>
+      <p class="text-[13px] text-zinc-500 dark:text-zinc-400 mb-5">Ganti class pada div modal untuk mengatur ukuran.</p>
+      <div class="grid gap-4 md:grid-cols-3">
+
+        <!-- SM -->
+        <section data-copy class="rounded-xl border border-zinc-200/70 bg-white/40 p-4 dark:border-white/10 dark:bg-white/5"
+          data-code='<!-- Small: 352px -->
+<div id="modal-sm" class="hidden modal-sm" role="dialog" aria-modal="true">
+  <div class="modal-backdrop" data-modal-hide="modal-sm"></div>
+  <div class="modal-panel">
+    <div class="modal-content glass-panel">
+      <div class="modal-head">
+        <span class="inline-flex w-11 h-11 items-center justify-center rounded-[13px] bg-black/5 dark:bg-white/8"><i data-lucide="alert-circle" class="w-5 h-5"></i></span>
+        <div class="flex-1 min-w-0">
+          <h3 class="text-[15.5px] font-bold">Modal Small</h3>
+          <p class="mt-1 text-[12.5px] text-zinc-500 dark:text-zinc-400">Lebar maks 352px. Cocok untuk konfirmasi singkat.</p>
+        </div>
+        <button data-modal-hide="modal-sm" type="button" class="p-2 rounded-lg hover:bg-black/7 dark:hover:bg-white/10"><i data-lucide="x" class="w-4 h-4"></i></button>
+      </div>
+      <div class="modal-foot">
+        <button data-modal-hide="modal-sm" type="button" class="u-btn u-btn-ghost u-btn-sm">Batal</button>
+        <button data-modal-hide="modal-sm" type="button" class="u-btn u-btn-primary u-btn-sm">OK</button>
+      </div>
+    </div>
+  </div>
+</div>
+<button data-modal-target="modal-sm" class="u-btn u-btn-ghost u-btn-sm w-full">Lihat Small</button>
+<script>
+(function(id){
+  var m=document.getElementById(id);
+  document.querySelector(&#39;[data-modal-target=&quot;&#39;+id+&#39;&quot;]&#39;).onclick=function(){m.classList.remove(&#39;hidden&#39;);m.classList.add(&#39;modal-open&#39;)};
+  document.querySelectorAll(&#39;[data-modal-hide=&quot;&#39;+id+&#39;&quot;]&#39;).forEach(function(b){b.onclick=function(){m.classList.add(&#39;hidden&#39;);m.classList.remove(&#39;modal-open&#39;)}} );
+  m.querySelector(&#39;.modal-backdrop&#39;).onclick=function(){m.classList.add(&#39;hidden&#39;);m.classList.remove(&#39;modal-open&#39;)};
+  document.addEventListener(&#39;keydown&#39;,function(e){if(e.key===&#39;Escape&#39;){m.classList.add(&#39;hidden&#39;);m.classList.remove(&#39;modal-open&#39;)}});
+})(&#39;modal-sm&#39;);
+</script>'>
+          <div class="text-center mb-3">
+            <code class="text-[12px] font-bold rounded-lg bg-black/5 px-2 py-1 dark:bg-white/10">modal-sm</code>
+            <p class="text-[11px] text-zinc-500 dark:text-zinc-400 mt-1">352px</p>
+          </div>
+          <button data-modal-target="modal-sm" type="button" class="u-btn u-btn-ghost u-btn-sm w-full justify-center">
+            <i data-lucide="maximize-2" class="w-4 h-4"></i> Lihat Small
+          </button>
+        </section>
+
+        <!-- MD -->
+        <section data-copy class="rounded-xl border border-zinc-200/70 bg-white/40 p-4 dark:border-white/10 dark:bg-white/5"
+          data-code='<!-- Medium: 464px (default) -->
+<div id="modal-md" class="hidden modal-md" role="dialog" aria-modal="true">
+  <div class="modal-backdrop" data-modal-hide="modal-md"></div>
+  <div class="modal-panel">
+    <div class="modal-content glass-panel">
+      <div class="modal-head">
+        <span class="inline-flex w-11 h-11 items-center justify-center rounded-[13px] bg-black/5 dark:bg-white/8"><i data-lucide="file-text" class="w-5 h-5"></i></span>
+        <div class="flex-1 min-w-0">
+          <h3 class="text-[15.5px] font-bold">Modal Medium</h3>
+          <p class="mt-1 text-[12.5px] text-zinc-500 dark:text-zinc-400">Lebar maks 464px. Ukuran default untuk form.</p>
+        </div>
+        <button data-modal-hide="modal-md" type="button" class="p-2 rounded-lg hover:bg-black/7 dark:hover:bg-white/10"><i data-lucide="x" class="w-4 h-4"></i></button>
+      </div>
+      <div class="modal-body">
+        <p class="text-[13px] text-zinc-500 dark:text-zinc-400">Cocok untuk form input, edit data, atau dialog dengan beberapa field.</p>
+      </div>
+      <div class="modal-foot">
+        <button data-modal-hide="modal-md" type="button" class="u-btn u-btn-ghost u-btn-sm">Batal</button>
+        <button data-modal-hide="modal-md" type="button" class="u-btn u-btn-primary u-btn-sm">Simpan</button>
+      </div>
+    </div>
+  </div>
+</div>
+<button data-modal-target="modal-md" class="u-btn u-btn-ghost u-btn-sm w-full">Lihat Medium</button>
+<script>
+(function(id){
+  var m=document.getElementById(id);
+  document.querySelector(&#39;[data-modal-target=&quot;&#39;+id+&#39;&quot;]&#39;).onclick=function(){m.classList.remove(&#39;hidden&#39;);m.classList.add(&#39;modal-open&#39;)};
+  document.querySelectorAll(&#39;[data-modal-hide=&quot;&#39;+id+&#39;&quot;]&#39;).forEach(function(b){b.onclick=function(){m.classList.add(&#39;hidden&#39;);m.classList.remove(&#39;modal-open&#39;)}} );
+  m.querySelector(&#39;.modal-backdrop&#39;).onclick=function(){m.classList.add(&#39;hidden&#39;);m.classList.remove(&#39;modal-open&#39;)};
+  document.addEventListener(&#39;keydown&#39;,function(e){if(e.key===&#39;Escape&#39;){m.classList.add(&#39;hidden&#39;);m.classList.remove(&#39;modal-open&#39;)}});
+})(&#39;modal-md&#39;);
+</script>'>
+          <div class="text-center mb-3">
+            <code class="text-[12px] font-bold rounded-lg bg-black/5 px-2 py-1 dark:bg-white/10">modal-md</code>
+            <p class="text-[11px] text-zinc-500 dark:text-zinc-400 mt-1">464px (default)</p>
+          </div>
+          <button data-modal-target="modal-md" type="button" class="u-btn u-btn-ghost u-btn-sm w-full justify-center">
+            <i data-lucide="maximize-2" class="w-4 h-4"></i> Lihat Medium
+          </button>
+        </section>
+
+        <!-- LG -->
+        <section data-copy class="rounded-xl border border-zinc-200/70 bg-white/40 p-4 dark:border-white/10 dark:bg-white/5"
+          data-code='<!-- Large: 648px -->
+<div id="modal-lg" class="hidden modal-lg" role="dialog" aria-modal="true">
+  <div class="modal-backdrop" data-modal-hide="modal-lg"></div>
+  <div class="modal-panel">
+    <div class="modal-content glass-panel">
+      <div class="modal-head">
+        <span class="inline-flex w-11 h-11 items-center justify-center rounded-[13px] bg-black/5 dark:bg-white/8"><i data-lucide="layout" class="w-5 h-5"></i></span>
+        <div class="flex-1 min-w-0">
+          <h3 class="text-[15.5px] font-bold">Modal Large</h3>
+          <p class="mt-1 text-[12.5px] text-zinc-500 dark:text-zinc-400">Lebar maks 648px. Untuk konten banyak atau form kompleks.</p>
+        </div>
+        <button data-modal-hide="modal-lg" type="button" class="p-2 rounded-lg hover:bg-black/7 dark:hover:bg-white/10"><i data-lucide="x" class="w-4 h-4"></i></button>
+      </div>
+      <div class="modal-body">
+        <p class="text-[13px] text-zinc-500 dark:text-zinc-400">Cocok untuk tabel, detail data, atau konten panjang yang bisa di-scroll.</p>
+      </div>
+      <div class="modal-foot">
+        <button data-modal-hide="modal-lg" type="button" class="u-btn u-btn-ghost u-btn-sm">Tutup</button>
+      </div>
+    </div>
+  </div>
+</div>
+<button data-modal-target="modal-lg" class="u-btn u-btn-ghost u-btn-sm w-full">Lihat Large</button>
+<script>
+(function(id){
+  var m=document.getElementById(id);
+  document.querySelector(&#39;[data-modal-target=&quot;&#39;+id+&#39;&quot;]&#39;).onclick=function(){m.classList.remove(&#39;hidden&#39;);m.classList.add(&#39;modal-open&#39;)};
+  document.querySelectorAll(&#39;[data-modal-hide=&quot;&#39;+id+&#39;&quot;]&#39;).forEach(function(b){b.onclick=function(){m.classList.add(&#39;hidden&#39;);m.classList.remove(&#39;modal-open&#39;)}} );
+  m.querySelector(&#39;.modal-backdrop&#39;).onclick=function(){m.classList.add(&#39;hidden&#39;);m.classList.remove(&#39;modal-open&#39;)};
+  document.addEventListener(&#39;keydown&#39;,function(e){if(e.key===&#39;Escape&#39;){m.classList.add(&#39;hidden&#39;);m.classList.remove(&#39;modal-open&#39;)}});
+})(&#39;modal-lg&#39;);
+</script>'>
+          <div class="text-center mb-3">
+            <code class="text-[12px] font-bold rounded-lg bg-black/5 px-2 py-1 dark:bg-white/10">modal-lg</code>
+            <p class="text-[11px] text-zinc-500 dark:text-zinc-400 mt-1">648px</p>
+          </div>
+          <button data-modal-target="modal-lg" type="button" class="u-btn u-btn-ghost u-btn-sm w-full justify-center">
+            <i data-lucide="maximize-2" class="w-4 h-4"></i> Lihat Large
+          </button>
+        </section>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         3 TOMBOL UTAMA: ADD, UPDATE, DELETE
+         ============================================================ -->
+
+    <!-- ADD -->
+    <section data-copy class="glass-panel rounded-2xl shadow-2xl p-6 md:p-8 mb-8 anim-fade-in"
+      data-code='<!-- Tombol Buka Modal -->
+<button data-modal-target="modal-add" type="button" class="u-btn u-btn-primary">
+  <i data-lucide="plus" class="w-4 h-4"></i> Tambah Data
+</button>
+
+<!-- Modal -->
+<div id="modal-add" class="hidden modal-sm" role="dialog" aria-modal="true">
+  <div class="modal-backdrop" data-modal-hide="modal-add"></div>
+  <div class="modal-panel">
+    <div class="modal-content glass-panel">
+      <div class="modal-head">
+        <span class="inline-flex w-11 h-11 items-center justify-center rounded-[13px] bg-black/5 dark:bg-white/8"><i data-lucide="plus" class="w-5 h-5"></i></span>
+        <div class="flex-1 min-w-0">
+          <h3 class="text-[15.5px] font-bold">Tambah Data</h3>
+          <p class="mt-1 text-[12.5px] text-zinc-500 dark:text-zinc-400">Isi form untuk menambah data baru.</p>
+        </div>
+        <button data-modal-hide="modal-add" type="button" class="p-2 rounded-lg hover:bg-black/7 dark:hover:bg-white/10"><i data-lucide="x" class="w-4 h-4"></i></button>
+      </div>
+      <form class="modal-body" novalidate>
+        <div class="space-y-4">
+          <div>
+            <label class="u-field-label">Nama <span class="u-req">*</span></label>
+            <input type="text" class="u-input" placeholder="cth. Budi Santoso">
+          </div>
+          <div>
+            <label class="u-field-label">Surel <span class="u-req">*</span></label>
+            <input type="email" class="u-input" placeholder="nama@perusahaan.id">
+          </div>
+          <div>
+            <label class="u-field-label">Peran</label>
+            <select class="u-select"><option>Admin</option><option>Editor</option><option>View Only</option></select>
+          </div>
+        </div>
+      </form>
+      <div class="modal-foot">
+        <button data-modal-hide="modal-add" type="button" class="u-btn u-btn-ghost u-btn-sm">Batal</button>
+        <button type="button" class="u-btn u-btn-primary u-btn-sm"><i data-lucide="check" class="w-4 h-4"></i> Simpan</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- JS Modal -->
+<script>
+(function(id){
+  var m=document.getElementById(id);
+  document.querySelector(&#39;[data-modal-target=&quot;&#39;+id+&#39;&quot;]&#39;).onclick=function(){m.classList.remove(&#39;hidden&#39;);m.classList.add(&#39;modal-open&#39;)};
+  document.querySelectorAll(&#39;[data-modal-hide=&quot;&#39;+id+&#39;&quot;]&#39;).forEach(function(b){b.onclick=function(){m.classList.add(&#39;hidden&#39;);m.classList.remove(&#39;modal-open&#39;)}} );
+  m.querySelector(&#39;.modal-backdrop&#39;).onclick=function(){m.classList.add(&#39;hidden&#39;);m.classList.remove(&#39;modal-open&#39;)};
+  document.addEventListener(&#39;keydown&#39;,function(e){if(e.key===&#39;Escape&#39;){m.classList.add(&#39;hidden&#39;);m.classList.remove(&#39;modal-open&#39;)}});
+})(&#39;modal-add&#39;);
+</script>'>
+      <header class="mb-5">
+        <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-zinc-400 dark:text-zinc-500">Tombol Utama 1</p>
+        <h2 class="mt-1 text-lg font-bold tracking-tight">Tambah Data</h2>
+      </header>
+      <p class="text-[13px] text-zinc-500 dark:text-zinc-400 mb-5">Modal formulir untuk input data baru.</p>
+      <button data-modal-target="modal-add" type="button" class="u-btn u-btn-primary">
+        <i data-lucide="plus" class="w-4 h-4"></i> Tambah Data
+      </button>
+    </section>
+
+    <!-- UPDATE -->
+    <section data-copy class="glass-panel rounded-2xl shadow-2xl p-6 md:p-8 mb-8 anim-fade-in"
+      data-code='<!-- Tombol Buka Modal -->
+<button data-modal-target="modal-update" type="button" class="u-btn u-btn-primary">
+  <i data-lucide="pencil" class="w-4 h-4"></i> Update Data
+</button>
+
+<!-- Modal -->
+<div id="modal-update" class="hidden modal-md" role="dialog" aria-modal="true">
+  <div class="modal-backdrop" data-modal-hide="modal-update"></div>
+  <div class="modal-panel">
+    <div class="modal-content glass-panel">
+      <div class="modal-head">
+        <span class="inline-flex w-11 h-11 items-center justify-center rounded-[13px] bg-black/5 dark:bg-white/8"><i data-lucide="pencil" class="w-5 h-5"></i></span>
+        <div class="flex-1 min-w-0">
+          <h3 class="text-[15.5px] font-bold">Update Data</h3>
+          <p class="mt-1 text-[12.5px] text-zinc-500 dark:text-zinc-400">Ubah informasi yang sudah ada.</p>
+        </div>
+        <button data-modal-hide="modal-update" type="button" class="p-2 rounded-lg hover:bg-black/7 dark:hover:bg-white/10"><i data-lucide="x" class="w-4 h-4"></i></button>
+      </div>
+      <form class="modal-body" novalidate>
+        <div class="space-y-4">
+          <div>
+            <label class="u-field-label">Nama <span class="u-req">*</span></label>
+            <input type="text" class="u-input" value="Raka Saputra">
+          </div>
+          <div>
+            <label class="u-field-label">Surel <span class="u-req">*</span></label>
+            <input type="email" class="u-input" value="raka@uroo.dev">
+          </div>
+          <div>
+            <label class="u-field-label">Peran</label>
+            <select class="u-select"><option selected>Desainer</option><option>Pengembang</option><option>Manajer Produk</option></select>
+          </div>
+        </div>
+      </form>
+      <div class="modal-foot">
+        <button data-modal-hide="modal-update" type="button" class="u-btn u-btn-ghost u-btn-sm">Batal</button>
+        <button type="button" class="u-btn u-btn-primary u-btn-sm"><i data-lucide="check" class="w-4 h-4"></i> Perbarui</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- JS Modal -->
+<script>
+(function(id){
+  var m=document.getElementById(id);
+  document.querySelector(&#39;[data-modal-target=&quot;&#39;+id+&#39;&quot;]&#39;).onclick=function(){m.classList.remove(&#39;hidden&#39;);m.classList.add(&#39;modal-open&#39;)};
+  document.querySelectorAll(&#39;[data-modal-hide=&quot;&#39;+id+&#39;&quot;]&#39;).forEach(function(b){b.onclick=function(){m.classList.add(&#39;hidden&#39;);m.classList.remove(&#39;modal-open&#39;)}} );
+  m.querySelector(&#39;.modal-backdrop&#39;).onclick=function(){m.classList.add(&#39;hidden&#39;);m.classList.remove(&#39;modal-open&#39;)};
+  document.addEventListener(&#39;keydown&#39;,function(e){if(e.key===&#39;Escape&#39;){m.classList.add(&#39;hidden&#39;);m.classList.remove(&#39;modal-open&#39;)}});
+})(&#39;modal-update&#39;);
+</script>'>
+      <header class="mb-5">
+        <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-zinc-400 dark:text-zinc-500">Tombol Utama 2</p>
+        <h2 class="mt-1 text-lg font-bold tracking-tight">Update Data</h2>
+      </header>
+      <p class="text-[13px] text-zinc-500 dark:text-zinc-400 mb-5">Modal formulir dengan data pra-isi untuk edit.</p>
+      <button data-modal-target="modal-update" type="button" class="u-btn u-btn-primary">
+        <i data-lucide="pencil" class="w-4 h-4"></i> Update Data
+      </button>
+    </section>
+
+    <!-- DELETE -->
+    <section data-copy class="glass-panel rounded-2xl shadow-2xl p-6 md:p-8 mb-8 anim-fade-in"
+      data-code='<!-- Tombol Buka Modal -->
+<button data-modal-target="modal-delete" type="button" class="u-btn u-btn-danger">
+  <i data-lucide="trash-2" class="w-4 h-4"></i> Hapus Data
+</button>
+
+<!-- Modal -->
+<div id="modal-delete" class="hidden modal-sm" role="dialog" aria-modal="true">
+  <div class="modal-backdrop" data-modal-hide="modal-delete"></div>
+  <div class="modal-panel">
+    <div class="modal-content glass-panel">
+      <div class="modal-head">
+        <span class="inline-flex w-11 h-11 items-center justify-center rounded-[13px] bg-red-500/12 text-red-500 dark:bg-red-400/16 dark:text-red-400"><i data-lucide="trash-2" class="w-5 h-5"></i></span>
+        <div class="flex-1 min-w-0">
+          <h3 class="text-[15.5px] font-bold">Hapus Data?</h3>
+          <p class="mt-1 text-[12.5px] text-zinc-500 dark:text-zinc-400">Tindakan ini permanen. Data yang dihapus tidak dapat dikembalikan.</p>
+        </div>
+        <button data-modal-hide="modal-delete" type="button" class="p-2 rounded-lg hover:bg-black/7 dark:hover:bg-white/10"><i data-lucide="x" class="w-4 h-4"></i></button>
+      </div>
+      <div class="modal-foot">
+        <button data-modal-hide="modal-delete" type="button" class="u-btn u-btn-ghost u-btn-sm">Batal</button>
+        <button data-modal-hide="modal-delete" type="button" class="u-btn u-btn-danger u-btn-sm"><i data-lucide="trash-2" class="w-4 h-4"></i> Hapus</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- JS Modal -->
+<script>
+(function(id){
+  var m=document.getElementById(id);
+  document.querySelector(&#39;[data-modal-target=&quot;&#39;+id+&#39;&quot;]&#39;).onclick=function(){m.classList.remove(&#39;hidden&#39;);m.classList.add(&#39;modal-open&#39;)};
+  document.querySelectorAll(&#39;[data-modal-hide=&quot;&#39;+id+&#39;&quot;]&#39;).forEach(function(b){b.onclick=function(){m.classList.add(&#39;hidden&#39;);m.classList.remove(&#39;modal-open&#39;)}} );
+  m.querySelector(&#39;.modal-backdrop&#39;).onclick=function(){m.classList.add(&#39;hidden&#39;);m.classList.remove(&#39;modal-open&#39;)};
+  document.addEventListener(&#39;keydown&#39;,function(e){if(e.key===&#39;Escape&#39;){m.classList.add(&#39;hidden&#39;);m.classList.remove(&#39;modal-open&#39;)}});
+})(&#39;modal-delete&#39;);
+</script>'>
+      <header class="mb-5">
+        <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-zinc-400 dark:text-zinc-500">Tombol Utama 3</p>
+        <h2 class="mt-1 text-lg font-bold tracking-tight">Hapus Data</h2>
+      </header>
+      <p class="text-[13px] text-zinc-500 dark:text-zinc-400 mb-5">Konfirmasi destruktif dengan ikon merah.</p>
+      <button data-modal-target="modal-delete" type="button" class="u-btn u-btn-danger">
+        <i data-lucide="trash-2" class="w-4 h-4"></i> Hapus Data
+      </button>
+    </section>
+
+    <!-- ============================================================
+         CONTOH TAMBAHAN
+         ============================================================ -->
+    <div class="grid gap-8 md:grid-cols-2 mb-8">
+
+      <!-- INFO MODAL -->
+      <section data-copy class="glass-panel rounded-2xl shadow-2xl p-6 md:p-8 anim-fade-in"
+        data-code='<!-- Tombol Buka Modal -->
+<button data-modal-target="modal-info" type="button" class="u-btn u-btn-ghost">
+  <i data-lucide="info" class="w-4 h-4"></i> Info
+</button>
+
+<!-- Modal -->
+<div id="modal-info" class="hidden modal-sm" role="dialog" aria-modal="true">
+  <div class="modal-backdrop" data-modal-hide="modal-info"></div>
+  <div class="modal-panel">
+    <div class="modal-content glass-panel">
+      <div class="modal-body text-center py-8">
+        <span class="inline-flex w-11 h-11 items-center justify-center rounded-[13px] bg-black/5 dark:bg-white/8 mx-auto"><i data-lucide="check-circle" class="w-5 h-5"></i></span>
+        <h3 class="text-[15.5px] font-bold mt-4">Berhasil!</h3>
+        <p class="mt-2 text-[12.5px] text-zinc-500 dark:text-zinc-400 mx-auto max-w-xs">Data Anda sudah tersimpan. Tutup dialog ini untuk melanjutkan.</p>
+        <button data-modal-hide="modal-info" type="button" class="u-btn u-btn-primary mt-6 w-full">
+          <i data-lucide="check" class="w-4 h-4"></i> Mengerti
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- JS Modal -->
+<script>
+(function(id){
+  var m=document.getElementById(id);
+  document.querySelector(&#39;[data-modal-target=&quot;&#39;+id+&#39;&quot;]&#39;).onclick=function(){m.classList.remove(&#39;hidden&#39;);m.classList.add(&#39;modal-open&#39;)};
+  document.querySelectorAll(&#39;[data-modal-hide=&quot;&#39;+id+&#39;&quot;]&#39;).forEach(function(b){b.onclick=function(){m.classList.add(&#39;hidden&#39;);m.classList.remove(&#39;modal-open&#39;)}} );
+  m.querySelector(&#39;.modal-backdrop&#39;).onclick=function(){m.classList.add(&#39;hidden&#39;);m.classList.remove(&#39;modal-open&#39;)};
+  document.addEventListener(&#39;keydown&#39;,function(e){if(e.key===&#39;Escape&#39;){m.classList.add(&#39;hidden&#39;);m.classList.remove(&#39;modal-open&#39;)}});
+})(&#39;modal-info&#39;);
+</script>'>
+        <header class="mb-5">
+          <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-zinc-400 dark:text-zinc-500">Contoh 1</p>
+          <h2 class="mt-1 text-lg font-bold tracking-tight">Info / Notifikasi</h2>
+        </header>
+        <p class="text-[13px] text-zinc-500 dark:text-zinc-400 mb-5">Pesan center dengan satu tombol aksi.</p>
+        <button data-modal-target="modal-info" type="button" class="u-btn u-btn-ghost">
+          <i data-lucide="info" class="w-4 h-4"></i> Info
+        </button>
+      </section>
+
+      <!-- STATIC MODAL -->
+      <section data-copy class="glass-panel rounded-2xl shadow-2xl p-6 md:p-8 anim-fade-in"
+        data-code='<!-- Tombol Buka Modal -->
+<button data-modal-target="modal-static" type="button" class="u-btn u-btn-ghost">
+  <i data-lucide="lock" class="w-4 h-4"></i> Static Modal
+</button>
+
+<!-- Modal (backdrop tidak bisa diklik untuk tutup) -->
+<div id="modal-static" class="hidden modal-sm" role="dialog" aria-modal="true" data-modal-static>
+  <div class="modal-backdrop"></div>
+  <div class="modal-panel">
+    <div class="modal-content glass-panel">
+      <div class="modal-head">
+        <span class="inline-flex w-11 h-11 items-center justify-center rounded-[13px] bg-black/5 dark:bg-white/8"><i data-lucide="lock" class="w-5 h-5"></i></span>
+        <div class="flex-1 min-w-0">
+          <h3 class="text-[15.5px] font-bold">Modal Static</h3>
+          <p class="mt-1 text-[12.5px] text-zinc-500 dark:text-zinc-400">Klik backdrop tidak menutup modal. Hanya tombol yang bisa menutup.</p>
+        </div>
+        <button data-modal-hide="modal-static" type="button" class="p-2 rounded-lg hover:bg-black/7 dark:hover:bg-white/10"><i data-lucide="x" class="w-4 h-4"></i></button>
+      </div>
+      <div class="modal-body">
+        <p class="text-[13px] text-zinc-500 dark:text-zinc-400">Gunakan modal statis untuk aksi yang membutuhkan konfirmasi eksplisit.</p>
+      </div>
+      <div class="modal-foot">
+        <button data-modal-hide="modal-static" type="button" class="u-btn u-btn-primary u-btn-sm">Mengerti</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- JS Modal -->
+<script>
+(function(id){
+  var m=document.getElementById(id);
+  document.querySelector(&#39;[data-modal-target=&quot;&#39;+id+&#39;&quot;]&#39;).onclick=function(){m.classList.remove(&#39;hidden&#39;);m.classList.add(&#39;modal-open&#39;)};
+  document.querySelectorAll(&#39;[data-modal-hide=&quot;&#39;+id+&#39;&quot;]&#39;).forEach(function(b){b.onclick=function(){m.classList.add(&#39;hidden&#39;);m.classList.remove(&#39;modal-open&#39;)}} );
+  if(!m.hasAttribute(&#39;data-modal-static&#39;)){
+    m.querySelector(&#39;.modal-backdrop&#39;).onclick=function(){m.classList.add(&#39;hidden&#39;);m.classList.remove(&#39;modal-open&#39;)};
+  }
+  document.addEventListener(&#39;keydown&#39;,function(e){if(e.key===&#39;Escape&#39;){m.classList.add(&#39;hidden&#39;);m.classList.remove(&#39;modal-open&#39;)}});
+})(&#39;modal-static&#39;);
+</script>'>
+        <header class="mb-5">
+          <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-zinc-400 dark:text-zinc-500">Contoh 2</p>
+          <h2 class="mt-1 text-lg font-bold tracking-tight">Static Modal</h2>
+        </header>
+        <p class="text-[13px] text-zinc-500 dark:text-zinc-400 mb-5">Backdrop tidak bisa diklik untuk menutup.</p>
+        <button data-modal-target="modal-static" type="button" class="u-btn u-btn-ghost">
+          <i data-lucide="lock" class="w-4 h-4"></i> Static Modal
+        </button>
+      </section>
+    </div>
+
+    <!-- UPLOAD MODAL -->
+    <section data-copy class="glass-panel rounded-2xl shadow-2xl p-6 md:p-8 mb-8 anim-fade-in"
+      data-code='<!-- Tombol Buka Modal -->
+<button data-modal-target="modal-upload" type="button" class="u-btn u-btn-primary">
+  <i data-lucide="upload" class="w-4 h-4"></i> Upload File
+</button>
+
+<!-- Modal -->
+<div id="modal-upload" class="hidden modal-md" role="dialog" aria-modal="true">
+  <div class="modal-backdrop" data-modal-hide="modal-upload"></div>
+  <div class="modal-panel">
+    <div class="modal-content glass-panel">
+      <div class="modal-head">
+        <span class="inline-flex w-11 h-11 items-center justify-center rounded-[13px] bg-black/5 dark:bg-white/8"><i data-lucide="upload" class="w-5 h-5"></i></span>
+        <div class="flex-1 min-w-0">
+          <h3 class="text-[15.5px] font-bold">Upload File</h3>
+          <p class="mt-1 text-[12.5px] text-zinc-500 dark:text-zinc-400">Unggah dokumen, gambar, atau file pendukung lainnya.</p>
+        </div>
+        <button data-modal-hide="modal-upload" type="button" class="p-2 rounded-lg hover:bg-black/7 dark:hover:bg-white/10"><i data-lucide="x" class="w-4 h-4"></i></button>
+      </div>
+      <form class="modal-body" novalidate>
+        <div class="space-y-4">
+          <div>
+            <label class="u-field-label">Nama File <span class="u-req">*</span></label>
+            <input type="text" class="u-input" placeholder="cth. Laporan Q4 2026">
+          </div>
+          <div>
+            <label class="u-field-label">Kategori</label>
+            <select class="u-select"><option>Dokumen</option><option>Gambar</option><option>Spreadsheet</option><option>Lainnya</option></select>
+          </div>
+          <div>
+            <label class="u-field-label">Upload <span class="u-req">*</span></label>
+            <div class="relative">
+              <input type="file" id="file-input" class="hidden" onchange="var n=this.files[0]?this.files[0].name:'Pilih file...';document.getElementById('file-label').textContent=n;document.getElementById('file-icon').style.display='none';document.getElementById('file-name').style.display='';">
+              <label for="file-input" class="flex items-center gap-3 w-full px-4 py-3.5 rounded-xl border-2 border-dashed border-zinc-300 dark:border-zinc-600 bg-white/40 dark:bg-white/5 cursor-pointer hover:border-zinc-400 dark:hover:border-zinc-500 transition-colors">
+                <span id="file-icon" class="w-9 h-9 rounded-xl bg-black/5 dark:bg-white/10 grid place-items-center"><i data-lucide="cloud-upload" class="w-4.5 h-4.5 text-zinc-400"></i></span>
+                <span id="file-name" class="hidden flex-1 min-w-0">
+                  <span id="file-label" class="text-[13px] font-semibold text-zinc-800 dark:text-zinc-200 truncate block"></span>
+                  <span class="text-[11px] text-zinc-400">Klik untuk ganti file</span>
+                </span>
+                <span id="file-placeholder" class="flex-1 min-w-0">
+                  <span class="text-[13px] font-semibold text-zinc-600 dark:text-zinc-300">Pilih file...</span>
+                  <span class="text-[11px] text-zinc-400 block">PDF, JPG, PNG, XLSX (maks 10MB)</span>
+                </span>
+              </label>
+            </div>
+          </div>
+          <div>
+            <label class="u-field-label">Catatan</label>
+            <textarea class="u-input" rows="2" placeholder="Deskripsi singkat file..."></textarea>
+          </div>
+        </div>
+      </form>
+      <div class="modal-foot">
+        <button data-modal-hide="modal-upload" type="button" class="u-btn u-btn-ghost u-btn-sm">Batal</button>
+        <button type="button" class="u-btn u-btn-primary u-btn-sm"><i data-lucide="upload" class="w-4 h-4"></i> Unggah</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- JS Modal -->
+<script>
+(function(id){
+  var m=document.getElementById(id);
+  document.querySelector(&#39;[data-modal-target=&quot;&#39;+id+&#39;&quot;]&#39;).onclick=function(){m.classList.remove(&#39;hidden&#39;);m.classList.add(&#39;modal-open&#39;)};
+  document.querySelectorAll(&#39;[data-modal-hide=&quot;&#39;+id+&#39;&quot;]&#39;).forEach(function(b){b.onclick=function(){m.classList.add(&#39;hidden&#39;);m.classList.remove(&#39;modal-open&#39;)}} );
+  m.querySelector(&#39;.modal-backdrop&#39;).onclick=function(){m.classList.add(&#39;hidden&#39;);m.classList.remove(&#39;modal-open&#39;)};
+  document.addEventListener(&#39;keydown&#39;,function(e){if(e.key===&#39;Escape&#39;){m.classList.add(&#39;hidden&#39;);m.classList.remove(&#39;modal-open&#39;)}});
+})(&#39;modal-upload&#39;);
+</script>'>
+      <header class="mb-5">
+        <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-zinc-400 dark:text-zinc-500">Contoh 4</p>
+        <h2 class="mt-1 text-lg font-bold tracking-tight">Upload File</h2>
+      </header>
+      <p class="text-[13px] text-zinc-500 dark:text-zinc-400 mb-5">Modal dengan drag-drop zone untuk unggah dokumen.</p>
+      <button data-modal-target="modal-upload" type="button" class="u-btn u-btn-primary">
+        <i data-lucide="upload" class="w-4 h-4"></i> Upload File
+      </button>
+    </section>
+
+    <!-- SCROLL MODAL -->
+    <section data-copy class="glass-panel rounded-2xl shadow-2xl p-6 md:p-8 mb-8 anim-fade-in"
+      data-code='<!-- Tombol Buka Modal -->
+<button data-modal-target="modal-scroll" type="button" class="u-btn u-btn-ghost">
+  <i data-lucide="file-text" class="w-4 h-4"></i> Baca Rincian
+</button>
+
+<!-- Modal -->
+<div id="modal-scroll" class="hidden modal-lg" role="dialog" aria-modal="true">
+  <div class="modal-backdrop" data-modal-hide="modal-scroll"></div>
+  <div class="modal-panel">
+    <div class="modal-content glass-panel">
+      <div class="modal-head">
+        <span class="inline-flex w-11 h-11 items-center justify-center rounded-[13px] bg-black/5 dark:bg-white/8"><i data-lucide="rocket" class="w-5 h-5"></i></span>
+        <div class="flex-1 min-w-0">
+          <h3 class="text-[15.5px] font-bold">Rincian Rilis v3.2</h3>
+          <p class="mt-1 text-[12.5px] text-zinc-500 dark:text-zinc-400">Diterbitkan 14 Agustus 2026.</p>
+        </div>
+        <button data-modal-hide="modal-scroll" type="button" class="p-2 rounded-lg hover:bg-black/7 dark:hover:bg-white/10"><i data-lucide="x" class="w-4 h-4"></i></button>
+      </div>
+      <div class="modal-body modal-body--scroll">
+        <div class="space-y-5">
+          <div><h4 class="text-[13px] font-semibold">1. Palet monokrom yang lebih tajam</h4><p class="mt-1 text-[12.5px] text-zinc-500 dark:text-zinc-400">Seluruh komponen kini memakai skala zinc yang dikalibrasi ulang.</p></div>
+          <div><h4 class="text-[13px] font-semibold">2. Bukaan kaca yang lebih konsisten</h4><p class="mt-1 text-[12.5px] text-zinc-500 dark:text-zinc-400">Nilai blur dan saturasi diseragamkan pada 20px dan 180%.</p></div>
+          <div><h4 class="text-[13px] font-semibold">3. Perilaku fokus keyboard</h4><p class="mt-1 text-[12.5px] text-zinc-500 dark:text-zinc-400">Menu dan dropdown kini memakai tabindex rover.</p></div>
+        </div>
+      </div>
+      <div class="modal-foot">
+        <button data-modal-hide="modal-scroll" type="button" class="u-btn u-btn-ghost u-btn-sm">Tutup</button>
+        <button data-modal-hide="modal-scroll" type="button" class="u-btn u-btn-primary u-btn-sm"><i data-lucide="download" class="w-4 h-4"></i> Unduh</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- JS Modal -->
+<script>
+(function(id){
+  var m=document.getElementById(id);
+  document.querySelector(&#39;[data-modal-target=&quot;&#39;+id+&#39;&quot;]&#39;).onclick=function(){m.classList.remove(&#39;hidden&#39;);m.classList.add(&#39;modal-open&#39;)};
+  document.querySelectorAll(&#39;[data-modal-hide=&quot;&#39;+id+&#39;&quot;]&#39;).forEach(function(b){b.onclick=function(){m.classList.add(&#39;hidden&#39;);m.classList.remove(&#39;modal-open&#39;)}} );
+  m.querySelector(&#39;.modal-backdrop&#39;).onclick=function(){m.classList.add(&#39;hidden&#39;);m.classList.remove(&#39;modal-open&#39;)};
+  document.addEventListener(&#39;keydown&#39;,function(e){if(e.key===&#39;Escape&#39;){m.classList.add(&#39;hidden&#39;);m.classList.remove(&#39;modal-open&#39;)}});
+})(&#39;modal-scroll&#39;);
+</script>'>
+      <header class="mb-5">
+        <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-zinc-400 dark:text-zinc-500">Contoh 3</p>
+        <h2 class="mt-1 text-lg font-bold tracking-tight">Konten Panjang (Scroll)</h2>
+      </header>
+      <p class="text-[13px] text-zinc-500 dark:text-zinc-400 mb-5">Badan modal bisa digulir untuk konten panjang.</p>
+      <button data-modal-target="modal-scroll" type="button" class="u-btn u-btn-ghost">
+        <i data-lucide="file-text" class="w-4 h-4"></i> Baca Rincian
+      </button>
+    </section>
+
+    <!-- KEYBOARD SHORTCUTS -->
+    <footer class="mt-8 mb-4">
+      <p class="flex items-center gap-2 rounded-xl border border-dashed border-zinc-300/60 px-4 py-3 text-xs text-zinc-500 dark:border-white/10 dark:text-zinc-400">
+        <i data-lucide="keyboard" class="w-4 h-4 flex-none"></i>
+        Tekan <span class="uroo-kbd">Esc</span> untuk menutup, <span class="uroo-kbd">Tab</span> untuk berkeliling fokus
+        (terkunci di dalam modal), dan <span class="uroo-kbd">Enter</span> untuk mengaktifkan tombol.
+        Fokus dikembalikan ke elemen pembuka saat modal ditutup.
+      </p>
+    </footer>
+  </main>
+
+  <!-- Theme Toggle -->
+  <button onclick="toggleTheme()" aria-label="Ubah tema" class="glass-panel fixed top-4 right-4 z-50 rounded-full p-2 shadow-2xl" title="Toggle theme">
+    <i data-lucide="sun" class="w-4 h-4 hidden dark:block"></i>
+    <i data-lucide="moon" class="w-4 h-4 block dark:hidden"></i>
+  </button>
+
+  <!-- ============================================================
+       MODALS (rendered for demo on this page)
+       ============================================================ -->
+
+  <!-- ADD MODAL -->
+  <div id="modal-add" class="hidden modal-sm" role="dialog" aria-modal="true">
+    <div class="modal-backdrop" data-modal-hide="modal-add"></div>
+    <div class="modal-panel">
+      <div class="modal-content glass-panel">
+        <div class="modal-head">
+          <span class="inline-flex w-11 h-11 items-center justify-center rounded-[13px] bg-black/5 dark:bg-white/8"><i data-lucide="plus" class="w-5 h-5"></i></span>
+          <div class="flex-1 min-w-0">
+            <h3 class="text-[15.5px] font-bold">Tambah Data</h3>
+            <p class="mt-1 text-[12.5px] text-zinc-500 dark:text-zinc-400">Isi form untuk menambah data baru.</p>
+          </div>
+          <button data-modal-hide="modal-add" type="button" class="p-2 rounded-lg hover:bg-black/7 dark:hover:bg-white/10"><i data-lucide="x" class="w-4 h-4"></i></button>
+        </div>
+        <form id="form-add" class="modal-body" novalidate>
+          <div class="space-y-4">
+            <div>
+              <label class="u-field-label">Nama <span class="u-req">*</span></label>
+              <input type="text" class="u-input" placeholder="cth. Budi Santoso">
+            </div>
+            <div>
+              <label class="u-field-label">Surel <span class="u-req">*</span></label>
+              <input type="email" class="u-input" placeholder="nama@perusahaan.id">
+            </div>
+            <div>
+              <label class="u-field-label">Peran</label>
+              <select class="u-select"><option>Admin</option><option>Editor</option><option>View Only</option></select>
+            </div>
+          </div>
+        </form>
+        <div class="modal-foot">
+          <button data-modal-hide="modal-add" type="button" class="u-btn u-btn-ghost u-btn-sm">Batal</button>
+          <button type="submit" form="form-add" class="u-btn u-btn-primary u-btn-sm"><i data-lucide="check" class="w-4 h-4"></i> Simpan</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- UPDATE MODAL -->
+  <div id="modal-update" class="hidden modal-md" role="dialog" aria-modal="true">
+    <div class="modal-backdrop" data-modal-hide="modal-update"></div>
+    <div class="modal-panel">
+      <div class="modal-content glass-panel">
+        <div class="modal-head">
+          <span class="inline-flex w-11 h-11 items-center justify-center rounded-[13px] bg-black/5 dark:bg-white/8"><i data-lucide="pencil" class="w-5 h-5"></i></span>
+          <div class="flex-1 min-w-0">
+            <h3 class="text-[15.5px] font-bold">Update Data</h3>
+            <p class="mt-1 text-[12.5px] text-zinc-500 dark:text-zinc-400">Ubah informasi yang sudah ada.</p>
+          </div>
+          <button data-modal-hide="modal-update" type="button" class="p-2 rounded-lg hover:bg-black/7 dark:hover:bg-white/10"><i data-lucide="x" class="w-4 h-4"></i></button>
+        </div>
+        <form id="form-update" class="modal-body" novalidate>
+          <div class="space-y-4">
+            <div>
+              <label class="u-field-label">Nama <span class="u-req">*</span></label>
+              <input type="text" class="u-input" value="Raka Saputra">
+            </div>
+            <div>
+              <label class="u-field-label">Surel <span class="u-req">*</span></label>
+              <input type="email" class="u-input" value="raka@uroo.dev">
+            </div>
+            <div>
+              <label class="u-field-label">Peran</label>
+              <select class="u-select"><option selected>Desainer</option><option>Pengembang</option><option>Manajer Produk</option></select>
+            </div>
+          </div>
+        </form>
+        <div class="modal-foot">
+          <button data-modal-hide="modal-update" type="button" class="u-btn u-btn-ghost u-btn-sm">Batal</button>
+          <button type="submit" form="form-update" class="u-btn u-btn-primary u-btn-sm"><i data-lucide="check" class="w-4 h-4"></i> Perbarui</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DELETE MODAL -->
+  <div id="modal-delete" class="hidden modal-sm" role="dialog" aria-modal="true">
+    <div class="modal-backdrop" data-modal-hide="modal-delete"></div>
+    <div class="modal-panel">
+      <div class="modal-content glass-panel">
+        <div class="modal-head">
+          <span class="inline-flex w-11 h-11 items-center justify-center rounded-[13px] bg-red-500/12 text-red-500 dark:bg-red-400/16 dark:text-red-400"><i data-lucide="trash-2" class="w-5 h-5"></i></span>
+          <div class="flex-1 min-w-0">
+            <h3 class="text-[15.5px] font-bold">Hapus Data?</h3>
+            <p class="mt-1 text-[12.5px] text-zinc-500 dark:text-zinc-400">Tindakan ini permanen. Data yang dihapus tidak dapat dikembalikan.</p>
+          </div>
+          <button data-modal-hide="modal-delete" type="button" class="p-2 rounded-lg hover:bg-black/7 dark:hover:bg-white/10"><i data-lucide="x" class="w-4 h-4"></i></button>
+        </div>
+        <div class="modal-foot">
+          <button data-modal-hide="modal-delete" type="button" class="u-btn u-btn-ghost u-btn-sm">Batal</button>
+          <button data-modal-hide="modal-delete" type="button" class="u-btn u-btn-danger u-btn-sm"><i data-lucide="trash-2" class="w-4 h-4"></i> Hapus</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- INFO MODAL -->
+  <div id="modal-info" class="hidden modal-sm" role="dialog" aria-modal="true">
+    <div class="modal-backdrop" data-modal-hide="modal-info"></div>
+    <div class="modal-panel">
+      <div class="modal-content glass-panel">
+        <div class="modal-body text-center py-8">
+          <span class="inline-flex w-11 h-11 items-center justify-center rounded-[13px] bg-black/5 dark:bg-white/8 mx-auto"><i data-lucide="check-circle" class="w-5 h-5"></i></span>
+          <h3 class="text-[15.5px] font-bold mt-4">Berhasil!</h3>
+          <p class="mt-2 text-[12.5px] text-zinc-500 dark:text-zinc-400 mx-auto max-w-xs">Data Anda sudah tersimpan. Tutup dialog ini untuk melanjutkan.</p>
+          <button data-modal-hide="modal-info" type="button" class="u-btn u-btn-primary mt-6 w-full">
+            <i data-lucide="check" class="w-4 h-4"></i> Mengerti
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- STATIC MODAL -->
+  <div id="modal-static" class="hidden modal-sm" role="dialog" aria-modal="true" data-modal-static>
+    <div class="modal-backdrop"></div>
+    <div class="modal-panel">
+      <div class="modal-content glass-panel">
+        <div class="modal-head">
+          <span class="inline-flex w-11 h-11 items-center justify-center rounded-[13px] bg-black/5 dark:bg-white/8"><i data-lucide="lock" class="w-5 h-5"></i></span>
+          <div class="flex-1 min-w-0">
+            <h3 class="text-[15.5px] font-bold">Modal Static</h3>
+            <p class="mt-1 text-[12.5px] text-zinc-500 dark:text-zinc-400">Klik backdrop tidak menutup modal. Hanya tombol yang bisa menutup.</p>
+          </div>
+          <button data-modal-hide="modal-static" type="button" class="p-2 rounded-lg hover:bg-black/7 dark:hover:bg-white/10"><i data-lucide="x" class="w-4 h-4"></i></button>
+        </div>
+        <div class="modal-body">
+          <p class="text-[13px] text-zinc-500 dark:text-zinc-400">Gunakan modal statis untuk aksi yang membutuhkan konfirmasi eksplisit.</p>
+        </div>
+        <div class="modal-foot">
+          <button data-modal-hide="modal-static" type="button" class="u-btn u-btn-primary u-btn-sm">Mengerti</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SIZE: SMALL -->
+  <div id="modal-sm" class="hidden modal-sm" role="dialog" aria-modal="true">
+    <div class="modal-backdrop" data-modal-hide="modal-sm"></div>
+    <div class="modal-panel">
+      <div class="modal-content glass-panel">
+        <div class="modal-head">
+          <span class="inline-flex w-11 h-11 items-center justify-center rounded-[13px] bg-black/5 dark:bg-white/8"><i data-lucide="alert-circle" class="w-5 h-5"></i></span>
+          <div class="flex-1 min-w-0">
+            <h3 class="text-[15.5px] font-bold">Modal Small</h3>
+            <p class="mt-1 text-[12.5px] text-zinc-500 dark:text-zinc-400">Lebar maks 352px. Cocok untuk konfirmasi singkat.</p>
+          </div>
+          <button data-modal-hide="modal-sm" type="button" class="p-2 rounded-lg hover:bg-black/7 dark:hover:bg-white/10"><i data-lucide="x" class="w-4 h-4"></i></button>
+        </div>
+        <div class="modal-foot">
+          <button data-modal-hide="modal-sm" type="button" class="u-btn u-btn-ghost u-btn-sm">Batal</button>
+          <button data-modal-hide="modal-sm" type="button" class="u-btn u-btn-primary u-btn-sm">OK</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SIZE: MEDIUM -->
+  <div id="modal-md" class="hidden modal-md" role="dialog" aria-modal="true">
+    <div class="modal-backdrop" data-modal-hide="modal-md"></div>
+    <div class="modal-panel">
+      <div class="modal-content glass-panel">
+        <div class="modal-head">
+          <span class="inline-flex w-11 h-11 items-center justify-center rounded-[13px] bg-black/5 dark:bg-white/8"><i data-lucide="file-text" class="w-5 h-5"></i></span>
+          <div class="flex-1 min-w-0">
+            <h3 class="text-[15.5px] font-bold">Modal Medium</h3>
+            <p class="mt-1 text-[12.5px] text-zinc-500 dark:text-zinc-400">Lebar maks 464px. Ukuran default untuk form.</p>
+          </div>
+          <button data-modal-hide="modal-md" type="button" class="p-2 rounded-lg hover:bg-black/7 dark:hover:bg-white/10"><i data-lucide="x" class="w-4 h-4"></i></button>
+        </div>
+        <div class="modal-body">
+          <p class="text-[13px] text-zinc-500 dark:text-zinc-400">Cocok untuk form input, edit data, atau dialog dengan beberapa field.</p>
+        </div>
+        <div class="modal-foot">
+          <button data-modal-hide="modal-md" type="button" class="u-btn u-btn-ghost u-btn-sm">Batal</button>
+          <button data-modal-hide="modal-md" type="button" class="u-btn u-btn-primary u-btn-sm">Simpan</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SIZE: LARGE -->
+  <div id="modal-lg" class="hidden modal-lg" role="dialog" aria-modal="true">
+    <div class="modal-backdrop" data-modal-hide="modal-lg"></div>
+    <div class="modal-panel">
+      <div class="modal-content glass-panel">
+        <div class="modal-head">
+          <span class="inline-flex w-11 h-11 items-center justify-center rounded-[13px] bg-black/5 dark:bg-white/8"><i data-lucide="layout" class="w-5 h-5"></i></span>
+          <div class="flex-1 min-w-0">
+            <h3 class="text-[15.5px] font-bold">Modal Large</h3>
+            <p class="mt-1 text-[12.5px] text-zinc-500 dark:text-zinc-400">Lebar maks 648px. Untuk konten banyak atau form kompleks.</p>
+          </div>
+          <button data-modal-hide="modal-lg" type="button" class="p-2 rounded-lg hover:bg-black/7 dark:hover:bg-white/10"><i data-lucide="x" class="w-4 h-4"></i></button>
+        </div>
+        <div class="modal-body">
+          <p class="text-[13px] text-zinc-500 dark:text-zinc-400">Cocok untuk tabel, detail data, atau konten panjang yang bisa di-scroll.</p>
+        </div>
+        <div class="modal-foot">
+          <button data-modal-hide="modal-lg" type="button" class="u-btn u-btn-ghost u-btn-sm">Tutup</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCROLL MODAL -->
+  <div id="modal-scroll" class="hidden modal-lg" role="dialog" aria-modal="true">
+    <div class="modal-backdrop" data-modal-hide="modal-scroll"></div>
+    <div class="modal-panel">
+      <div class="modal-content glass-panel">
+        <div class="modal-head">
+          <span class="inline-flex w-11 h-11 items-center justify-center rounded-[13px] bg-black/5 dark:bg-white/8"><i data-lucide="rocket" class="w-5 h-5"></i></span>
+          <div class="flex-1 min-w-0">
+            <h3 class="text-[15.5px] font-bold">Rincian Rilis v3.2</h3>
+            <p class="mt-1 text-[12.5px] text-zinc-500 dark:text-zinc-400">Diterbitkan 14 Agustus 2026.</p>
+          </div>
+          <button data-modal-hide="modal-scroll" type="button" class="p-2 rounded-lg hover:bg-black/7 dark:hover:bg-white/10"><i data-lucide="x" class="w-4 h-4"></i></button>
+        </div>
+        <div class="modal-body modal-body--scroll">
+          <div class="space-y-5">
+            <div>
+              <h4 class="text-[13px] font-semibold">1. Palet monokrom yang lebih tajam</h4>
+              <p class="mt-1 text-[12.5px] leading-relaxed text-zinc-500 dark:text-zinc-400">Seluruh komponen kini memakai skala zinc yang dikalibrasi ulang agar hierarki teks tetap terbaca di atas permukaan kaca.</p>
+            </div>
+            <div>
+              <h4 class="text-[13px] font-semibold">2. Bukaan kaca yang lebih konsisten</h4>
+              <p class="mt-1 text-[12.5px] leading-relaxed text-zinc-500 dark:text-zinc-400">Nilai blur dan saturasi diseragamkan pada 20px dan 180% untuk panel, popover, dan modal.</p>
+            </div>
+            <div>
+              <h4 class="text-[13px] font-semibold">3. Perilaku fokus keyboard</h4>
+              <p class="mt-1 text-[12.5px] leading-relaxed text-zinc-500 dark:text-zinc-400">Menu dan dropdown kini memakai tabindex rover. Fokus dipulihkan ke pemicu setelah komponen ditutup.</p>
+            </div>
+          </div>
+        </div>
+        <div class="modal-foot">
+          <button data-modal-hide="modal-scroll" type="button" class="u-btn u-btn-ghost u-btn-sm">Tutup</button>
+          <button data-modal-hide="modal-scroll" type="button" class="u-btn u-btn-primary u-btn-sm"><i data-lucide="download" class="w-4 h-4"></i> Unduh</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- UPLOAD MODAL -->
+  <div id="modal-upload" class="hidden modal-md" role="dialog" aria-modal="true">
+    <div class="modal-backdrop" data-modal-hide="modal-upload"></div>
+    <div class="modal-panel">
+      <div class="modal-content glass-panel">
+        <div class="modal-head">
+          <span class="inline-flex w-11 h-11 items-center justify-center rounded-[13px] bg-black/5 dark:bg-white/8"><i data-lucide="upload" class="w-5 h-5"></i></span>
+          <div class="flex-1 min-w-0">
+            <h3 class="text-[15.5px] font-bold">Upload File</h3>
+            <p class="mt-1 text-[12.5px] text-zinc-500 dark:text-zinc-400">Unggah dokumen, gambar, atau file pendukung lainnya.</p>
+          </div>
+          <button data-modal-hide="modal-upload" type="button" class="p-2 rounded-lg hover:bg-black/7 dark:hover:bg-white/10"><i data-lucide="x" class="w-4 h-4"></i></button>
+        </div>
+        <form class="modal-body" novalidate>
+          <div class="space-y-4">
+            <div>
+              <label class="u-field-label">Nama File <span class="u-req">*</span></label>
+              <input type="text" class="u-input" placeholder="cth. Laporan Q4 2026">
+            </div>
+            <div>
+              <label class="u-field-label">Kategori</label>
+              <select class="u-select"><option>Dokumen</option><option>Gambar</option><option>Spreadsheet</option><option>Lainnya</option></select>
+            </div>
+            <div>
+              <label class="u-field-label">Upload <span class="u-req">*</span></label>
+              <div class="relative">
+                <input type="file" id="file-input" class="hidden" onchange="var n=this.files[0]?this.files[0].name:'Pilih file...';document.getElementById('file-label').textContent=n;document.getElementById('file-icon').style.display='none';document.getElementById('file-name').style.display='';">
+                <label for="file-input" class="flex items-center gap-3 w-full px-4 py-3.5 rounded-xl border-2 border-dashed border-zinc-300 dark:border-zinc-600 bg-white/40 dark:bg-white/5 cursor-pointer hover:border-zinc-400 dark:hover:border-zinc-500 transition-colors">
+                  <span id="file-icon" class="w-9 h-9 rounded-xl bg-black/5 dark:bg-white/10 grid place-items-center"><i data-lucide="cloud-upload" class="w-4.5 h-4.5 text-zinc-400"></i></span>
+                  <span id="file-name" class="hidden flex-1 min-w-0">
+                    <span id="file-label" class="text-[13px] font-semibold text-zinc-800 dark:text-zinc-200 truncate block"></span>
+                    <span class="text-[11px] text-zinc-400">Klik untuk ganti file</span>
+                  </span>
+                  <span id="file-placeholder" class="flex-1 min-w-0">
+                    <span class="text-[13px] font-semibold text-zinc-600 dark:text-zinc-300">Pilih file...</span>
+                    <span class="text-[11px] text-zinc-400 block">PDF, JPG, PNG, XLSX (maks 10MB)</span>
+                  </span>
+                </label>
+              </div>
+            </div>
+            <div>
+              <label class="u-field-label">Catatan</label>
+              <textarea class="u-input" rows="2" placeholder="Deskripsi singkat file..."></textarea>
+            </div>
+          </div>
+        </form>
+        <div class="modal-foot">
+          <button data-modal-hide="modal-upload" type="button" class="u-btn u-btn-ghost u-btn-sm">Batal</button>
+          <button type="button" class="u-btn u-btn-primary u-btn-sm"><i data-lucide="upload" class="w-4 h-4"></i> Unggah</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       JAVASCRIPT — Page demo engine + theme
+       ============================================================ -->
+  <script>
+  lucide.createIcons();
+
+  function toggleTheme(){var b=document.body,h=document.documentElement;b.classList.toggle('dark');h.classList.toggle('dark');try{localStorage.setItem('uroo-theme',b.classList.contains('dark')?'dark':'light')}catch(e){}lucide.createIcons();}
+
+  /* ---- Page demo modal engine (for buttons on THIS page) ---- */
+  function urooModal(id){
+    var m=document.getElementById(id);
+    if(!m)return;
+    var tgt=m.getAttribute('data-modal-target')||id;
+    var openBtn=document.querySelector('[data-modal-target="'+id+'"]');
+    if(openBtn) openBtn.onclick=function(){m.classList.remove('hidden');m.classList.add('modal-open')};
+    m.querySelectorAll('[data-modal-hide="'+id+'"]').forEach(function(b){b.onclick=function(){m.classList.add('hidden');m.classList.remove('modal-open')}});
+    var bd=m.querySelector('.modal-backdrop');
+    if(bd && !m.hasAttribute('data-modal-static')) bd.onclick=function(){m.classList.add('hidden');m.classList.remove('modal-open')};
+    document.addEventListener('keydown',function(e){if(e.key==='Escape'&&!m.classList.contains('hidden')){m.classList.add('hidden');m.classList.remove('modal-open')}});
+  }
+  ['modal-add','modal-update','modal-delete','modal-info','modal-static','modal-scroll','modal-upload','modal-sm','modal-md','modal-lg'].forEach(urooModal);
+  </script>
+
+  <script src="../../assets/js/uroo-copy.js"></script>
+  <script src="../../assets/js/uroo-nav.js"></script>
+</body>
+</html>

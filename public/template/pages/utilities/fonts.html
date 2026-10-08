@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="id" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Uroo UI — Fonts</title>
+  <script src="../../assets/js/tailwind.js"></script>
+  <script src="../../assets/js/lucide.js"></script>
+  <script>
+    tailwind.config = { darkMode: 'class', theme: { extend: { colors: { glass: {
+      light: 'rgba(255,255,255,0.65)', 'light-border': 'rgba(255,255,255,0.8)',
+      dark: 'rgba(18,18,20,0.65)', 'dark-border': 'rgba(255,255,255,0.1)'
+    } } } } };
+  </script>
+  <link rel="stylesheet" href="../../assets/css/uroo.css">
+  <link rel="stylesheet" href="../../assets/css/fonts.css">
+  <style>
+    .u-bg{position:fixed;inset:0;z-index:-10;transition:opacity .35s ease}
+    .u-bg-light{background:linear-gradient(135deg,#dfe3ea,#f4f4f5)}
+    .u-bg-dark{background:linear-gradient(135deg,#0a0a0b,#1a1a1e);opacity:0}
+    body.dark .u-bg-light{opacity:0}
+    body.dark .u-bg-dark{opacity:1}
+    .u-glow{position:fixed;border-radius:9999px;filter:blur(90px);z-index:-9;pointer-events:none;background:rgba(0,0,0,0.06);transition:background-color .35s ease}
+    body.dark .u-glow{background:rgba(255,255,255,0.05)}
+    .u-glow-1{width:420px;height:420px;top:-140px;left:-140px}
+    .u-glow-2{width:520px;height:520px;bottom:-200px;right:-140px}
+  </style>
+</head>
+<body class="min-h-screen font-sans antialiased text-zinc-800 dark:text-zinc-100">
+  <script>(function initTheme(){var saved=null;try{saved=localStorage.getItem('uroo-theme')}catch(e){};var dark=(saved==='dark')||(!saved&&window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches);var de=document.documentElement;if(dark){de.classList.add('dark');de.classList.remove('light');if(document.body){document.body.classList.add('dark');document.body.classList.remove('light');}}else{de.classList.remove('dark');de.classList.add('light');if(document.body){document.body.classList.remove('dark');document.body.classList.add('light');}}})();</script>
+  <div class="u-bg u-bg-light" aria-hidden="true"></div>
+  <div class="u-bg u-bg-dark" aria-hidden="true"></div>
+  <div class="u-glow u-glow-1" aria-hidden="true"></div>
+  <div class="u-glow u-glow-2" aria-hidden="true"></div>
+
+  <button onclick="toggleTheme()" class="fixed top-4 right-4 z-50 p-2 rounded-full glass-panel shadow-2xl" title="Toggle tema">
+    <i data-lucide="sun" class="w-4 h-4 hidden dark:block"></i>
+    <i data-lucide="moon" class="w-4 h-4 block dark:hidden"></i>
+  </button>
+
+  <main class="max-w-4xl mx-auto px-5 py-10 space-y-6">
+
+    <header class="glass-panel rounded-3xl p-6 sm:p-8">
+      <span class="inline-flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-1 rounded-full bg-black/5 dark:bg-white/5 mb-3">
+        <i data-lucide="type" class="w-3 h-3"></i> Font
+      </span>
+      <h1 class="text-3xl font-extrabold tracking-tight">Font Lokal</h1>
+      <p class="text-sm text-zinc-500 dark:text-zinc-400 mt-1">Inter &amp; Plus Jakarta Sans dimuat lokal dari <code>assets/fonts/</code> — tanpa Google Fonts.</p>
+    </header>
+
+    <section class="glass-panel rounded-3xl p-6 sm:p-8" data-copy>
+      <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-zinc-400 dark:text-zinc-500 mb-4">Inter · font-sans</p>
+      <p class="font-sans text-2xl font-bold">The quick brown fox jumps over the lazy dog</p>
+      <p class="font-sans text-sm text-zinc-500 mt-2">Liquid glassmorphism, efisien, dan presisi.</p>
+    </section>
+
+    <section class="glass-panel rounded-3xl p-6 sm:p-8" data-copy>
+      <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-zinc-400 dark:text-zinc-500 mb-4">Plus Jakarta Sans</p>
+      <p class="text-2xl" style="font-family:'Plus Jakarta Sans','Inter',sans-serif;font-weight:600">Antarmuka yang jernih, konsisten, premium</p>
+      <p class="text-sm text-zinc-500 mt-2" style="font-family:'Plus Jakarta Sans','Inter',sans-serif">Digunakan untuk heading bernada hangat &amp; ramah.</p>
+    </section>
+
+    <section class="glass-panel rounded-3xl p-6 sm:p-8" data-copy>
+      <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-zinc-400 dark:text-zinc-500 mb-3">Cara memuat</p>
+      <pre class="font-mono text-xs bg-black/5 dark:bg-white/5 rounded-xl p-4 overflow-auto">&lt;link rel="stylesheet" href="../../assets/css/fonts.css"&gt;
+/* muat otomatis 11 file .woff2 dari assets/fonts/ */</pre>
+    </section>
+  </main>
+
+  <script>
+    lucide.createIcons();
+    function toggleTheme() {
+      const h = document.documentElement, b = document.body;
+      h.classList.toggle('dark'); b.classList.toggle('dark');
+      try { localStorage.setItem('uroo-theme', b.classList.contains('dark') ? 'dark' : 'light'); } catch (e) {}
+      lucide.createIcons();
+    }
+  </script>
+  <script src="../../assets/js/uroo-copy.js"></script>
+<script src="../../assets/js/uroo-nav.js"></script>
+</body>
+</html>

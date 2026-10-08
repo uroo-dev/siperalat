@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="id" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Uroo UI - Dialog</title>
+  <script src="../../assets/js/tailwind.js"></script>
+  <script src="../../assets/js/lucide.js"></script>
+  <script>tailwind.config={darkMode:'class',theme:{extend:{colors:{glass:{light:'rgba(255,255,255,0.65)','light-border':'rgba(255,255,255,0.8)',dark:'rgba(18,18,20,0.65)','dark-border':'rgba(255,255,255,0.1)'}}}}}</script>
+  <link rel="stylesheet" href="../../assets/css/uroo.css">
+  <style>
+    body { background: linear-gradient(135deg,#dfe3ea,#f4f4f5) !important; }
+    body.dark { background: linear-gradient(135deg,#0a0a0c,#1a1a1e) !important; }
+
+    .glass-panel {
+      backdrop-filter: blur(20px) saturate(180%);
+      -webkit-backdrop-filter: blur(20px) saturate(180%);
+      background-color: rgba(255,255,255,0.55);
+      border: 1px solid rgba(255,255,255,0.8);
+      box-shadow: 0 20px 40px -15px rgba(0,0,0,0.05), inset 0 1px 1px 0 rgba(255,255,255,0.9);
+    }
+    .dark .glass-panel {
+      background-color: rgba(24,24,27,0.55);
+      border: 1px solid rgba(255,255,255,0.08);
+      box-shadow: 0 20px 40px -15px rgba(0,0,0,0.5), inset 0 1px 1px 0 rgba(255,255,255,0.1);
+    }
+
+    @keyframes u-slide-up { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:translateY(0); } }
+    @keyframes u-toast-in { from { opacity:0; transform:translateX(-50%) translateY(20px) scale(.96); } to { opacity:1; transform:translateX(-50%) translateY(0) scale(1); } }
+    .anim-slide-up { animation: u-slide-up .35s cubic-bezier(.16,1,.3,1); }
+
+    .uroo-kbd {
+      display:inline-flex; align-items:center; padding:1px 6px;
+      font-family:ui-monospace,'SF Mono',monospace; font-size:11px;
+      border-radius:6px; border:1px solid rgba(0,0,0,.12);
+      background:rgba(0,0,0,.05); color:#71717a;
+    }
+    .dark .uroo-kbd { border-color:rgba(255,255,255,.16); background:rgba(255,255,255,.06); color:#a1a1aa; }
+
+    /* ==== Dialog ==== */
+    .uroo-dialog-overlay {
+      position:fixed; inset:0; z-index:1040; display:flex; align-items:center; justify-content:center; padding:20px;
+      background:rgba(0,0,0,.38);
+      backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px);
+      opacity:0; visibility:hidden; transition:opacity .22s ease, visibility .22s;
+    }
+    .uroo-dialog-overlay.uroo-open { opacity:1; visibility:visible; }
+    .uroo-dialog {
+      width:100%; max-width:440px; max-height:88vh; display:flex; flex-direction:column;
+      border-radius:20px; box-shadow:0 30px 60px -20px rgba(0,0,0,.35);
+      transform:translateY(12px) scale(.97); transition:transform .26s cubic-bezier(.16,1,.3,1);
+    }
+    .uroo-dialog-overlay.uroo-open .uroo-dialog { transform:none; }
+    .uroo-dialog-body { overflow-y:auto; padding:24px; }
+    .uroo-dialog-desc { font-size:13px; line-height:1.6; color:#52525b; }
+    .dark .uroo-dialog-desc { color:#a1a1aa; }
+    .uroo-dialog-close { padding:7px; border-radius:9px; color:#71717a; transition:background-color .15s, color .15s; }
+    .uroo-dialog-close:hover { background:rgba(0,0,0,.07); color:#18181b; }
+    .dark .uroo-dialog-close:hover { background:rgba(255,255,255,.1); color:#fafafa; }
+
+    .uroo-dlg-ic {
+      display:inline-flex; height:48px; width:48px; flex:none; align-items:center; justify-content:center;
+      border-radius:14px; background:rgba(220,38,38,.1); color:#dc2626;
+    }
+    .dark .uroo-dlg-ic { background:rgba(248,113,113,.12); color:#f87171; }
+    .uroo-dlg-ic-soft {
+      display:inline-flex; height:48px; width:48px; flex:none; align-items:center; justify-content:center;
+      border-radius:14px; background:rgba(0,0,0,.05); color:#52525b;
+    }
+    .dark .uroo-dlg-ic-soft { background:rgba(255,255,255,.08); color:#a1a1aa; }
+
+    /* ==== Buttons ==== */
+    .uroo-btn { display:inline-flex; align-items:center; justify-content:center; gap:7px; font-size:13.5px; font-weight:600; padding:9px 16px; border-radius:11px; transition:background-color .15s, opacity .15s, color .15s; }
+    .uroo-btn-primary { background:#18181b; color:#fff; }
+    .dark .uroo-btn-primary { background:#fafafa; color:#18181b; }
+    .uroo-btn-primary:hover { opacity:.87; }
+    .uroo-btn-ghost { background:rgba(0,0,0,.05); color:#3f3f46; }
+    .dark .uroo-btn-ghost { background:rgba(255,255,255,.08); color:#e4e4e7; }
+    .uroo-btn-ghost:hover { background:rgba(0,0,0,.09); }
+    .dark .uroo-btn-ghost:hover { background:rgba(255,255,255,.13); }
+    .uroo-btn-danger { background:#dc2626; color:#fff; }
+    .uroo-btn-danger:hover { background:#b91c1c; }
+
+    /* ==== Form ==== */
+    .uroo-field-label { display:block; font-size:12px; font-weight:600; margin-bottom:5px; color:#52525b; }
+    .dark .uroo-field-label { color:#a1a1aa; }
+    .uroo-input, .uroo-select {
+      width:100%; padding:9px 12px; border-radius:11px; font-size:13.5px; color:#18181b;
+      background:rgba(255,255,255,.6); border:1px solid rgba(0,0,0,.14);
+      transition:border-color .15s ease;
+    }
+    .dark .uroo-input, .dark .uroo-select { color:#fafafa; background:rgba(255,255,255,.05); border-color:rgba(255,255,255,.14); }
+    .uroo-input:focus, .uroo-select:focus { outline:none; border-color:rgba(0,0,0,.55); }
+    .dark .uroo-input:focus, .dark .uroo-select:focus { border-color:rgba(255,255,255,.55); }
+    .uroo-input.uroo-invalid, .dark .uroo-input.uroo-invalid { border-color:#dc2626; }
+    .uroo-form-err { color:#dc2626; font-size:11.5px; margin-top:4px; }
+    .uroo-check { display:flex; align-items:flex-start; gap:8px; font-size:13px; color:#3f3f46; cursor:pointer; }
+    .dark .uroo-check { color:#d4d4d8; }
+    .uroo-check input { margin-top:2px; accent-color:#18181b; }
+    .dark .uroo-check input { accent-color:#fafafa; }
+  </style>
+</head>
+<body class="min-h-screen p-6 font-sans antialiased text-zinc-800 dark:text-zinc-100" style="background:linear-gradient(135deg,#dfe3ea,#f4f4f5)">
+  <script>(function initTheme(){var saved=null;try{saved=localStorage.getItem('uroo-theme')}catch(e){};var dark=(saved==='dark')||(!saved&&window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches);var de=document.documentElement;if(dark){de.classList.add('dark');de.classList.remove('light');if(document.body){document.body.classList.add('dark');document.body.classList.remove('light');}}else{de.classList.remove('dark');de.classList.add('light');if(document.body){document.body.classList.remove('dark');document.body.classList.add('light');}}})();</script>
+
+  <!-- Ambient glow circles -->
+  <div aria-hidden="true" class="pointer-events-none fixed -top-32 -left-32 h-[420px] w-[420px] rounded-full bg-zinc-300/50 blur-3xl dark:bg-zinc-600/20"></div>
+  <div aria-hidden="true" class="pointer-events-none fixed -bottom-36 -right-28 h-[400px] w-[400px] rounded-full bg-zinc-400/25 blur-3xl dark:bg-zinc-700/25"></div>
+
+  <header class="relative mx-auto max-w-6xl">
+    <div class="mb-6 flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-zinc-500 dark:text-zinc-400">
+      <span class="inline-flex h-1.5 w-1.5 rounded-full bg-zinc-700 dark:bg-zinc-200"></span>
+      Komponen Uroo UI
+      <span class="text-zinc-300 dark:text-zinc-600">/</span>
+      Dialog
+    </div>
+    <h1 class="text-3xl font-bold tracking-tight">Dialog</h1>
+    <p class="mt-2 max-w-2xl text-sm text-zinc-500 dark:text-zinc-400">
+      Dialog modal yang dapat diakses: fokus terkunci di dalam, menutup dengan Esc,
+      klik pada latar, atau tombol tutup. Seluruh dialog dapat digulir jika kontennya panjang.
+    </p>
+  </header>
+
+  <main class="relative mx-auto mt-6 grid max-w-6xl gap-5 md:grid-cols-2">
+
+    <!-- Card A: Konfirmasi -->
+    <section data-copy class="glass-panel anim-slide-up rounded-2xl p-5">
+      <div class="mb-2 flex items-center justify-between">
+        <h2 class="text-sm font-semibold">Dialog Konfirmasi</h2>
+        <span class="rounded-full px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider bg-black/5 text-zinc-500 dark:bg-white/10 dark:text-zinc-400">Destruktif</span>
+      </div>
+      <p class="text-xs text-zinc-500 dark:text-zinc-400">Tindakan destruktif dengan penegasan yang jelas.</p>
+      <ul id="list-proyek" class="mt-4 space-y-2">
+        <li class="flex items-center gap-3 rounded-xl border border-zinc-200/70 bg-white/45 p-3 dark:border-white/10 dark:bg-white/5" data-row-proyek>
+          <div class="uroo-dlg-ic-soft h-9 w-9"><i data-lucide="folder" class="h-4 w-4"></i></div>
+          <div class="min-w-0 flex-1">
+            <p class="text-[13px] font-semibold">Pemilu 2026</p>
+            <p class="text-xs text-zinc-500 dark:text-zinc-400">Tenggat 12 Sep 2026</p>
+          </div>
+        </li>
+        <li class="flex items-center gap-3 rounded-xl border border-zinc-200/70 bg-white/45 p-3 dark:border-white/10 dark:bg-white/5" data-row-proyek>
+          <div class="uroo-dlg-ic-soft h-9 w-9"><i data-lucide="folder" class="h-4 w-4"></i></div>
+          <div class="min-w-0 flex-1">
+            <p class="text-[13px] font-semibold">Lomba Desain</p>
+            <p class="text-xs text-zinc-500 dark:text-zinc-400">Tenggat 05 Okt 2026</p>
+          </div>
+        </li>
+      </ul>
+      <div class="mt-4 flex items-center justify-between">
+        <p class="text-xs text-zinc-400 dark:text-zinc-500">Hapus proyek "Pemilu 2026".</p>
+        <button type="button" class="uroo-btn uroo-btn-danger" data-open-dialog="dialog-hapus">
+          <i data-lucide="trash-2" class="h-4 w-4"></i> Hapus Proyek
+        </button>
+      </div>
+    </section>
+
+    <!-- Card B: Formulir -->
+    <section data-copy class="glass-panel anim-slide-up rounded-2xl p-5">
+      <div class="mb-2 flex items-center justify-between">
+        <h2 class="text-sm font-semibold">Dialog Formulir</h2>
+        <span class="rounded-full px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider bg-black/5 text-zinc-500 dark:bg-white/10 dark:text-zinc-400">Validasi</span>
+      </div>
+      <p class="text-xs text-zinc-500 dark:text-zinc-400">Input dengan validasi sebelum data disimpan.</p>
+      <ul id="list-anggota" class="mt-4 space-y-2">
+        <li class="flex items-center gap-3 rounded-xl border border-zinc-200/70 bg-white/45 p-3 dark:border-white/10 dark:bg-white/5">
+          <div class="flex h-9 w-9 flex-none items-center justify-center rounded-full bg-black/5 text-[12px] font-bold text-zinc-600 dark:bg-white/10 dark:text-zinc-200">RS</div>
+          <div class="min-w-0 flex-1">
+            <p class="text-[13px] font-semibold">Raka Saputra</p>
+            <p class="text-xs text-zinc-500 dark:text-zinc-400">raka@uroo.dev - Desainer</p>
+          </div>
+        </li>
+        <li class="flex items-center gap-3 rounded-xl border border-zinc-200/70 bg-white/45 p-3 dark:border-white/10 dark:bg-white/5">
+          <div class="flex h-9 w-9 flex-none items-center justify-center rounded-full bg-black/5 text-[12px] font-bold text-zinc-600 dark:bg-white/10 dark:text-zinc-200">RM</div>
+          <div class="min-w-0 flex-1">
+            <p class="text-[13px] font-semibold">Rina Marlina</p>
+            <p class="text-xs text-zinc-500 dark:text-zinc-400">rina@uroo.dev - Pengembang</p>
+          </div>
+        </li>
+      </ul>
+      <div class="mt-4 flex items-center justify-between">
+        <p class="text-xs text-zinc-400 dark:text-zinc-500">Undang anggota baru.</p>
+        <button type="button" class="uroo-btn uroo-btn-primary" data-open-dialog="dialog-form">
+          <i data-lucide="user-plus" class="h-4 w-4"></i> Tambah Anggota
+        </button>
+      </div>
+    </section>
+
+    <!-- Card C: Konten panjang -->
+    <section data-copy class="glass-panel anim-slide-up rounded-2xl p-5">
+      <div class="mb-2 flex items-center justify-between">
+        <h2 class="text-sm font-semibold">Dialog Konten Panjang</h2>
+        <span class="rounded-full px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider bg-black/5 text-zinc-500 dark:bg-white/10 dark:text-zinc-400">Scrollable</span>
+      </div>
+      <p class="text-xs text-zinc-500 dark:text-zinc-400">Konten panjang di dalam dialog dengan aksi tertambat di bawah.</p>
+      <div class="mt-4 rounded-xl border border-zinc-200/70 bg-white/45 p-4 text-[12.5px] leading-relaxed text-zinc-600 dark:border-white/10 dark:bg-white/5 dark:text-zinc-300">
+        Syarat layanan diperbarui pada 1 Agustus 2026. Bacalah selengkapnya melalui tombol di bawah sebelum melanjutkan penggunaan layanan Uroo.
+      </div>
+      <div class="mt-4 flex items-center justify-between">
+        <p class="text-xs text-zinc-400 dark:text-zinc-500">Butuh persetujuan pengguna.</p>
+        <button type="button" class="uroo-btn uroo-btn-primary" data-open-dialog="dialog-terms">
+          <i data-lucide="file-text" class="h-4 w-4"></i> Baca Syarat Layanan
+        </button>
+      </div>
+    </section>
+
+    <!-- Card D: Alert -->
+    <section data-copy class="glass-panel anim-slide-up rounded-2xl p-5">
+      <div class="mb-2 flex items-center justify-between">
+        <h2 class="text-sm font-semibold">Dialog Peringatan</h2>
+        <span class="rounded-full px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider bg-black/5 text-zinc-500 dark:bg-white/10 dark:text-zinc-400">Aksi tunggal</span>
+      </div>
+      <p class="text-xs text-zinc-500 dark:text-zinc-400">Fokus tunggal dengan satu tombol penutup.</p>
+      <div class="mt-4 flex items-start gap-3 rounded-xl border border-zinc-200/70 bg-white/45 p-4 dark:border-white/10 dark:bg-white/5">
+        <i data-lucide="info" class="mt-0.5 h-4 w-4 flex-none text-zinc-400"></i>
+        <p class="text-[12.5px] leading-relaxed text-zinc-600 dark:text-zinc-300">
+          Sesi otomatis berakhir setelah 30 menit tanpa aktivitas untuk menjaga keamanan akun.
+        </p>
+      </div>
+      <div class="mt-4 flex items-center justify-between">
+        <p class="text-xs text-zinc-400 dark:text-zinc-500">Simulasi kedaluwarsa sesi.</p>
+        <button type="button" class="uroo-btn uroo-btn-primary" data-open-dialog="dialog-alert">
+          <i data-lucide="log-in" class="h-4 w-4"></i> Simulasikan
+        </button>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="relative mx-auto mt-6 max-w-6xl">
+    <p class="flex items-center gap-2 rounded-xl border border-dashed border-zinc-300/60 px-4 py-3 text-xs text-zinc-500 dark:border-white/10 dark:text-zinc-400">
+      <i data-lucide="keyboard" class="h-4 w-4 flex-none"></i>
+      Tekan <span class="uroo-kbd">Esc</span> untuk menutup, <span class="uroo-kbd">Tab</span> untuk berpindah fokus (terkunci di dalam dialog), dan <span class="uroo-kbd">Enter</span> untuk mengaktifkan tombol. Fokus otomatis dikembalikan ke elemen pembuka saat dialog ditutup.
+    </p>
+  </footer>
+
+  <!-- ============ Dialog Hapus ============ -->
+  <div id="dialog-hapus" class="uroo-dialog-overlay" role="presentation" aria-hidden="true">
+    <div class="uroo-dialog glass-panel" role="dialog" aria-modal="true" aria-labelledby="dlg-hapus-title" aria-describedby="dlg-hapus-desc">
+      <div class="uroo-dialog-body">
+        <div class="flex items-start gap-4">
+          <div class="uroo-dlg-ic"><i data-lucide="trash-2" class="h-5 w-5"></i></div>
+          <div class="flex-1">
+            <h2 id="dlg-hapus-title" class="text-[15px] font-bold">Hapus Proyek "Pemilu 2026"?</h2>
+            <p id="dlg-hapus-desc" class="uroo-dialog-desc mt-1.5">
+              Tindakan ini permanen dan tidak dapat dibatalkan. Seluruh dokumen, tugas, dan diskusi dalam proyek ini akan dihapus secara otomatis.
+            </p>
+          </div>
+          <button type="button" class="uroo-dialog-close" data-dialog-close aria-label="Tutup dialog"><i data-lucide="x" class="h-4 w-4"></i></button>
+        </div>
+        <div class="mt-6 flex justify-end gap-2">
+          <button type="button" class="uroo-btn uroo-btn-ghost" data-dialog-close>Batal</button>
+          <button type="button" id="btn-hapus-ya" class="uroo-btn uroo-btn-danger"><i data-lucide="trash-2" class="h-4 w-4"></i> Hapus Proyek</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ Dialog Formulir ============ -->
+  <div id="dialog-form" class="uroo-dialog-overlay" role="presentation" aria-hidden="true">
+    <div class="uroo-dialog glass-panel" role="dialog" aria-modal="true" aria-labelledby="dlg-form-title">
+      <div class="uroo-dialog-body">
+        <div class="flex items-start gap-4">
+          <div class="uroo-dlg-ic-soft"><i data-lucide="user-plus" class="h-5 w-5"></i></div>
+          <div class="flex-1">
+            <h2 id="dlg-form-title" class="text-[15px] font-bold">Tambah Anggota Tim</h2>
+            <p class="uroo-dialog-desc mt-1.5">Isi data anggota untuk diundang bergabung ke proyek ini.</p>
+          </div>
+          <button type="button" class="uroo-dialog-close" data-dialog-close aria-label="Tutup dialog"><i data-lucide="x" class="h-4 w-4"></i></button>
+        </div>
+        <form id="form-tambah" class="mt-5 space-y-4" novalidate>
+          <div>
+            <label class="uroo-field-label" for="f-name">Nama lengkap</label>
+            <input id="f-name" type="text" class="uroo-input" placeholder="cth. Bima Pratama">
+            <p id="err-name" class="uroo-form-err hidden">Nama minimal 3 karakter.</p>
+          </div>
+          <div>
+            <label class="uroo-field-label" for="f-email">Surel</label>
+            <input id="f-email" type="email" class="uroo-input" placeholder="nama@perusahaan.id">
+            <p id="err-email" class="uroo-form-err hidden">Format surel tidak valid.</p>
+          </div>
+          <div>
+            <label class="uroo-field-label" for="f-role">Peran</label>
+            <select id="f-role" class="uroo-select">
+              <option>Desainer</option>
+              <option selected>Pengembang</option>
+              <option>Manajer Produk</option>
+              <option>Analis Data</option>
+            </select>
+          </div>
+          <label class="uroo-check">
+            <input id="f-invite" type="checkbox" checked>
+            <span>Kirim undangan surel setelah disimpan</span>
+          </label>
+          <div class="flex justify-end gap-2 pt-1">
+            <button type="button" class="uroo-btn uroo-btn-ghost" data-dialog-close>Batal</button>
+            <button type="submit" class="uroo-btn uroo-btn-primary"><i data-lucide="check" class="h-4 w-4"></i> Tambah Anggota</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ Dialog Syarat ============ -->
+  <div id="dialog-terms" class="uroo-dialog-overlay" role="presentation" aria-hidden="true">
+    <div class="uroo-dialog glass-panel" role="dialog" aria-modal="true" aria-labelledby="dlg-terms-title">
+      <div class="uroo-dialog-body">
+        <div class="flex items-start gap-4">
+          <div class="uroo-dlg-ic-soft"><i data-lucide="file-text" class="h-5 w-5"></i></div>
+          <div class="flex-1">
+            <h2 id="dlg-terms-title" class="text-[15px] font-bold">Syarat &amp; Ketentuan</h2>
+            <p class="uroo-dialog-desc mt-1.5">Perbaruan berlaku efektif sejak 1 Agustus 2026.</p>
+          </div>
+          <button type="button" class="uroo-dialog-close" data-dialog-close aria-label="Tutup dialog"><i data-lucide="x" class="h-4 w-4"></i></button>
+        </div>
+        <div class="mt-5 max-h-64 space-y-4 overflow-y-auto pr-1">
+          <div>
+            <h3 class="text-[13px] font-semibold">1. Data yang kami kumpulkan</h3>
+            <p class="mt-1 text-[12.5px] leading-relaxed text-zinc-500 dark:text-zinc-400">
+              Uroo mengumpulkan data akun, preferensi, dan aktivitas penggunaan untuk menyediakan dan meningkatkan layanan. Data hanya digunakan sesuai kebijakan privasi yang berlaku.
+            </p>
+          </div>
+          <div>
+            <h3 class="text-[13px] font-semibold">2. Penggunaan layanan</h3>
+            <p class="mt-1 text-[12.5px] leading-relaxed text-zinc-500 dark:text-zinc-400">
+              Pengguna bertanggung jawab atas seluruh konten yang diunggah. Penggunaan untuk aktivitas ilegal atau merugikan mengakibatkan penangguhan akun tanpa pemberitahuan terlebih dahulu.
+            </p>
+          </div>
+          <div>
+            <h3 class="text-[13px] font-semibold">3. Keamanan akun</h3>
+            <p class="mt-1 text-[12.5px] leading-relaxed text-zinc-500 dark:text-zinc-400">
+              Kami menerapkan enkripsi saat penyimpanan dan pengiriman data. Pengguna wajib menjaga kerahasiaan kredensial dan mengaktifkan autentikasi dua faktor bila tersedia.
+            </p>
+          </div>
+          <div>
+            <h3 class="text-[13px] font-semibold">4. Pengakhiran</h3>
+            <p class="mt-1 text-[12.5px] leading-relaxed text-zinc-500 dark:text-zinc-400">
+              Pengguna dapat menutup akun kapan saja melalui halaman pengaturan. Data pribadi akan dihapus maksimal 30 hari setelah permintaan penutupan diproses.
+            </p>
+          </div>
+        </div>
+        <div class="mt-5 flex justify-end gap-2 pt-1">
+          <button type="button" id="btn-terms-tolak" class="uroo-btn uroo-btn-ghost">Tolak</button>
+          <button type="button" id="btn-terms-terima" class="uroo-btn uroo-btn-primary"><i data-lucide="check" class="h-4 w-4"></i> Terima S&amp;K</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ Dialog Alert ============ -->
+  <div id="dialog-alert" class="uroo-dialog-overlay" role="presentation" aria-hidden="true">
+    <div class="uroo-dialog glass-panel" role="dialog" aria-modal="true" aria-labelledby="dlg-alert-title" aria-describedby="dlg-alert-desc">
+      <div class="uroo-dialog-body text-center">
+        <div class="uroo-dlg-ic-soft mx-auto"><i data-lucide="circle-alert" class="h-5 w-5"></i></div>
+        <h2 id="dlg-alert-title" class="mt-4 text-[15px] font-bold">Sesi Anda Berakhir</h2>
+        <p id="dlg-alert-desc" class="mt-1.5 text-[13px] leading-relaxed text-zinc-500 dark:text-zinc-400">
+          Anda tidak aktif selama 30 menit. Silakan masuk kembali untuk melanjutkan pekerjaan Anda.
+        </p>
+        <button type="button" class="uroo-btn uroo-btn-primary mt-5 w-full" data-dialog-close>
+          <i data-lucide="log-in" class="h-4 w-4"></i> Masuk Kembali
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Theme toggle -->
+  <button onclick="toggleTheme()" aria-label="Ubah tema"
+      class="glass-panel fixed top-4 right-4 z-50 rounded-full p-2.5 shadow-lg transition-transform hover:scale-105">
+    <i data-lucide="sun" class="hidden h-5 w-5 text-zinc-600 dark:block dark:text-zinc-200"></i>
+    <i data-lucide="moon" class="block h-5 w-5 text-zinc-600 dark:hidden dark:text-zinc-200"></i>
+  </button>
+
+  <script>
+    lucide.createIcons();
+
+    function toggleTheme(){
+      const h=document.documentElement,b=document.body;
+      h.classList.toggle('dark');
+      b.classList.toggle('dark');
+      try{localStorage.setItem('uroo-theme',b.classList.contains('dark')?'dark':'light')}catch(e){};
+      lucide.createIcons();
+    }
+
+    (function(){
+      if (document.documentElement.classList.contains('dark')) document.body.classList.add('dark');
+      else document.body.classList.remove('dark');
+    })();
+
+    var raf = window.requestAnimationFrame ? function(cb){ window.requestAnimationFrame(cb); } : function(cb){ setTimeout(cb, 16); };
+
+    function showToast(msg){
+      var t=document.createElement('div');
+      t.className='glass-panel';
+      t.textContent=msg;
+      t.style.cssText='position:fixed;left:50%;bottom:24px;transform:translateX(-50%);z-index:1200;padding:10px 16px;border-radius:12px;font-size:13px;font-weight:500;animation:u-toast-in .3s cubic-bezier(.16,1,.3,1);color:#27272a;';
+      if (document.body.classList.contains('dark')) t.style.color='#e4e4e7';
+      document.body.appendChild(t);
+      setTimeout(function(){
+        t.style.transition='opacity .3s ease, transform .3s ease';
+        t.style.opacity='0';
+        t.style.transform='translateX(-50%) translateY(10px)';
+        setTimeout(function(){ t.remove(); }, 320);
+      }, 2600);
+    }
+
+    /* ================= Dialog engine ================= */
+    var activeDialog=null;
+
+    function dlgFocusables(ov){
+      var dlg=ov.querySelector('.uroo-dialog');
+      return Array.prototype.filter.call(
+        dlg.querySelectorAll('a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'),
+        function(el){ return el.offsetParent!==null || el===document.activeElement; }
+      );
+    }
+    function dlgOpen(id){
+      var ov=document.getElementById(id);
+      if(!ov || ov.classList.contains('uroo-open')) return;
+      activeDialog=ov;
+      ov._lastFocus=document.activeElement;
+      ov.classList.add('uroo-open');
+      ov.setAttribute('aria-hidden','false');
+      document.body.classList.add('overflow-hidden');
+      raf(function(){
+        var f=dlgFocusables(ov);
+        var dlg=ov.querySelector('.uroo-dialog');
+        if (f.length) f[0].focus(); else if (dlg) dlg.focus();
+      });
+    }
+    function dlgClose(ovArg){
+      var ov=ovArg||activeDialog;
+      if(!ov) return;
+      ov.classList.remove('uroo-open');
+      ov.setAttribute('aria-hidden','true');
+      var last=ov._lastFocus; ov._lastFocus=null;
+      if (last && typeof last.focus==='function') last.focus();
+      activeDialog=null;
+      if (!document.querySelector('.uroo-dialog-overlay.uroo-open')) document.body.classList.remove('overflow-hidden');
+    }
+
+    document.querySelectorAll('[data-open-dialog]').forEach(function(b){
+      b.addEventListener('click', function(){ dlgOpen(b.dataset.openDialog); });
+    });
+    document.querySelectorAll('.uroo-dialog-overlay').forEach(function(ov){
+      ov.addEventListener('click', function(e){ if (e.target===ov) dlgClose(ov); });
+      ov.querySelectorAll('[data-dialog-close], .uroo-dialog-close').forEach(function(c){
+        c.addEventListener('click', function(e){ e.stopPropagation(); dlgClose(ov); });
+      });
+    });
+    document.addEventListener('keydown', function(e){
+      if (!activeDialog) return;
+      if (e.key==='Escape'){ e.preventDefault(); dlgClose(activeDialog); return; }
+      if (e.key==='Tab'){
+        var f=dlgFocusables(activeDialog);
+        if (!f.length) return;
+        var first=f[0], last=f[f.length-1];
+        if (e.shiftKey){
+          if (document.activeElement===first || !activeDialog.contains(document.activeElement)){ e.preventDefault(); last.focus(); }
+        } else {
+          if (document.activeElement===last || !activeDialog.contains(document.activeElement)){ e.preventDefault(); first.focus(); }
+        }
+      }
+    });
+
+    /* ================= Aksi dialog ================= */
+
+    /* Konfirmasi hapus */
+    document.getElementById('btn-hapus-ya').addEventListener('click', function(){
+      var row=document.querySelector('#list-proyek [data-row-proyek]');
+      if (row){
+        row.innerHTML='<div class="uroo-dlg-ic-soft h-9 w-9"><i data-lucide="trash-2" class="h-4 w-4"></i></div>'+
+          '<div class="min-w-0 flex-1"><p class="text-[13px] font-semibold line-through opacity-50">Pemilu 2026</p>'+
+          '<p class="text-xs text-zinc-500 dark:text-zinc-400">Dihapus pada 29 Agu 2026</p></div>';
+        lucide.createIcons();
+      }
+      showToast('Proyek "Pemilu 2026" berhasil dihapus.');
+      dlgClose(document.getElementById('dialog-hapus'));
+    });
+
+    /* Formulir */
+    var EMAIL_RE=/^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    function setErr(id, show){
+      var el=document.getElementById(id);
+      el.classList.toggle('hidden', !show);
+      return show;
+    }
+    document.getElementById('form-tambah').addEventListener('submit', function(e){
+      e.preventDefault();
+      var name=document.getElementById('f-name').value.trim();
+      var email=document.getElementById('f-email').value.trim();
+      var role=document.getElementById('f-role').value;
+      var nBad=setErr('err-name', name.length<3);
+      var eBad=setErr('err-email', !EMAIL_RE.test(email));
+      document.getElementById('f-name').classList.toggle('uroo-invalid', nBad);
+      document.getElementById('f-email').classList.toggle('uroo-invalid', eBad);
+      if (nBad||eBad) return;
+
+      var initials=name.split(/\s+/).map(function(w){return w[0];}).slice(0,2).join('').toUpperCase();
+      var row=document.createElement('li');
+      row.className='flex items-center gap-3 rounded-xl border border-zinc-200/70 bg-white/45 p-3 dark:border-white/10 dark:bg-white/5 anim-scale-in';
+      row.innerHTML=
+        '<div class="flex h-9 w-9 flex-none items-center justify-center rounded-full bg-black/5 text-[12px] font-bold text-zinc-600 dark:bg-white/10 dark:text-zinc-200">'+initials+'</div>'+
+        '<div class="min-w-0 flex-1"><p class="text-[13px] font-semibold">'+name.replace(/</g,'&lt;')+'</p>'+
+        '<p class="text-xs text-zinc-500 dark:text-zinc-400">'+email.replace(/</g,'&lt;')+' - '+role.replace(/</g,'&lt;')+'</p></div>';
+      document.getElementById('list-anggota').appendChild(row);
+
+      var undangan=document.getElementById('f-invite').checked?'Undangan dikirim ke '+email+'.':'Tanpa undangan surel.';
+      showToast('Anggota "'+name+'" ditambahkan sebagai '+role+'. '+undangan);
+      document.getElementById('form-tambah').reset();
+      document.getElementById('f-invite').checked=true;
+      dlgClose(document.getElementById('dialog-form'));
+    });
+
+    /* Syarat layanan */
+    document.getElementById('btn-terms-terima').addEventListener('click', function(){
+      showToast('Anda menerima Syarat & Ketentuan yang diperbarui.');
+      dlgClose(document.getElementById('dialog-terms'));
+    });
+    document.getElementById('btn-terms-tolak').addEventListener('click', function(){
+      showToast('Persyaratan ditolak. Akses lanjutan dibatasi.');
+      dlgClose(document.getElementById('dialog-terms'));
+    });
+  </script>
+<script src="../../assets/js/uroo-copy.js"></script>
+<script src="../../assets/js/uroo-nav.js"></script>
+</body>
+</html>

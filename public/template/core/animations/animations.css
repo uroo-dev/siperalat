@@ -1,0 +1,88 @@
+/* ============================================================
+   UROO UI - Animations
+   Keyframes + transition tokens + utility classes
+   ============================================================ */
+:root {
+  --ease-standard: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-in: cubic-bezier(0.4, 0, 1, 1);
+  --ease-out: cubic-bezier(0, 0, 0.2, 1);
+  --ease-glass: cubic-bezier(0.16, 1, 0.3, 1);
+  --dur-fast: 0.15s;
+  --dur-base: 0.3s;
+  --dur-slow: 0.5s;
+}
+
+/* ---- Keyframes ---- */
+@keyframes u-fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes u-fade-out {
+  from { opacity: 1; }
+  to   { opacity: 0; }
+}
+
+@keyframes u-slide-up {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes u-slide-down {
+  from { opacity: 0; transform: translateY(-16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes u-scale-in {
+  from { opacity: 0; transform: scale(0.95); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+@keyframes u-spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes u-pulse {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0.5; }
+}
+
+@keyframes u-shimmer {
+  100% { transform: translateX(100%); }
+}
+
+@keyframes u-toast-in {
+  from { opacity: 0; transform: translateY(20px) scale(0.96); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* ---- Utility Animation Classes ---- */
+.anim-fade-in   { animation: u-fade-in var(--dur-base) var(--ease-out); }
+.anim-slide-up  { animation: u-slide-up var(--dur-base) var(--ease-glass); }
+.anim-slide-down{ animation: u-slide-down var(--dur-base) var(--ease-glass); }
+.anim-scale-in  { animation: u-scale-in var(--dur-base) var(--ease-glass); }
+.anim-spin      { animation: u-spin 1s linear infinite; }
+.anim-pulse     { animation: u-pulse 2s var(--ease-in-out) infinite; }
+.anim-toast-in  { animation: u-toast-in 0.35s var(--ease-glass); }
+
+/* ---- Shimmer Skeleton ---- */
+.u-shimmer {
+  position: relative;
+  overflow: hidden;
+}
+.u-shimmer::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.35), transparent);
+  animation: u-shimmer 1.5s infinite;
+}
+.dark .u-shimmer::after {
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.08), transparent);
+}
+
+/* ---- Transition Helpers ---- */
+.transition-glass {
+  transition: all var(--dur-base) var(--ease-glass);
+}

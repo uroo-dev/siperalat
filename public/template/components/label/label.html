@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="id" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Uroo UI - Label</title>
+  <script src="../../assets/js/tailwind.js"></script>
+  <script src="../../assets/js/lucide.js"></script>
+  <script>tailwind.config={darkMode:'class',theme:{extend:{colors:{glass:{light:'rgba(255,255,255,0.65)','light-border':'rgba(255,255,255,0.8)',dark:'rgba(18,18,20,0.65)','dark-border':'rgba(255,255,255,0.1)'}}}}}</script>
+  <link rel="stylesheet" href="../../assets/css/uroo.css">
+  <style>
+    .u-bg{position:fixed;inset:0;z-index:-10;transition:opacity .35s ease}
+    .u-bg-light{background:linear-gradient(135deg,#dfe3ea,#f4f4f5)}
+    .u-bg-dark{background:linear-gradient(135deg,#0a0a0b,#1a1a1e);opacity:0}
+    body.dark .u-bg-light{opacity:0}
+    body.dark .u-bg-dark{opacity:1}
+    .u-glow{position:fixed;border-radius:9999px;filter:blur(90px);z-index:-9;pointer-events:none;transition:background-color .35s ease;background:rgba(0,0,0,0.06)}
+    body.dark .u-glow{background:rgba(255,255,255,0.05)}
+    .u-glow-1{width:420px;height:420px;top:-140px;left:-140px}
+    .u-glow-2{width:520px;height:520px;bottom:-200px;right:-140px}
+    .u-glow-3{width:300px;height:300px;top:42%;left:58%}
+
+    .u-fld{display:block}
+    .u-label{display:flex;align-items:center;gap:6px;font-size:13px;font-weight:600;color:#3f3f46}
+    .dark .u-label{color:#e4e4e7}
+    .u-label .u-req{color:#dc2626;font-weight:700;font-size:13px;line-height:1}
+    .dark .u-label .u-req{color:#f87171}
+    .u-label .u-sfx{margin-left:auto;font-size:11px;font-weight:500;color:#a1a1aa;font-variant-numeric:tabular-nums}
+    .dark .u-label .u-sfx{color:#71717a}
+    .u-label-sm{font-size:11.5px;color:#71717a;font-weight:600}
+    .dark .u-label-sm{color:#a1a1aa}
+    .u-label-lg{font-size:15.5px}
+    .no-asterisk .u-req{display:none}
+    .no-hints .u-hint{display:none}
+    .u-hint{display:flex;align-items:flex-start;gap:5px;margin-top:5px;font-size:12px;color:#71717a;line-height:1.5}
+    .dark .u-hint{color:#a1a1aa}
+    .u-hint i{width:13px;height:13px;flex:none;margin-top:2px;color:#a1a1aa}
+    .dark .u-hint i{color:#71717a}
+    .u-chip{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:9999px;font-size:10.5px;font-weight:700;letter-spacing:.02em}
+    .u-chip i{width:11px;height:11px}
+    .u-chip-neu{background:rgba(0,0,0,.07);color:#52525b}
+    .dark .u-chip-neu{background:rgba(255,255,255,.12);color:#d4d4d8}
+    .u-chip-ok{background:rgba(16,185,129,.14);color:#047857}
+    .dark .u-chip-ok{background:rgba(16,185,129,.22);color:#6ee7b7}
+    .u-caption{font-size:11.5px;color:#a1a1aa;margin-top:3px}
+    .dark .u-caption{color:#71717a}
+
+    .u-wrap{position:relative;display:block}
+    .u-input,.u-textarea,.u-select{width:100%;padding:9px 12px;border-radius:11px;font-size:13.5px;color:#18181b;background:rgba(255,255,255,.6);border:1px solid rgba(0,0,0,.14);transition:border-color .15s ease;outline:none}
+    .dark .u-input,.dark .u-textarea,.dark .u-select{color:#fafafa;background:rgba(255,255,255,.05);border-color:rgba(255,255,255,.14)}
+    .u-input:focus,.u-textarea:focus,.u-select:focus{border-color:rgba(0,0,0,.55)}
+    .dark .u-input:focus,.dark .u-textarea:focus,.dark .u-select:focus{border-color:rgba(255,255,255,.55)}
+    .u-input-pass{padding-right:42px}
+    .u-input:disabled,.u-textarea:disabled{opacity:.55;cursor:not-allowed}
+    .u-select{appearance:none;-webkit-appearance:none;cursor:pointer;padding-right:34px}
+    .u-select-wrap{position:relative}
+    .u-select-wrap::after{content:'';position:absolute;right:12px;top:50%;width:8px;height:8px;border-right:1.6px solid #71717a;border-bottom:1.6px solid #71717a;transform:translateY(-70%) rotate(45deg);pointer-events:none}
+    .u-eye{position:absolute;right:6px;top:50%;transform:translateY(-50%);padding:6px;border-radius:8px;color:#71717a;transition:background-color .15s,color .15s;border:0;background:transparent;cursor:pointer}
+    .dark .u-eye{color:#a1a1aa}
+    .u-eye:hover{background:rgba(0,0,0,.06);color:#18181b}
+    .dark .u-eye:hover{background:rgba(255,255,255,.1);color:#fafafa}
+    .u-valid-ic{position:absolute;right:12px;top:50%;transform:translateY(-50%);color:#059669;opacity:0;transition:opacity .2s;pointer-events:none}
+    .u-wrap.is-valid .u-input{padding-right:36px}
+    .u-wrap.is-valid .u-valid-ic{opacity:1}
+    .u-err{display:none;margin-top:5px;font-size:11.5px;color:#dc2626}
+    .u-wrap.is-invalid .u-err{display:block}
+    .u-wrap.is-invalid .u-input,.u-wrap.is-invalid .u-textarea{border-color:#dc2626}
+    .u-count{font-size:11px;color:#a1a1aa;font-variant-numeric:tabular-nums}
+    .dark .u-count{color:#71717a}
+    .u-count.is-warn{color:#d97706}
+    .dark .u-count.is-warn{color:#fbbf24}
+    .u-count.is-full{color:#dc2626}
+    .dark .u-count.is-full{color:#f87171}
+
+    .u-btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;font-size:13px;font-weight:600;padding:9px 16px;border-radius:11px;transition:background-color .15s,opacity .15s,color .15s;cursor:pointer;border:0}
+    .u-btn-primary{background:#18181b;color:#fff}
+    .dark .u-btn-primary{background:#fafafa;color:#18181b}
+    .u-btn-primary:hover{opacity:.86}
+    .u-btn-ghost{background:rgba(0,0,0,.05);color:#3f3f46}
+    .dark .u-btn-ghost{background:rgba(255,255,255,.08);color:#e4e4e7}
+    .u-btn-ghost:hover{background:rgba(0,0,0,.09);color:#18181b}
+    .dark .u-btn-ghost:hover{background:rgba(255,255,255,.13);color:#fafafa}
+
+    .u-switch{display:inline-flex;align-items:center;gap:10px;cursor:pointer;user-select:none}
+    .u-switch input{position:absolute;opacity:0;pointer-events:none}
+    .u-sw-track{width:38px;height:22px;border-radius:9999px;background:rgba(0,0,0,.14);position:relative;transition:background-color .2s;flex:none}
+    .dark .u-sw-track{background:rgba(255,255,255,.18)}
+    .u-sw-track::after{content:'';position:absolute;top:3px;left:3px;width:16px;height:16px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.3);transition:transform .2s cubic-bezier(.16,1,.3,1)}
+    .u-switch input:checked + .u-sw-track{background:#18181b}
+    .dark .u-switch input:checked + .u-sw-track{background:#fafafa}
+    .u-switch input:checked + .u-sw-track::after{transform:translateX(16px);background:#fff}
+    .dark .u-switch input:checked + .u-sw-track::after{background:#18181b}
+    .u-switch input:focus-visible + .u-sw-track{outline:2px solid rgba(0,0,0,.4);outline-offset:2px}
+    .dark .u-switch input:focus-visible + .u-sw-track{outline-color:rgba(255,255,255,.4)}
+    .u-sw-label{font-size:12.5px;font-weight:600;color:#3f3f46}
+    .dark .u-sw-label{color:#d4d4d8}
+  </style>
+</head>
+<body class="min-h-screen p-6 font-sans antialiased text-zinc-800 dark:text-zinc-100">
+  <script>(function initTheme(){var saved=null;try{saved=localStorage.getItem('uroo-theme')}catch(e){};var dark=(saved==='dark')||(!saved&&window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches);var de=document.documentElement;if(dark){de.classList.add('dark');de.classList.remove('light');if(document.body){document.body.classList.add('dark');document.body.classList.remove('light');}}else{de.classList.remove('dark');de.classList.add('light');if(document.body){document.body.classList.remove('dark');document.body.classList.add('light');}}})();</script>
+  <div class="u-bg u-bg-light" aria-hidden="true"></div>
+  <div class="u-bg u-bg-dark" aria-hidden="true"></div>
+  <div class="u-glow u-glow-1" aria-hidden="true"></div>
+  <div class="u-glow u-glow-2" aria-hidden="true"></div>
+  <div class="u-glow u-glow-3" aria-hidden="true"></div>
+
+  <main class="relative z-10 mx-auto max-w-4xl">
+
+    <header class="mb-10">
+      <div class="flex items-center gap-4">
+        <div class="glass-panel rounded-2xl p-3 shadow-2xl">
+          <i data-lucide="type" class="w-6 h-6"></i>
+        </div>
+        <div>
+          <p class="text-[11px] font-bold uppercase tracking-[0.2em] text-zinc-400 dark:text-zinc-500">Uroo UI - Komponen Formulir</p>
+          <h1 class="text-2xl md:text-4xl font-bold tracking-tight">Label</h1>
+        </div>
+      </div>
+      <p class="mt-4 max-w-2xl text-sm leading-relaxed text-zinc-500 dark:text-zinc-400">
+        Label bermakna untuk seluruh masukan formulir Uroo. Mendukung penanda wajib, teks bantuan,
+        sufiks redup, tag meta, hingga penghitung karakter yang hidup saat mengetik.
+      </p>
+    </header>
+
+    <div class="grid gap-8">
+
+      <section id="sec-req" class="glass-panel rounded-2xl shadow-2xl p-6 md:p-8 anim-fade-in">
+        <header class="mb-6 flex flex-wrap items-end justify-between gap-4">
+          <div>
+            <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-zinc-400 dark:text-zinc-500">Demo 01 - Varian</p>
+            <h2 class="mt-1 text-lg font-bold tracking-tight">Bentuk Dasar Label</h2>
+          </div>
+          <label class="u-switch">
+            <input type="checkbox" id="sw-req" checked>
+            <span class="u-sw-track"></span>
+            <span class="u-sw-label">Tampilkan penanda wajib</span>
+          </label>
+        </header>
+
+        <div class="grid gap-x-8 gap-y-6 md:grid-cols-2">
+          <div>
+            <label class="u-fld"><span class="u-label">Nama lengkap</span></label>
+            <p class="u-caption">Label berdiri sendiri, tanpa keterangan.</p>
+          </div>
+
+          <div>
+            <label class="u-label" for="f-d1">
+              Email kerja <span class="u-req" aria-hidden="true">*</span>
+            </label>
+            <p class="u-caption">Asterisk menandakan kolom wajib diisi.</p>
+          </div>
+
+          <div>
+            <label class="u-label" for="f-d2">
+              Kata sandi <span class="u-req" aria-hidden="true">*</span>
+            </label>
+            <span class="u-hint">
+              <i data-lucide="info"></i>
+              <span>Minimal 8 karakter dengan campuran huruf dan angka.</span>
+            </span>
+            <p class="u-caption">Teks bantuan mengikuti label secara langsung.</p>
+          </div>
+
+          <div>
+            <label class="u-label" for="f-d3">
+              Nomor telepon
+              <span class="u-sfx">(opsional)</span>
+            </label>
+            <p class="u-caption">Sufiks redup menegaskan sifat opsional.</p>
+          </div>
+
+          <div>
+            <label class="u-label" for="f-d4">
+              Tingkat akses
+              <span class="u-chip u-chip-neu"><i data-lucide="shield-check"></i> Admin</span>
+            </label>
+            <p class="u-caption">Tag meta melekat di sisi kanan label.</p>
+          </div>
+
+          <div>
+            <span class="u-label">Ukuran teks</span>
+            <div class="mt-3 flex items-center gap-6">
+              <span class="u-label u-label-sm">Ringkas</span>
+              <span class="u-label">Standar</span>
+              <span class="u-label u-label-lg">Besar</span>
+            </div>
+            <p class="u-caption">Tiga pilihan skala: 11,5px, 13px, dan 15,5px.</p>
+          </div>
+        </div>
+
+        <div class="mt-6 rounded-xl border border-zinc-200/70 bg-white/40 p-4 dark:border-white/10 dark:bg-white/5">
+          <p class="text-xs leading-relaxed text-zinc-500 dark:text-zinc-400">
+            Matikan sakelar di atas untuk melihat formulir tanpa tanda asterisk. Label yang
+            bersifat wajib tetap dapat dikenali lewat warna dan urutan teksnya.
+          </p>
+        </div>
+      </section>
+
+      <section id="demo-hints" class="glass-panel rounded-2xl shadow-2xl p-6 md:p-8 anim-fade-in">
+        <header class="mb-6 flex flex-wrap items-end justify-between gap-4">
+          <div>
+            <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-zinc-400 dark:text-zinc-500">Demo 02 - Contoh Input</p>
+            <h2 class="mt-1 text-lg font-bold tracking-tight">Label pada Formulir Nyata</h2>
+          </div>
+          <label class="u-switch">
+            <input type="checkbox" id="sw-hints" checked>
+            <span class="u-sw-track"></span>
+            <span class="u-sw-label">Tampilkan teks bantuan</span>
+          </label>
+        </header>
+
+        <form id="form-demo" novalidate>
+          <div class="grid gap-5 md:grid-cols-2">
+            <div class="u-wrap">
+              <label class="u-label" for="f-name">Nama lengkap <span class="u-req" aria-hidden="true">*</span></label>
+              <input class="u-input" id="f-name" type="text" placeholder="cth. Bima Pratama" autocomplete="name">
+              <span class="u-err">Nama minimal 3 karakter.</span>
+            </div>
+            <div class="u-wrap">
+              <label class="u-label" for="f-email">Alamat email <span class="u-req" aria-hidden="true">*</span></label>
+              <input class="u-input" id="f-email" type="email" placeholder="nama@perusahaan.id" autocomplete="email">
+              <span class="u-valid-ic"><i data-lucide="check" class="w-4 h-4"></i></span>
+              <span class="u-err">Masukkan alamat email yang valid.</span>
+            </div>
+          </div>
+
+          <div class="u-wrap mt-5">
+            <label class="u-label" for="f-pass">Kata sandi <span class="u-req" aria-hidden="true">*</span></label>
+            <input class="u-input u-input-pass" id="f-pass" type="password" value="uroo#7K!ty" autocomplete="new-password">
+            <button type="button" class="u-eye" id="eye-pass" aria-label="Tampilkan atau sembunyikan kata sandi"><i data-lucide="eye" class="w-4 h-4"></i></button>
+            <span class="u-hint">
+              <i data-lucide="info"></i>
+              <span>Minimal 8 karakter dengan campuran huruf dan angka.</span>
+            </span>
+            <span class="u-err">Kata sandi terlalu pendek (minimal 6 karakter).</span>
+          </div>
+
+          <div class="mt-6 flex flex-wrap items-center gap-3">
+            <button type="submit" class="u-btn u-btn-primary"><i data-lucide="save" class="w-4 h-4"></i> Simpan perubahan</button>
+            <button type="reset" class="u-btn u-btn-ghost">Reset kolom</button>
+          </div>
+        </form>
+      </section>
+
+      <section data-copy class="glass-panel rounded-2xl shadow-2xl p-6 md:p-8 anim-fade-in">
+        <header class="mb-6">
+          <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-zinc-400 dark:text-zinc-500">Demo 03 - Meta &amp; Sufiks</p>
+          <h2 class="mt-1 text-lg font-bold tracking-tight">Sufiks Dinamis dan Penghitung</h2>
+        </header>
+
+        <div class="grid gap-6 md:grid-cols-2">
+          <div>
+            <div class="u-wrap">
+              <label class="u-label" for="f-ws">Nama workspace <span class="u-sfx">sw-uroo-2026</span></label>
+              <input class="u-input" id="f-ws" type="text" value="Uroo Studio" disabled>
+              <span class="u-hint">
+                <i data-lucide="lock"></i>
+                <span>Sufiks menampilkan identitas teknis workspace.</span>
+              </span>
+            </div>
+          </div>
+
+          <div>
+            <div class="u-wrap">
+              <div class="flex items-center justify-between">
+                <label class="u-label" for="pkg-sel">Jenis paket</label>
+                <span class="u-sfx js-sfx">Tim Pro</span>
+              </div>
+              <span class="u-select-wrap u-fld">
+                <select class="u-select" id="pkg-sel">
+                  <option>Solo</option>
+                  <option selected>Tim Pro</option>
+                  <option>Enterprise</option>
+                </select>
+              </span>
+              <span class="u-hint">
+                <i data-lucide="at-sign"></i>
+                <span>Nilai paket langsung diperbarui pada sufiks label.</span>
+              </span>
+            </div>
+          </div>
+
+          <div class="md:col-span-2">
+            <div class="u-wrap">
+              <div class="flex items-center justify-between">
+                <label class="u-label" for="f-notes">Keterangan perubahan</label>
+                <span class="u-count" id="note-count">0/200</span>
+              </div>
+              <textarea class="u-textarea" id="f-notes" rows="3" maxlength="200" placeholder="Deskripsikan pembaruan pada ruang kerja Uroo UI ini..."></textarea>
+              <span class="u-hint">
+                <i data-lucide="info"></i>
+                <span>Penghitung menyala kuning di atas 150 karakter dan merah saat penuh.</span>
+              </span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <button onclick="toggleTheme()" aria-label="Ubah tema gelap terang"
+      class="glass-panel fixed top-4 right-4 z-50 rounded-full p-2 shadow-2xl" title="Toggle theme">
+    <i data-lucide="sun" class="w-4 h-4 hidden dark:block"></i>
+    <i data-lucide="moon" class="w-4 h-4 block dark:hidden"></i>
+  </button>
+
+  <script>
+  lucide.createIcons();
+
+  function toggleTheme(){const b=document.body;const h=document.documentElement;b.classList.toggle('dark');h.classList.toggle('dark');const saved=b.classList.contains('dark')?'dark':'light';try{localStorage.setItem('uroo-theme',saved)}catch(e){};lucide.createIcons();}
+
+  (function(){if(document.documentElement.classList.contains('dark')){document.body.classList.add('dark');}else{document.body.classList.remove('dark');}})();
+
+  function showToast(msg,icon){
+    var t=document.createElement('div');
+    t.className='glass-panel';
+    t.style.cssText='position:fixed;left:50%;bottom:24px;transform:translateX(-50%);z-index:1200;display:flex;align-items:center;gap:9px;padding:11px 16px;border-radius:12px;font-size:13px;font-weight:600;animation:u-toast-in .3s cubic-bezier(.16,1,.3,1);color:#27272a;max-width:calc(100vw - 40px);box-shadow:0 18px 40px -18px rgba(0,0,0,.25);';
+    if(document.body.classList.contains('dark')){t.style.color='#e4e4e7';}
+    t.innerHTML=(icon?'<i data-lucide="'+icon+'" style="width:15px;height:15px;flex:none"></i>':'')+'<span>'+msg+'</span>';
+    document.body.appendChild(t);
+    lucide.createIcons();
+    setTimeout(function(){
+      t.style.transition='opacity .3s ease, transform .3s ease';
+      t.style.opacity='0';
+      t.style.transform='translateX(-50%) translateY(10px)';
+      setTimeout(function(){t.remove();},320);
+    },2600);
+  }
+
+  var swReq=document.getElementById('sw-req');
+  swReq.addEventListener('change',function(){
+    document.getElementById('sec-req').classList.toggle('no-asterisk',!this.checked);
+  });
+
+  var swHints=document.getElementById('sw-hints');
+  swHints.addEventListener('change',function(){
+    document.getElementById('demo-hints').classList.toggle('no-hints',!this.checked);
+  });
+
+  var pw=document.getElementById('f-pass');
+  var eyeBtn=document.getElementById('eye-pass');
+  eyeBtn.addEventListener('click',function(){
+    var show=pw.type==='password';
+    pw.type=show?'text':'password';
+    eyeBtn.innerHTML='<i data-lucide="'+(show?'eye-off':'eye')+'" class="w-4 h-4"></i>';
+    eyeBtn.setAttribute('aria-label',show?'Sembunyikan kata sandi':'Tampilkan kata sandi');
+    lucide.createIcons();
+  });
+
+  var EMAIL_RE=/^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+  function setWrap(wrap,state){
+    wrap.classList.remove('is-valid','is-invalid');
+    if(state){wrap.classList.add(state);}
+  }
+
+  var wName=document.getElementById('f-name').closest('.u-wrap');
+  var wEmail=document.getElementById('f-email').closest('.u-wrap');
+  var wPass=document.getElementById('f-pass').closest('.u-wrap');
+
+  document.getElementById('f-email').addEventListener('blur',function(){
+    var v=this.value.trim();
+    if(v!=='' && EMAIL_RE.test(v)) { setWrap(wEmail,'is-valid'); }
+    else if(v!=='') { setWrap(wEmail,'is-invalid'); }
+    else { setWrap(wEmail,null); }
+  });
+  document.getElementById('f-email').addEventListener('input',function(){
+    if(this.classList.contains('u-input')){var v=this.value.trim();if(EMAIL_RE.test(v)){setWrap(wEmail,'is-valid');}else{setWrap(wEmail,'is-invalid');}}
+  });
+
+  document.getElementById('form-demo').addEventListener('submit',function(e){
+    e.preventDefault();
+    var name=document.getElementById('f-name').value.trim();
+    var email=document.getElementById('f-email').value.trim();
+    var pass=pw.value;
+    var nameOk=name.length>=3;
+    var emailOk=EMAIL_RE.test(email);
+    var passOk=pass.length>=6;
+    setWrap(wName,nameOk?null:'is-invalid');
+    setWrap(wEmail,emailOk?'is-valid':'is-invalid');
+    setWrap(wPass,passOk?null:'is-invalid');
+    if(!nameOk||!emailOk||!passOk){
+      showToast('Ada kolom yang belum valid. Periksa kembali isian Anda.','circle-alert');
+      return;
+    }
+    showToast('Data profil pada Uroo UI berhasil diperbarui.','circle-check');
+  });
+
+  document.getElementById('form-demo').addEventListener('reset',function(){
+    setWrap(wName,null);
+    setWrap(wEmail,null);
+    setWrap(wPass,null);
+  });
+
+  var pkgSel=document.getElementById('pkg-sel');
+  pkgSel.addEventListener('change',function(){
+    document.querySelector('.js-sfx').textContent=this.value;
+    showToast('Paket workspace disetel ke "'+this.value+'".','check');
+  });
+
+  var notes=document.getElementById('f-notes');
+  var countEl=document.getElementById('note-count');
+  notes.addEventListener('input',function(){
+    var n=this.value.length;
+    countEl.textContent=n+'/200';
+    countEl.classList.toggle('is-warn',n>150 && n<200);
+    countEl.classList.toggle('is-full',n>=200);
+  });
+  </script>
+<script src="../../assets/js/uroo-copy.js"></script>
+<script src="../../assets/js/uroo-nav.js"></script>
+</body>
+</html>

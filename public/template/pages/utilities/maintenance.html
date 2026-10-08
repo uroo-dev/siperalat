@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="id" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Uroo UI - Utility Maintenance</title>
+  <script src="../../assets/js/tailwind.js"></script>
+  <script src="../../assets/js/lucide.js"></script>
+  <script>tailwind.config={darkMode:'class',theme:{extend:{colors:{glass:{light:'rgba(255,255,255,0.65)','light-border':'rgba(255,255,255,0.8)',dark:'rgba(18,18,20,0.65)','dark-border':'rgba(255,255,255,0.1)'}}}}}</script>
+  <link rel="stylesheet" href="../../assets/css/uroo.css">
+  <style>
+    .u-bg{position:fixed;inset:0;z-index:-10;transition:opacity .35s ease}
+    .u-bg-light{background:linear-gradient(135deg,#dfe3ea,#f4f4f5)}
+    .u-bg-dark{background:linear-gradient(135deg,#0a0a0b,#1a1a1e);opacity:0}
+    body.dark .u-bg-light{opacity:0}
+    body.dark .u-bg-dark{opacity:1}
+    .u-glow{position:fixed;border-radius:9999px;filter:blur(90px);z-index:-9;pointer-events:none;background:rgba(0,0,0,0.06);transition:background-color .35s ease}
+    body.dark .u-glow{background:rgba(255,255,255,0.05)}
+    .u-glow-1{width:420px;height:420px;top:-140px;left:-140px}
+    .u-glow-2{width:520px;height:520px;bottom:-200px;right:-140px}
+    .u-glow-3{width:300px;height:300px;top:42%;left:58%}
+  </style>
+</head>
+<body class="min-h-screen font-sans antialiased text-zinc-800 dark:text-zinc-100">
+  <script>(function initTheme(){var saved=null;try{saved=localStorage.getItem('uroo-theme')}catch(e){};var dark=(saved==='dark')||(!saved&&window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches);var de=document.documentElement;if(dark){de.classList.add('dark');de.classList.remove('light');if(document.body){document.body.classList.add('dark');document.body.classList.remove('light');}}else{de.classList.remove('dark');de.classList.add('light');if(document.body){document.body.classList.remove('dark');document.body.classList.add('light');}}})();</script>
+
+  <div class="u-bg u-bg-light"></div>
+  <div class="u-bg u-bg-dark"></div>
+  <div class="u-glow u-glow-1"></div>
+  <div class="u-glow u-glow-2"></div>
+  <div class="u-glow u-glow-3"></div>
+
+  <button onclick="toggleTheme()" class="glass-panel fixed right-4 top-4 z-50 inline-flex items-center justify-center rounded-full p-2.5" aria-label="Ganti tema">
+    <i data-lucide="sun" class="h-5 w-5 text-zinc-700 dark:hidden"></i>
+    <i data-lucide="moon" class="hidden h-5 w-5 text-zinc-200 dark:block"></i>
+  </button>
+
+  <main class="relative mx-auto flex min-h-screen max-w-md flex-col items-center justify-center px-6 py-16 text-center">
+    <div class="glass-panel anim-slide-up w-full rounded-3xl p-8 md:p-10">
+      <div class="relative mx-auto mb-8 flex h-28 w-28 items-center justify-center">
+        <svg class="absolute inset-0 h-full w-full -rotate-90" viewBox="0 0 100 100">
+          <circle cx="50" cy="50" r="44" fill="none" stroke-width="6" class="stroke-zinc-200 dark:stroke-zinc-800"></circle>
+          <circle id="progressRing" cx="50" cy="50" r="44" fill="none" stroke-width="6" stroke-linecap="round"
+            class="stroke-zinc-700 dark:stroke-zinc-100" stroke-dasharray="276.46" stroke-dashoffset="138"></circle>
+        </svg>
+        <div class="absolute inset-0 flex items-center justify-center">
+          <i data-lucide="settings-2" class="anim-spin h-10 w-10 text-zinc-600 dark:text-zinc-200"></i>
+        </div>
+      </div>
+
+      <p class="text-xs font-semibold uppercase tracking-[0.3em] text-zinc-500 dark:text-zinc-500">Utility Maintenance</p>
+      <h1 class="mt-4 text-2xl font-black tracking-tight text-zinc-900 dark:text-zinc-50">
+        Gangguan terjadwal sedang berlangsung
+      </h1>
+      <p class="mx-auto mt-3 max-w-xs text-sm leading-relaxed text-zinc-500 dark:text-zinc-400">
+        Tim teknis kami sedang menangani pembaruan sistem. Layanan akan pulih
+        otomatis, tidak perlu tindakan dari Anda.
+      </p>
+
+      <div class="mx-auto mt-6 inline-flex items-center gap-2 rounded-full border border-zinc-200/80 bg-white/60 px-4 py-1.5 text-sm font-medium text-zinc-700 dark:border-white/10 dark:bg-zinc-800/60 dark:text-zinc-200">
+        <i data-lucide="clock" class="h-4 w-4 text-zinc-400 dark:text-zinc-500"></i>
+        Muat ulang otomatis dalam
+        <span id="reloadCount" class="font-black tabular-nums text-zinc-900 dark:text-zinc-50">28</span>
+        detik
+      </div>
+      <div class="mx-auto mt-3 h-1.5 w-full max-w-xs overflow-hidden rounded-full bg-zinc-200/70 dark:bg-zinc-800">
+        <div id="reloadBar" class="h-full rounded-full bg-zinc-700 transition-all duration-1000 ease-linear dark:bg-zinc-100" style="width:100%"></div>
+      </div>
+    </div>
+
+    <div class="glass-panel mt-6 w-full rounded-2xl p-5 text-left">
+      <div class="flex items-center gap-3">
+        <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-zinc-200/80 bg-white/70 dark:border-white/10 dark:bg-zinc-800/70">
+          <i data-lucide="headphones" class="h-5 w-5 text-zinc-600 dark:text-zinc-200"></i>
+        </div>
+        <div>
+          <p class="text-sm font-semibold text-zinc-800 dark:text-zinc-100">Dukungan teknis</p>
+          <p class="text-xs text-zinc-500 dark:text-zinc-400">Tim kami siap membantu 24/7</p>
+        </div>
+      </div>
+      <div class="mt-4 space-y-2">
+        <button onclick="callSupport()" class="glass-panel flex w-full items-center gap-3 rounded-xl px-3.5 py-2.5 text-sm font-medium text-zinc-700 transition-colors hover:bg-white/70 dark:text-zinc-200 dark:hover:bg-white/5">
+          <i data-lucide="phone" class="h-4 w-4 text-zinc-400 dark:text-zinc-500"></i>
+          +62 21 5088 1234
+        </button>
+        <a href="mailto:support@uroo.id" class="glass-panel flex w-full items-center gap-3 rounded-xl px-3.5 py-2.5 text-sm font-medium text-zinc-700 transition-colors hover:bg-white/70 dark:text-zinc-200 dark:hover:bg-white/5">
+          <i data-lucide="mail" class="h-4 w-4 text-zinc-400 dark:text-zinc-500"></i>
+          support@uroo.id
+        </a>
+        <button onclick="openLiveChat()" class="glass-panel flex w-full items-center gap-3 rounded-xl px-3.5 py-2.5 text-sm font-medium text-zinc-700 transition-colors hover:bg-white/70 dark:text-zinc-200 dark:hover:bg-white/5">
+          <i data-lucide="message-circle" class="h-4 w-4 text-zinc-400 dark:text-zinc-500"></i>
+          Buka live chat
+        </button>
+      </div>
+    </div>
+
+    <div class="mt-6 flex items-center gap-2 text-xs text-zinc-500 dark:text-zinc-500">
+      <span class="relative flex h-2.5 w-2.5">
+        <span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-60"></span>
+        <span class="relative inline-flex h-2.5 w-2.5 rounded-full bg-emerald-500"></span>
+      </span>
+      Tim teknis sedang bekerja keras. Kami akan kembali sebentar lagi.
+    </div>
+  </main>
+
+  <script>
+    lucide.createIcons();
+    function toggleTheme(){const h=document.documentElement,b=document.body;h.classList.toggle('dark');b.classList.toggle('dark');try{localStorage.setItem('uroo-theme',h.classList.contains('dark')?'dark':'light')}catch(e){};lucide.createIcons();}
+
+    let counter = 28;
+    const countEl = document.getElementById('reloadCount');
+    const barEl = document.getElementById('reloadBar');
+    const ringEl = document.getElementById('progressRing');
+    function tick(){
+      counter--;
+      if(counter <= 0){
+        countEl.textContent = '0';
+        barEl.style.width = '0%';
+        setTimeout(()=>location.reload(), 500);
+        return;
+      }
+      countEl.textContent = counter;
+      barEl.style.width = (counter/28*100) + '%';
+      const ringOffset = 276.46 * (1 - counter/28);
+      ringEl.style.strokeDashoffset = ringOffset;
+    }
+    setInterval(tick, 1000);
+    let progress = 0;
+    setInterval(()=>{
+      progress = (progress + 1) % 101;
+      if(progress === 0) progress = 1;
+      const off = 276.46 * (1 - progress/100);
+      ringEl.style.strokeDashoffset = off;
+    }, 60);
+
+    function callSupport(){ showToast('Menghubungkan ke layanan telepon dukungan...'); }
+    function openLiveChat(){
+      showToast('Sesi live chat akan dimulai setelah layanan kembali.');
+    }
+    function showToast(msg){
+      const t=document.createElement('div');
+      t.className='glass-panel anim-toast-in fixed bottom-6 left-1/2 z-[80] -translate-x-1/2 rounded-xl px-4 py-3 text-sm font-medium text-zinc-800 dark:text-zinc-100';
+      t.textContent=msg;
+      document.body.appendChild(t);
+      setTimeout(()=>{t.style.transition='all .3s';t.style.opacity='0';t.style.transform='translate(-50%,8px)';setTimeout(()=>t.remove(),320);},2400);
+    }
+  </script>
+<script src="../../assets/js/uroo-nav.js"></script>
+</body>
+</html>

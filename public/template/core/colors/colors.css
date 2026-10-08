@@ -1,0 +1,38 @@
+/* ============================================================
+   UROO UI - Colors
+   Monochromatic palette + semantic + glass tokens
+   ============================================================ */
+:root {
+  /* Monochromatic scale (zinc) */
+  --zinc-50: #fafafa;
+  --zinc-100: #f4f4f5;
+  --zinc-200: #e4e4e7;
+  --zinc-300: #d4d4d8;
+  --zinc-400: #a1a1aa;
+  --zinc-500: #71717a;
+  --zinc-600: #52525b;
+  --zinc-700: #3f3f46;
+  --zinc-800: #27272a;
+  --zinc-900: #18181b;
+  --zinc-950: #09090b;
+
+  /* Brand primary = monochrome */
+  --u-primary: #18181b;
+  --u-primary-fg: #ffffff;
+  --u-accent: #2dd4bf;
+
+  /* Semantic */
+  --u-success: #10b981;
+  --u-warning: #f59e0b;
+  --u-danger: #ef4444;
+  --u-info: #3b82f6;
+
+  /* Backgrounds */
+  --u-canvas-light: #e9e9eb;
+  --u-canvas-dark: #09090b;
+}
+
+.dark {
+  --u-primary: #fafafa;
+  --u-primary-fg: #18181b;
+}

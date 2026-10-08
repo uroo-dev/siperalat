@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="id" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Uroo UI - Tim</title>
+  <script src="../../assets/js/tailwind.js"></script>
+  <script src="../../assets/js/lucide.js"></script>
+  <script>tailwind.config={darkMode:'class',theme:{extend:{colors:{glass:{light:'rgba(255,255,255,0.65)','light-border':'rgba(255,255,255,0.8)',dark:'rgba(18,18,20,0.65)','dark-border':'rgba(255,255,255,0.1)'}}}}}</script>
+  <link rel="stylesheet" href="../../assets/css/uroo.css">
+  <style>
+    .u-bg{position:fixed;inset:0;z-index:-10;transition:opacity .35s ease}
+    .u-bg-light{background:linear-gradient(135deg,#dfe3ea,#f4f4f5)}
+    .u-bg-dark{background:linear-gradient(135deg,#0a0a0b,#1a1a1e);opacity:0}
+    body.dark .u-bg-light{opacity:0}
+    body.dark .u-bg-dark{opacity:1}
+    .u-glow{position:fixed;border-radius:9999px;filter:blur(90px);z-index:-9;pointer-events:none;background:rgba(0,0,0,0.06);transition:background-color .35s ease}
+    body.dark .u-glow{background:rgba(255,255,255,0.05)}
+    .u-glow-1{width:420px;height:420px;top:-140px;left:-140px}
+    .u-glow-2{width:520px;height:520px;bottom:-200px;right:-140px}
+    .u-glow-3{width:300px;height:300px;top:42%;left:58%}
+    #sidebar{width:16rem;transition:transform .28s cubic-bezier(.16,1,.3,1),width .28s cubic-bezier(.16,1,.3,1)}
+    #sidebar.collapsed{width:4.75rem}
+    #sidebar .nav-label{transition:opacity .15s ease,width .15s ease}
+    #sidebar.collapsed .nav-label{opacity:0;width:0;overflow:hidden;white-space:nowrap}
+    #sidebar.collapsed .nav-link{justify-content:center;padding-left:0;padding-right:0}
+    #sidebar.collapsed .group-title{justify-content:center;padding-left:0;padding-right:0}
+    #sidebar.collapsed .nav-text{display:none}
+    #sidebar.collapsed .logo-text{display:none}
+    #sidebar .badge-dot{transition:opacity .15s}
+    #sidebar.collapsed .badge-dot{opacity:0}
+    @media (max-width:767px){
+      #sidebar{position:fixed;top:1rem;bottom:1rem;left:1rem;z-index:50;transform:translateX(-130%);}
+      #sidebar.open{transform:translateX(0);}
+    }
+    :root{--u-chart:#18181b;--u-chart-mid:#71717a}
+    .dark{--u-chart:#fafafa;--u-chart-mid:#a1a1aa}
+    .member-card{transition:transform .18s ease,box-shadow .18s ease,border-color .18s ease}
+    .member-card:hover{transform:translateY(-2px);box-shadow:0 12px 30px -12px rgba(0,0,0,0.18)}
+  </style>
+</head>
+<body class="min-h-screen font-sans antialiased text-zinc-800 dark:text-zinc-100">
+  <script>(function initTheme(){var saved=null;try{saved=localStorage.getItem('uroo-theme')}catch(e){};var dark=(saved==='dark')||(!saved&&window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches);var de=document.documentElement;if(dark){de.classList.add('dark');de.classList.remove('light');if(document.body){document.body.classList.add('dark');document.body.classList.remove('light');}}else{de.classList.remove('dark');de.classList.add('light');if(document.body){document.body.classList.remove('dark');document.body.classList.add('light');}}})();</script>
+  <div class="u-bg u-bg-light" aria-hidden="true"></div>
+  <div class="u-bg u-bg-dark" aria-hidden="true"></div>
+  <div class="u-glow u-glow-1" aria-hidden="true"></div>
+  <div class="u-glow u-glow-2" aria-hidden="true"></div>
+  <div class="u-glow u-glow-3" aria-hidden="true"></div>
+
+  <div id="overlay" class="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm opacity-0 pointer-events-none transition-opacity duration-300 md:hidden" onclick="closeDrawer()"></div>
+
+  <div class="md:flex md:gap-4 md:p-4 min-h-screen">
+    <aside id="sidebar" class="glass-panel rounded-2xl flex flex-col overflow-hidden shrink-0 md:sticky md:top-4 md:h-[calc(100vh-2rem)]">
+      <div class="flex items-center gap-3 px-5 h-16 border-b border-black/5 dark:border-white/10 shrink-0">
+        <img src="../../assets/img/uroo_ui.png" alt="Uroo UI" class="w-9 h-9 rounded-xl object-cover shadow-lg shrink-0">
+        <div class="logo-text min-w-0">
+          <p class="font-extrabold text-[15px] leading-none tracking-tight">Uroo UI</p>
+          <p class="mt-0.5 text-[10px] font-semibold uppercase tracking-[0.18em] text-zinc-400 dark:text-zinc-500">Aplikasi</p>
+        </div>
+        <button onclick="closeDrawer()" class="ml-auto md:hidden p-1.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/10"><i data-lucide="x" class="w-4 h-4"></i></button>
+        <button onclick="toggleSidebar()" class="hidden md:block ml-auto p-1.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 text-zinc-400"><i data-lucide="panel-left-close" class="w-4 h-4"></i></button>
+      </div>
+
+      <nav class="flex-1 overflow-y-auto px-3 py-4 space-y-6">
+        <div>
+          <p class="group-title flex items-center nav-label px-3 mb-2 text-[10px] font-bold uppercase tracking-[0.18em] text-zinc-400 dark:text-zinc-500">Menu Utama</p>
+          <div class="space-y-1">
+            <a href="beranda.html" class="nav-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-50 hover:bg-black/5 dark:hover:bg-white/10"><i data-lucide="layout-dashboard" class="w-[18px] h-[18px] shrink-0"></i><span class="nav-label">Beranda</span></a>
+            <a href="app.html" class="nav-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-50 hover:bg-black/5 dark:hover:bg-white/10"><i data-lucide="folder" class="w-[18px] h-[18px] shrink-0"></i><span class="nav-label">Proyek</span></a>
+            <a href="inbox.html" class="nav-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-50 hover:bg-black/5 dark:hover:bg-white/10"><i data-lucide="inbox" class="w-[18px] h-[18px] shrink-0"></i><span class="nav-label">Inbox</span></a>
+            <a href="kalender.html" class="nav-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-50 hover:bg-black/5 dark:hover:bg-white/10"><i data-lucide="calendar" class="w-[18px] h-[18px] shrink-0"></i><span class="nav-label">Kalender</span></a>
+          </div>
+        </div>
+        <div>
+          <p class="group-title flex items-center nav-label px-3 mb-2 text-[10px] font-bold uppercase tracking-[0.18em] text-zinc-400 dark:text-zinc-500">Ruang Kerja</p>
+          <div class="space-y-1">
+            <a href="tim.html" class="nav-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold bg-zinc-900 text-zinc-50 dark:bg-zinc-50 dark:text-zinc-900 shadow-lg"><i data-lucide="users" class="w-[18px] h-[18px] shrink-0"></i><span class="nav-label">Tim</span></a>
+            <a href="diskusi.html" class="nav-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-50 hover:bg-black/5 dark:hover:bg-white/10"><i data-lucide="message-square" class="w-[18px] h-[18px] shrink-0"></i><span class="nav-label">Diskusi</span></a>
+            <a href="analitik.html" class="nav-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-50 hover:bg-black/5 dark:hover:bg-white/10"><i data-lucide="bar-chart-3" class="w-[18px] h-[18px] shrink-0"></i><span class="nav-label">Analitik</span></a>
+          </div>
+        </div>
+        <div>
+          <p class="group-title flex items-center nav-label px-3 mb-2 text-[10px] font-bold uppercase tracking-[0.18em] text-zinc-400 dark:text-zinc-500">Source</p>
+          <div class="space-y-1">
+            <a href="dokumen.html" class="nav-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-50 hover:bg-black/5 dark:hover:bg-white/10"><i data-lucide="file-text" class="w-[18px] h-[18px] shrink-0"></i><span class="nav-label">Dokumen</span></a>
+            <a href="aset-media.html" class="nav-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-50 hover:bg-black/5 dark:hover:bg-white/10"><i data-lucide="image" class="w-[18px] h-[18px] shrink-0"></i><span class="nav-label">Aset Media</span></a>
+            <a href="pengaturan.html" class="nav-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-50 hover:bg-black/5 dark:hover:bg-white/10"><i data-lucide="settings" class="w-[18px] h-[18px] shrink-0"></i><span class="nav-label">Pengaturan</span></a>
+          </div>
+        </div>
+      </nav>
+
+      <div class="p-3 border-t border-black/5 dark:border-white/10 shrink-0">
+        <button class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-50 hover:bg-black/5 dark:hover:bg-white/10">
+          <span class="grid place-items-center w-8 h-8 rounded-full bg-gradient-to-br from-zinc-500 to-zinc-800 dark:from-zinc-300 dark:to-zinc-600 text-white dark:text-zinc-900 text-xs font-bold shrink-0">DB</span>
+          <span class="nav-label text-left min-w-0">
+            <span class="block font-bold text-[13px] leading-tight">Dita Baskoro</span>
+            <span class="block text-[11px] font-normal text-zinc-400 leading-tight">Administrator</span>
+          </span>
+        </button>
+      </div>
+    </aside>
+
+      <!-- CONTENT -->
+      <main class="flex-1 py-6 min-w-0">
+        <div class="mb-6 flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <p class="text-[11px] font-bold uppercase tracking-[0.2em] text-zinc-400 dark:text-zinc-500">Ruang Kerja / Tim</p>
+            <h1 class="text-2xl md:text-3xl font-bold tracking-tight mt-1">Tim</h1>
+            <p class="mt-1 text-sm text-zinc-500 dark:text-zinc-400">Anggota ruang kerja dan divisi yang terlibat di dalamnya.</p>
+          </div>
+          <button onclick="toast('Undangan anggota baru dikirim','user-plus')" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-zinc-900 dark:bg-zinc-50 text-zinc-50 dark:text-zinc-900 text-sm font-bold hover:opacity-90 shadow-lg"><i data-lucide="user-plus" class="w-4 h-4"></i> Undang Anggota</button>
+        </div>
+
+        <div class="glass-panel rounded-2xl mb-6 flex flex-wrap divide-x divide-black/5 dark:divide-white/10 overflow-hidden">
+          <div class="flex-1 min-w-[150px] px-5 py-4">
+            <p class="text-2xl font-extrabold tracking-tight">10</p>
+            <p class="text-xs font-semibold text-zinc-400 mt-0.5">Total Anggota</p>
+          </div>
+          <div class="flex-1 min-w-[150px] px-5 py-4">
+            <p class="text-2xl font-extrabold tracking-tight">5</p>
+            <p class="text-xs font-semibold text-zinc-400 mt-0.5">Divisi Aktif</p>
+          </div>
+          <div class="flex-1 min-w-[150px] px-5 py-4">
+            <p class="text-2xl font-extrabold tracking-tight text-sky-600 dark:text-sky-400">7</p>
+            <p class="text-xs font-semibold text-zinc-400 mt-0.5">Proyek Aktif</p>
+          </div>
+          <div class="flex-1 min-w-[150px] px-5 py-4">
+            <p class="text-2xl font-extrabold tracking-tight text-emerald-600 dark:text-emerald-400">96%</p>
+            <p class="text-xs font-semibold text-zinc-400 mt-0.5">Kehadiran</p>
+          </div>
+        </div>
+
+        <div class="mb-4 flex flex-wrap items-center gap-2">
+          <button data-role="semua" onclick="filterRole('semua')" class="role-pill inline-flex items-center gap-2 px-3.5 h-9 rounded-xl text-sm font-bold bg-zinc-900 text-zinc-50 dark:bg-zinc-50 dark:text-zinc-900 shadow-lg">Semua</button>
+          <button data-role="admin" onclick="filterRole('admin')" class="role-pill inline-flex items-center gap-2 px-3.5 h-9 rounded-xl text-sm font-semibold text-zinc-500 dark:text-zinc-400 hover:bg-black/5 dark:hover:bg-white/10">Admin</button>
+          <button data-role="desain" onclick="filterRole('desain')" class="role-pill inline-flex items-center gap-2 px-3.5 h-9 rounded-xl text-sm font-semibold text-zinc-500 dark:text-zinc-400 hover:bg-black/5 dark:hover:bg-white/10">Desain</button>
+          <button data-role="teknik" onclick="filterRole('teknik')" class="role-pill inline-flex items-center gap-2 px-3.5 h-9 rounded-xl text-sm font-semibold text-zinc-500 dark:text-zinc-400 hover:bg-black/5 dark:hover:bg-white/10">Teknik</button>
+          <button data-role="produk" onclick="filterRole('produk')" class="role-pill inline-flex items-center gap-2 px-3.5 h-9 rounded-xl text-sm font-semibold text-zinc-500 dark:text-zinc-400 hover:bg-black/5 dark:hover:bg-white/10">Produk</button>
+          <button data-role="pemasaran" onclick="filterRole('pemasaran')" class="role-pill inline-flex items-center gap-2 px-3.5 h-9 rounded-xl text-sm font-semibold text-zinc-500 dark:text-zinc-400 hover:bg-black/5 dark:hover:bg-white/10">Pemasaran</button>
+        </div>
+
+        <div id="teamGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+          <div data-role="admin" class="member-card glass-panel rounded-2xl p-5">
+            <div class="flex items-start gap-3">
+              <span class="grid place-items-center w-11 h-11 rounded-2xl bg-gradient-to-br from-zinc-500 to-zinc-800 dark:from-zinc-300 dark:to-zinc-600 text-white dark:text-zinc-900 text-sm font-extrabold shrink-0">DB</span>
+              <div class="flex-1 min-w-0">
+                <p class="font-bold text-sm truncate">Dita Baskoro</p>
+                <p class="text-xs text-zinc-400 truncate">Administrator</p>
+              </div>
+              <span class="inline-flex items-center gap-1.5 px-2 py-1 rounded-full bg-emerald-500/12 dark:bg-emerald-400/12 text-emerald-600 dark:text-emerald-400 text-[10px] font-extrabold"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>Aktif</span>
+            </div>
+            <p class="mt-4 text-xs font-semibold text-zinc-400">dita.baskoro@uroo.id</p>
+            <div class="mt-4 flex items-center justify-between gap-2">
+              <p class="text-[11px] font-semibold text-zinc-400">Bergabung Jan 2025</p>
+              <button onclick="toast('Profil Dita Baskoro dibuka','contact')" class="px-3 py-1.5 rounded-lg bg-black/5 dark:bg-white/10 text-xs font-bold text-zinc-600 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-zinc-50">Profil</button>
+            </div>
+          </div>
+
+          <div data-role="desain" class="member-card glass-panel rounded-2xl p-5">
+            <div class="flex items-start gap-3">
+              <span class="grid place-items-center w-11 h-11 rounded-2xl bg-gradient-to-br from-sky-400 to-indigo-600 text-white text-sm font-extrabold shrink-0">AW</span>
+              <div class="flex-1 min-w-0">
+                <p class="font-bold text-sm truncate">Andi Wijaya</p>
+                <p class="text-xs text-zinc-400 truncate">Desainer Visual</p>
+              </div>
+              <span class="inline-flex items-center gap-1.5 px-2 py-1 rounded-full bg-emerald-500/12 dark:bg-emerald-400/12 text-emerald-600 dark:text-emerald-400 text-[10px] font-extrabold"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>Aktif</span>
+            </div>
+            <p class="mt-4 text-xs font-semibold text-zinc-400">andi.wijaya@uroo.id</p>
+            <div class="mt-4 flex items-center justify-between gap-2">
+              <p class="text-[11px] font-semibold text-zinc-400">Bergabung Mar 2025</p>
+              <button onclick="toast('Profil Andi Wijaya dibuka','contact')" class="px-3 py-1.5 rounded-lg bg-black/5 dark:bg-white/10 text-xs font-bold text-zinc-600 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-zinc-50">Profil</button>
+            </div>
+          </div>
+
+          <div data-role="desain" class="member-card glass-panel rounded-2xl p-5">
+            <div class="flex items-start gap-3">
+              <span class="grid place-items-center w-11 h-11 rounded-2xl bg-gradient-to-br from-violet-400 to-purple-600 text-white text-sm font-extrabold shrink-0">RF</span>
+              <div class="flex-1 min-w-0">
+                <p class="font-bold text-sm truncate">Raka Ferdiansyah</p>
+                <p class="text-xs text-zinc-400 truncate">UI Designer</p>
+              </div>
+              <span class="inline-flex items-center gap-1.5 px-2 py-1 rounded-full bg-amber-500/12 dark:bg-amber-400/12 text-amber-600 dark:text-amber-400 text-[10px] font-extrabold"><span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>Sibuk</span>
+            </div>
+            <p class="mt-4 text-xs font-semibold text-zinc-400">raka.ferdian@uroo.id</p>
+            <div class="mt-4 flex items-center justify-between gap-2">
+              <p class="text-[11px] font-semibold text-zinc-400">Bergabung Jun 2025</p>
+              <button onclick="toast('Profil Raka Ferdiansyah dibuka','contact')" class="px-3 py-1.5 rounded-lg bg-black/5 dark:bg-white/10 text-xs font-bold text-zinc-600 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-zinc-50">Profil</button>
+            </div>
+          </div>
+
+          <div data-role="teknik" class="member-card glass-panel rounded-2xl p-5">
+            <div class="flex items-start gap-3">
+              <span class="grid place-items-center w-11 h-11 rounded-2xl bg-gradient-to-br from-rose-400 to-orange-500 text-white text-sm font-extrabold shrink-0">CA</span>
+              <div class="flex-1 min-w-0">
+                <p class="font-bold text-sm truncate">Citra Ayu</p>
+                <p class="text-xs text-zinc-400 truncate">Frontend Engineer</p>
+              </div>
+              <span class="inline-flex items-center gap-1.5 px-2 py-1 rounded-full bg-emerald-500/12 dark:bg-emerald-400/12 text-emerald-600 dark:text-emerald-400 text-[10px] font-extrabold"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>Aktif</span>
+            </div>
+            <p class="mt-4 text-xs font-semibold text-zinc-400">citra.ayu@uroo.id</p>
+            <div class="mt-4 flex items-center justify-between gap-2">
+              <p class="text-[11px] font-semibold text-zinc-400">Bergabung Feb 2025</p>
+              <button onclick="toast('Profil Citra Ayu dibuka','contact')" class="px-3 py-1.5 rounded-lg bg-black/5 dark:bg-white/10 text-xs font-bold text-zinc-600 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-zinc-50">Profil</button>
+            </div>
+          </div>
+
+          <div data-role="teknik" class="member-card glass-panel rounded-2xl p-5">
+            <div class="flex items-start gap-3">
+              <span class="grid place-items-center w-11 h-11 rounded-2xl bg-gradient-to-br from-emerald-400 to-teal-600 text-white text-sm font-extrabold shrink-0">BN</span>
+              <div class="flex-1 min-w-0">
+                <p class="font-bold text-sm truncate">Bima Nugraha</p>
+                <p class="text-xs text-zinc-400 truncate">Backend Engineer</p>
+              </div>
+              <span class="inline-flex items-center gap-1.5 px-2 py-1 rounded-full bg-emerald-500/12 dark:bg-emerald-400/12 text-emerald-600 dark:text-emerald-400 text-[10px] font-extrabold"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>Aktif</span>
+            </div>
+            <p class="mt-4 text-xs font-semibold text-zinc-400">bima.nugraha@uroo.id</p>
+            <div class="mt-4 flex items-center justify-between gap-2">
+              <p class="text-[11px] font-semibold text-zinc-400">Bergabung Apr 2025</p>
+              <button onclick="toast('Profil Bima Nugraha dibuka','contact')" class="px-3 py-1.5 rounded-lg bg-black/5 dark:bg-white/10 text-xs font-bold text-zinc-600 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-zinc-50">Profil</button>
+            </div>
+          </div>
+
+          <div data-role="teknik" class="member-card glass-panel rounded-2xl p-5">
+            <div class="flex items-start gap-3">
+              <span class="grid place-items-center w-11 h-11 rounded-2xl bg-gradient-to-br from-amber-400 to-orange-600 text-white text-sm font-extrabold shrink-0">GR</span>
+              <div class="flex-1 min-w-0">
+                <p class="font-bold text-sm truncate">Gilang Ramadhan</p>
+                <p class="text-xs text-zinc-400 truncate">DevOps Engineer</p>
+              </div>
+              <span class="inline-flex items-center gap-1.5 px-2 py-1 rounded-full bg-zinc-400/12 dark:bg-zinc-500/12 text-zinc-500 dark:text-zinc-400 text-[10px] font-extrabold"><span class="w-1.5 h-1.5 rounded-full bg-zinc-400"></span>Offline</span>
+            </div>
+            <p class="mt-4 text-xs font-semibold text-zinc-400">gilang.ramadhan@uroo.id</p>
+            <div class="mt-4 flex items-center justify-between gap-2">
+              <p class="text-[11px] font-semibold text-zinc-400">Bergabung Jul 2025</p>
+              <button onclick="toast('Profil Gilang Ramadhan dibuka','contact')" class="px-3 py-1.5 rounded-lg bg-black/5 dark:bg-white/10 text-xs font-bold text-zinc-600 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-zinc-50">Profil</button>
+            </div>
+          </div>
+
+          <div data-role="teknik" class="member-card glass-panel rounded-2xl p-5">
+            <div class="flex items-start gap-3">
+              <span class="grid place-items-center w-11 h-11 rounded-2xl bg-gradient-to-br from-cyan-400 to-blue-600 text-white text-sm font-extrabold shrink-0">NK</span>
+              <div class="flex-1 min-w-0">
+                <p class="font-bold text-sm truncate">Nadia Kusuma</p>
+                <p class="text-xs text-zinc-400 truncate">Quality Assurance</p>
+              </div>
+              <span class="inline-flex items-center gap-1.5 px-2 py-1 rounded-full bg-sky-500/12 dark:bg-sky-400/12 text-sky-600 dark:text-sky-400 text-[10px] font-extrabold"><span class="w-1.5 h-1.5 rounded-full bg-sky-500"></span>Cuti</span>
+            </div>
+            <p class="mt-4 text-xs font-semibold text-zinc-400">nadia.kusuma@uroo.id</p>
+            <div class="mt-4 flex items-center justify-between gap-2">
+              <p class="text-[11px] font-semibold text-zinc-400">Bergabung Mei 2025</p>
+              <button onclick="toast('Profil Nadia Kusuma dibuka','contact')" class="px-3 py-1.5 rounded-lg bg-black/5 dark:bg-white/10 text-xs font-bold text-zinc-600 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-zinc-50">Profil</button>
+            </div>
+          </div>
+
+          <div data-role="produk" class="member-card glass-panel rounded-2xl p-5">
+            <div class="flex items-start gap-3">
+              <span class="grid place-items-center w-11 h-11 rounded-2xl bg-gradient-to-br from-fuchsia-400 to-purple-600 text-white text-sm font-extrabold shrink-0">DL</span>
+              <div class="flex-1 min-w-0">
+                <p class="font-bold text-sm truncate">Dewi Lestari</p>
+                <p class="text-xs text-zinc-400 truncate">Product Manager</p>
+              </div>
+              <span class="inline-flex items-center gap-1.5 px-2 py-1 rounded-full bg-emerald-500/12 dark:bg-emerald-400/12 text-emerald-600 dark:text-emerald-400 text-[10px] font-extrabold"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>Aktif</span>
+            </div>
+            <p class="mt-4 text-xs font-semibold text-zinc-400">dewi.lestari@uroo.id</p>
+            <div class="mt-4 flex items-center justify-between gap-2">
+              <p class="text-[11px] font-semibold text-zinc-400">Bergabung Jan 2025</p>
+              <button onclick="toast('Profil Dewi Lestari dibuka','contact')" class="px-3 py-1.5 rounded-lg bg-black/5 dark:bg-white/10 text-xs font-bold text-zinc-600 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-zinc-50">Profil</button>
+            </div>
+          </div>
+
+          <div data-role="pemasaran" class="member-card glass-panel rounded-2xl p-5">
+            <div class="flex items-start gap-3">
+              <span class="grid place-items-center w-11 h-11 rounded-2xl bg-gradient-to-br from-pink-400 to-rose-600 text-white text-sm font-extrabold shrink-0">SZ</span>
+              <div class="flex-1 min-w-0">
+                <p class="font-bold text-sm truncate">Salsabila Zahra</p>
+                <p class="text-xs text-zinc-400 truncate">Content Strategist</p>
+              </div>
+              <span class="inline-flex items-center gap-1.5 px-2 py-1 rounded-full bg-emerald-500/12 dark:bg-emerald-400/12 text-emerald-600 dark:text-emerald-400 text-[10px] font-extrabold"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>Aktif</span>
+            </div>
+            <p class="mt-4 text-xs font-semibold text-zinc-400">salsabila.zahra@uroo.id</p>
+            <div class="mt-4 flex items-center justify-between gap-2">
+              <p class="text-[11px] font-semibold text-zinc-400">Bergabung Agu 2025</p>
+              <button onclick="toast('Profil Salsabila Zahra dibuka','contact')" class="px-3 py-1.5 rounded-lg bg-black/5 dark:bg-white/10 text-xs font-bold text-zinc-600 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-zinc-50">Profil</button>
+            </div>
+          </div>
+
+          <div data-role="pemasaran" class="member-card glass-panel rounded-2xl p-5">
+            <div class="flex items-start gap-3">
+              <span class="grid place-items-center w-11 h-11 rounded-2xl bg-gradient-to-br from-teal-400 to-cyan-600 text-white text-sm font-extrabold shrink-0">FR</span>
+              <div class="flex-1 min-w-0">
+                <p class="font-bold text-sm truncate">Fajar Ramadhan</p>
+                <p class="text-xs text-zinc-400 truncate">Growth Marketer</p>
+              </div>
+              <span class="inline-flex items-center gap-1.5 px-2 py-1 rounded-full bg-amber-500/12 dark:bg-amber-400/12 text-amber-600 dark:text-amber-400 text-[10px] font-extrabold"><span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>Sibuk</span>
+            </div>
+            <p class="mt-4 text-xs font-semibold text-zinc-400">fajar.ramadhan@uroo.id</p>
+            <div class="mt-4 flex items-center justify-between gap-2">
+              <p class="text-[11px] font-semibold text-zinc-400">Bergabung Sep 2025</p>
+              <button onclick="toast('Profil Fajar Ramadhan dibuka','contact')" class="px-3 py-1.5 rounded-lg bg-black/5 dark:bg-white/10 text-xs font-bold text-zinc-600 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-zinc-50">Profil</button>
+            </div>
+          </div>
+        </div>
+
+        <p class="mt-4 text-xs text-zinc-400 text-center">Data anggota adalah simulasi untuk demo desain Uroo UI.</p>
+      </main>
+    </div>
+  </div>
+
+  <button onclick="toggleTheme()" class="fixed top-5 right-5 z-[80] p-2.5 rounded-full glass-panel shadow-2xl text-zinc-600 dark:text-zinc-300 md:top-[1.6rem] md:right-[1.6rem]">
+    <i data-lucide="moon" class="w-4 h-4 hidden dark:block"></i>
+    <i data-lucide="sun" class="w-4 h-4 block dark:hidden"></i>
+  </button>
+
+  <script>
+    lucide.createIcons();
+    function toggleTheme(){document.documentElement.classList.toggle('dark');document.body.classList.toggle('dark');try{localStorage.setItem('uroo-theme',document.documentElement.classList.contains('dark')?'dark':'light')}catch(e){};lucide.createIcons();}
+    const sidebar=document.getElementById('sidebar');
+    function toggleSidebar(){
+      if(window.innerWidth>=768){sidebar.classList.toggle('collapsed');}
+      else{sidebar.classList.toggle('open');document.getElementById('overlay').classList.toggle('opacity-0',!sidebar.classList.contains('open'));document.getElementById('overlay').classList.toggle('pointer-events-none',!sidebar.classList.contains('open'));}
+    }
+    function openDrawer(){sidebar.classList.add('open');document.getElementById('overlay').classList.remove('opacity-0','pointer-events-none');}
+    function closeDrawer(){sidebar.classList.remove('open');document.getElementById('overlay').classList.add('opacity-0','pointer-events-none');}
+
+    function toast(msg,type){
+      const t=document.createElement('div');
+      t.className='fixed bottom-5 right-5 z-[85] glass-panel rounded-xl px-4 py-3 text-sm font-semibold shadow-2xl anim-toast-in flex items-center gap-2.5 pointer-events-none max-w-sm';
+      t.innerHTML='<i data-lucide="'+(type||'check-circle')+'" class="w-4 h-4 shrink-0"></i><span>'+msg+'</span>';
+      document.body.appendChild(t);lucide.createIcons();
+      setTimeout(()=>{t.style.opacity='0';t.style.transition='opacity .3s';setTimeout(()=>t.remove(),320)},2600);
+    }
+
+    function filterRole(r){
+      document.querySelectorAll('.role-pill').forEach(p=>{
+        const on=p.dataset.role===r;
+        p.classList.toggle('bg-zinc-900',on);p.classList.toggle('text-zinc-50',on);
+        p.classList.toggle('dark:bg-zinc-50',on);p.classList.toggle('dark:text-zinc-900',on);
+        p.classList.toggle('shadow-lg',on);
+        p.classList.toggle('text-zinc-500',!on);p.classList.toggle('dark:text-zinc-400',!on);
+        p.classList.toggle('hover:bg-black/5',!on);p.classList.toggle('dark:hover:bg-white/10',!on);
+      });
+      document.querySelectorAll('#teamGrid [data-role]').forEach(card=>{
+        card.style.display=(r==='semua'||card.dataset.role===r)?'':'none';
+      });
+    }
+  </script>
+<script src="../../assets/js/uroo-nav.js"></script>
+</body>
+</html>

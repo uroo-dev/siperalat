@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="id" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Uroo UI - Hover Card</title>
+  <script src="../../assets/js/tailwind.js"></script>
+  <script src="../../assets/js/lucide.js"></script>
+  <script>tailwind.config={darkMode:'class',theme:{extend:{colors:{glass:{light:'rgba(255,255,255,0.65)','light-border':'rgba(255,255,255,0.8)',dark:'rgba(18,18,20,0.65)','dark-border':'rgba(255,255,255,0.1)'}}}}}</script>
+  <link rel="stylesheet" href="../../assets/css/uroo.css">
+</head>
+<body class="min-h-screen p-6 font-sans antialiased text-zinc-800 dark:text-zinc-100" style="background:linear-gradient(135deg,#dfe3ea,#f4f4f5)">
+  <script>(function initTheme(){var saved=null;try{saved=localStorage.getItem('uroo-theme')}catch(e){};var dark=(saved==='dark')||(!saved&&window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches);var de=document.documentElement;if(dark){de.classList.add('dark');de.classList.remove('light');if(document.body){document.body.classList.add('dark');document.body.classList.remove('light');}}else{de.classList.remove('dark');de.classList.add('light');if(document.body){document.body.classList.remove('dark');document.body.classList.add('light');}}})();</script>
+  <div class="relative mx-auto max-w-6xl">
+    <div class="pointer-events-none absolute -top-24 -left-28 h-96 w-96 rounded-full bg-zinc-500/30 dark:bg-zinc-300/10 blur-[110px]"></div>
+    <div class="pointer-events-none absolute right-0 top-1/3 h-[26rem] w-[26rem] rounded-full bg-zinc-300/50 dark:bg-zinc-500/10 blur-[120px]"></div>
+    <div class="pointer-events-none absolute -bottom-16 left-1/3 h-80 w-80 rounded-full bg-white/70 dark:bg-white/5 blur-[100px]"></div>
+
+    <header class="relative mb-10">
+      <p class="text-xs font-semibold uppercase tracking-[0.25em] text-zinc-500 dark:text-zinc-500">Uroo UI - Komponen</p>
+      <h1 class="mt-2 text-3xl font-bold tracking-tight md:text-4xl">Hover Card</h1>
+      <p class="mt-3 max-w-2xl text-sm leading-relaxed text-zinc-500 dark:text-zinc-400">Kartu pemicu yang menampilkan popover berisi informasi saat disorot. Arahkan kursor ke setiap kartu untuk melihat detail.</p>
+    </header>
+
+    <main class="relative grid gap-6 md:grid-cols-2">
+
+      <section data-copy class="glass-panel rounded-2xl p-6 md:p-8">
+        <p class="text-xs font-semibold uppercase tracking-[0.2em] text-zinc-500 dark:text-zinc-500">Variasi - Profil sosial</p>
+        <div data-hover-card class="relative mt-6 pb-6">
+          <div class="flex cursor-pointer items-center gap-4 rounded-xl border border-zinc-200/70 bg-white/60 p-4 transition-colors hover:border-zinc-400/50 dark:border-white/10 dark:bg-zinc-800/50 dark:hover:border-white/30">
+            <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-zinc-900 text-sm font-bold text-white dark:bg-zinc-100 dark:text-zinc-900">RM</div>
+            <div class="min-w-0 flex-1">
+              <p class="truncate text-sm font-semibold">Raka Mahendra</p>
+              <p class="truncate text-xs text-zinc-500 dark:text-zinc-400">UI Designer - Studio Kaca</p>
+            </div>
+            <i data-lucide="chevron-right" class="h-4 w-4 shrink-0 text-zinc-400"></i>
+          </div>
+          <div data-hover-popover class="glass-panel anim-scale-in absolute left-0 right-0 top-full z-10 mt-3 rounded-2xl p-5 opacity-0 transition-all duration-200 translate-y-1 scale-[0.97]">
+            <div class="flex items-start gap-4">
+              <div class="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-zinc-900 text-lg font-bold text-white dark:bg-zinc-100 dark:text-zinc-900">RM</div>
+              <div class="min-w-0 flex-1">
+                <p class="text-sm font-bold">Raka Mahendra</p>
+                <p class="text-xs text-zinc-500 dark:text-zinc-400">@rakamahendra</p>
+                <p class="mt-2 text-xs leading-relaxed text-zinc-600 dark:text-zinc-300">Desainer produk yang fokus pada sistem desain dan antarmuka kaca. Berbasis di Bandung.</p>
+                <div class="mt-3 grid grid-cols-3 gap-2 border-t border-zinc-200/70 pt-3 dark:border-white/10">
+                  <div><p class="text-sm font-bold">1.204</p><p class="text-[11px] text-zinc-500">Mengikuti</p></div>
+                  <div><p class="text-sm font-bold">842</p><p class="text-[11px] text-zinc-500">Pengikut</p></div>
+                  <div><p class="text-sm font-bold">96</p><p class="text-[11px] text-zinc-500">Proyek</p></div>
+                </div>
+                <div class="mt-3 flex gap-2">
+                  <button onclick="showToast('Dialog kirim pesan dibuka untuk @rakamahendra.')" class="inline-flex flex-1 items-center justify-center gap-1.5 rounded-lg bg-zinc-900 px-3 py-2 text-xs font-semibold text-white transition-colors hover:bg-zinc-700 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-white">
+                    <i data-lucide="mail" class="h-3.5 w-3.5"></i>Kirim pesan
+                  </button>
+                  <button onclick="showToast('Anda mengikuti @rakamahendra.')" class="inline-flex flex-1 items-center justify-center gap-1.5 rounded-lg border border-zinc-300/70 px-3 py-2 text-xs font-semibold text-zinc-700 transition-colors hover:bg-zinc-900/5 dark:border-white/15 dark:text-zinc-200 dark:hover:bg-white/10">
+                    <i data-lucide="user-plus" class="h-3.5 w-3.5"></i>Ikuti
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <p class="text-xs italic text-zinc-500 dark:text-zinc-500">Sorot kartu untuk melihat popover profil.</p>
+      </section>
+
+      <section data-hover-card class="glass-panel relative rounded-2xl p-6 md:p-8">
+        <p class="text-xs font-semibold uppercase tracking-[0.2em] text-zinc-500 dark:text-zinc-500">Variasi - Anggota tim</p>
+        <div class="mt-6 cursor-pointer">
+          <div class="flex items-center gap-4 rounded-xl border border-zinc-200/70 bg-white/60 p-4 transition-colors hover:border-zinc-400/50 dark:border-white/10 dark:bg-zinc-800/50 dark:hover:border-white/30">
+            <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-zinc-300 text-sm font-bold text-zinc-900 dark:bg-zinc-700 dark:text-zinc-100">SA</div>
+            <div class="min-w-0 flex-1">
+              <p class="truncate text-sm font-semibold">Sarah Anjani</p>
+              <p class="flex items-center gap-1.5 truncate text-xs text-zinc-500 dark:text-zinc-400">
+                <span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span>Daring sekarang
+              </p>
+            </div>
+            <span class="shrink-0 rounded-full bg-zinc-900/5 px-2.5 py-1 text-[11px] font-semibold text-zinc-600 dark:bg-white/10 dark:text-zinc-300">FE</span>
+          </div>
+          <div data-hover-popover class="glass-panel anim-scale-in absolute right-6 top-16 z-10 w-72 rounded-2xl p-5 opacity-0 transition-all duration-200 translate-y-1 scale-[0.97]">
+            <div class="flex items-center gap-3">
+              <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-zinc-300 text-sm font-bold text-zinc-900 dark:bg-zinc-700 dark:text-zinc-100">SA</div>
+              <div class="min-w-0 flex-1">
+                <p class="text-sm font-bold">Sarah Anjani</p>
+                <p class="text-xs text-zinc-500 dark:text-zinc-400">Front-End Engineer</p>
+              </div>
+            </div>
+            <p class="mt-3 text-xs leading-relaxed text-zinc-600 dark:text-zinc-300">Anggota tim sejak Januari 2025. Menangani pengembangan antarmuka dan integrasi API.</p>
+            <div class="mt-3 space-y-2 border-t border-zinc-200/70 pt-3 dark:border-white/10">
+              <p class="flex items-center gap-2 text-xs text-zinc-500 dark:text-zinc-400"><i data-lucide="mail" class="h-3.5 w-3.5"></i>sarah@uroostudio.id</p>
+              <p class="flex items-center gap-2 text-xs text-zinc-500 dark:text-zinc-400"><i data-lucide="phone" class="h-3.5 w-3.5"></i>+62 812-3456-7890</p>
+              <p class="flex items-center gap-2 text-xs text-zinc-500 dark:text-zinc-400"><i data-lucide="clock" class="h-3.5 w-3.5"></i>Terakhir aktif 5 menit lalu</p>
+            </div>
+          </div>
+        </div>
+        <p class="mt-6 text-xs italic text-zinc-500 dark:text-zinc-500">Popover muncul ke arah samping untuk gambar petunjuk anggota tim.</p>
+      </section>
+
+      <section data-copy class="glass-panel rounded-2xl p-6 md:p-8">
+        <p class="text-xs font-semibold uppercase tracking-[0.2em] text-zinc-500 dark:text-zinc-500">Variasi - Kartu harga</p>
+        <div class="mt-6 grid gap-4 sm:grid-cols-2">
+          <div data-hover-card class="relative">
+            <div class="cursor-pointer rounded-xl border border-zinc-200/70 bg-white/60 p-5 text-center transition-colors hover:border-zinc-400/50 dark:border-white/10 dark:bg-zinc-800/50 dark:hover:border-white/30">
+              <p class="text-sm font-semibold">Paket Pro</p>
+              <p class="mt-2 text-2xl font-bold">Rp149<sup class="text-xs font-medium text-zinc-500">rb/bln</sup></p>
+              <div class="mt-3 border-t border-zinc-200/70 pt-3 dark:border-white/10">
+                <p class="text-xs font-medium text-zinc-500 dark:text-zinc-400">Sorot untuk rincian fitur</p>
+              </div>
+            </div>
+            <div data-hover-popover class="glass-panel anim-scale-in absolute left-0 right-0 top-full z-10 mt-3 w-full rounded-2xl p-5 opacity-0 transition-all duration-200 translate-y-1 scale-[0.97]">
+              <p class="text-sm font-bold">Fitur Paket Pro</p>
+              <ul class="mt-3 space-y-2 text-xs text-zinc-600 dark:text-zinc-300">
+                <li class="flex items-center gap-2"><i data-lucide="check" class="h-3.5 w-3.5 text-emerald-500"></i>Kolaborasi hingga 10 anggota</li>
+                <li class="flex items-center gap-2"><i data-lucide="check" class="h-3.5 w-3.5 text-emerald-500"></i>Penyimpanan berkas 100 GB</li>
+                <li class="flex items-center gap-2"><i data-lucide="check" class="h-3.5 w-3.5 text-emerald-500"></i>Riwayat revisi 90 hari</li>
+                <li class="flex items-center gap-2"><i data-lucide="check" class="h-3.5 w-3.5 text-emerald-500"></i>Dukungan prioritas 24/7</li>
+              </ul>
+              <button onclick="showToast('Paket Pro ditambahkan ke keranjang.')" class="mt-4 inline-flex w-full items-center justify-center gap-1.5 rounded-lg bg-zinc-900 px-3 py-2 text-xs font-semibold text-white transition-colors hover:bg-zinc-700 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-white">
+                <i data-lucide="shopping-cart" class="h-3.5 w-3.5"></i>Pilih paket ini
+              </button>
+            </div>
+          </div>
+          <div data-hover-card class="relative">
+            <div class="cursor-pointer rounded-xl border border-zinc-200/70 bg-white/60 p-5 text-center transition-colors hover:border-zinc-400/50 dark:border-white/10 dark:bg-zinc-800/50 dark:hover:border-white/30">
+              <p class="text-sm font-semibold">Paket Enterprise</p>
+              <p class="mt-2 text-2xl font-bold">Hubungi kami</p>
+              <div class="mt-3 border-t border-zinc-200/70 pt-3 dark:border-white/10">
+                <p class="text-xs font-medium text-zinc-500 dark:text-zinc-400">Penawaran khusus organisasi</p>
+              </div>
+            </div>
+            <div data-hover-popover class="glass-panel anim-scale-in absolute left-0 right-0 top-full z-10 mt-3 w-full rounded-2xl p-5 opacity-0 transition-all duration-200 translate-y-1 scale-[0.97]">
+              <p class="text-sm font-bold">Keunggulan Enterprise</p>
+              <ul class="mt-3 space-y-2 text-xs text-zinc-600 dark:text-zinc-300">
+                <li class="flex items-center gap-2"><i data-lucide="check" class="h-3.5 w-3.5 text-emerald-500"></i>Anggota dan penyimpanan tanpa batas</li>
+                <li class="flex items-center gap-2"><i data-lucide="check" class="h-3.5 w-3.5 text-emerald-500"></i>Keamanan SSO dan audit log</li>
+                <li class="flex items-center gap-2"><i data-lucide="check" class="h-3.5 w-3.5 text-emerald-500"></i>SLA ketersediaan 99,9%</li>
+                <li class="flex items-center gap-2"><i data-lucide="check" class="h-3.5 w-3.5 text-emerald-500"></i>Manajer akun khusus</li>
+              </ul>
+              <button onclick="showToast('Tim penjualan akan menghubungi Anda.')" class="mt-4 inline-flex w-full items-center justify-center gap-1.5 rounded-lg border border-zinc-300/70 px-3 py-2 text-xs font-semibold text-zinc-700 transition-colors hover:bg-zinc-900/5 dark:border-white/15 dark:text-zinc-200 dark:hover:bg-white/10">
+                <i data-lucide="headset" class="h-3.5 w-3.5"></i>Jadwalkan demo
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="relative mt-12 flex items-center justify-between border-t border-zinc-400/30 py-6 text-xs text-zinc-500 dark:border-white/10 dark:text-zinc-500">
+      <span>Uroo UI - Glassmorphism monokrom</span>
+      <span id="year"></span>
+    </footer>
+  </div>
+
+  <button onclick="toggleTheme()" class="glass-panel fixed right-4 top-4 z-50 inline-flex items-center justify-center rounded-full p-2.5" aria-label="Ganti tema">
+    <i data-lucide="sun" class="h-5 w-5 text-zinc-700 dark:hidden"></i>
+    <i data-lucide="moon" class="hidden h-5 w-5 text-zinc-200 dark:block"></i>
+  </button>
+
+  <script>
+    lucide.createIcons();
+    function toggleTheme(){const h=document.documentElement,b=document.body;h.classList.toggle('dark');b.classList.toggle('dark');b.style.background=b.classList.contains('dark')?'linear-gradient(135deg,#0a0a0c,#1a1a1e)':'linear-gradient(135deg,#dfe3ea,#f4f4f5)';try{localStorage.setItem('uroo-theme',b.classList.contains('dark')?'dark':'light')}catch(e){};lucide.createIcons();}
+    (function(){const dark=document.documentElement.classList.contains('dark');document.body.style.background=dark?'linear-gradient(135deg,#0a0a0c,#1a1a1e)':'linear-gradient(135deg,#dfe3ea,#f4f4f5)';})();
+    document.getElementById('year').textContent = 'Uroo Dev - ' + new Date().getFullYear();
+
+    document.querySelectorAll('[data-hover-card]').forEach(function(wrap){
+      const pop=wrap.querySelector('[data-hover-popover]');
+      let inTimer=null,outTimer=null;
+      function show(){
+        clearTimeout(outTimer);
+        inTimer=setTimeout(function(){
+          pop.classList.remove('opacity-0','translate-y-1','scale-[0.97]');
+        },200);
+      }
+      function hide(){
+        clearTimeout(inTimer);
+        outTimer=setTimeout(function(){
+          pop.classList.add('opacity-0','translate-y-1','scale-[0.97]');
+        },250);
+      }
+      wrap.addEventListener('mouseenter',show);
+      wrap.addEventListener('mouseleave',hide);
+    });
+
+    function showToast(msg){
+      const t=document.createElement('div');
+      t.className='glass-panel anim-slide-up fixed bottom-6 left-1/2 z-[60] -translate-x-1/2 rounded-xl px-4 py-3 text-sm font-medium text-zinc-800 dark:text-zinc-100';
+      t.textContent=msg;
+      document.body.appendChild(t);
+      setTimeout(()=>{t.style.transition='all .3s';t.style.opacity='0';t.style.transform='translate(-50%,8px)';setTimeout(()=>t.remove(),320);},2400);
+    }
+  </script>
+<script src="../../assets/js/uroo-copy.js"></script>
+<script src="../../assets/js/uroo-nav.js"></script>
+</body>
+</html>

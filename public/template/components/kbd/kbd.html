@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="id" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Uroo UI - Kbd (Tuts Keyboard)</title>
+  <script src="../../assets/js/tailwind.js"></script>
+  <script src="../../assets/js/lucide.js"></script>
+  <script>tailwind.config={darkMode:'class',theme:{extend:{colors:{glass:{light:'rgba(255,255,255,0.65)','light-border':'rgba(255,255,255,0.8)',dark:'rgba(18,18,20,0.65)','dark-border':'rgba(255,255,255,0.1)'}}}}}</script>
+  <link rel="stylesheet" href="../../assets/css/uroo.css">
+  <style>
+    .kbd{display:inline-flex;align-items:center;justify-content:center;gap:0.35rem;min-height:1.75rem;min-width:1.75rem;padding:0.25rem 0.625rem;border-radius:0.5rem;font-family:var(--font-mono);font-size:0.75rem;font-weight:600;line-height:1;color:#3f3f46;background:rgba(255,255,255,0.9);border:1px solid rgba(24,24,27,0.14);border-bottom-width:2px;border-bottom-color:rgba(24,24,27,0.2);box-shadow:0 1px 0 rgba(24,24,27,0.05),inset 0 1px 0 rgba(255,255,255,0.9);}
+    .dark .kbd{color:#d4d4d8;background:rgba(39,39,42,0.9);border-color:rgba(255,255,255,0.14);border-bottom-color:rgba(0,0,0,0.4);box-shadow:0 1px 0 rgba(0,0,0,0.3),inset 0 1px 0 rgba(255,255,255,0.08);}
+    .kbd-sm{min-height:1.4rem;min-width:1.4rem;padding:0.15rem 0.45rem;font-size:0.625rem;border-radius:0.4rem;}
+    .kbd-lg{min-height:2.25rem;min-width:2.25rem;padding:0.4rem 0.875rem;font-size:0.875rem;border-radius:0.625rem;}
+    .kbd-sep{color:#a1a1aa;font-family:var(--font-mono);font-size:0.8rem;}
+  </style>
+</head>
+<body class="min-h-screen p-6 font-sans antialiased text-zinc-800 dark:text-zinc-100" style="background:linear-gradient(135deg,#dfe3ea,#f4f4f5)">
+  <script>(function initTheme(){var saved=null;try{saved=localStorage.getItem('uroo-theme')}catch(e){};var dark=(saved==='dark')||(!saved&&window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches);var de=document.documentElement;if(dark){de.classList.add('dark');de.classList.remove('light');if(document.body){document.body.classList.add('dark');document.body.classList.remove('light');}}else{de.classList.remove('dark');de.classList.add('light');if(document.body){document.body.classList.remove('dark');document.body.classList.add('light');}}})();</script>
+  <div class="relative mx-auto max-w-6xl">
+    <div class="pointer-events-none absolute -top-24 -left-28 h-96 w-96 rounded-full bg-zinc-500/30 dark:bg-zinc-300/10 blur-[110px]"></div>
+    <div class="pointer-events-none absolute right-0 top-1/3 h-[26rem] w-[26rem] rounded-full bg-zinc-300/50 dark:bg-zinc-500/10 blur-[120px]"></div>
+    <div class="pointer-events-none absolute -bottom-16 left-1/3 h-80 w-80 rounded-full bg-white/70 dark:bg-white/5 blur-[100px]"></div>
+
+    <header class="relative mb-10">
+      <p class="text-xs font-semibold uppercase tracking-[0.25em] text-zinc-500 dark:text-zinc-500">Uroo UI - Komponen</p>
+      <h1 class="mt-2 text-3xl font-bold tracking-tight md:text-4xl">Kbd</h1>
+      <p class="mt-3 max-w-2xl text-sm leading-relaxed text-zinc-500 dark:text-zinc-400">Tuts keyboard (key cap) untuk menampilkan pintasan. Coba tekan <span class="kbd">Ctrl</span><span class="kbd-sep">+</span><span class="kbd">K</span> untuk membuka bilah perintah di bawah.</p>
+    </header>
+
+    <main class="relative grid gap-6 md:grid-cols-2">
+
+      <section data-copy class="glass-panel rounded-2xl p-6 md:p-8">
+        <p class="text-xs font-semibold uppercase tracking-[0.2em] text-zinc-500 dark:text-zinc-500">Variasi - Tunggal</p>
+        <div class="mt-6 space-y-6">
+          <div>
+            <p class="mb-3 text-sm font-semibold text-zinc-500 dark:text-zinc-400">Tuts fungsi</p>
+            <div class="flex flex-wrap items-center gap-2">
+              <span class="kbd">Esc</span>
+              <span class="kbd">F1</span>
+              <span class="kbd">F5</span>
+              <span class="kbd">F12</span>
+              <span class="kbd">PrntScrn</span>
+            </div>
+          </div>
+          <div>
+            <p class="mb-3 text-sm font-semibold text-zinc-500 dark:text-zinc-400">Tombol kunci</p>
+            <div class="flex flex-wrap items-center gap-2">
+              <span class="kbd">Tab</span>
+              <span class="kbd">Caps</span>
+              <span class="kbd">Shift</span>
+              <span class="kbd">Ctrl</span>
+              <span class="kbd">Alt</span>
+              <span class="kbd">Space</span>
+              <span class="kbd">Enter</span>
+              <span class="kbd">Backspace</span>
+              <span class="kbd">Del</span>
+            </div>
+          </div>
+          <div>
+            <p class="mb-3 text-sm font-semibold text-zinc-500 dark:text-zinc-400">Navigasi</p>
+            <div class="flex flex-wrap items-center gap-2">
+              <span class="kbd">Home</span>
+              <span class="kbd">End</span>
+              <span class="kbd">PgUp</span>
+              <span class="kbd">PgDn</span>
+              <span class="kbd">&#8592;</span>
+              <span class="kbd">&#8593;</span>
+              <span class="kbd">&#8595;</span>
+              <span class="kbd">&#8594;</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section data-copy class="glass-panel rounded-2xl p-6 md:p-8">
+        <p class="text-xs font-semibold uppercase tracking-[0.2em] text-zinc-500 dark:text-zinc-500">Variasi - Kombinasi</p>
+        <div class="mt-6 space-y-3">
+          <div class="flex items-center justify-between rounded-xl border border-zinc-200/70 bg-white/60 px-4 py-3 dark:border-white/10 dark:bg-zinc-800/50">
+            <p class="text-sm font-medium">Buka bilah perintah</p>
+            <span class="kbd">&#8984;</span><span class="kbd-sep">+</span><span class="kbd">K</span>
+          </div>
+          <div class="flex items-center justify-between rounded-xl border border-zinc-200/70 bg-white/60 px-4 py-3 dark:border-white/10 dark:bg-zinc-800/50">
+            <p class="text-sm font-medium">Salin teks</p>
+            <span class="kbd">Ctrl</span><span class="kbd-sep">+</span><span class="kbd">C</span>
+          </div>
+          <div class="flex items-center justify-between rounded-xl border border-zinc-200/70 bg-white/60 px-4 py-3 dark:border-white/10 dark:bg-zinc-800/50">
+            <p class="text-sm font-medium">Tempel teks</p>
+            <span class="kbd">Ctrl</span><span class="kbd-sep">+</span><span class="kbd">V</span>
+          </div>
+          <div class="flex items-center justify-between rounded-xl border border-zinc-200/70 bg-white/60 px-4 py-3 dark:border-white/10 dark:bg-zinc-800/50">
+            <p class="text-sm font-medium">Simpan berkas</p>
+            <span class="kbd">Ctrl</span><span class="kbd-sep">+</span><span class="kbd">S</span>
+          </div>
+          <div class="flex items-center justify-between rounded-xl border border-zinc-200/70 bg-white/60 px-4 py-3 dark:border-white/10 dark:bg-zinc-800/50">
+            <p class="text-sm font-medium">Cari cepat</p>
+            <span class="kbd">Ctrl</span><span class="kbd-sep">+</span><span class="kbd">Shift</span><span class="kbd-sep">+</span><span class="kbd">P</span>
+          </div>
+        </div>
+      </section>
+
+      <section data-copy class="glass-panel rounded-2xl p-6 md:p-8">
+        <p class="text-xs font-semibold uppercase tracking-[0.2em] text-zinc-500 dark:text-zinc-500">Variasi - Dalam konteks</p>
+        <div class="mt-6">
+          <div class="gi-join flex items-center justify-between rounded-xl border border-zinc-300/70 bg-white/70 px-4 py-3 dark:border-white/15 dark:bg-zinc-800/70">
+            <div class="flex min-w-0 items-center gap-2.5">
+              <i data-lucide="search" class="h-4 w-4 shrink-0 text-zinc-400"></i>
+              <input id="cmdSearch" type="text" class="w-0 min-w-0 flex-1 bg-transparent text-sm text-zinc-800 outline-none placeholder:text-zinc-400 dark:text-zinc-100" placeholder="Cari perintah atau pengaturan...">
+            </div>
+            <span class="kbd kbd-sm shrink-0">Ctrl</span><span class="kbd-sep">+</span><span class="kbd kbd-sm shrink-0">K</span>
+          </div>
+          <div class="mt-4 overflow-hidden rounded-xl border border-zinc-200/70 bg-white/60 dark:border-white/10 dark:bg-zinc-800/50">
+            <button onclick="runCommand('Membuka hasil pencarian perintah.')" class="flex w-full items-center justify-between px-4 py-3 text-left transition-colors hover:bg-zinc-900/5 dark:hover:bg-white/10">
+              <span class="flex items-center gap-2.5 text-sm"><i data-lucide="search" class="h-4 w-4 text-zinc-400"></i>Cari dan buka halaman</span>
+              <span class="kbd kbd-sm">&#8984;</span><span class="kbd-sep">+</span><span class="kbd kbd-sm">P</span>
+            </button>
+            <button onclick="runCommand('Membuat proyek baru.')" class="flex w-full items-center justify-between border-t border-zinc-200/70 px-4 py-3 text-left transition-colors hover:bg-zinc-900/5 dark:border-white/10 dark:hover:bg-white/10">
+              <span class="flex items-center gap-2.5 text-sm"><i data-lucide="folder-plus" class="h-4 w-4 text-zinc-400"></i>Buat proyek baru</span>
+              <span class="kbd kbd-sm">Ctrl</span><span class="kbd-sep">+</span><span class="kbd kbd-sm">N</span>
+            </button>
+            <button onclick="runCommand('Menambahkan anggota tim ke proyek.')" class="flex w-full items-center justify-between border-t border-zinc-200/70 px-4 py-3 text-left transition-colors hover:bg-zinc-900/5 dark:border-white/10 dark:hover:bg-white/10">
+              <span class="flex items-center gap-2.5 text-sm"><i data-lucide="user-plus" class="h-4 w-4 text-zinc-400"></i>Undang anggota tim</span>
+              <span class="kbd kbd-sm">Ctrl</span><span class="kbd-sep">+</span><span class="kbd kbd-sm">U</span>
+            </button>
+            <button onclick="runCommand('Menjalankan pemeriksaan desain.')" class="flex w-full items-center justify-between border-t border-zinc-200/70 px-4 py-3 text-left transition-colors hover:bg-zinc-900/5 dark:border-white/10 dark:hover:bg-white/10">
+              <span class="flex items-center gap-2.5 text-sm"><i data-lucide="wrench" class="h-4 w-4 text-zinc-400"></i>Pemeriksaan keseluruhan</span>
+              <span class="kbd kbd-sm">Ctrl</span><span class="kbd-sep">+</span><span class="kbd kbd-sm">Shift</span><span class="kbd-sep">+</span><span class="kbd kbd-sm">E</span>
+            </button>
+          </div>
+          <p class="mt-3 text-xs text-zinc-500 dark:text-zinc-500">Tekan Ctrl+K di mana saja untuk memfokuskan kolom pencarian.</p>
+        </div>
+      </section>
+
+      <section data-copy class="glass-panel rounded-2xl p-6 md:p-8">
+        <p class="text-xs font-semibold uppercase tracking-[0.2em] text-zinc-500 dark:text-zinc-500">Variasi - Ukuran</p>
+        <div class="mt-6 space-y-6">
+          <div class="flex items-center gap-3">
+            <p class="w-24 shrink-0 text-sm font-semibold text-zinc-500 dark:text-zinc-400">Kecil</p>
+            <span class="kbd kbd-sm">Esc</span>
+            <span class="kbd kbd-sm">Ctrl</span><span class="kbd-sep">+</span><span class="kbd kbd-sm">K</span>
+            <span class="kbd kbd-sm">Space</span>
+          </div>
+          <div class="flex items-center gap-3">
+            <p class="w-24 shrink-0 text-sm font-semibold text-zinc-500 dark:text-zinc-400">Sedang</p>
+            <span class="kbd">Esc</span>
+            <span class="kbd">Ctrl</span><span class="kbd-sep">+</span><span class="kbd">K</span>
+            <span class="kbd">Space</span>
+          </div>
+          <div class="flex items-center gap-3">
+            <p class="w-24 shrink-0 text-sm font-semibold text-zinc-500 dark:text-zinc-400">Besar</p>
+            <span class="kbd kbd-lg">Esc</span>
+            <span class="kbd kbd-lg">Ctrl</span><span class="kbd-sep">+</span><span class="kbd kbd-lg">K</span>
+            <span class="kbd kbd-lg">Space</span>
+          </div>
+          <div class="border-t border-zinc-200/70 pt-6 dark:border-white/10">
+            <p class="text-sm font-semibold text-zinc-500 dark:text-zinc-400">Dalam kalimat</p>
+            <p class="mt-2 text-sm leading-relaxed text-zinc-600 dark:text-zinc-300">Tekan <span class="kbd kbd-sm">&#8984;</span><span class="kbd-sep">+</span><span class="kbd kbd-sm">K</span> untuk membuka bilah perintah, atau <span class="kbd kbd-sm">Ctrl</span><span class="kbd-sep">+</span><span class="kbd kbd-sm">S</span> untuk menyimpan perubahan berkas Anda saat ini.</p>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="relative mt-12 flex items-center justify-between border-t border-zinc-400/30 py-6 text-xs text-zinc-500 dark:border-white/10 dark:text-zinc-500">
+      <span>Uroo UI - Glassmorphism monokrom</span>
+      <span id="year"></span>
+    </footer>
+  </div>
+
+  <button onclick="toggleTheme()" class="glass-panel fixed right-4 top-4 z-50 inline-flex items-center justify-center rounded-full p-2.5" aria-label="Ganti tema">
+    <i data-lucide="sun" class="h-5 w-5 text-zinc-700 dark:hidden"></i>
+    <i data-lucide="moon" class="hidden h-5 w-5 text-zinc-200 dark:block"></i>
+  </button>
+
+  <script>
+    lucide.createIcons();
+    function toggleTheme(){const h=document.documentElement,b=document.body;h.classList.toggle('dark');b.classList.toggle('dark');b.style.background=b.classList.contains('dark')?'linear-gradient(135deg,#0a0a0c,#1a1a1e)':'linear-gradient(135deg,#dfe3ea,#f4f4f5)';try{localStorage.setItem('uroo-theme',b.classList.contains('dark')?'dark':'light')}catch(e){};lucide.createIcons();}
+    (function(){const dark=document.documentElement.classList.contains('dark');document.body.style.background=dark?'linear-gradient(135deg,#0a0a0c,#1a1a1e)':'linear-gradient(135deg,#dfe3ea,#f4f4f5)';})();
+    document.getElementById('year').textContent = 'Uroo Dev - ' + new Date().getFullYear();
+
+    function runCommand(msg){showToast(msg);}
+
+    document.addEventListener('keydown',function(e){
+      if((e.metaKey||e.ctrlKey)&&e.key.toLowerCase()==='k'){
+        e.preventDefault();
+        const el=document.getElementById('cmdSearch');
+        el.focus();
+        el.select();
+        showToast('Bilah perintah dibuka, silakan ketik perintah.');
+      }
+      if((e.metaKey||e.ctrlKey)&&e.key.toLowerCase()==='s'){
+        e.preventDefault();
+        showToast('Kombinasi Ctrl+S ditekan - berkas disimpan.');
+      }
+    });
+
+    function showToast(msg){
+      const t=document.createElement('div');
+      t.className='glass-panel anim-slide-up fixed bottom-6 left-1/2 z-[60] -translate-x-1/2 rounded-xl px-4 py-3 text-sm font-medium text-zinc-800 dark:text-zinc-100';
+      t.textContent=msg;
+      document.body.appendChild(t);
+      setTimeout(()=>{t.style.transition='all .3s';t.style.opacity='0';t.style.transform='translate(-50%,8px)';setTimeout(()=>t.remove(),320);},2400);
+    }
+  </script>
+<script src="../../assets/js/uroo-copy.js"></script>
+<script src="../../assets/js/uroo-nav.js"></script>
+</body>
+</html>

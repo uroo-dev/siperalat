@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="id" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Uroo UI - Kalender</title>
+  <script src="../../assets/js/tailwind.js"></script>
+  <script src="../../assets/js/lucide.js"></script>
+  <script>tailwind.config={darkMode:'class',theme:{extend:{colors:{glass:{light:'rgba(255,255,255,0.65)','light-border':'rgba(255,255,255,0.8)',dark:'rgba(18,18,20,0.65)','dark-border':'rgba(255,255,255,0.1)'}}}}}</script>
+  <link rel="stylesheet" href="../../assets/css/uroo.css">
+  <style>
+    .u-bg{position:fixed;inset:0;z-index:-10;transition:opacity .35s ease}
+    .u-bg-light{background:linear-gradient(135deg,#dfe3ea,#f4f4f5)}
+    .u-bg-dark{background:linear-gradient(135deg,#0a0a0b,#1a1a1e);opacity:0}
+    body.dark .u-bg-light{opacity:0}
+    body.dark .u-bg-dark{opacity:1}
+    .u-glow{position:fixed;border-radius:9999px;filter:blur(90px);z-index:-9;pointer-events:none;background:rgba(0,0,0,0.06);transition:background-color .35s ease}
+    body.dark .u-glow{background:rgba(255,255,255,0.05)}
+    .u-glow-1{width:420px;height:420px;top:-140px;left:-140px}
+    .u-glow-2{width:520px;height:520px;bottom:-200px;right:-140px}
+    .u-glow-3{width:300px;height:300px;top:42%;left:58%}
+    #sidebar{width:16rem;transition:transform .28s cubic-bezier(.16,1,.3,1),width .28s cubic-bezier(.16,1,.3,1)}
+    #sidebar.collapsed{width:4.75rem}
+    #sidebar .nav-label{transition:opacity .15s ease,width .15s ease}
+    #sidebar.collapsed .nav-label{opacity:0;width:0;overflow:hidden;white-space:nowrap}
+    #sidebar.collapsed .nav-link{justify-content:center;padding-left:0;padding-right:0}
+    #sidebar.collapsed .group-title{justify-content:center;padding-left:0;padding-right:0}
+    #sidebar.collapsed .nav-text{display:none}
+    #sidebar.collapsed .logo-text{display:none}
+    #sidebar .badge-dot{transition:opacity .15s}
+    #sidebar.collapsed .badge-dot{opacity:0}
+    @media (max-width:767px){
+      #sidebar{position:fixed;top:1rem;bottom:1rem;left:1rem;z-index:50;transform:translateX(-130%);}
+      #sidebar.open{transform:translateX(0);}
+    }
+    :root{--u-chart:#18181b;--u-chart-mid:#71717a}
+    .dark{--u-chart:#fafafa;--u-chart-mid:#a1a1aa}
+    .ev-chip{display:block;width:100%;text-align:left;padding:.25rem .5rem;border-radius:.5rem;font-size:.6875rem;font-weight:700;line-height:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;transition:filter .15s ease}
+    .ev-chip:hover{filter:brightness(.95)}
+    .ev-rapat{background:rgba(14,165,233,.14);color:#0284c7}
+    .dark .ev-rapat{color:#38bdf8}
+    .ev-tenggat{background:rgba(244,63,94,.14);color:#e11d48}
+    .dark .ev-tenggat{color:#fb7185}
+    .ev-acara{background:rgba(16,185,129,.14);color:#059669}
+    .dark .ev-acara{color:#34d399}
+    .ev-libur{background:rgba(245,158,11,.16);color:#d97706}
+    .dark .ev-libur{color:#fbbf24}
+    .cell-dot{width:.375rem;height:.375rem;border-radius:9999px;flex-shrink:0}
+  </style>
+</head>
+<body class="min-h-screen font-sans antialiased text-zinc-800 dark:text-zinc-100">
+  <script>(function initTheme(){var saved=null;try{saved=localStorage.getItem('uroo-theme')}catch(e){};var dark=(saved==='dark')||(!saved&&window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches);var de=document.documentElement;if(dark){de.classList.add('dark');de.classList.remove('light');if(document.body){document.body.classList.add('dark');document.body.classList.remove('light');}}else{de.classList.remove('dark');de.classList.add('light');if(document.body){document.body.classList.remove('dark');document.body.classList.add('light');}}})();</script>
+  <div class="u-bg u-bg-light" aria-hidden="true"></div>
+  <div class="u-bg u-bg-dark" aria-hidden="true"></div>
+  <div class="u-glow u-glow-1" aria-hidden="true"></div>
+  <div class="u-glow u-glow-2" aria-hidden="true"></div>
+  <div class="u-glow u-glow-3" aria-hidden="true"></div>
+
+  <div id="overlay" class="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm opacity-0 pointer-events-none transition-opacity duration-300 md:hidden" onclick="closeDrawer()"></div>
+
+  <div class="md:flex md:gap-4 md:p-4 min-h-screen">
+    <aside id="sidebar" class="glass-panel rounded-2xl flex flex-col overflow-hidden shrink-0 md:sticky md:top-4 md:h-[calc(100vh-2rem)]">
+      <div class="flex items-center gap-3 px-5 h-16 border-b border-black/5 dark:border-white/10 shrink-0">
+        <img src="../../assets/img/uroo_ui.png" alt="Uroo UI" class="w-9 h-9 rounded-xl object-cover shadow-lg shrink-0">
+        <div class="logo-text min-w-0">
+          <p class="font-extrabold text-[15px] leading-none tracking-tight">Uroo UI</p>
+          <p class="mt-0.5 text-[10px] font-semibold uppercase tracking-[0.18em] text-zinc-400 dark:text-zinc-500">Aplikasi</p>
+        </div>
+        <button onclick="closeDrawer()" class="ml-auto md:hidden p-1.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/10"><i data-lucide="x" class="w-4 h-4"></i></button>
+        <button onclick="toggleSidebar()" class="hidden md:block ml-auto p-1.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 text-zinc-400"><i data-lucide="panel-left-close" class="w-4 h-4"></i></button>
+      </div>
+
+      <nav class="flex-1 overflow-y-auto px-3 py-4 space-y-6">
+        <div>
+          <p class="group-title flex items-center nav-label px-3 mb-2 text-[10px] font-bold uppercase tracking-[0.18em] text-zinc-400 dark:text-zinc-500">Menu Utama</p>
+          <div class="space-y-1">
+            <a href="beranda.html" class="nav-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-50 hover:bg-black/5 dark:hover:bg-white/10"><i data-lucide="layout-dashboard" class="w-[18px] h-[18px] shrink-0"></i><span class="nav-label">Beranda</span></a>
+            <a href="app.html" class="nav-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-50 hover:bg-black/5 dark:hover:bg-white/10"><i data-lucide="folder" class="w-[18px] h-[18px] shrink-0"></i><span class="nav-label">Proyek</span></a>
+            <a href="inbox.html" class="nav-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-50 hover:bg-black/5 dark:hover:bg-white/10"><i data-lucide="inbox" class="w-[18px] h-[18px] shrink-0"></i><span class="nav-label">Inbox</span></a>
+            <a href="kalender.html" class="nav-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold bg-zinc-900 text-zinc-50 dark:bg-zinc-50 dark:text-zinc-900 shadow-lg"><i data-lucide="calendar" class="w-[18px] h-[18px] shrink-0"></i><span class="nav-label">Kalender</span></a>
+          </div>
+        </div>
+        <div>
+          <p class="group-title flex items-center nav-label px-3 mb-2 text-[10px] font-bold uppercase tracking-[0.18em] text-zinc-400 dark:text-zinc-500">Ruang Kerja</p>
+          <div class="space-y-1">
+            <a href="tim.html" class="nav-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-50 hover:bg-black/5 dark:hover:bg-white/10"><i data-lucide="users" class="w-[18px] h-[18px] shrink-0"></i><span class="nav-label">Tim</span></a>
+            <a href="diskusi.html" class="nav-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-50 hover:bg-black/5 dark:hover:bg-white/10"><i data-lucide="message-square" class="w-[18px] h-[18px] shrink-0"></i><span class="nav-label">Diskusi</span></a>
+            <a href="analitik.html" class="nav-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-50 hover:bg-black/5 dark:hover:bg-white/10"><i data-lucide="bar-chart-3" class="w-[18px] h-[18px] shrink-0"></i><span class="nav-label">Analitik</span></a>
+          </div>
+        </div>
+        <div>
+          <p class="group-title flex items-center nav-label px-3 mb-2 text-[10px] font-bold uppercase tracking-[0.18em] text-zinc-400 dark:text-zinc-500">Source</p>
+          <div class="space-y-1">
+            <a href="dokumen.html" class="nav-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-50 hover:bg-black/5 dark:hover:bg-white/10"><i data-lucide="file-text" class="w-[18px] h-[18px] shrink-0"></i><span class="nav-label">Dokumen</span></a>
+            <a href="aset-media.html" class="nav-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-50 hover:bg-black/5 dark:hover:bg-white/10"><i data-lucide="image" class="w-[18px] h-[18px] shrink-0"></i><span class="nav-label">Aset Media</span></a>
+            <a href="pengaturan.html" class="nav-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-50 hover:bg-black/5 dark:hover:bg-white/10"><i data-lucide="settings" class="w-[18px] h-[18px] shrink-0"></i><span class="nav-label">Pengaturan</span></a>
+          </div>
+        </div>
+      </nav>
+
+      <div class="p-3 border-t border-black/5 dark:border-white/10 shrink-0">
+        <button class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-50 hover:bg-black/5 dark:hover:bg-white/10">
+          <span class="grid place-items-center w-8 h-8 rounded-full bg-gradient-to-br from-zinc-500 to-zinc-800 dark:from-zinc-300 dark:to-zinc-600 text-white dark:text-zinc-900 text-xs font-bold shrink-0">DB</span>
+          <span class="nav-label text-left min-w-0">
+            <span class="block font-bold text-[13px] leading-tight">Dita Baskoro</span>
+            <span class="block text-[11px] font-normal text-zinc-400 leading-tight">Administrator</span>
+          </span>
+        </button>
+      </div>
+    </aside>
+
+      <!-- CONTENT -->
+      <main class="flex-1 py-6 min-w-0">
+        <div class="mb-6 flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <p class="text-[11px] font-bold uppercase tracking-[0.2em] text-zinc-400 dark:text-zinc-500">Menu Utama / Kalender</p>
+            <h1 class="text-2xl md:text-3xl font-bold tracking-tight mt-1">Kalender</h1>
+            <p class="mt-1 text-sm text-zinc-500 dark:text-zinc-400">Jadwal rapat, tenggat, dan acara dari seluruh ruang kerja.</p>
+          </div>
+          <button onclick="toast('Formulir acara baru dibuka','calendar-plus')" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-zinc-900 dark:bg-zinc-50 text-zinc-50 dark:text-zinc-900 text-sm font-bold hover:opacity-90 shadow-lg"><i data-lucide="calendar-plus" class="w-4 h-4"></i> Acara Baru</button>
+        </div>
+
+        <div class="grid grid-cols-1 xl:grid-cols-3 gap-4">
+          <div class="xl:col-span-2 glass-panel rounded-2xl overflow-hidden">
+            <div class="px-4 py-3 border-b border-black/5 dark:border-white/10 flex flex-wrap items-center gap-2">
+              <div class="flex items-center gap-1">
+                <button onclick="shiftMonth(-1)" class="p-2 rounded-lg text-zinc-500 dark:text-zinc-400 hover:bg-black/5 dark:hover:bg-white/10"><i data-lucide="chevron-left" class="w-4 h-4"></i></button>
+                <button onclick="shiftMonth(1)" class="p-2 rounded-lg text-zinc-500 dark:text-zinc-400 hover:bg-black/5 dark:hover:bg-white/10"><i data-lucide="chevron-right" class="w-4 h-4"></i></button>
+                <button onclick="today()" class="px-3 h-9 rounded-xl text-sm font-bold text-zinc-500 dark:text-zinc-400 hover:bg-black/5 dark:hover:bg-white/10">Hari Ini</button>
+              </div>
+              <h2 id="monthTitle" class="text-base md:text-lg font-bold tracking-tight ml-1">Agustus 2026</h2>
+              <button onclick="toast('Tampilan beralih ke minggu','layout-list')" class="ml-auto px-3 h-9 rounded-xl text-sm font-semibold text-zinc-500 dark:text-zinc-400 hover:bg-black/5 dark:hover:bg-white/10"><i data-lucide="layout-list" class="w-4 h-4 mr-1 inline"></i>Minggu</button>
+            </div>
+
+            <div>
+              <div class="grid grid-cols-7 border-b border-black/5 dark:border-white/10">
+                <div class="px-2 py-2.5 text-center text-[10px] font-bold uppercase tracking-[0.15em] text-zinc-400 dark:text-zinc-500">Sen</div>
+                <div class="px-2 py-2.5 text-center text-[10px] font-bold uppercase tracking-[0.15em] text-zinc-400 dark:text-zinc-500">Sel</div>
+                <div class="px-2 py-2.5 text-center text-[10px] font-bold uppercase tracking-[0.15em] text-zinc-400 dark:text-zinc-500">Rab</div>
+                <div class="px-2 py-2.5 text-center text-[10px] font-bold uppercase tracking-[0.15em] text-zinc-400 dark:text-zinc-500">Kam</div>
+                <div class="px-2 py-2.5 text-center text-[10px] font-bold uppercase tracking-[0.15em] text-zinc-400 dark:text-zinc-500">Jum</div>
+                <div class="px-2 py-2.5 text-center text-[10px] font-bold uppercase tracking-[0.15em] text-zinc-400 dark:text-zinc-500">Sab</div>
+                <div class="px-2 py-2.5 text-center text-[10px] font-bold uppercase tracking-[0.15em] text-zinc-400 dark:text-zinc-500">Min</div>
+              </div>
+
+              <div class="grid grid-cols-7 gap-2 p-3">
+                <div class="rounded-xl bg-black/5 dark:bg-white/5 p-2 min-h-[86px]">
+                  <span class="block text-right text-xs font-bold text-zinc-300 dark:text-zinc-600">27</span>
+                </div>
+                <div class="rounded-xl bg-black/5 dark:bg-white/5 p-2 min-h-[86px]">
+                  <span class="block text-right text-xs font-bold text-zinc-300 dark:text-zinc-600">28</span>
+                </div>
+                <div class="rounded-xl bg-black/5 dark:bg-white/5 p-2 min-h-[86px]">
+                  <span class="block text-right text-xs font-bold text-zinc-300 dark:text-zinc-600">29</span>
+                </div>
+                <div class="rounded-xl bg-black/5 dark:bg-white/5 p-2 min-h-[86px]">
+                  <span class="block text-right text-xs font-bold text-zinc-300 dark:text-zinc-600">30</span>
+                </div>
+                <div class="rounded-xl bg-black/5 dark:bg-white/5 p-2 min-h-[86px]">
+                  <span class="block text-right text-xs font-bold text-zinc-300 dark:text-zinc-600">31</span>
+                </div>
+                <div class="rounded-xl bg-black/5 dark:bg-white/5 p-2 min-h-[86px]">
+                  <span class="block text-right text-xs font-bold">1</span>
+                </div>
+                <div class="rounded-xl bg-black/5 dark:bg-white/5 p-2 min-h-[86px]">
+                  <span class="block text-right text-xs font-bold">2</span>
+                </div>
+                <div class="rounded-xl bg-black/5 dark:bg-white/5 p-2 min-h-[86px]">
+                  <span class="block text-right text-xs font-bold">3</span>
+                  <button onclick="toast('Sprint Planning — 09.00 WIB (Ruang Sunter)','check-circle')" class="ev-chip ev-rapat mt-1">Sprint Planning</button>
+                  <button onclick="toast('Clearance design mockup — 15.00 WIB (Virtual)','check-circle')" class="ev-chip ev-rapat">Clearance Mockup</button>
+                </div>
+                <div class="rounded-xl bg-black/5 dark:bg-white/5 p-2 min-h-[86px]">
+                  <span class="block text-right text-xs font-bold">4</span>
+                  <button onclick="toast('Tenggat copywriting halaman paket — 17.00 WIB','check-circle')" class="ev-chip ev-tenggat mt-1">Tenggat Naskah</button>
+                </div>
+                <div class="rounded-xl bg-black/5 dark:bg-white/5 p-2 min-h-[86px]">
+                  <span class="block text-right text-xs font-bold">5</span>
+                  <button onclick="toast('Standup tim teknik — 09.30 WIB','check-circle')" class="ev-chip ev-rapat mt-1">Standup Teknik</button>
+                </div>
+                <div class="rounded-xl bg-black/5 dark:bg-white/5 p-2 min-h-[86px]">
+                  <span class="block text-right text-xs font-bold">6</span>
+                  <button onclick="toast('Demo klien — 14.00 WIB (Ruang Cakra)','check-circle')" class="ev-chip ev-rapat mt-1">Demo Klien</button>
+                </div>
+                <div class="rounded-xl bg-black/5 dark:bg-white/5 p-2 min-h-[86px]">
+                  <span class="block text-right text-xs font-bold">7</span>
+                </div>
+                <div class="rounded-xl bg-black/5 dark:bg-white/5 p-2 min-h-[86px]">
+                  <span class="block text-right text-xs font-bold">8</span>
+                </div>
+                <div class="rounded-xl bg-black/5 dark:bg-white/5 p-2 min-h-[86px]">
+                  <span class="block text-right text-xs font-bold">9</span>
+                </div>
+                <div class="rounded-xl bg-black/5 dark:bg-white/5 p-2 min-h-[86px]">
+                  <span class="block text-right text-xs font-bold">10</span>
+                </div>
+                <div class="rounded-xl bg-black/5 dark:bg-white/5 p-2 min-h-[86px]">
+                  <span class="block text-right text-xs font-bold">11</span>
+                  <button onclick="toast('Tenggat integrasi modul proyek — 23.59 WIB','check-circle')" class="ev-chip ev-tenggat mt-1">Tenggat Integrasi</button>
+                </div>
+                <div class="rounded-xl bg-black/5 dark:bg-white/5 p-2 min-h-[86px]">
+                  <span class="block text-right text-xs font-bold">12</span>
+                  <button onclick="toast('Review pull request #142 — 13.00 WIB','check-circle')" class="ev-chip ev-rapat mt-1">Review PR</button>
+                </div>
+                <div class="rounded-xl bg-black/5 dark:bg-white/5 p-2 min-h-[86px]">
+                  <span class="block text-right text-xs font-bold">13</span>
+                  <button onclick="toast('Makan bersama tim — 12.00 WIB (Kantin)','check-circle')" class="ev-chip ev-acara mt-1">Makan Bersama</button>
+                </div>
+                <div class="rounded-xl bg-black/5 dark:bg-white/5 p-2 min-h-[86px]">
+                  <span class="block text-right text-xs font-bold">14</span>
+                </div>
+                <div class="rounded-xl bg-black/5 dark:bg-white/5 p-2 min-h-[86px]">
+                  <span class="block text-right text-xs font-bold">15</span>
+                </div>
+                <div class="rounded-xl bg-black/5 dark:bg-white/5 p-2 min-h-[86px]">
+                  <span class="block text-right text-xs font-bold">16</span>
+                </div>
+                <div class="rounded-xl bg-black/5 dark:bg-white/5 p-2 min-h-[86px]">
+                  <span class="block text-right text-xs font-bold">17</span>
+                  <button onclick="toast('Libur Nasional — 17 Agustus','check-circle')" class="ev-chip ev-libur mt-1">Libur Nasional</button>
+                </div>
+                <div class="rounded-xl bg-black/5 dark:bg-white/5 p-2 min-h-[86px]">
+                  <span class="block text-right text-xs font-bold">18</span>
+                  <button onclick="toast('Kickoff kampanye v2 — 10.00 WIB','check-circle')" class="ev-chip ev-rapat mt-1">Kickoff Kampanye</button>
+                </div>
+                <div class="rounded-xl bg-black/5 dark:bg-white/5 p-2 min-h-[86px]">
+                  <span class="block text-right text-xs font-bold">19</span>
+                </div>
+                <div class="rounded-xl bg-black/5 dark:bg-white/5 p-2 min-h-[86px]">
+                  <span class="block text-right text-xs font-bold">20</span>
+                  <button onclick="toast('Review milestone fase 2 — 14.30 WIB','check-circle')" class="ev-chip ev-rapat mt-1">Review Milestone</button>
+                </div>
+                <div class="rounded-xl bg-black/5 dark:bg-white/5 p-2 min-h-[86px]">
+                  <span class="block text-right text-xs font-bold">21</span>
+                </div>
+                <div class="rounded-xl bg-black/5 dark:bg-white/5 p-2 min-h-[86px]">
+                  <span class="block text-right text-xs font-bold">22</span>
+                </div>
+                <div class="rounded-xl bg-black/5 dark:bg-white/5 p-2 min-h-[86px]">
+                  <span class="block text-right text-xs font-bold">23</span>
+                </div>
+                <div class="rounded-xl bg-black/5 dark:bg-white/5 p-2 min-h-[86px]">
+                  <span class="block text-right text-xs font-bold">24</span>
+                  <button onclick="toast('Tenggat laporan QA mingguan — 18.00 WIB','check-circle')" class="ev-chip ev-tenggat mt-1">Tenggat Laporan QA</button>
+                </div>
+                <div class="rounded-xl bg-black/5 dark:bg-white/5 p-2 min-h-[86px]">
+                  <span class="block text-right text-xs font-bold">25</span>
+                </div>
+                <div class="rounded-xl bg-black/5 dark:bg-white/5 p-2 min-h-[86px]">
+                  <span class="block text-right text-xs font-bold">26</span>
+                </div>
+                <div class="rounded-xl bg-black/5 dark:bg-white/5 p-2 min-h-[86px]">
+                  <span class="block text-right text-xs font-bold">27</span>
+                </div>
+                <div class="rounded-xl bg-black/5 dark:bg-white/5 p-2 min-h-[86px]">
+                  <span class="block text-right text-xs font-bold">28</span>
+                  <button onclick="toast('Workshop komponen UI — 13.30 WIB (Lab Desain)','check-circle')" class="ev-chip ev-acara mt-1">Workshop Komponen</button>
+                </div>
+                <div class="rounded-xl bg-black/5 dark:bg-white/5 p-2 min-h-[86px]">
+                  <span class="block text-right text-xs font-bold">29</span>
+                </div>
+                <div class="rounded-xl bg-sky-500/10 dark:bg-sky-400/10 ring-2 ring-sky-500/60 dark:ring-sky-400/50 p-2 min-h-[86px]">
+                  <span class="block text-right text-xs font-bold text-sky-600 dark:text-sky-400">30</span>
+                  <button onclick="toast('Retrospektif sprint — 15.00 WIB (Ruang Sunter)','check-circle')" class="ev-chip ev-rapat mt-1">Retrospektif</button>
+                </div>
+                <div class="rounded-xl bg-black/5 dark:bg-white/5 p-2 min-h-[86px]">
+                  <span class="block text-right text-xs font-bold">31</span>
+                  <button onclick="toast('1-on-1 dengan atasan — 11.00 WIB','check-circle')" class="ev-chip ev-acara mt-1">1-on-1</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="glass-panel rounded-2xl overflow-hidden flex flex-col">
+            <div class="px-5 py-4 border-b border-black/5 dark:border-white/10">
+              <h2 class="font-bold tracking-tight text-sm md:text-base">Acara Mendatang</h2>
+              <p class="text-xs text-zinc-400 mt-0.5">Dari 28 Agu sampai 2 Sep 2026</p>
+            </div>
+            <div class="flex-1 px-4 py-3 divide-y divide-black/5 dark:divide-white/10">
+              <div class="flex items-start gap-3 py-3">
+                <span class="grid place-items-center w-10 h-10 rounded-xl bg-sky-500/15 text-sky-600 dark:text-sky-400 text-[10px] font-extrabold leading-tight shrink-0">JUM<br>28</span>
+                <div class="flex-1 min-w-0">
+                  <p class="text-sm font-bold truncate">Workshop Komponen UI</p>
+                  <p class="text-xs text-zinc-400 mt-0.5">13.30 WIB · Lab Desain</p>
+                </div>
+                <button onclick="toast('Detail acara dibuka','info')" class="p-2 rounded-lg text-zinc-400 hover:bg-black/5 dark:hover:bg-white/10"><i data-lucide="more-horizontal" class="w-4 h-4"></i></button>
+              </div>
+              <div class="flex items-start gap-3 py-3">
+                <span class="grid place-items-center w-10 h-10 rounded-xl bg-rose-500/15 text-rose-600 dark:text-rose-400 text-[10px] font-extrabold leading-tight shrink-0">SAB<br>29</span>
+                <div class="flex-1 min-w-0">
+                  <p class="text-sm font-bold truncate">Trotoar Run Club</p>
+                  <p class="text-xs text-zinc-400 mt-0.5">06.30 WIB · Taman Menteng</p>
+                </div>
+                <button onclick="toast('Detail acara dibuka','info')" class="p-2 rounded-lg text-zinc-400 hover:bg-black/5 dark:hover:bg-white/10"><i data-lucide="more-horizontal" class="w-4 h-4"></i></button>
+              </div>
+              <div class="flex items-start gap-3 py-3">
+                <span class="grid place-items-center w-10 h-10 rounded-xl bg-sky-500/15 text-sky-600 dark:text-sky-400 text-[10px] font-extrabold leading-tight shrink-0">MIN<br>30</span>
+                <div class="flex-1 min-w-0">
+                  <p class="text-sm font-bold truncate">Retrospektif Sprint</p>
+                  <p class="text-xs text-zinc-400 mt-0.5">15.00 WIB · Ruang Sunter</p>
+                </div>
+                <button onclick="toast('Detail acara dibuka','info')" class="p-2 rounded-lg text-zinc-400 hover:bg-black/5 dark:hover:bg-white/10"><i data-lucide="more-horizontal" class="w-4 h-4"></i></button>
+              </div>
+              <div class="flex items-start gap-3 py-3">
+                <span class="grid place-items-center w-10 h-10 rounded-xl bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 text-[10px] font-extrabold leading-tight shrink-0">SEN<br>31</span>
+                <div class="flex-1 min-w-0">
+                  <p class="text-sm font-bold truncate">1-on-1 dengan Atasan</p>
+                  <p class="text-xs text-zinc-400 mt-0.5">11.00 WIB · Ruang Rapat 2</p>
+                </div>
+                <button onclick="toast('Detail acara dibuka','info')" class="p-2 rounded-lg text-zinc-400 hover:bg-black/5 dark:hover:bg-white/10"><i data-lucide="more-horizontal" class="w-4 h-4"></i></button>
+              </div>
+              <div class="flex items-start gap-3 py-3">
+                <span class="grid place-items-center w-10 h-10 rounded-xl bg-sky-500/15 text-sky-600 dark:text-sky-400 text-[10px] font-extrabold leading-tight shrink-0">SEL<br>01</span>
+                <div class="flex-1 min-w-0">
+                  <p class="text-sm font-bold truncate">Sprint Planning</p>
+                  <p class="text-xs text-zinc-400 mt-0.5">09.00 WIB · Ruang Sunter</p>
+                </div>
+                <button onclick="toast('Detail acara dibuka','info')" class="p-2 rounded-lg text-zinc-400 hover:bg-black/5 dark:hover:bg-white/10"><i data-lucide="more-horizontal" class="w-4 h-4"></i></button>
+              </div>
+            </div>
+            <div class="px-5 py-4 border-t border-black/5 dark:border-white/10 space-y-2">
+              <p class="text-[10px] font-bold uppercase tracking-[0.16em] text-zinc-400">Legenda</p>
+              <div class="grid grid-cols-2 gap-2">
+                <span class="inline-flex items-center gap-2 text-xs font-semibold text-zinc-500 dark:text-zinc-400"><span class="cell-dot bg-sky-500"></span>Rapat</span>
+                <span class="inline-flex items-center gap-2 text-xs font-semibold text-zinc-500 dark:text-zinc-400"><span class="cell-dot bg-rose-500"></span>Tenggat</span>
+                <span class="inline-flex items-center gap-2 text-xs font-semibold text-zinc-500 dark:text-zinc-400"><span class="cell-dot bg-emerald-500"></span>Acara</span>
+                <span class="inline-flex items-center gap-2 text-xs font-semibold text-zinc-500 dark:text-zinc-400"><span class="cell-dot bg-amber-500"></span>Libur</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <p class="mt-4 text-xs text-zinc-400 text-center">Isi kalender adalah data simulasi untuk demo desain Uroo UI.</p>
+      </main>
+    </div>
+  </div>
+
+  <button onclick="toggleTheme()" class="fixed top-5 right-5 z-[80] p-2.5 rounded-full glass-panel shadow-2xl text-zinc-600 dark:text-zinc-300 md:top-[1.6rem] md:right-[1.6rem]">
+    <i data-lucide="moon" class="w-4 h-4 hidden dark:block"></i>
+    <i data-lucide="sun" class="w-4 h-4 block dark:hidden"></i>
+  </button>
+
+  <script>
+    lucide.createIcons();
+    function toggleTheme(){document.documentElement.classList.toggle('dark');document.body.classList.toggle('dark');try{localStorage.setItem('uroo-theme',document.documentElement.classList.contains('dark')?'dark':'light')}catch(e){};lucide.createIcons();}
+    const sidebar=document.getElementById('sidebar');
+    function toggleSidebar(){
+      if(window.innerWidth>=768){sidebar.classList.toggle('collapsed');}
+      else{sidebar.classList.toggle('open');document.getElementById('overlay').classList.toggle('opacity-0',!sidebar.classList.contains('open'));document.getElementById('overlay').classList.toggle('pointer-events-none',!sidebar.classList.contains('open'));}
+    }
+    function openDrawer(){sidebar.classList.add('open');document.getElementById('overlay').classList.remove('opacity-0','pointer-events-none');}
+    function closeDrawer(){sidebar.classList.remove('open');document.getElementById('overlay').classList.add('opacity-0','pointer-events-none');}
+
+    function toast(msg,type){
+      const t=document.createElement('div');
+      t.className='fixed bottom-5 right-5 z-[85] glass-panel rounded-xl px-4 py-3 text-sm font-semibold shadow-2xl anim-toast-in flex items-center gap-2.5 pointer-events-none max-w-sm';
+      t.innerHTML='<i data-lucide="'+(type||'check-circle')+'" class="w-4 h-4 shrink-0"></i><span>'+msg+'</span>';
+      document.body.appendChild(t);lucide.createIcons();
+      setTimeout(()=>{t.style.opacity='0';t.style.transition='opacity .3s';setTimeout(()=>t.remove(),320)},2600);
+    }
+
+    const MON=['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+    let curY=2026,curM=7;
+    function renderTitle(){(document.getElementById('monthTitle')||{}).textContent=MON[curM]+' '+curY;}
+    function shiftMonth(d){
+      curM+=d;
+      if(curM<0){curM=11;curY--;}
+      if(curM>11){curM=0;curY++;}
+      renderTitle();
+      toast(curY+' '+MON[curM]+' ditampilkan','calendar');
+    }
+    function today(){curY=2026;curM=7;renderTitle();toast('Kembali ke kalender hari ini','calendar-check');}
+    renderTitle();
+  </script>
+<script src="../../assets/js/uroo-nav.js"></script>
+</body>
+</html>

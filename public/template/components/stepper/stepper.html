@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="id" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Uroo UI - Stepper</title>
+  <script src="../../assets/js/tailwind.js"></script>
+  <script src="../../assets/js/lucide.js"></script>
+  <script>tailwind.config={darkMode:'class',theme:{extend:{colors:{glass:{light:'rgba(255,255,255,0.65)','light-border':'rgba(255,255,255,0.8)',dark:'rgba(18,18,20,0.65)','dark-border':'rgba(255,255,255,0.1)'}}}}}</script>
+  <link rel="stylesheet" href="../../assets/css/uroo.css">
+  <style>
+    .u-bg{position:fixed;inset:0;z-index:-10;transition:opacity .35s ease}
+    .u-bg-light{background:linear-gradient(135deg,#dfe3ea,#f4f4f5)}
+    .u-bg-dark{background:linear-gradient(135deg,#0a0a0b,#1a1a1e);opacity:0}
+    body.dark .u-bg-light{opacity:0}
+    body.dark .u-bg-dark{opacity:1}
+    .u-glow{position:fixed;border-radius:9999px;filter:blur(90px);z-index:-9;pointer-events:none;transition:background-color .35s ease;background:rgba(0,0,0,0.06)}
+    body.dark .u-glow{background:rgba(255,255,255,0.05)}
+    .u-glow-1{width:420px;height:420px;top:-140px;left:-140px}
+    .u-glow-2{width:520px;height:520px;bottom:-200px;right:-140px}
+    .u-glow-3{width:300px;height:300px;top:42%;left:58%}
+
+    /* ---- Stepper primitives ---- */
+    .u-step{display:flex;align-items:flex-start;gap:.9rem}
+    .u-step-dot{flex:none;width:2.5rem;height:2.5rem;border-radius:9999px;display:grid;place-items:center;font-weight:700;font-size:.9rem;color:#a1a1aa;background:rgba(0,0,0,.06);border:1px solid rgba(0,0,0,.1);transition:all .25s ease}
+    body.dark .u-step-dot{color:#a1a1aa;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12)}
+    .u-step.current .u-step-dot{color:#fff;background:#18181b;border-color:#18181b;box-shadow:0 8px 20px -10px rgba(0,0,0,.5)}
+    body.dark .u-step.current .u-step-dot{color:#18181b;background:#fafafa;border-color:#fafafa}
+    .u-step.completed .u-step-dot{color:#fff;background:#10b981;border-color:#10b981}
+    .u-step.clickable .u-step-dot{cursor:pointer}
+    .u-step.clickable:not(.completed):not(.current) .u-step-dot:hover{transform:scale(1.06)}
+
+    .u-step-body{flex:1;min-width:0;padding-top:.35rem}
+    .u-step-title{font-size:.95rem;font-weight:700;color:#18181b;letter-spacing:-.01em}
+    body.dark .u-step-title{color:#f4f4f5}
+    .u-step:not(.completed):not(.current) .u-step-title{color:#a1a1aa}
+    .u-step-desc{font-size:.78rem;color:#71717a;line-height:1.45;margin-top:.15rem}
+    body.dark .u-step-desc{color:#a1a1aa}
+    .u-step:not(.completed):not(.current) .u-step-desc{color:#a1a1aa}
+
+    .u-step-connector{width:2px;flex:1;min-height:2rem;margin-left:1.24rem;background:rgba(0,0,0,.1);border-radius:9999px}
+    body.dark .u-step-connector{background:rgba(255,255,255,.14)}
+    .u-step-connector.done{background:#10b981}
+
+    /* Horizontal connectors between steps */
+    .connector-h{height:2px;align-self:flex-start;margin-top:1.2rem;background:rgba(0,0,0,.1);border-radius:9999px}
+    body.dark .connector-h{background:rgba(255,255,255,.14)}
+    #horizontal-stepper .u-step{display:inline-flex;flex-direction:column;align-items:center;text-align:center}
+    #horizontal-stepper .u-step-dot{width:2.5rem;height:2.5rem}
+  </style>
+</head>
+<body class="min-h-screen p-6 font-sans antialiased text-zinc-800 dark:text-zinc-100">
+  <script>(function initTheme(){var saved=null;try{saved=localStorage.getItem('uroo-theme')}catch(e){};var dark=(saved==='dark')||(!saved&&window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches);var de=document.documentElement;if(dark){de.classList.add('dark');de.classList.remove('light');if(document.body){document.body.classList.add('dark');document.body.classList.remove('light');}}else{de.classList.remove('dark');de.classList.add('light');if(document.body){document.body.classList.remove('dark');document.body.classList.add('light');}}})();</script>
+  <div class="u-bg u-bg-light" aria-hidden="true"></div>
+  <div class="u-bg u-bg-dark" aria-hidden="true"></div>
+  <div class="u-glow u-glow-1" aria-hidden="true"></div>
+  <div class="u-glow u-glow-2" aria-hidden="true"></div>
+  <div class="u-glow u-glow-3" aria-hidden="true"></div>
+
+  <main class="relative z-10 mx-auto max-w-4xl">
+
+    <header class="mb-10">
+      <div class="flex items-center gap-4">
+        <div class="glass-panel rounded-2xl p-3 shadow-2xl">
+          <i data-lucide="list-ordered" class="w-6 h-6"></i>
+        </div>
+        <div>
+          <p class="text-[11px] font-bold uppercase tracking-[0.2em] text-zinc-400 dark:text-zinc-500">Uroo UI - Komponen Navigasi</p>
+          <h1 class="text-2xl md:text-4xl font-bold tracking-tight">Stepper</h1>
+        </div>
+      </div>
+      <p class="mt-4 max-w-2xl text-sm leading-relaxed text-zinc-500 dark:text-zinc-400">
+        Panduan langkah untuk alur bertahap. Mendukung orientasi horizontal dan vertikal,
+        langkah yang dapat diklik, status selesai, aktif, serta mendatang dengan navigasi maju-mundur.
+      </p>
+    </header>
+
+    <div class="grid gap-8">
+
+      <section data-copy class="glass-panel rounded-2xl shadow-2xl p-6 md:p-8 anim-fade-in">
+        <header class="mb-6 flex flex-wrap items-end justify-between gap-3">
+          <div>
+            <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-zinc-400 dark:text-zinc-500">Demo 01 - Horizontal Bernomor</p>
+            <h2 class="mt-1 text-lg font-bold tracking-tight">Alur Horizontal</h2>
+          </div>
+          <p class="text-xs text-zinc-500 dark:text-zinc-400">Status selesai, aktif, dan mendatang</p>
+        </header>
+
+        <div class="flex items-start" id="horizontal-stepper">
+          <div class="flex-1 text-center">
+            <div class="u-step current mx-auto inline-flex flex-col items-center">
+              <span class="u-step-dot">1</span>
+              <p class="u-step-title mt-2">Informasi</p>
+              <p class="u-step-desc">Detail pemesan</p>
+            </div>
+          </div>
+          <div class="connector-h flex-1 mb-6"></div>
+          <div class="flex-1 text-center">
+            <div class="u-step completed mx-auto inline-flex flex-col items-center">
+              <span class="u-step-dot"><i data-lucide="check" class="w-4 h-4"></i></span>
+              <p class="u-step-title mt-2">Pembayaran</p>
+              <p class="u-step-desc">Metode transfer</p>
+            </div>
+          </div>
+          <div class="connector-h flex-1 mb-6"></div>
+          <div class="flex-1 text-center">
+            <div class="u-step mx-auto inline-flex flex-col items-center">
+              <span class="u-step-dot">3</span>
+              <p class="u-step-title mt-2">Konfirmasi</p>
+              <p class="u-step-desc">Tinjau ulang</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-8 flex flex-wrap items-center gap-3">
+          <button id="h-prev" class="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold" style="background:rgba(0,0,0,.06);color:#3f3f46"><i data-lucide="chevron-left" class="w-4 h-4"></i> Sebelumnya</button>
+          <button id="h-next" class="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold" style="background:#18181b;color:#fff"> Berikutnya <i data-lucide="chevron-right" class="w-4 h-4"></i></button>
+          <span id="h-status" class="text-xs text-zinc-500 dark:text-zinc-400">Langkah 1 dari 3</span>
+        </div>
+      </section>
+
+      <section data-copy class="glass-panel rounded-2xl shadow-2xl p-6 md:p-8 anim-fade-in">
+        <header class="mb-6 flex flex-wrap items-end justify-between gap-3">
+          <div>
+            <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-zinc-400 dark:text-zinc-500">Demo 02 - Vertikal</p>
+            <h2 class="mt-1 text-lg font-bold tracking-tight">Alur Vertikal</h2>
+          </div>
+          <p class="text-xs text-zinc-500 dark:text-zinc-400">Konektor garis di antara langkah</p>
+        </header>
+
+        <div class="space-y-0 max-w-sm">
+          <div class="u-step completed">
+            <span class="u-step-dot"><i data-lucide="check" class="w-4 h-4"></i></span>
+            <div class="u-step-body">
+              <p class="u-step-title">Terima Pesanan</p>
+              <p class="u-step-desc">Pesanan masuk pada 28 Agustus 2026</p>
+            </div>
+          </div>
+          <div class="u-step-connector done"></div>
+          <div class="u-step completed">
+            <span class="u-step-dot"><i data-lucide="check" class="w-4 h-4"></i></span>
+            <div class="u-step-body">
+              <p class="u-step-title">Kemas Barang</p>
+              <p class="u-step-desc">Dikemas oleh gudang Bandung</p>
+            </div>
+          </div>
+          <div class="u-step-connector done"></div>
+          <div class="u-step current">
+            <span class="u-step-dot">3</span>
+            <div class="u-step-body">
+              <p class="u-step-title">Dalam Perjalanan</p>
+              <p class="u-step-desc">Kurir sedang menuju alamat tujuan</p>
+            </div>
+          </div>
+          <div class="u-step-connector"></div>
+          <div class="u-step">
+            <span class="u-step-dot">4</span>
+            <div class="u-step-body">
+              <p class="u-step-title">Terkirim</p>
+              <p class="u-step-desc">Tunggu konfirmasi penerima</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section data-copy class="glass-panel rounded-2xl shadow-2xl p-6 md:p-8 anim-fade-in">
+        <header class="mb-6 flex flex-wrap items-end justify-between gap-3">
+          <div>
+            <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-zinc-400 dark:text-zinc-500">Demo 03 - Dapat Diklik</p>
+            <h2 class="mt-1 text-lg font-bold tracking-tight">Navigasi Langsung</h2>
+          </div>
+          <p class="text-xs text-zinc-500 dark:text-zinc-400">Klik nomor untuk berpindah langkah</p>
+        </header>
+
+        <div id="clickable-stepper" class="space-y-0 max-w-sm">
+          <div class="u-step completed clickable" data-index="0">
+            <span class="u-step-dot"><i data-lucide="check" class="w-4 h-4"></i></span>
+            <div class="u-step-body">
+              <p class="u-step-title">Identitas</p>
+              <p class="u-step-desc">Nama dan kontak</p>
+            </div>
+          </div>
+          <div class="u-step-connector done" data-connector="0"></div>
+          <div class="u-step current clickable" data-index="1">
+            <span class="u-step-dot">2</span>
+            <div class="u-step-body">
+              <p class="u-step-title">Alamat</p>
+              <p class="u-step-desc">Lokasi pengiriman</p>
+            </div>
+          </div>
+          <div class="u-step-connector" data-connector="1"></div>
+          <div class="u-step clickable" data-index="2">
+            <span class="u-step-dot">3</span>
+            <div class="u-step-body">
+              <p class="u-step-title">Pembayaran</p>
+              <p class="u-step-desc">Pilih metode</p>
+            </div>
+          </div>
+          <div class="u-step-connector" data-connector="2"></div>
+          <div class="u-step clickable" data-index="3">
+            <span class="u-step-dot">4</span>
+            <div class="u-step-body">
+              <p class="u-step-title">Selesai</p>
+              <p class="u-step-desc">Pesanan dibuat</p>
+            </div>
+          </div>
+        </div>
+
+        <p id="cs-status" class="mt-5 text-xs text-zinc-500 dark:text-zinc-400">Langkah aktif: Alamat (2 dari 4)</p>
+      </section>
+
+    </div>
+  </main>
+
+  <button onclick="toggleTheme()" class="fixed top-4 right-4 z-50 p-2 rounded-full glass-panel shadow-2xl" title="Toggle theme">
+    <i data-lucide="sun" class="w-4 h-4 hidden dark:block"></i>
+    <i data-lucide="moon" class="w-4 h-4 block dark:hidden"></i>
+  </button>
+
+  <script>
+  lucide.createIcons();
+  function toggleTheme(){const b=document.body;const h=document.documentElement;b.classList.toggle('dark');h.classList.toggle('dark');const saved=b.classList.contains('dark')?'dark':'light';try{localStorage.setItem('uroo-theme',saved)}catch(e){};lucide.createIcons();}
+
+  /* Horizontal stepper */
+  var hSteps = horizontalStepper.querySelectorAll('.u-step');
+  var hStatus = document.getElementById('h-status');
+  var hCurrent = 0;
+
+  function hRender(){
+    hSteps.forEach(function(s,i){
+      s.classList.remove('current','completed');
+      if(i < hCurrent){
+        s.classList.add('completed');
+        s.querySelector('.u-step-dot').innerHTML = '<i data-lucide="check" class="w-4 h-4"></i>';
+      } else if(i === hCurrent){
+        s.classList.add('current');
+        s.querySelector('.u-step-dot').textContent = (i+1);
+      } else {
+        s.querySelector('.u-step-dot').textContent = (i+1);
+      }
+    });
+    hStatus.textContent = 'Langkah ' + (hCurrent+1) + ' dari ' + hSteps.length;
+    document.getElementById('h-prev').style.opacity = hCurrent === 0 ? '0.4' : '1';
+    lucide.createIcons();
+  }
+  document.getElementById('h-next').addEventListener('click',function(){
+    if(hCurrent < hSteps.length-1){ hCurrent++; hRender(); }
+  });
+  document.getElementById('h-prev').addEventListener('click',function(){
+    if(hCurrent > 0){ hCurrent--; hRender(); }
+  });
+  hRender();
+
+  /* Clickable stepper */
+  var csSteps = clickableStepper.querySelectorAll('.u-step');
+  var csStatus = document.getElementById('cs-status');
+  var csNames = ['Identitas','Alamat','Pembayaran','Selesai'];
+  var csCurrent = 1;
+
+  function csRender(){
+    csSteps.forEach(function(s,i){
+      s.classList.remove('current','completed');
+      if(i < csCurrent){
+        s.classList.add('completed');
+        s.querySelector('.u-step-dot').innerHTML = '<i data-lucide="check" class="w-4 h-4"></i>';
+      } else if(i === csCurrent){
+        s.classList.add('current');
+        s.querySelector('.u-step-dot').textContent = (i+1);
+      } else {
+        s.querySelector('.u-step-dot').textContent = (i+1);
+      }
+    });
+    clickableStepper.querySelectorAll('.u-step-connector').forEach(function(c,i){
+      c.classList.toggle('done', i < csCurrent);
+    });
+    csStatus.textContent = 'Langkah aktif: ' + csNames[csCurrent] + ' (' + (csCurrent+1) + ' dari ' + csSteps.length + ')';
+    lucide.createIcons();
+  }
+  csSteps.forEach(function(s,i){
+    if(s.classList.contains('clickable')){
+      s.querySelector('.u-step-dot').addEventListener('click',function(){
+        csCurrent = i;
+        csRender();
+      });
+    }
+  });
+  csRender();
+  </script>
+<script src="../../assets/js/uroo-copy.js"></script>
+<script src="../../assets/js/uroo-nav.js"></script>
+</body>
+</html>

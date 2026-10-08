@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="id" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Uroo UI - Autentikasi Dua Faktor</title>
+  <script src="../../assets/js/tailwind.js"></script>
+  <script src="../../assets/js/lucide.js"></script>
+  <script>tailwind.config={darkMode:'class',theme:{extend:{colors:{glass:{light:'rgba(255,255,255,0.65)','light-border':'rgba(255,255,255,0.8)',dark:'rgba(18,18,20,0.65)','dark-border':'rgba(255,255,255,0.1)'}}}}}</script>
+  <link rel="stylesheet" href="../../assets/css/uroo.css">
+  <style>
+    .u-bg{position:fixed;inset:0;z-index:-10;transition:opacity .35s ease}
+    .u-bg-light{background:linear-gradient(135deg,#dfe3ea,#f4f4f5)}
+    .u-bg-dark{background:linear-gradient(135deg,#0a0a0b,#1a1a1e);opacity:0}
+    body.dark .u-bg-light{opacity:0}
+    body.dark .u-bg-dark{opacity:1}
+    .u-glow{position:fixed;border-radius:9999px;filter:blur(90px);z-index:-9;pointer-events:none;transition:background-color .35s ease;background:rgba(0,0,0,0.06)}
+    body.dark .u-glow{background:rgba(255,255,255,0.05)}
+    .u-glow-1{width:420px;height:420px;top:-140px;left:-140px}
+    .u-glow-2{width:520px;height:520px;bottom:-200px;right:-140px}
+    .u-glow-3{width:300px;height:300px;top:42%;left:58%}
+
+    html{background:#e7e8ec}
+    html.dark{background:#0a0a0c}
+    body:not(.dark) .u-ic-sun{display:none}
+    body.dark .u-ic-moon{display:none}
+
+    .u-otp{width:100%;max-width:52px;height:58px;border-radius:16px;background:rgba(255,255,255,.6);border:1px solid rgba(24,24,27,.10);color:#18181b;font-size:22px;font-weight:800;text-align:center;outline:none;transition:border-color .2s ease,box-shadow .2s ease}
+    body.dark .u-otp{background:rgba(255,255,255,.05);border-color:rgba(255,255,255,.12);color:#f4f4f5}
+    .u-otp:focus{border-color:rgba(24,24,27,.5);box-shadow:0 0 0 4px rgba(24,24,27,.08)}
+    body.dark .u-otp:focus{border-color:rgba(255,255,255,.55);box-shadow:0 0 0 4px rgba(255,255,255,.08)}
+    .u-otp.u-invalid{border-color:#dc2626!important;box-shadow:0 0 0 4px rgba(220,38,38,.10)}
+    body.dark .u-otp.u-invalid{border-color:#f87171!important;box-shadow:0 0 0 4px rgba(248,113,113,.12)}
+
+    .u-field{width:100%;height:48px;border-radius:14px;background:rgba(255,255,255,.6);border:1px solid rgba(24,24,27,.10);color:#18181b;font-size:14px;padding:0 16px;outline:none;transition:border-color .2s ease,box-shadow .2s ease}
+    body.dark .u-field{background:rgba(255,255,255,.05);border-color:rgba(255,255,255,.12);color:#f4f4f5}
+    .u-field::placeholder{color:#a1a1aa}
+    .u-field:focus{border-color:rgba(24,24,27,.5);box-shadow:0 0 0 4px rgba(24,24,27,.08)}
+    body.dark .u-field:focus{border-color:rgba(255,255,255,.55);box-shadow:0 0 0 4px rgba(255,255,255,.08)}
+
+    .u-btn{transition:transform .2s ease,box-shadow .2s ease,background-color .2s ease}
+    .u-btn:hover{transform:translateY(-1px)}
+    .u-btn:active{transform:scale(.96)}
+    .u-btn[disabled]{opacity:.7;pointer-events:none}
+
+    .u-pane{display:none}
+    .u-pane.u-on{display:block;animation:u-slide-up .3s cubic-bezier(.16,1,.3,1)}
+  </style>
+</head>
+<body class="min-h-screen font-sans antialiased text-zinc-800 dark dark:text-zinc-100">
+  <script>(function initTheme(){var saved=null;try{saved=localStorage.getItem('uroo-theme')}catch(e){};var dark=(saved==='dark')||(!saved&&window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches);var de=document.documentElement;if(dark){de.classList.add('dark');de.classList.remove('light');if(document.body){document.body.classList.add('dark');document.body.classList.remove('light');}}else{de.classList.remove('dark');de.classList.add('light');if(document.body){document.body.classList.remove('dark');document.body.classList.add('light');}}})();</script>
+
+
+<div class="u-bg u-bg-light"></div>
+<div class="u-bg u-bg-dark"></div>
+<div class="u-glow u-glow-1"></div>
+<div class="u-glow u-glow-2"></div>
+<div class="u-glow u-glow-3"></div>
+
+<div class="fixed top-6 left-6 z-50">
+  <a href="login.html" class="inline-flex items-center gap-2 glass-panel rounded-full px-4 py-2.5 text-[13px] font-bold text-zinc-700 dark:text-zinc-200 hover:scale-105 transition-transform" title="Kembali ke halaman masuk">
+    <i data-lucide="arrow-left" class="w-4 h-4"></i>
+    Kembali ke Masuk
+  </a>
+</div>
+
+<button onclick="toggleTheme()" aria-label="Ganti tema" title="Ganti tema"
+  class="fixed top-6 right-6 z-50 glass-panel rounded-full p-2.5 text-zinc-600 dark:text-zinc-200 hover:scale-110 transition-transform">
+  <i data-lucide="sun" class="u-ic-sun w-5 h-5"></i>
+  <i data-lucide="moon" class="u-ic-moon w-5 h-5"></i>
+</button>
+
+<main class="flex min-h-screen items-center justify-center px-6 py-14">
+  <div class="w-full max-w-md anim-slide-up">
+
+    <!-- State 1: verification -->
+    <div id="verifyPane" class="glass-panel rounded-3xl p-8 sm:p-10">
+      <span class="inline-flex items-center justify-center w-12 h-12 rounded-2xl glass-panel text-zinc-700 dark:text-zinc-200">
+        <i data-lucide="shield-check" class="w-6 h-6"></i>
+      </span>
+      <h1 class="mt-6 text-2xl font-extrabold tracking-tight text-zinc-900 dark:text-white">Autentikasi dua faktor</h1>
+      <p class="mt-1.5 text-sm leading-relaxed text-zinc-500 dark:text-zinc-400">
+        Masukkan kode 6 digit dari aplikasi autentikator Anda untuk menyelesaikan proses masuk.
+      </p>
+
+      <div class="mt-3 flex items-center gap-2 glass-panel rounded-2xl px-4 py-3 text-[12px] font-semibold text-zinc-500 dark:text-zinc-400">
+        <i data-lucide="smartphone" class="w-4 h-4 shrink-0 text-zinc-400"></i>
+        Akun <span class="font-extrabold text-zinc-900 dark:text-zinc-100 mx-1">Uroo UI</span> · kode diperbarui setiap 30 detik
+      </div>
+
+      <!-- Pane A: authenticator -->
+      <div id="authPane" class="u-pane u-on mt-6">
+        <div class="flex items-center justify-between gap-2 sm:gap-2.5" id="authBoxes">
+          <input type="text" inputmode="numeric" maxlength="1" class="u-otp" aria-label="Digit 1" autocomplete="one-time-code" autofocus>
+          <input type="text" inputmode="numeric" maxlength="1" class="u-otp" aria-label="Digit 2" autocomplete="one-time-code">
+          <input type="text" inputmode="numeric" maxlength="1" class="u-otp" aria-label="Digit 3" autocomplete="one-time-code">
+          <input type="text" inputmode="numeric" maxlength="1" class="u-otp" aria-label="Digit 4" autocomplete="one-time-code">
+          <input type="text" inputmode="numeric" maxlength="1" class="u-otp" aria-label="Digit 5" autocomplete="one-time-code">
+          <input type="text" inputmode="numeric" maxlength="1" class="u-otp" aria-label="Digit 6" autocomplete="one-time-code">
+        </div>
+      </div>
+
+      <!-- Pane B: backup code -->
+      <div id="backupPane" class="u-pane mt-6">
+        <label for="backupInput" class="block text-[13px] font-semibold mb-1.5 text-zinc-700 dark:text-zinc-300">Kode cadangan</label>
+        <input id="backupInput" type="text" class="u-field" placeholder="Contoh: u2b7-k4m9-x8p1" autocomplete="off">
+        <p class="mt-2 text-xs leading-relaxed text-zinc-400 dark:text-zinc-500">
+          Kode cadangan sekali pakai dapat ditemukan saat pertama kali mengaktifkan autentikasi dua faktor.
+        </p>
+      </div>
+
+      <p id="otpErr" class="hidden mt-3 text-center text-xs font-semibold text-red-600 dark:text-red-400"></p>
+      <p id="otpInfo" class="hidden mt-3 text-center text-xs font-semibold text-zinc-500 dark:text-zinc-400">
+        <span class="inline-flex items-center gap-2"><span class="anim-spin inline-block w-3.5 h-3.5 rounded-full border-2 border-zinc-300 dark:border-zinc-600 border-t-zinc-900 dark:border-t-zinc-100"></span>Memverifikasi kode Anda...</span>
+      </p>
+
+      <button id="verifyBtn" type="button" class="u-btn mt-7 w-full inline-flex items-center justify-center gap-2 rounded-full bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900 px-5 py-3 text-sm font-bold hover:shadow-lg" disabled>
+        <span>Verifikasi</span>
+        <i data-lucide="shield-check" class="w-4 h-4"></i>
+      </button>
+
+      <label class="mt-5 inline-flex items-center gap-2 text-[13px] font-medium text-zinc-600 dark:text-zinc-300 cursor-pointer select-none">
+        <input id="rememberDevice" type="checkbox" class="h-4 w-4 rounded accent-zinc-900 dark:accent-zinc-100">
+        Percayai perangkat ini selama 30 hari
+      </label>
+
+      <p class="mt-6 pt-6 border-t border-zinc-900/10 dark:border-white/10 text-center text-sm text-zinc-500 dark:text-zinc-400">
+        <button id="altBtn" type="button" class="font-bold text-zinc-900 dark:text-zinc-100 underline decoration-2 underline-offset-2 inline-flex items-center gap-1.5">
+          <i data-lucide="key-round" class="w-3.5 h-3.5"></i> Gunakan kode cadangan
+        </button>
+      </p>
+      <p class="mt-4 text-center text-xs text-zinc-400 dark:text-zinc-500">
+        Kehilangan akses ke aplikasi autentikator?
+        <a href="#" onclick="event.preventDefault()" class="font-semibold underline underline-offset-2">Hubungi dukungan</a>
+      </p>
+    </div>
+
+    <!-- State 2: success -->
+    <div id="okPane" class="hidden glass-panel rounded-3xl p-8 sm:p-10 text-center anim-scale-in">
+      <span class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900 mx-auto">
+        <i data-lucide="check" class="w-8 h-8"></i>
+      </span>
+      <h1 class="mt-6 text-2xl font-extrabold tracking-tight text-zinc-900 dark:text-white">Login aman!</h1>
+      <p class="mt-2 text-sm leading-relaxed text-zinc-500 dark:text-zinc-400">
+        Identitas Anda terverifikasi. Anda akan dialihkan ke akun Anda.
+      </p>
+      <a href="../ecommerce/catalog.html" class="u-btn mt-7 inline-flex items-center gap-2 rounded-full bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900 px-6 py-3 text-sm font-bold hover:shadow-lg">
+        Masuk ke Akun
+        <i data-lucide="arrow-right" class="w-4 h-4"></i>
+      </a>
+    </div>
+  </div>
+</main>
+
+<script>
+  lucide.createIcons();
+  function toggleTheme(){const h=document.documentElement,b=document.body;h.classList.toggle('dark');b.classList.toggle('dark');try{localStorage.setItem('uroo-theme',b.classList.contains('dark')?'dark':'light')}catch(e){};lucide.createIcons();}
+
+  var boxIds=['authBoxes'],altMode=0;
+  var authBoxes=Array.prototype.slice.call(document.querySelectorAll('#authBoxes .u-otp'));
+  var verifyBtn=document.getElementById('verifyBtn');
+
+  function clean(boxes){
+    boxes.forEach(function(box,i){
+      box.addEventListener('input',function(){
+        var v=this.value.replace(/\D/g,'');
+        this.value=v.slice(0,1);
+        if(v.length===1&&i<boxes.length-1)boxes[i+1].focus();
+        refresh();
+      });
+      box.addEventListener('keydown',function(e){
+        if(e.key==='Backspace'){
+          if(this.value===''&&i>0){e.preventDefault();boxes[i-1].focus();boxes[i-1].value='';}
+          refresh();
+        }else if(e.key==='ArrowLeft'&&i>0){e.preventDefault();boxes[i-1].focus();}
+        else if(e.key==='ArrowRight'&&i<boxes.length-1){e.preventDefault();boxes[i+1].focus();}
+      });
+      box.addEventListener('focus',function(){this.select()});
+    });
+    document.getElementById('authBoxes').addEventListener('paste',function(e){
+      var txt=(e.clipboardData||window.clipboardData).getData('text').replace(/\D/g,'').slice(0,6);
+      if(!txt)return;
+      e.preventDefault();
+      boxes.forEach(function(b,i){b.value=txt[i]||''});
+      boxes[Math.min(txt.length,5)].focus();
+      refresh();
+    });
+  }
+  clean(authBoxes);
+
+  function fullCode(){return authBoxes.map(function(b){return b.value}).join('')}
+  function setErr(msg){
+    var e=document.getElementById('otpErr');
+    if(msg){e.textContent=msg;e.classList.remove('hidden');}else{e.classList.add('hidden');}
+    authBoxes.forEach(function(b){b.classList.toggle('u-invalid',!!msg)});
+  }
+  function refresh(){
+    if(altMode){
+      var v=document.getElementById('backupInput').value.trim();
+      verifyBtn.disabled=v.length<8;
+    }else{
+      verifyBtn.disabled=!/^\d{6}$/.test(fullCode());
+    }
+    if(!document.getElementById('otpErr').classList.contains('hidden'))setErr('');
+  }
+
+  function switchMode(){
+    altMode=altMode?0:1;
+    document.getElementById('authPane').classList.toggle('u-on',!altMode);
+    document.getElementById('backupPane').classList.toggle('u-on',!!altMode);
+    document.getElementById('altBtn').innerHTML=altMode
+      ?'<i data-lucide="scan-line" class="w-3.5 h-3.5"></i> Gunakan aplikasi autentikator'
+      :'<i data-lucide="key-round" class="w-3.5 h-3.5"></i> Gunakan kode cadangan';
+    clearInvalid();
+    if(altMode)document.getElementById('backupInput').focus();
+    else authBoxes[0].focus();
+    lucide.createIcons();
+  }
+  function clearInvalid(){setErr('')}
+
+  document.getElementById('altBtn').addEventListener('click',switchMode);
+  document.getElementById('backupInput').addEventListener('input',refresh);
+
+  verifyBtn.addEventListener('click',function(){
+    if(this.disabled)return;
+    var boxes=altMode?[]:authBoxes.concat();
+    authBoxes.forEach(function(b){b.disabled=true});
+    var bi=document.getElementById('backupInput');bi.disabled=true;
+    verifyBtn.disabled=true;
+    document.getElementById('otpInfo').classList.remove('hidden');
+    verifyBtn.querySelector('span').textContent='Memverifikasi...';
+    verifyBtn.querySelector('i').outerHTML='<span class="anim-spin inline-block w-4 h-4 rounded-full border-2 border-white/40 dark:border-zinc-900/40 border-t-white dark:border-t-zinc-900"></span>';
+    lucide.createIcons();
+    setTimeout(function(){
+      authBoxes.forEach(function(b){b.disabled=false});
+      bi.disabled=false;
+      document.getElementById('otpInfo').classList.add('hidden');
+      verifyBtn.querySelector('span').textContent='Verifikasi';
+      verifyBtn.querySelector('.anim-spin').remove();
+      verifyBtn.innerHTML='<span>Verifikasi</span><i data-lucide="shield-check" class="w-4 h-4"></i>';
+      lucide.createIcons();
+      if(altMode===0&&!/^\d{6}$/.test(fullCode())){setErr('Kode tidak valid. Silakan periksa kembali.');return;}
+      if(altMode===1&&document.getElementById('backupInput').value.trim().length<8){setErr('Kode cadangan tidak valid.');return;}
+      refresh();
+      var v=document.getElementById('verifyPane'),ok=document.getElementById('okPane');
+      v.classList.add('hidden');
+      ok.classList.remove('hidden');
+      ok.style.animation='none';void ok.offsetWidth;ok.style.animation='';
+    },1400);
+  });
+</script>
+<script src="../../assets/js/uroo-nav.js"></script>
+</body>
+</html>

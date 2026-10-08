@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="id" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Uroo UI - Avatar</title>
+  <script src="../../assets/js/tailwind.js"></script>
+  <script src="../../assets/js/lucide.js"></script>
+  <script>tailwind.config={darkMode:'class',theme:{extend:{colors:{glass:{light:'rgba(255,255,255,0.65)','light-border':'rgba(255,255,255,0.8)',dark:'rgba(18,18,20,0.65)','dark-border':'rgba(255,255,255,0.1)'}}}}}</script>
+  <link rel="stylesheet" href="../../assets/css/uroo.css">
+  <style>
+    body{background:linear-gradient(135deg,#dfe3ea,#f4f4f5)}
+    .u-bg{position:fixed;inset:0;pointer-events:none;transition:opacity .4s ease}
+    .u-bg-light{background:linear-gradient(135deg,#dfe3ea,#f4f4f5)}
+    .u-bg-dark{background:linear-gradient(135deg,#0a0a0b,#1a1a1e);opacity:0}
+    body.dark .u-bg-light{opacity:0}
+    body.dark .u-bg-dark{opacity:1}
+    .u-glow{position:fixed;border-radius:9999px;filter:blur(90px);pointer-events:none}
+    .u-glow-1{width:420px;height:420px;top:-140px;left:-140px;background:rgba(0,0,0,0.06)}
+    body.dark .u-glow-1{background:rgba(255,255,255,0.05)}
+    .u-glow-2{width:520px;height:520px;bottom:-200px;right:-140px;background:rgba(0,0,0,0.05)}
+    body.dark .u-glow-2{background:rgba(255,255,255,0.05)}
+    .u-glow-3{width:300px;height:300px;top:42%;left:58%;background:rgba(0,0,0,0.04)}
+    body.dark .u-glow-3{background:rgba(255,255,255,0.04)}
+
+    .u-avatar{position:relative;flex:none;display:inline-flex;align-items:center;justify-content:center;border-radius:9999px;color:#fff;font-weight:700;user-select:none}
+    .u-avatar img{width:100%;height:100%;object-fit:cover;border-radius:9999px}
+    .u-status{position:absolute;right:0;bottom:0;border-radius:9999px;border:2px solid #fff}
+    body.dark .u-status{border-color:rgba(24,24,27,1)}
+    .u-pill{position:absolute;bottom:0;left:50%;transform:translate(-50%,60%);padding:.1rem .55rem;border-radius:9999px;font-size:.6rem;font-weight:700;white-space:nowrap;background:rgba(0,0,0,.75);color:#fff}
+    body.dark .u-pill{background:rgba(255,255,255,.9);color:#18181b}
+    .u-avatar .u-inner-ring{position:absolute;inset:0;border-radius:9999px}
+    .u-avatar-img-gradient{background-image:linear-gradient(135deg,#a1a1aa,#3f3f46)}
+  </style>
+</head>
+<body class="dark min-h-screen p-6 font-sans antialiased text-zinc-800 dark:text-zinc-100" style="background:linear-gradient(135deg,#dfe3ea,#f4f4f5)">
+  <script>(function initTheme(){var saved=null;try{saved=localStorage.getItem('uroo-theme')}catch(e){};var dark=(saved==='dark')||(!saved&&window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches);var de=document.documentElement;if(dark){de.classList.add('dark');de.classList.remove('light');if(document.body){document.body.classList.add('dark');document.body.classList.remove('light');}}else{de.classList.remove('dark');de.classList.add('light');if(document.body){document.body.classList.remove('dark');document.body.classList.add('light');}}})();</script>
+  <div class="u-bg u-bg-light" aria-hidden="true"></div>
+  <div class="u-bg u-bg-dark" aria-hidden="true"></div>
+  <div class="u-glow u-glow-1" aria-hidden="true"></div>
+  <div class="u-glow u-glow-2" aria-hidden="true"></div>
+  <div class="u-glow u-glow-3" aria-hidden="true"></div>
+
+  <main class="relative z-10 mx-auto max-w-4xl">
+
+    <header class="mb-10">
+      <div class="flex items-center gap-4">
+        <div class="glass-panel rounded-2xl p-3 shadow-2xl">
+          <i data-lucide="users" class="w-6 h-6"></i>
+        </div>
+        <div>
+          <p class="text-[11px] font-bold uppercase tracking-[0.2em] text-zinc-400 dark:text-zinc-500">Uroo UI - Komponen Dasar</p>
+          <h1 class="text-2xl md:text-4xl font-bold tracking-tight">Avatar</h1>
+        </div>
+      </div>
+      <p class="mt-4 max-w-2xl text-sm leading-relaxed text-zinc-500 dark:text-zinc-400">
+        Representasi pengguna dalam berbagai ukuran, pratinjau inisial, gradien, badge status
+        (online, sibuk, offline), serta tumpukan anggota grup yang ringkas dan interaktif.
+      </p>
+    </header>
+
+    <div class="grid gap-8">
+
+      <section data-copy class="glass-panel rounded-2xl shadow-2xl p-6 md:p-8 anim-fade-in">
+        <header class="mb-6 flex flex-wrap items-end justify-between gap-3">
+          <div>
+            <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-zinc-400 dark:text-zinc-500">Demo 01 - Ukuran</p>
+            <h2 class="mt-1 text-lg font-bold tracking-tight">Lima Tahap Ukuran</h2>
+          </div>
+          <p class="text-xs text-zinc-500 dark:text-zinc-400">Dari 24px untuk tabel hingga 96px untuk profil</p>
+        </header>
+
+        <div class="flex flex-wrap items-end gap-8">
+          <div class="flex flex-col items-center gap-2">
+            <span class="u-avatar w-6 h-6 text-[8px] bg-gradient-to-br from-zinc-400 to-zinc-700">AW</span>
+            <span class="text-[11px] text-zinc-500 dark:text-zinc-400">xs</span>
+          </div>
+          <div class="flex flex-col items-center gap-2">
+            <span class="u-avatar w-8 h-8 text-[11px] bg-gradient-to-br from-zinc-500 to-zinc-800">SR</span>
+            <span class="text-[11px] text-zinc-500 dark:text-zinc-400">sm</span>
+          </div>
+          <div class="flex flex-col items-center gap-2">
+            <span class="u-avatar w-11 h-11 text-sm bg-gradient-to-br from-neutral-500 to-neutral-800">BS</span>
+            <span class="text-[11px] text-zinc-500 dark:text-zinc-400">md</span>
+          </div>
+          <div class="flex flex-col items-center gap-2">
+            <span class="u-avatar w-14 h-14 text-lg bg-gradient-to-br from-zinc-600 to-zinc-900">RM</span>
+            <span class="text-[11px] text-zinc-500 dark:text-zinc-400">lg</span>
+          </div>
+          <div class="flex flex-col items-center gap-2">
+            <span class="u-avatar w-24 h-24 text-3xl bg-gradient-to-br from-zinc-500 via-zinc-700 to-zinc-900">AP</span>
+            <span class="text-[11px] text-zinc-500 dark:text-zinc-400">xl</span>
+          </div>
+        </div>
+      </section>
+
+      <section data-copy class="glass-panel rounded-2xl shadow-2xl p-6 md:p-8 anim-fade-in">
+        <header class="mb-6 flex flex-wrap items-end justify-between gap-3">
+          <div>
+            <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-zinc-400 dark:text-zinc-500">Demo 02 - Bentuk</p>
+            <h2 class="mt-1 text-lg font-bold tracking-tight">Inisial &amp; Foto</h2>
+          </div>
+          <p class="text-xs text-zinc-500 dark:text-zinc-400">Inisial dibuat otomatis dari nama pengguna</p>
+        </header>
+
+        <div class="space-y-6">
+          <div>
+            <p class="mb-3 text-xs font-semibold text-zinc-500 dark:text-zinc-400">Inisial - gradien monokrom</p>
+            <div class="flex flex-wrap items-center gap-3">
+              <span class="u-avatar w-11 h-11 text-sm bg-gradient-to-br from-zinc-400 to-zinc-700" title="Andi Wijaya">AW</span>
+              <span class="u-avatar w-11 h-11 text-sm bg-gradient-to-br from-zinc-500 to-zinc-900" title="Siti Rahma">SR</span>
+              <span class="u-avatar w-11 h-11 text-sm bg-gradient-to-br from-neutral-400 to-neutral-700" title="Budi Santoso">BS</span>
+              <span class="u-avatar w-11 h-11 text-sm bg-gradient-to-br from-zinc-600 to-black" title="Rina Maharani">RM</span>
+              <span class="u-avatar w-11 h-11 text-sm bg-gradient-to-br from-zinc-400 via-zinc-600 to-zinc-900" title="Dewi Lestari">DL</span>
+            </div>
+          </div>
+
+          <div>
+            <p class="mb-3 text-xs font-semibold text-zinc-500 dark:text-zinc-400">Foto profil</p>
+            <div class="flex flex-wrap items-center gap-3">
+              <span class="u-avatar w-11 h-11 border border-zinc-200 dark:border-white/10 shadow-sm" title="Agus Prasetyo">
+                <img src="../../assets/img/avatar-12.jpg" alt="Agus Prasetyo" loading="lazy">
+                <span class="u-inner-ring shadow-inner"></span>
+              </span>
+              <span class="u-avatar w-11 h-11 border border-zinc-200 dark:border-white/10 shadow-sm" title="Nadia Putri">
+                <img src="../../assets/img/avatar-47.jpg" alt="Nadia Putri" loading="lazy">
+              </span>
+              <span class="u-avatar w-11 h-11 border border-zinc-200 dark:border-white/10 shadow-sm" title="Rizky Hidayat">
+                <img src="../../assets/img/avatar-15.jpg" alt="Rizky Hidayat" loading="lazy">
+              </span>
+              <span class="u-avatar w-11 h-11 border border-zinc-200 dark:border-white/10 shadow-sm" title="Intan Permata">
+                <img src="../../assets/img/avatar-32.jpg" alt="Intan Permata" loading="lazy">
+              </span>
+            </div>
+          </div>
+
+          <div>
+            <p class="mb-3 text-xs font-semibold text-zinc-500 dark:text-zinc-400">Pratinjau fallback</p>
+            <div class="flex flex-wrap items-center gap-3">
+              <span class="u-avatar w-11 h-11 text-sm bg-gradient-to-br from-zinc-500 to-zinc-800" title="Avatar tanpa foto">AP</span>
+              <span class="u-avatar w-11 h-11 text-sm bg-gradient-to-br from-zinc-500 to-zinc-800" title="Avatar tanpa nama"><i data-lucide="user" class="w-5 h-5"></i></span>
+              <span class="u-avatar w-11 h-11 text-sm bg-gradient-to-br from-zinc-500 to-zinc-800" title="Satu kata">D</span>
+              <span class="u-avatar w-11 h-11 text-sm bg-white/70 dark:bg-white/10 border border-zinc-300 dark:border-white/15 text-zinc-600 dark:text-zinc-300" title="Kontur terang">KD</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section data-copy class="glass-panel rounded-2xl shadow-2xl p-6 md:p-8 anim-fade-in">
+        <header class="mb-6 flex flex-wrap items-end justify-between gap-3">
+          <div>
+            <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-zinc-400 dark:text-zinc-500">Demo 03 - Status</p>
+            <h2 class="mt-1 text-lg font-bold tracking-tight">Badge Status</h2>
+          </div>
+          <p class="text-xs text-zinc-500 dark:text-zinc-400">Klik avatar untuk mengganti status (interaktif)</p>
+        </header>
+
+        <div class="flex flex-wrap items-start gap-8">
+          <div class="flex flex-col items-center gap-2" data-status-demo>
+            <span class="u-avatar w-14 h-14 text-lg bg-gradient-to-br from-zinc-600 to-zinc-900">
+              AW
+              <span class="u-status u-status-online" data-status-dot></span>
+            </span>
+            <span class="text-[11px] font-medium" data-status-label>Online</span>
+          </div>
+          <div class="flex flex-col items-center gap-2" data-status-demo>
+            <span class="u-avatar w-14 h-14 text-lg bg-gradient-to-br from-zinc-600 to-zinc-900">
+              SR
+              <span class="u-status u-status-busy" data-status-dot></span>
+            </span>
+            <span class="text-[11px] font-medium" data-status-label>Sibuk</span>
+          </div>
+          <div class="flex flex-col items-center gap-2" data-status-demo>
+            <span class="u-avatar w-14 h-14 text-lg bg-gradient-to-br from-zinc-600 to-zinc-900">
+              BS
+              <span class="u-status u-status-offline" data-status-dot></span>
+            </span>
+            <span class="text-[11px] font-medium" data-status-label>Offline</span>
+          </div>
+          <div class="flex flex-col items-center gap-2">
+            <span class="u-avatar w-14 h-14 text-lg bg-gradient-to-br from-zinc-600 to-zinc-900" title="Melaporkan lokasi">
+              FN
+              <span class="u-status" style="width:1rem;height:1rem;background:#10b981"></span>
+            </span>
+            <span class="text-[11px] font-medium">Online</span>
+          </div>
+        </div>
+      </section>
+
+      <section data-copy class="glass-panel rounded-2xl shadow-2xl p-6 md:p-8 anim-fade-in">
+        <header class="mb-6 flex flex-wrap items-end justify-between gap-3">
+          <div>
+            <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-zinc-400 dark:text-zinc-500">Demo 04 - Grup</p>
+            <h2 class="mt-1 text-lg font-bold tracking-tight">Tumpukan Anggota</h2>
+          </div>
+          <p class="text-xs text-zinc-500 dark:text-zinc-400">Anggota baru bergabung; klik avatar untuk melepasnya</p>
+        </header>
+
+        <div class="flex flex-wrap items-center gap-6">
+          <div class="flex -space-x-3" id="av-stack">
+            <span class="u-avatar w-11 h-11 text-sm bg-gradient-to-br from-zinc-500 to-zinc-800 ring-2 ring-white dark:ring-zinc-900 anim-scale-in" data-av data-name="Andi Wijaya">AW</span>
+            <span class="u-avatar w-11 h-11 text-sm bg-gradient-to-br from-zinc-600 to-zinc-900 ring-2 ring-white dark:ring-zinc-900 anim-scale-in" data-av data-name="Siti Rahma">SR</span>
+            <span class="u-avatar w-11 h-11 text-sm bg-gradient-to-br from-neutral-500 to-neutral-800 ring-2 ring-white dark:ring-zinc-900 anim-scale-in" data-av data-name="Budi Santoso">BS</span>
+            <span class="u-avatar w-11 h-11 text-sm bg-gradient-to-br from-zinc-500 to-black ring-2 ring-white dark:ring-zinc-900 anim-scale-in" data-av data-name="Rina Maharani">RM</span>
+            <span class="u-avatar w-11 h-11 text-sm bg-white/70 dark:bg-white/10 border border-zinc-300 dark:border-white/15 text-zinc-600 dark:text-zinc-300 ring-2 ring-white dark:ring-zinc-900" data-av data-name="Dewi Lestari">DL</span>
+            <span class="u-avatar w-11 h-11 text-xs bg-black/5 dark:bg-white/5 border border-zinc-300 dark:border-white/15 ring-2 ring-white dark:ring-zinc-900" data-av-more>+3</span>
+          </div>
+
+          <div class="flex flex-col gap-2">
+            <button type="button" id="av-add" class="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-150 cursor-pointer" style="background:#18181b;color:#fff">
+              <i data-lucide="plus" class="w-4 h-4"></i> Tambah anggota
+            </button>
+            <button type="button" id="av-reset" class="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold border border-zinc-300 dark:border-white/15 transition hover:bg-black/5 dark:hover:bg-white/5 cursor-pointer">
+              <i data-lucide="refresh-cw" class="w-4 h-4"></i> Atur ulang
+            </button>
+          </div>
+
+          <div class="flex-1 min-w-[220px]">
+            <div class="rounded-xl bg-black/5 dark:bg-white/5 p-3 text-xs">
+              <p class="font-semibold mb-1">Hover untuk nama, klik untuk melepas</p>
+              <p class="text-zinc-500 dark:text-zinc-400" id="av-meta">5 anggota tampil</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section data-copy class="glass-panel rounded-2xl shadow-2xl p-6 md:p-8 anim-fade-in">
+        <header class="mb-6 flex flex-wrap items-end justify-between gap-3">
+          <div>
+            <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-zinc-400 dark:text-zinc-500">Demo 05 - Skenario</p>
+            <h2 class="mt-1 text-lg font-bold tracking-tight">Penerapan Nyata</h2>
+          </div>
+          <p class="text-xs text-zinc-500 dark:text-zinc-400">Avatar dalam konteks antarmuka yang biasa</p>
+        </header>
+
+        <div class="grid sm:grid-cols-2 gap-4">
+          <div class="rounded-2xl bg-black/5 dark:bg-white/5 p-4">
+            <div class="flex items-center gap-3">
+              <span class="u-avatar w-10 h-10 text-xs bg-gradient-to-br from-zinc-500 to-zinc-800">SR</span>
+              <div class="flex-1 min-w-0">
+                <p class="text-sm font-semibold truncate">Siti Rahma</p>
+                <p class="text-[11px] text-zinc-500 dark:text-zinc-400">Design Lead - Uroo Studio</p>
+              </div>
+              <span class="u-pill" style="transform:none;position:static;background:rgba(16,185,129,.15);color:#059669">Aktif</span>
+            </div>
+          </div>
+
+          <div class="rounded-2xl bg-black/5 dark:bg-white/5 p-4">
+            <div class="flex items-center gap-3">
+              <span class="u-avatar w-10 h-10 text-xs bg-gradient-to-br from-zinc-500 to-zinc-800">AP</span>
+              <div class="flex-1 min-w-0">
+                <p class="text-sm font-semibold truncate">Agus Prasetyo</p>
+                <p class="text-[11px] text-zinc-500 dark:text-zinc-400">Backend Engineer - Uroo Metrics</p>
+              </div>
+              <span class="u-pill" style="transform:none;position:static;background:rgba(239,68,68,.15);color:#dc2626">Cuti</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <button onclick="toggleTheme()" class="fixed top-4 right-4 z-50 p-2 rounded-full glass-panel shadow-2xl" title="Toggle theme">
+    <i data-lucide="sun" class="w-4 h-4 hidden dark:block"></i>
+    <i data-lucide="moon" class="w-4 h-4 block dark:hidden"></i>
+  </button>
+
+  <script>
+  lucide.createIcons();
+  function toggleTheme(){const b=document.body;const h=document.documentElement;b.classList.toggle('dark');h.classList.toggle('dark');const saved=b.classList.contains('dark')?'dark':'light';try{localStorage.setItem('uroo-theme',saved)}catch(e){};lucide.createIcons();}
+
+  var statusDots = document.querySelectorAll('[data-status-dot]');
+  var statusDemo = document.querySelectorAll('[data-status-demo]');
+  var statusCycle = [
+    { cls: 'u-status-online',  color: '#10b981', label: 'Online' },
+    { cls: 'u-status-busy',    color: '#f59e0b', label: 'Sibuk' },
+    { cls: 'u-status-offline', color: '#a1a1aa', label: 'Offline' }
+  ];
+
+  function paintStatus(dot, i){
+    dot.className = 'u-status ' + statusCycle[i].cls;
+    dot.style.width = '0.8rem';
+    dot.style.height = '0.8rem';
+    dot.style.background = statusCycle[i].color;
+  }
+
+  statusDemo.forEach(function(root){
+    var dot = root.querySelector('[data-status-dot]');
+    var label = root.querySelector('[data-status-label]');
+    var idx = statusCycle.findIndex(function(s){ return s.cls === dot.className.split(' ')[1]; });
+    if(idx < 0) idx = 0;
+    paintStatus(dot, idx);
+    label.textContent = statusCycle[idx].label;
+    root.addEventListener('click', function(){
+      idx = (idx + 1) % statusCycle.length;
+      paintStatus(dot, idx);
+      label.textContent = statusCycle[idx].label;
+    });
+    root.style.cursor = 'pointer';
+  });
+
+  var stack = document.getElementById('av-stack');
+
+  var pool = [
+    { name: 'Ratna Puspita', ini: 'RP', grad: 'bg-gradient-to-br from-zinc-500 to-zinc-900' },
+    { name: 'Fajar Nugraha', ini: 'FN', grad: 'bg-gradient-to-br from-neutral-600 to-neutral-900' },
+    { name: 'Nadia Putri', ini: 'NP', grad: 'bg-gradient-to-br from-zinc-500 to-zinc-800' },
+    { name: 'Rizky Hidayat', ini: 'RH', grad: 'bg-gradient-to-br from-zinc-700 to-black' },
+    { name: 'Intan Permata', ini: 'IP', grad: 'bg-gradient-to-br from-zinc-400 to-zinc-800' },
+    { name: 'Yoga Pratama', ini: 'YP', grad: 'bg-gradient-to-br from-neutral-500 to-neutral-800' }
+  ];
+  var poolIdx = 0;
+
+  function updateMeta(){
+    var n = stack.querySelectorAll('[data-av]').length;
+    document.getElementById('av-meta').textContent = n + ' anggota tampil';
+  }
+
+  stack.addEventListener('click', function(e){
+    var av = e.target.closest('[data-av]');
+    if(!av) return;
+    av.style.transition = 'opacity .25s ease, transform .25s ease';
+    av.style.opacity = '0';
+    av.style.transform = 'scale(0.6)';
+    setTimeout(function(){ av.remove(); updateMeta(); }, 240);
+  });
+
+  document.getElementById('av-add').addEventListener('click', function(){
+    var p = pool[poolIdx % pool.length];
+    poolIdx++;
+    var av = document.createElement('span');
+    av.className = 'u-avatar w-11 h-11 text-sm ' + p.grad + ' ring-2 ring-white dark:ring-zinc-900 anim-scale-in';
+    av.setAttribute('data-av', '');
+    av.setAttribute('data-name', p.name);
+    av.textContent = p.ini;
+    av.title = p.name;
+    var more = stack.querySelector('[data-av-more]');
+    stack.insertBefore(av, more);
+    updateMeta();
+  });
+
+  document.getElementById('av-reset').addEventListener('click', function(){
+    var e = stack.querySelector('[data-av-more].hidden');
+    stack.querySelectorAll('[data-av]').forEach(function(a){ a.remove(); });
+    poolIdx = 0;
+    var defaults = [
+      { name: 'Andi Wijaya', ini: 'AW', grad: 'bg-gradient-to-br from-zinc-500 to-zinc-800' },
+      { name: 'Siti Rahma', ini: 'SR', grad: 'bg-gradient-to-br from-zinc-600 to-zinc-900' },
+      { name: 'Budi Santoso', ini: 'BS', grad: 'bg-gradient-to-br from-neutral-500 to-neutral-800' },
+      { name: 'Rina Maharani', ini: 'RM', grad: 'bg-gradient-to-br from-zinc-500 to-black' },
+      { name: 'Dewi Lestari', ini: 'DL', grad: 'bg-gradient-to-br from-zinc-400 to-zinc-700' }
+    ];
+    var more = stack.querySelector('[data-av-more]');
+    defaults.forEach(function(d){
+      var av = document.createElement('span');
+      av.className = 'u-avatar w-11 h-11 text-sm ' + d.grad + ' ring-2 ring-white dark:ring-zinc-900 anim-scale-in';
+      av.setAttribute('data-av', '');
+      av.setAttribute('data-name', d.name);
+      av.textContent = d.ini;
+      av.title = d.name;
+      stack.insertBefore(av, more);
+    });
+    updateMeta();
+  });
+
+  updateMeta();
+  </script>
+<script src="../../assets/js/uroo-copy.js"></script>
+<script src="../../assets/js/uroo-nav.js"></script>
+</body>
+</html>

@@ -1,0 +1,2053 @@
+<!DOCTYPE html>
+<html lang="id" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Uroo UI — Finance & Manajemen Keuangan</title>
+  <script src="../../assets/js/tailwind.js"></script>
+  <script src="../../assets/js/lucide.js"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            glass: {
+              light: 'rgba(255, 255, 255, 0.55)',
+              'light-border': 'rgba(255, 255, 255, 0.8)',
+              dark: 'rgba(24, 24, 27, 0.55)',
+              'dark-border': 'rgba(255, 255, 255, 0.08)'
+            }
+          }
+        }
+      }
+    };
+  </script>
+  <link rel="stylesheet" href="../../assets/css/uroo.css">
+  <style>
+    /* Liquid Glassmorphism Core Effect */
+    .glass-panel {
+      backdrop-filter: blur(20px) saturate(180%);
+      -webkit-backdrop-filter: blur(20px) saturate(180%);
+    }
+
+    .light .glass-panel,
+    html:not(.dark) .glass-panel,
+    body:not(.dark) .glass-panel {
+      background-color: rgba(255, 255, 255, 0.55);
+      border: 1px solid rgba(255, 255, 255, 0.8);
+      box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.05),
+                  inset 0 1px 1px 0 rgba(255, 255, 255, 0.9);
+    }
+
+    .dark .glass-panel,
+    html.dark .glass-panel,
+    body.dark .glass-panel {
+      background-color: rgba(24, 24, 27, 0.55);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.5),
+                  inset 0 1px 1px 0 rgba(255, 255, 255, 0.1);
+    }
+
+    /* Smooth Transition Theme */
+    body, div, nav, button, a, input, select, textarea, section, aside, header, main, footer, span, li, table, tr, td, th {
+      transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    #sidebar { width: 16.5rem; transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), width 0.28s cubic-bezier(0.16, 1, 0.3, 1); }
+    #sidebar.collapsed { width: 4.85rem; }
+    #sidebar .nav-label { transition: opacity 0.15s ease, width 0.15s ease; }
+    #sidebar.collapsed .nav-label { opacity: 0; width: 0; overflow: hidden; white-space: nowrap; }
+    #sidebar.collapsed .nav-link { justify-content: center; padding-left: 0; padding-right: 0; }
+    #sidebar.collapsed .group-title { justify-content: center; padding-left: 0; padding-right: 0; text-align: center; }
+    #sidebar.collapsed .nav-text { display: none; }
+    #sidebar.collapsed .logo-text { display: none; }
+    @media (max-width: 1023px) {
+      #sidebar { position: fixed; top: 1rem; bottom: 1rem; left: 1rem; z-index: 50; transform: translateX(-130%); width: 17rem; }
+      #sidebar.open { transform: translateX(0); }
+    }
+
+    .u-view { display: none; opacity: 0; transform: translateY(8px); transition: opacity 0.25s ease, transform 0.25s ease; }
+    .u-view.active { display: block; opacity: 1; transform: translateY(0); }
+
+    .hover-row:hover { background-color: rgba(0, 0, 0, 0.03); }
+    .dark .hover-row:hover { background-color: rgba(255, 255, 255, 0.04); }
+  </style>
+</head>
+<body class="bg-gray-100 dark:bg-zinc-950 text-zinc-800 dark:text-zinc-100 font-sans min-h-screen antialiased p-3 sm:p-4 lg:p-6">
+
+  <!-- Mobile Drawer Overlay -->
+  <div id="overlay" class="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm opacity-0 pointer-events-none transition-opacity duration-300 lg:hidden" onclick="closeDrawer()" aria-hidden="true"></div>
+
+  <!-- Floating Controller Bar -->
+  <div class="fixed top-4 right-6 z-50 flex items-center gap-2 p-1.5 rounded-full glass-panel shadow-2xl">
+    <button onclick="toggleTheme()" class="p-2 rounded-full hover:bg-black/5 dark:hover:bg-white/10 transition" title="Toggle Tema">
+      <i data-lucide="sun" class="w-4 h-4 hidden dark:block text-amber-400"></i>
+      <i data-lucide="moon" class="w-4 h-4 block dark:hidden text-zinc-800"></i>
+    </button>
+  </div>
+
+  <div class="max-w-[1600px] mx-auto lg:flex lg:gap-6 relative min-h-screen">
+
+    <!-- ============================ SIDEBAR ============================ -->
+    <aside id="sidebar" class="glass-panel rounded-3xl p-5 flex flex-col justify-between shrink-0 lg:sticky lg:top-6 lg:h-[calc(100vh-3rem)] z-40">
+      <div class="space-y-6">
+        <!-- Logo Brand -->
+        <div class="flex items-center gap-3 px-2">
+          <div class="w-8 h-8 rounded-xl bg-black dark:bg-white text-white dark:text-black flex items-center justify-center font-black text-lg shadow-sm"><img src="../../assets/img/uroo_ui.png" alt="Uroo UI" class="w-8 h-8 rounded-xl object-cover"></div>
+          <div class="logo-text min-w-0">
+            <div class="flex items-center gap-1.5">
+              <span class="font-bold text-lg tracking-tight text-zinc-900 dark:text-white">Uroo UI</span>
+              <span class="text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-black/5 dark:bg-white/10 text-zinc-700 dark:text-zinc-300">v1.2</span>
+            </div>
+            <p class="text-[10px] font-bold uppercase tracking-[0.16em] text-zinc-500 dark:text-zinc-400">Finance</p>
+          </div>
+          <button onclick="closeDrawer()" class="ml-auto lg:hidden p-1.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 text-zinc-600 dark:text-zinc-400">
+            <i data-lucide="x" class="w-4 h-4"></i>
+          </button>
+        </div>
+
+        <!-- Navigation Links -->
+        <nav class="space-y-1 overflow-y-auto max-h-[calc(100vh-14rem)] pr-1 sidebar-scroll" aria-label="Menu Finance">
+          <button onclick="switchView('ringkasan')" data-nav="ringkasan" class="nav-link w-full flex items-center gap-3 px-3 py-2.5 rounded-2xl text-sm font-medium transition bg-black text-white dark:bg-white dark:text-black shadow-sm">
+            <i data-lucide="layout-dashboard" class="w-4 h-4 shrink-0"></i>
+            <span class="nav-label text-left flex-1">Ringkasan</span>
+          </button>
+          <button onclick="switchView('transaksi')" data-nav="transaksi" class="nav-link w-full flex items-center gap-3 px-3 py-2.5 rounded-2xl text-sm font-medium transition text-zinc-600 dark:text-zinc-400 hover:bg-black/5 dark:hover:bg-white/5 hover:text-black dark:hover:text-white">
+            <i data-lucide="arrow-left-right" class="w-4 h-4 shrink-0"></i>
+            <span class="nav-label text-left flex-1">Transaksi Kas</span>
+            <span class="nav-text text-[10px] font-bold px-1.5 py-0.5 rounded-md bg-black/5 dark:bg-white/10 text-zinc-600 dark:text-zinc-400">2.418</span>
+          </button>
+          <button onclick="switchView('dompet')" data-nav="dompet" class="nav-link w-full flex items-center gap-3 px-3 py-2.5 rounded-2xl text-sm font-medium transition text-zinc-600 dark:text-zinc-400 hover:bg-black/5 dark:hover:bg-white/5 hover:text-black dark:hover:text-white">
+            <i data-lucide="credit-card" class="w-4 h-4 shrink-0"></i>
+            <span class="nav-label text-left flex-1">Dompet &amp; Rekening</span>
+          </button>
+          <button onclick="switchView('tagihan')" data-nav="tagihan" class="nav-link w-full flex items-center gap-3 px-3 py-2.5 rounded-2xl text-sm font-medium transition text-zinc-600 dark:text-zinc-400 hover:bg-black/5 dark:hover:bg-white/5 hover:text-black dark:hover:text-white">
+            <i data-lucide="receipt" class="w-4 h-4 shrink-0"></i>
+            <span class="nav-label text-left flex-1">Tagihan &amp; Invoice</span>
+          </button>
+          <button onclick="switchView('anggaran')" data-nav="anggaran" class="nav-link w-full flex items-center gap-3 px-3 py-2.5 rounded-2xl text-sm font-medium transition text-zinc-600 dark:text-zinc-400 hover:bg-black/5 dark:hover:bg-white/5 hover:text-black dark:hover:text-white">
+            <i data-lucide="chart-pie" class="w-4 h-4 shrink-0"></i>
+            <span class="nav-label text-left flex-1">Pagu Anggaran</span>
+          </button>
+          <button onclick="switchView('tabungan')" data-nav="tabungan" class="nav-link w-full flex items-center gap-3 px-3 py-2.5 rounded-2xl text-sm font-medium transition text-zinc-600 dark:text-zinc-400 hover:bg-black/5 dark:hover:bg-white/5 hover:text-black dark:hover:text-white">
+            <i data-lucide="piggy-bank" class="w-4 h-4 shrink-0"></i>
+            <span class="nav-label text-left flex-1">Dana Cadangan</span>
+          </button>
+          <button onclick="switchView('aset')" data-nav="aset" class="nav-link w-full flex items-center gap-3 px-3 py-2.5 rounded-2xl text-sm font-medium transition text-zinc-600 dark:text-zinc-400 hover:bg-black/5 dark:hover:bg-white/5 hover:text-black dark:hover:text-white">
+            <i data-lucide="landmark" class="w-4 h-4 shrink-0"></i>
+            <span class="nav-label text-left flex-1">Aset Perusahaan</span>
+          </button>
+          <button onclick="switchView('pajak')" data-nav="pajak" class="nav-link w-full flex items-center gap-3 px-3 py-2.5 rounded-2xl text-sm font-medium transition text-zinc-600 dark:text-zinc-400 hover:bg-black/5 dark:hover:bg-white/5 hover:text-black dark:hover:text-white">
+            <i data-lucide="percent" class="w-4 h-4 shrink-0"></i>
+            <span class="nav-label text-left flex-1">Pajak &amp; PPh</span>
+          </button>
+          <button onclick="switchView('laporan')" data-nav="laporan" class="nav-link w-full flex items-center gap-3 px-3 py-2.5 rounded-2xl text-sm font-medium transition text-zinc-600 dark:text-zinc-400 hover:bg-black/5 dark:hover:bg-white/5 hover:text-black dark:hover:text-white">
+            <i data-lucide="file-text" class="w-4 h-4 shrink-0"></i>
+            <span class="nav-label text-left flex-1">Laporan Laba Rugi</span>
+          </button>
+          <button onclick="switchView('pengaturan')" data-nav="pengaturan" class="nav-link w-full flex items-center gap-3 px-3 py-2.5 rounded-2xl text-sm font-medium transition text-zinc-600 dark:text-zinc-400 hover:bg-black/5 dark:hover:bg-white/5 hover:text-black dark:hover:text-white">
+            <i data-lucide="settings" class="w-4 h-4 shrink-0"></i>
+            <span class="nav-label text-left flex-1">Pengaturan</span>
+          </button>
+        </nav>
+      </div>
+
+      <!-- Financial Status Card -->
+      <div class="glass-panel p-4 rounded-2xl border border-black/10 dark:border-white/10 text-center relative overflow-hidden mt-4">
+        <div class="flex items-center gap-2.5 justify-center mb-1">
+          <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+          <p class="font-bold text-xs text-zinc-900 dark:text-white">Kas Operasional</p>
+        </div>
+        <p class="text-[11px] font-mono font-bold text-zinc-700 dark:text-zinc-300">Rp 1,48 Miliar (Sehat)</p>
+      </div>
+    </aside>
+
+    <!-- ============================ MAIN CONTENT ============================ -->
+    <main class="flex-1 min-w-0 space-y-6">
+
+      <!-- TOPBAR -->
+      <header class="glass-panel rounded-3xl p-3 px-6 flex items-center justify-between sticky top-6 z-30">
+        <div class="flex items-center gap-3">
+          <button onclick="openDrawer()" class="lg:hidden p-2 -ml-2 rounded-xl hover:bg-black/5 dark:hover:bg-white/10 text-zinc-700 dark:text-zinc-300">
+            <i data-lucide="menu" class="w-5 h-5"></i>
+          </button>
+          <div class="relative w-64 sm:w-80">
+            <i data-lucide="search" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400"></i>
+            <input type="text" placeholder="Cari transaksi, rekening, invoice..." class="w-full bg-black/5 dark:bg-white/5 border-none rounded-2xl pl-9 pr-10 py-2 text-sm text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-black/20 dark:focus:ring-white/20">
+            <span class="hidden sm:inline-block absolute right-3 top-1/2 -translate-y-1/2 text-[10px] font-mono text-zinc-400 border border-zinc-300 dark:border-zinc-700 px-1.5 py-0.5 rounded-md">⌘K</span>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-4">
+          <button onclick="toast('Mutasi bank berhasil disinkronkan','bell')" class="p-2 rounded-2xl hover:bg-black/5 dark:hover:bg-white/5 relative text-zinc-700 dark:text-zinc-300">
+            <i data-lucide="bell" class="w-4 h-4"></i>
+            <span class="w-1.5 h-1.5 bg-black dark:bg-white rounded-full absolute top-2 right-2"></span>
+          </button>
+          
+          <div class="h-6 w-[1px] bg-zinc-200 dark:bg-zinc-800"></div>
+
+          <div class="flex items-center gap-3 pl-1">
+            <div class="w-9 h-9 rounded-2xl bg-black dark:bg-white text-white dark:text-black font-extrabold text-xs flex items-center justify-center ring-2 ring-black/10 dark:ring-white/10">FA</div>
+            <div class="text-left hidden sm:block">
+              <p class="text-xs font-bold leading-tight text-zinc-900 dark:text-white">Farhan Akbar</p>
+              <p class="text-[10px] text-zinc-500 dark:text-zinc-400">Chief Financial Officer</p>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <!-- ==================== VIEW 1: RINGKASAN ==================== -->
+      <div id="view-ringkasan" class="u-view active space-y-6">
+        <div class="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <h1 class="text-2xl font-bold tracking-tight text-zinc-900 dark:text-white">Ringkasan Finansial</h1>
+            <p class="text-xs text-zinc-500 dark:text-zinc-400">Arus kas masuk, pengeluaran modal, posisi likuiditas, dan margin laba.</p>
+          </div>
+          <button onclick="toast('Laporan laba rugi diekspor ke PDF','download')" class="px-4 py-2 rounded-2xl bg-black text-white dark:bg-white dark:text-black text-xs font-semibold flex items-center gap-2 hover:opacity-90 shadow-sm">
+            <i data-lucide="download" class="w-3.5 h-3.5"></i> Ekspor Laporan
+          </button>
+        </div>
+
+        <!-- 4 Stats Cards -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div class="glass-panel p-5 rounded-3xl space-y-3">
+            <div class="flex justify-between items-start">
+              <span class="text-xs font-medium text-zinc-500 dark:text-zinc-400">Total Kas &amp; Likuiditas</span>
+              <div class="p-2 rounded-2xl bg-black/5 dark:bg-white/5 text-zinc-800 dark:text-zinc-200"><i data-lucide="wallet" class="w-4 h-4"></i></div>
+            </div>
+            <p class="text-2xl font-bold tracking-tight text-zinc-900 dark:text-white">Rp 3,42 M</p>
+            <p class="text-[11px] text-zinc-500 dark:text-zinc-400"><span class="text-emerald-600 dark:text-emerald-400 font-semibold">+14.2%</span> vs bulan lalu</p>
+          </div>
+
+          <div class="glass-panel p-5 rounded-3xl space-y-3">
+            <div class="flex justify-between items-start">
+              <span class="text-xs font-medium text-zinc-500 dark:text-zinc-400">Pemasukan Bulan Ini</span>
+              <div class="p-2 rounded-2xl bg-black/5 dark:bg-white/5 text-zinc-800 dark:text-zinc-200"><i data-lucide="arrow-down-left" class="w-4 h-4"></i></div>
+            </div>
+            <p class="text-2xl font-bold tracking-tight text-zinc-900 dark:text-white font-mono">Rp 892 Jt</p>
+            <p class="text-[11px] text-zinc-500 dark:text-zinc-400"><span class="text-emerald-600 dark:text-emerald-400 font-semibold">+8.6%</span> omzet bruto</p>
+          </div>
+
+          <div class="glass-panel p-5 rounded-3xl space-y-3">
+            <div class="flex justify-between items-start">
+              <span class="text-xs font-medium text-zinc-500 dark:text-zinc-400">Beban Operasional</span>
+              <div class="p-2 rounded-2xl bg-black/5 dark:bg-white/5 text-zinc-800 dark:text-zinc-200"><i data-lucide="arrow-up-right" class="w-4 h-4"></i></div>
+            </div>
+            <p class="text-2xl font-bold tracking-tight text-zinc-900 dark:text-white font-mono">Rp 410 Jt</p>
+            <p class="text-[11px] text-zinc-500 dark:text-zinc-400">46% dari pagu anggaran</p>
+          </div>
+
+          <div class="glass-panel p-5 rounded-3xl space-y-3">
+            <div class="flex justify-between items-start">
+              <span class="text-xs font-medium text-zinc-500 dark:text-zinc-400">Laba Bersih (Net Profit)</span>
+              <div class="p-2 rounded-2xl bg-black/5 dark:bg-white/5 text-zinc-800 dark:text-zinc-200"><i data-lucide="trending-up" class="w-4 h-4"></i></div>
+            </div>
+            <p class="text-2xl font-bold tracking-tight text-emerald-600 dark:text-emerald-400 font-mono">Rp 482 Jt</p>
+            <p class="text-[11px] text-zinc-500 dark:text-zinc-400"><span class="text-emerald-600 dark:text-emerald-400 font-semibold">Margin 54,0%</span> (Kuat)</p>
+          </div>
+        </div>
+
+        <!-- Recent Transactions -->
+        <div class="glass-panel rounded-3xl p-6 space-y-4">
+          <div class="flex items-center justify-between">
+            <h3 class="font-bold text-sm text-zinc-900 dark:text-white">Mutasi Rekening Terkini</h3>
+            <button onclick="switchView('transaksi')" class="text-xs font-semibold text-zinc-700 dark:text-zinc-300 hover:underline">Semua Mutasi →</button>
+          </div>
+
+          <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+              <thead>
+                <tr class="border-b border-black/5 dark:border-white/5 text-[11px] font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">
+                  <th class="pb-3 text-left">Tanggal &amp; ID</th>
+                  <th class="pb-3 text-left">Keterangan</th>
+                  <th class="pb-3 text-left">Rekening Bank</th>
+                  <th class="pb-3 text-right">Nominal</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-black/5 dark:divide-white/5 font-medium">
+                <tr class="hover-row">
+                  <td class="py-3.5 font-mono text-xs text-zinc-500">30 Agt · #TX-8921</td>
+                  <td class="py-3.5 font-bold text-zinc-900 dark:text-white">Pembayaran Invoice Enterprise #INV-204</td>
+                  <td class="py-3.5 text-zinc-600 dark:text-zinc-300">BCA Giro Utama</td>
+                  <td class="py-3.5 text-right font-mono font-bold text-emerald-600 dark:text-emerald-400">+Rp 250.000.000</td>
+                </tr>
+                <tr class="hover-row">
+                  <td class="py-3.5 font-mono text-xs text-zinc-500">29 Agt · #TX-8920</td>
+                  <td class="py-3.5 font-bold text-zinc-900 dark:text-white">Biaya Cloud Infrastructure &amp; Server</td>
+                  <td class="py-3.5 text-zinc-600 dark:text-zinc-300">Mandiri Corporate</td>
+                  <td class="py-3.5 text-right font-mono font-bold text-rose-600 dark:text-rose-400">-Rp 34.500.000</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==================== VIEW 2: TRANSAKSI ==================== -->
+      <div id="view-transaksi" class="u-view space-y-6">
+        <!-- Header -->
+        <div class="flex flex-wrap items-end justify-between gap-4">
+          <div>
+            <h1 class="text-2xl font-bold tracking-tight text-zinc-900 dark:text-white">Buku Kas &amp; Riwayat Transaksi</h1>
+            <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-1 max-w-lg">2.418 entri terverifikasi mutasi bank otomatis — seluruh arus kas masuk &amp; keluar perusahaan.</p>
+          </div>
+          <button onclick="addTransaction()" class="px-4 py-2.5 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold flex items-center gap-2 shadow-sm active:scale-[0.98] transition">
+            <i data-lucide="plus" class="w-3.5 h-3.5"></i> Tambah Transaksi
+          </button>
+        </div>
+
+        <!-- KPI Strip -->
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          <div class="glass-panel p-5 rounded-3xl">
+            <div class="flex items-center justify-between">
+              <span class="text-[10px] font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">Total Masuk</span>
+              <i data-lucide="arrow-down-left" class="w-4 h-4 text-emerald-600 dark:text-emerald-400"></i>
+            </div>
+            <p class="mt-3 text-xl sm:text-2xl font-bold font-mono tracking-tight text-zinc-900 dark:text-white">Rp 892 Jt</p>
+            <p class="mt-1 text-[11px] text-zinc-500 dark:text-zinc-400"><span class="font-semibold text-emerald-600 dark:text-emerald-400">+8,6%</span> vs bulan lalu</p>
+          </div>
+          <div class="glass-panel p-5 rounded-3xl">
+            <div class="flex items-center justify-between">
+              <span class="text-[10px] font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">Total Keluar</span>
+              <i data-lucide="arrow-up-right" class="w-4 h-4 text-rose-600 dark:text-rose-400"></i>
+            </div>
+            <p class="mt-3 text-xl sm:text-2xl font-bold font-mono tracking-tight text-zinc-900 dark:text-white">Rp 410 Jt</p>
+            <p class="mt-1 text-[11px] text-zinc-500 dark:text-zinc-400"><span class="font-semibold text-rose-600 dark:text-rose-400">-4,2%</span> beban lebih efisien</p>
+          </div>
+          <div class="glass-panel p-5 rounded-3xl">
+            <div class="flex items-center justify-between">
+              <span class="text-[10px] font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">Bulan Berjalan</span>
+              <i data-lucide="calendar" class="w-4 h-4 text-zinc-800 dark:text-zinc-200"></i>
+            </div>
+            <p class="mt-3 text-xl sm:text-2xl font-bold font-mono tracking-tight text-zinc-900 dark:text-white">342 entri</p>
+            <p class="mt-1 text-[11px] text-zinc-500 dark:text-zinc-400">111 masuk · 231 keluar</p>
+          </div>
+          <div class="glass-panel p-5 rounded-3xl">
+            <div class="flex items-center justify-between">
+              <span class="text-[10px] font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">Rata-rata Harian</span>
+              <i data-lucide="gauge" class="w-4 h-4 text-zinc-800 dark:text-zinc-200"></i>
+            </div>
+            <p class="mt-3 text-xl sm:text-2xl font-bold font-mono tracking-tight text-zinc-900 dark:text-white">Rp 27,4 Jt</p>
+            <p class="mt-1 text-[11px] text-zinc-500 dark:text-zinc-400">periode 30 hari berjalan</p>
+          </div>
+        </div>
+
+        <!-- Toolbar: search + filter + export -->
+        <div class="glass-panel rounded-3xl p-4 flex flex-wrap items-center gap-3">
+          <div class="relative flex-1 min-w-[16rem]">
+            <i data-lucide="search" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400"></i>
+            <input type="text" id="tx-search" placeholder="Cari keterangan, ID transaksi, kategori..." class="w-full bg-black/5 dark:bg-white/5 border-none rounded-2xl pl-9 pr-4 py-2.5 text-sm text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-black/20 dark:focus:ring-white/20">
+          </div>
+          <div class="flex items-center gap-1.5 bg-black/5 dark:bg-white/5 p-1 rounded-2xl">
+            <button onclick="setTxFilter('semua')" data-tx-filter="semua" class="px-3.5 py-2 rounded-xl text-xs font-bold bg-black text-white dark:bg-white dark:text-black shadow-sm">Semua</button>
+            <button onclick="setTxFilter('masuk')" data-tx-filter="masuk" class="px-3.5 py-2 rounded-xl text-xs font-bold text-zinc-600 dark:text-zinc-400 hover:text-black dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/5">Masuk</button>
+            <button onclick="setTxFilter('keluar')" data-tx-filter="keluar" class="px-3.5 py-2 rounded-xl text-xs font-bold text-zinc-600 dark:text-zinc-400 hover:text-black dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/5">Keluar</button>
+          </div>
+          <button onclick="exportLedger()" class="px-3.5 py-2.5 rounded-2xl border border-black/10 dark:border-white/10 text-xs font-bold text-zinc-700 dark:text-zinc-300 hover:bg-black/5 dark:hover:bg-white/5 flex items-center gap-2">
+            <i data-lucide="download" class="w-3.5 h-3.5"></i> Export CSV
+          </button>
+        </div>
+
+        <!-- Ledger Table -->
+        <div class="glass-panel rounded-3xl p-6">
+          <div class="overflow-x-auto">
+            <table class="w-full text-sm min-w-[52rem]">
+              <thead>
+                <tr class="border-b border-black/10 dark:border-white/10 text-[10px] font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">
+                  <th class="pb-3 text-left pr-4">Tanggal &amp; ID</th>
+                  <th class="pb-3 text-left pr-4">Deskripsi / Kategori</th>
+                  <th class="pb-3 text-left pr-4">Metode</th>
+                  <th class="pb-3 text-right pr-4">Masuk</th>
+                  <th class="pb-3 text-right pr-4">Keluar</th>
+                  <th class="pb-3 text-right pr-4">Saldo</th>
+                  <th class="pb-3 text-right">Aksi</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-black/5 dark:divide-white/5">
+                <tr class="hover-row" data-type="masuk">
+                  <td class="py-3.5 pr-4 align-top">
+                    <p class="font-mono text-xs text-zinc-500">30 Agt 2026</p>
+                    <p class="font-mono text-[10px] text-zinc-400 dark:text-zinc-500 mt-0.5">#TX-8921</p>
+                  </td>
+                  <td class="py-3.5 pr-4 align-top">
+                    <p class="font-bold text-zinc-900 dark:text-white">Pembayaran Invoice Enterprise #INV-204</p>
+                    <span class="mt-1.5 inline-block text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-600/10 text-emerald-700 dark:bg-emerald-400/10 dark:text-emerald-400">Pendapatan Jasa</span>
+                  </td>
+                  <td class="py-3.5 pr-4 align-top text-xs font-medium text-zinc-600 dark:text-zinc-300">BCA Giro Utama</td>
+                  <td class="py-3.5 pr-4 text-right align-top font-mono font-bold text-emerald-600 dark:text-emerald-400 whitespace-nowrap">+Rp 250.000.000</td>
+                  <td class="py-3.5 pr-4 text-right align-top font-mono text-zinc-300 dark:text-zinc-700">—</td>
+                  <td class="py-3.5 pr-4 text-right align-top font-mono font-medium text-zinc-700 dark:text-zinc-300">Rp 3,66 M</td>
+                  <td class="py-3.5 text-right align-top whitespace-nowrap">
+                    <button onclick="txRowAction('lihat')" class="p-1.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 text-zinc-500 dark:text-zinc-400" title="Lihat detail"><i data-lucide="eye" class="w-3.5 h-3.5"></i></button>
+                    <button onclick="txRowAction('edit')" class="p-1.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 text-zinc-500 dark:text-zinc-400" title="Edit"><i data-lucide="pencil" class="w-3.5 h-3.5"></i></button>
+                  </td>
+                </tr>
+                <tr class="hover-row" data-type="keluar">
+                  <td class="py-3.5 pr-4 align-top">
+                    <p class="font-mono text-xs text-zinc-500">29 Agt 2026</p>
+                    <p class="font-mono text-[10px] text-zinc-400 dark:text-zinc-500 mt-0.5">#TX-8920</p>
+                  </td>
+                  <td class="py-3.5 pr-4 align-top">
+                    <p class="font-bold text-zinc-900 dark:text-white">Biaya Cloud Infrastructure &amp; Server</p>
+                    <span class="mt-1.5 inline-block text-[10px] font-bold px-2 py-0.5 rounded-full bg-black/5 dark:bg-white/10 text-zinc-700 dark:text-zinc-300">Operasional IT</span>
+                  </td>
+                  <td class="py-3.5 pr-4 align-top text-xs font-medium text-zinc-600 dark:text-zinc-300">Mandiri Corporate</td>
+                  <td class="py-3.5 pr-4 text-right align-top font-mono text-zinc-300 dark:text-zinc-700">—</td>
+                  <td class="py-3.5 pr-4 text-right align-top font-mono font-bold text-rose-600 dark:text-rose-400 whitespace-nowrap">-Rp 34.500.000</td>
+                  <td class="py-3.5 pr-4 text-right align-top font-mono font-medium text-zinc-700 dark:text-zinc-300">Rp 3,41 M</td>
+                  <td class="py-3.5 text-right align-top whitespace-nowrap">
+                    <button onclick="txRowAction('lihat')" class="p-1.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 text-zinc-500 dark:text-zinc-400" title="Lihat detail"><i data-lucide="eye" class="w-3.5 h-3.5"></i></button>
+                    <button onclick="txRowAction('edit')" class="p-1.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 text-zinc-500 dark:text-zinc-400" title="Edit"><i data-lucide="pencil" class="w-3.5 h-3.5"></i></button>
+                  </td>
+                </tr>
+                <tr class="hover-row" data-type="masuk">
+                  <td class="py-3.5 pr-4 align-top">
+                    <p class="font-mono text-xs text-zinc-500">28 Agt 2026</p>
+                    <p class="font-mono text-[10px] text-zinc-400 dark:text-zinc-500 mt-0.5">#TX-8918</p>
+                  </td>
+                  <td class="py-3.5 pr-4 align-top">
+                    <p class="font-bold text-zinc-900 dark:text-white">Penjualan Produk SaaS Bulanan</p>
+                    <span class="mt-1.5 inline-block text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-600/10 text-emerald-700 dark:bg-emerald-400/10 dark:text-emerald-400">Pendapatan Berulang</span>
+                  </td>
+                  <td class="py-3.5 pr-4 align-top text-xs font-medium text-zinc-600 dark:text-zinc-300">BSI Deposito</td>
+                  <td class="py-3.5 pr-4 text-right align-top font-mono font-bold text-emerald-600 dark:text-emerald-400 whitespace-nowrap">+Rp 86.750.000</td>
+                  <td class="py-3.5 pr-4 text-right align-top font-mono text-zinc-300 dark:text-zinc-700">—</td>
+                  <td class="py-3.5 pr-4 text-right align-top font-mono font-medium text-zinc-700 dark:text-zinc-300">Rp 3,45 M</td>
+                  <td class="py-3.5 text-right align-top whitespace-nowrap">
+                    <button onclick="txRowAction('lihat')" class="p-1.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 text-zinc-500 dark:text-zinc-400" title="Lihat detail"><i data-lucide="eye" class="w-3.5 h-3.5"></i></button>
+                    <button onclick="txRowAction('edit')" class="p-1.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 text-zinc-500 dark:text-zinc-400" title="Edit"><i data-lucide="pencil" class="w-3.5 h-3.5"></i></button>
+                  </td>
+                </tr>
+                <tr class="hover-row" data-type="keluar">
+                  <td class="py-3.5 pr-4 align-top">
+                    <p class="font-mono text-xs text-zinc-500">27 Agt 2026</p>
+                    <p class="font-mono text-[10px] text-zinc-400 dark:text-zinc-500 mt-0.5">#TX-8915</p>
+                  </td>
+                  <td class="py-3.5 pr-4 align-top">
+                    <p class="font-bold text-zinc-900 dark:text-white">Gaji &amp; Benefit Karyawan</p>
+                    <span class="mt-1.5 inline-block text-[10px] font-bold px-2 py-0.5 rounded-full bg-black/5 dark:bg-white/10 text-zinc-700 dark:text-zinc-300">Operasional SDM</span>
+                  </td>
+                  <td class="py-3.5 pr-4 align-top text-xs font-medium text-zinc-600 dark:text-zinc-300">BCA Giro Gaji</td>
+                  <td class="py-3.5 pr-4 text-right align-top font-mono text-zinc-300 dark:text-zinc-700">—</td>
+                  <td class="py-3.5 pr-4 text-right align-top font-mono font-bold text-rose-600 dark:text-rose-400 whitespace-nowrap">-Rp 118.400.000</td>
+                  <td class="py-3.5 pr-4 text-right align-top font-mono font-medium text-zinc-700 dark:text-zinc-300">Rp 3,36 M</td>
+                  <td class="py-3.5 text-right align-top whitespace-nowrap">
+                    <button onclick="txRowAction('lihat')" class="p-1.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 text-zinc-500 dark:text-zinc-400" title="Lihat detail"><i data-lucide="eye" class="w-3.5 h-3.5"></i></button>
+                    <button onclick="txRowAction('edit')" class="p-1.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 text-zinc-500 dark:text-zinc-400" title="Edit"><i data-lucide="pencil" class="w-3.5 h-3.5"></i></button>
+                  </td>
+                </tr>
+                <tr class="hover-row" data-type="masuk">
+                  <td class="py-3.5 pr-4 align-top">
+                    <p class="font-mono text-xs text-zinc-500">26 Agt 2026</p>
+                    <p class="font-mono text-[10px] text-zinc-400 dark:text-zinc-500 mt-0.5">#TX-8912</p>
+                  </td>
+                  <td class="py-3.5 pr-4 align-top">
+                    <p class="font-bold text-zinc-900 dark:text-white">Invoice Mitra Distributor #INV-198</p>
+                    <span class="mt-1.5 inline-block text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-600/10 text-emerald-700 dark:bg-emerald-400/10 dark:text-emerald-400">Pendapatan Jasa</span>
+                  </td>
+                  <td class="py-3.5 pr-4 align-top text-xs font-medium text-zinc-600 dark:text-zinc-300">BCA Giro Utama</td>
+                  <td class="py-3.5 pr-4 text-right align-top font-mono font-bold text-emerald-600 dark:text-emerald-400 whitespace-nowrap">+Rp 54.200.000</td>
+                  <td class="py-3.5 pr-4 text-right align-top font-mono text-zinc-300 dark:text-zinc-700">—</td>
+                  <td class="py-3.5 pr-4 text-right align-top font-mono font-medium text-zinc-700 dark:text-zinc-300">Rp 3,48 M</td>
+                  <td class="py-3.5 text-right align-top whitespace-nowrap">
+                    <button onclick="txRowAction('lihat')" class="p-1.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 text-zinc-500 dark:text-zinc-400" title="Lihat detail"><i data-lucide="eye" class="w-3.5 h-3.5"></i></button>
+                    <button onclick="txRowAction('edit')" class="p-1.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 text-zinc-500 dark:text-zinc-400" title="Edit"><i data-lucide="pencil" class="w-3.5 h-3.5"></i></button>
+                  </td>
+                </tr>
+                <tr class="hover-row" data-type="keluar">
+                  <td class="py-3.5 pr-4 align-top">
+                    <p class="font-mono text-xs text-zinc-500">25 Agt 2026</p>
+                    <p class="font-mono text-[10px] text-zinc-400 dark:text-zinc-500 mt-0.5">#TX-8910</p>
+                  </td>
+                  <td class="py-3.5 pr-4 align-top">
+                    <p class="font-bold text-zinc-900 dark:text-white">Jatuh Tempo Pembayaran Vendor</p>
+                    <span class="mt-1.5 inline-block text-[10px] font-bold px-2 py-0.5 rounded-full bg-black/5 dark:bg-white/10 text-zinc-700 dark:text-zinc-300">Operasional Procurement</span>
+                  </td>
+                  <td class="py-3.5 pr-4 align-top text-xs font-medium text-zinc-600 dark:text-zinc-300">Mandiri Corporate</td>
+                  <td class="py-3.5 pr-4 text-right align-top font-mono text-zinc-300 dark:text-zinc-700">—</td>
+                  <td class="py-3.5 pr-4 text-right align-top font-mono font-bold text-rose-600 dark:text-rose-400 whitespace-nowrap">-Rp 97.600.000</td>
+                  <td class="py-3.5 pr-4 text-right align-top font-mono font-medium text-zinc-700 dark:text-zinc-300">Rp 3,42 M</td>
+                  <td class="py-3.5 text-right align-top whitespace-nowrap">
+                    <button onclick="txRowAction('lihat')" class="p-1.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 text-zinc-500 dark:text-zinc-400" title="Lihat detail"><i data-lucide="eye" class="w-3.5 h-3.5"></i></button>
+                    <button onclick="txRowAction('edit')" class="p-1.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 text-zinc-500 dark:text-zinc-400" title="Edit"><i data-lucide="pencil" class="w-3.5 h-3.5"></i></button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==================== VIEW 3: DOMPET ==================== -->
+      <div id="view-dompet" class="u-view space-y-6">
+        <!-- Header -->
+        <div class="flex flex-wrap items-end justify-between gap-4">
+          <div>
+            <h1 class="text-2xl font-bold tracking-tight text-zinc-900 dark:text-white">Dompet &amp; Rekening Bank Korporat</h1>
+            <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-1 max-w-lg">Konsolidasi seluruh rekening, e-wallet, dan instrumen likuiditas dalam satu hub.</p>
+          </div>
+          <button onclick="addWallet()" class="px-4 py-2.5 rounded-2xl bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 text-xs font-bold flex items-center gap-2 shadow-sm hover:opacity-90 active:scale-[0.98] transition">
+            <i data-lucide="plus" class="w-3.5 h-3.5"></i> Tambah Dompet
+          </button>
+        </div>
+
+        <!-- KPI Strip -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div class="glass-panel p-5 rounded-3xl flex items-center gap-4">
+            <div class="w-11 h-11 rounded-2xl bg-black/5 dark:bg-white/10 grid place-items-center text-zinc-800 dark:text-zinc-200 shrink-0"><i data-lucide="wallet" class="w-5 h-5"></i></div>
+            <div>
+              <p class="text-[10px] font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">Total Saldo</p>
+              <p class="mt-1 text-2xl font-bold font-mono tracking-tight text-zinc-900 dark:text-white">Rp 3,42 M</p>
+              <p class="text-[10px] text-zinc-400 dark:text-zinc-500 mt-0.5">5 akun aktif · IDR</p>
+            </div>
+          </div>
+          <div class="glass-panel p-5 rounded-3xl flex items-center gap-4">
+            <div class="w-11 h-11 rounded-2xl bg-emerald-600/10 text-emerald-700 dark:text-emerald-400 grid place-items-center shrink-0"><i data-lucide="arrow-down-left" class="w-5 h-5"></i></div>
+            <div>
+              <p class="text-[10px] font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">Arus Masuk Bulan Ini</p>
+              <p class="mt-1 text-2xl font-bold font-mono tracking-tight text-emerald-600 dark:text-emerald-400">+Rp 317 Jt</p>
+              <p class="text-[10px] text-zinc-400 dark:text-zinc-500 mt-0.5">128 mutasi kredit</p>
+            </div>
+          </div>
+          <div class="glass-panel p-5 rounded-3xl flex items-center gap-4">
+            <div class="w-11 h-11 rounded-2xl bg-rose-600/10 text-rose-700 dark:text-rose-400 grid place-items-center shrink-0"><i data-lucide="arrow-up-right" class="w-5 h-5"></i></div>
+            <div>
+              <p class="text-[10px] font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">Tersedia Operasional</p>
+              <p class="mt-1 text-2xl font-bold font-mono tracking-tight text-zinc-900 dark:text-white">Rp 2,86 M</p>
+              <p class="text-[10px] text-zinc-400 dark:text-zinc-500 mt-0.5">di luar deposito &amp; simpanan</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Wallet Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+          <div class="glass-panel rounded-3xl p-6 relative overflow-hidden">
+            <div class="absolute -right-10 -top-10 w-44 h-44 rounded-full bg-gradient-to-br from-emerald-500/15 to-transparent blur-2xl pointer-events-none"></div>
+            <div class="flex items-start justify-between">
+              <div class="flex items-center gap-3">
+                <div class="w-11 h-11 rounded-2xl bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 grid place-items-center font-extrabold text-sm shadow-sm">BCA</div>
+                <div>
+                  <p class="font-bold text-sm text-zinc-900 dark:text-white">BCA</p>
+                  <p class="text-[10px] font-medium uppercase tracking-wider text-zinc-500 dark:text-zinc-400 mt-0.5">Giro Utama</p>
+                </div>
+              </div>
+              <span class="text-[10px] font-bold px-2.5 py-1 rounded-full bg-black/5 dark:bg-white/10 text-zinc-600 dark:text-zinc-300">Bank</span>
+            </div>
+            <div class="mt-6">
+              <p class="text-[10px] font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">Saldo</p>
+              <p class="mt-1 text-3xl font-bold font-mono tracking-tight text-zinc-900 dark:text-white">Rp 1,85 M</p>
+              <p class="text-[10px] font-semibold text-zinc-400 dark:text-zinc-500 mt-1">IDR · 0011-24-8890-71</p>
+            </div>
+            <div class="mt-5 border-t border-black/10 dark:border-white/10 pt-4">
+              <p class="text-[10px] font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400 mb-2.5">Mutasi Terkini</p>
+              <div class="space-y-2">
+                <div class="flex items-center justify-between text-xs">
+                  <span class="text-zinc-600 dark:text-zinc-300 truncate pr-2">Invoice Enterprise #INV-204</span>
+                  <span class="font-mono font-bold text-emerald-600 dark:text-emerald-400 shrink-0">+Rp 250 Jt</span>
+                </div>
+                <div class="flex items-center justify-between text-xs">
+                  <span class="text-zinc-600 dark:text-zinc-300 truncate pr-2">Invoice Mitra #INV-198</span>
+                  <span class="font-mono font-bold text-emerald-600 dark:text-emerald-400 shrink-0">+Rp 54,2 Jt</span>
+                </div>
+              </div>
+            </div>
+            <div class="mt-5 grid grid-cols-2 gap-2">
+              <button onclick="walletAction('tarik','BCA Giro Utama')" class="py-2.5 rounded-xl border border-black/10 dark:border-white/10 text-xs font-bold text-zinc-700 dark:text-zinc-300 hover:bg-black/5 dark:hover:bg-white/5 flex items-center justify-center gap-1.5"><i data-lucide="arrow-up-right" class="w-3.5 h-3.5"></i> Tarik</button>
+              <button onclick="walletAction('isi','BCA Giro Utama')" class="py-2.5 rounded-xl bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 text-xs font-bold hover:opacity-90 flex items-center justify-center gap-1.5"><i data-lucide="arrow-down-left" class="w-3.5 h-3.5"></i> Isi</button>
+            </div>
+          </div>
+
+          <div class="glass-panel rounded-3xl p-6 relative overflow-hidden">
+            <div class="absolute -right-10 -top-10 w-44 h-44 rounded-full bg-gradient-to-br from-zinc-500/15 to-transparent blur-2xl pointer-events-none"></div>
+            <div class="flex items-start justify-between">
+              <div class="flex items-center gap-3">
+                <div class="w-11 h-11 rounded-2xl bg-gradient-to-br from-zinc-500 to-zinc-800 dark:from-zinc-200 dark:to-zinc-500 text-white dark:text-zinc-900 grid place-items-center font-extrabold text-sm shadow-sm">MDR</div>
+                <div>
+                  <p class="font-bold text-sm text-zinc-900 dark:text-white">Mandiri</p>
+                  <p class="text-[10px] font-medium uppercase tracking-wider text-zinc-500 dark:text-zinc-400 mt-0.5">Corporate</p>
+                </div>
+              </div>
+              <span class="text-[10px] font-bold px-2.5 py-1 rounded-full bg-black/5 dark:bg-white/10 text-zinc-600 dark:text-zinc-300">Bank</span>
+            </div>
+            <div class="mt-6">
+              <p class="text-[10px] font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">Saldo</p>
+              <p class="mt-1 text-3xl font-bold font-mono tracking-tight text-zinc-900 dark:text-white">Rp 1,12 M</p>
+              <p class="text-[10px] font-semibold text-zinc-400 dark:text-zinc-500 mt-1">IDR · 137-000-8871-214</p>
+            </div>
+            <div class="mt-5 border-t border-black/10 dark:border-white/10 pt-4">
+              <p class="text-[10px] font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400 mb-2.5">Mutasi Terkini</p>
+              <div class="space-y-2">
+                <div class="flex items-center justify-between text-xs">
+                  <span class="text-zinc-600 dark:text-zinc-300 truncate pr-2">Biaya Cloud &amp; Server</span>
+                  <span class="font-mono font-bold text-rose-600 dark:text-rose-400 shrink-0">-Rp 34,5 Jt</span>
+                </div>
+                <div class="flex items-center justify-between text-xs">
+                  <span class="text-zinc-600 dark:text-zinc-300 truncate pr-2">Pembayaran Vendor</span>
+                  <span class="font-mono font-bold text-rose-600 dark:text-rose-400 shrink-0">-Rp 97,6 Jt</span>
+                </div>
+              </div>
+            </div>
+            <div class="mt-5 grid grid-cols-2 gap-2">
+              <button onclick="walletAction('tarik','Mandiri Corporate')" class="py-2.5 rounded-xl border border-black/10 dark:border-white/10 text-xs font-bold text-zinc-700 dark:text-zinc-300 hover:bg-black/5 dark:hover:bg-white/5 flex items-center justify-center gap-1.5"><i data-lucide="arrow-up-right" class="w-3.5 h-3.5"></i> Tarik</button>
+              <button onclick="walletAction('isi','Mandiri Corporate')" class="py-2.5 rounded-xl bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 text-xs font-bold hover:opacity-90 flex items-center justify-center gap-1.5"><i data-lucide="arrow-down-left" class="w-3.5 h-3.5"></i> Isi</button>
+            </div>
+          </div>
+
+          <div class="glass-panel rounded-3xl p-6 relative overflow-hidden">
+            <div class="absolute -right-10 -top-10 w-44 h-44 rounded-full bg-gradient-to-br from-emerald-500/10 to-transparent blur-2xl pointer-events-none"></div>
+            <div class="flex items-start justify-between">
+              <div class="flex items-center gap-3">
+                <div class="w-11 h-11 rounded-2xl bg-emerald-700 dark:bg-emerald-400 text-white dark:text-emerald-950 grid place-items-center font-extrabold text-sm shadow-sm">BSI</div>
+                <div>
+                  <p class="font-bold text-sm text-zinc-900 dark:text-white">BSI</p>
+                  <p class="text-[10px] font-medium uppercase tracking-wider text-zinc-500 dark:text-zinc-400 mt-0.5">Deposito Berjangka</p>
+                </div>
+              </div>
+              <span class="text-[10px] font-bold px-2.5 py-1 rounded-full bg-black/5 dark:bg-white/10 text-zinc-600 dark:text-zinc-300">Deposito</span>
+            </div>
+            <div class="mt-6">
+              <p class="text-[10px] font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">Saldo</p>
+              <p class="mt-1 text-3xl font-bold font-mono tracking-tight text-zinc-900 dark:text-white">Rp 450 Jt</p>
+              <p class="text-[10px] font-semibold text-zinc-400 dark:text-zinc-500 mt-1">Tenor 3 bln · Bagi hasil 4,1%/thn</p>
+            </div>
+            <div class="mt-5 border-t border-black/10 dark:border-white/10 pt-4">
+              <p class="text-[10px] font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400 mb-2.5">Mutasi Terkini</p>
+              <div class="space-y-2">
+                <div class="flex items-center justify-between text-xs">
+                  <span class="text-zinc-600 dark:text-zinc-300 truncate pr-2">Penjualan SaaS Bulanan</span>
+                  <span class="font-mono font-bold text-emerald-600 dark:text-emerald-400 shrink-0">+Rp 86,7 Jt</span>
+                </div>
+                <div class="flex items-center justify-between text-xs">
+                  <span class="text-zinc-600 dark:text-zinc-300 truncate pr-2">Bagi hasil bulan ke-2</span>
+                  <span class="font-mono font-bold text-emerald-600 dark:text-emerald-400 shrink-0">+Rp 1,5 Jt</span>
+                </div>
+              </div>
+            </div>
+            <div class="mt-5 grid grid-cols-2 gap-2">
+              <button onclick="walletAction('tarik','BSI Deposito')" class="py-2.5 rounded-xl border border-black/10 dark:border-white/10 text-xs font-bold text-zinc-700 dark:text-zinc-300 hover:bg-black/5 dark:hover:bg-white/5 flex items-center justify-center gap-1.5"><i data-lucide="arrow-up-right" class="w-3.5 h-3.5"></i> Tarik</button>
+              <button onclick="walletAction('isi','BSI Deposito')" class="py-2.5 rounded-xl bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 text-xs font-bold hover:opacity-90 flex items-center justify-center gap-1.5"><i data-lucide="arrow-down-left" class="w-3.5 h-3.5"></i> Isi</button>
+            </div>
+          </div>
+
+          <div class="glass-panel rounded-3xl p-6 relative overflow-hidden">
+            <div class="absolute -right-10 -top-10 w-44 h-44 rounded-full bg-gradient-to-br from-amber-500/15 to-transparent blur-2xl pointer-events-none"></div>
+            <div class="flex items-start justify-between">
+              <div class="flex items-center gap-3">
+                <div class="w-11 h-11 rounded-2xl bg-amber-500 text-white grid place-items-center font-extrabold text-sm shadow-sm">GPY</div>
+                <div>
+                  <p class="font-bold text-sm text-zinc-900 dark:text-white">GoPay</p>
+                  <p class="text-[10px] font-medium uppercase tracking-wider text-zinc-500 dark:text-zinc-400 mt-0.5">Business Wallet</p>
+                </div>
+              </div>
+              <span class="text-[10px] font-bold px-2.5 py-1 rounded-full bg-black/5 dark:bg-white/10 text-zinc-600 dark:text-zinc-300">E-Wallet</span>
+            </div>
+            <div class="mt-6">
+              <p class="text-[10px] font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">Saldo</p>
+              <p class="mt-1 text-3xl font-bold font-mono tracking-tight text-zinc-900 dark:text-white">Rp 96 Jt</p>
+              <p class="text-[10px] font-semibold text-zinc-400 dark:text-zinc-500 mt-1">QRIS · payout 1x24 jam</p>
+            </div>
+            <div class="mt-5 border-t border-black/10 dark:border-white/10 pt-4">
+              <p class="text-[10px] font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400 mb-2.5">Mutasi Terkini</p>
+              <div class="space-y-2">
+                <div class="flex items-center justify-between text-xs">
+                  <span class="text-zinc-600 dark:text-zinc-300 truncate pr-2">Penerimaan QRIS Harian</span>
+                  <span class="font-mono font-bold text-emerald-600 dark:text-emerald-400 shrink-0">+Rp 8,4 Jt</span>
+                </div>
+                <div class="flex items-center justify-between text-xs">
+                  <span class="text-zinc-600 dark:text-zinc-300 truncate pr-2">Top-up ke BCA Utama</span>
+                  <span class="font-mono font-bold text-rose-600 dark:text-rose-400 shrink-0">-Rp 22 Jt</span>
+                </div>
+              </div>
+            </div>
+            <div class="mt-5 grid grid-cols-2 gap-2">
+              <button onclick="walletAction('tarik','GoPay Business')" class="py-2.5 rounded-xl border border-black/10 dark:border-white/10 text-xs font-bold text-zinc-700 dark:text-zinc-300 hover:bg-black/5 dark:hover:bg-white/5 flex items-center justify-center gap-1.5"><i data-lucide="arrow-up-right" class="w-3.5 h-3.5"></i> Tarik</button>
+              <button onclick="walletAction('isi','GoPay Business')" class="py-2.5 rounded-xl bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 text-xs font-bold hover:opacity-90 flex items-center justify-center gap-1.5"><i data-lucide="arrow-down-left" class="w-3.5 h-3.5"></i> Isi</button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- ==================== VIEW 4: TAGIHAN ==================== -->
+      <div id="view-tagihan" class="u-view space-y-6">
+        <!-- Header -->
+        <div class="flex flex-wrap items-end justify-between gap-4">
+          <div>
+            <h1 class="text-2xl font-bold tracking-tight text-zinc-900 dark:text-white">Tagihan &amp; Invoice</h1>
+            <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-1 max-w-lg">Semua kewajiban berkala, piutang klien, dan jadwal jatuh tempo terpusat.</p>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="text-[11px] font-mono font-bold px-3 py-2 rounded-2xl bg-rose-600/10 text-rose-700 dark:text-rose-400 border border-rose-600/20">1 terlewat</span>
+            <span class="text-[11px] font-mono font-bold px-3 py-2 rounded-2xl bg-emerald-600/10 text-emerald-700 dark:text-emerald-400 border border-emerald-600/20">Rp 340 Jt piutang</span>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+          <!-- Bills list -->
+          <div class="lg:col-span-2 space-y-4">
+
+            <div class="glass-panel rounded-3xl p-5 flex flex-wrap items-center gap-4">
+              <div class="w-11 h-11 rounded-2xl bg-amber-500/15 text-amber-600 dark:text-amber-400 grid place-items-center shrink-0"><i data-lucide="bolt" class="w-5 h-5"></i></div>
+              <div class="flex-1 min-w-[11rem]">
+                <div class="flex items-center gap-2 flex-wrap">
+                  <p class="font-bold text-sm text-zinc-900 dark:text-white">Listrik PLN Bisnis</p>
+                  <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-700 dark:text-amber-400">Menunggu</span>
+                </div>
+                <p class="text-[11px] text-zinc-500 dark:text-zinc-400 mt-1">Sambungan 34,5 kVA · IDP 4312-8891 · jatuh tempo 05 Sep (4 hari lagi)</p>
+              </div>
+              <div class="text-left sm:text-right">
+                <p class="text-lg font-bold font-mono tracking-tight text-zinc-900 dark:text-white">Rp 18,45 Jt</p>
+                <p class="text-[10px] text-zinc-500 dark:text-zinc-400 mt-0.5">Tagihan bulanan</p>
+              </div>
+              <button onclick="payBill('Listrik PLN','Rp 18,45 Jt')" class="px-4 py-2.5 rounded-xl bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 text-xs font-bold hover:opacity-90 flex items-center gap-1.5"><i data-lucide="credit-card" class="w-3.5 h-3.5"></i> Bayar</button>
+            </div>
+
+            <div class="glass-panel rounded-3xl p-5 flex flex-wrap items-center gap-4">
+              <div class="w-11 h-11 rounded-2xl bg-zinc-500/15 text-zinc-600 dark:text-zinc-300 grid place-items-center shrink-0"><i data-lucide="wifi" class="w-5 h-5"></i></div>
+              <div class="flex-1 min-w-[11rem]">
+                <div class="flex items-center gap-2 flex-wrap">
+                  <p class="font-bold text-sm text-zinc-900 dark:text-white">Internet Biznet 1Gbps</p>
+                  <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-700 dark:text-amber-400">Menunggu</span>
+                </div>
+                <p class="text-[11px] text-zinc-500 dark:text-zinc-400 mt-1">Dedicated 1Gbps + IP Statis · jatuh tempo 08 Sep (7 hari lagi)</p>
+              </div>
+              <div class="text-left sm:text-right">
+                <p class="text-lg font-bold font-mono tracking-tight text-zinc-900 dark:text-white">Rp 6,75 Jt</p>
+                <p class="text-[10px] text-zinc-500 dark:text-zinc-400 mt-0.5">Tagihan bulanan</p>
+              </div>
+              <button onclick="payBill('Internet Biznet','Rp 6,75 Jt')" class="px-4 py-2.5 rounded-xl bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 text-xs font-bold hover:opacity-90 flex items-center gap-1.5"><i data-lucide="credit-card" class="w-3.5 h-3.5"></i> Bayar</button>
+            </div>
+
+            <div class="glass-panel rounded-3xl p-5 flex flex-wrap items-center gap-4">
+              <div class="w-11 h-11 rounded-2xl bg-sky-500/15 text-sky-600 dark:text-sky-400 grid place-items-center shrink-0"><i data-lucide="building-2" class="w-5 h-5"></i></div>
+              <div class="flex-1 min-w-[11rem]">
+                <div class="flex items-center gap-2 flex-wrap">
+                  <p class="font-bold text-sm text-zinc-900 dark:text-white">Sewa Kantor Lantai 4</p>
+                  <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-700 dark:text-amber-400">Menunggu</span>
+                </div>
+                <p class="text-[11px] text-zinc-500 dark:text-zinc-400 mt-1">Menara Karya · jatuh tempo 12 Sep (11 hari lagi)</p>
+              </div>
+              <div class="text-left sm:text-right">
+                <p class="text-lg font-bold font-mono tracking-tight text-zinc-900 dark:text-white">Rp 95,0 Jt</p>
+                <p class="text-[10px] text-zinc-500 dark:text-zinc-400 mt-0.5">Sewa 12 bulan</p>
+              </div>
+              <button onclick="payBill('Sewa Kantor Lantai 4','Rp 95 Jt')" class="px-4 py-2.5 rounded-xl bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 text-xs font-bold hover:opacity-90 flex items-center gap-1.5"><i data-lucide="credit-card" class="w-3.5 h-3.5"></i> Bayar</button>
+            </div>
+
+            <div class="glass-panel rounded-3xl p-5 flex flex-wrap items-center gap-4">
+              <div class="w-11 h-11 rounded-2xl bg-emerald-600/15 text-emerald-700 dark:text-emerald-400 grid place-items-center shrink-0"><i data-lucide="shield-check" class="w-5 h-5"></i></div>
+              <div class="flex-1 min-w-[11rem]">
+                <div class="flex items-center gap-2 flex-wrap">
+                  <p class="font-bold text-sm text-zinc-900 dark:text-white">Asuransi Korporat</p>
+                  <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-600/10 text-emerald-700 dark:text-emerald-400">Lunas</span>
+                </div>
+                <p class="text-[11px] text-zinc-500 dark:text-zinc-400 mt-1">Proteksi aset &amp; kebakaran · dibayar 02 Sep</p>
+              </div>
+              <div class="text-left sm:text-right">
+                <p class="text-lg font-bold font-mono tracking-tight text-zinc-400 dark:text-zinc-500 line-through decoration-zinc-300 dark:decoration-zinc-600">Rp 24,3 Jt</p>
+                <p class="text-[10px] font-semibold text-emerald-600 dark:text-emerald-400 mt-0.5">Sudah dibayar</p>
+              </div>
+              <span class="text-[10px] font-bold px-3 py-2 rounded-xl bg-emerald-600/10 text-emerald-700 dark:text-emerald-400 flex items-center gap-1.5"><i data-lucide="check" class="w-3.5 h-3.5"></i> Selesai</span>
+            </div>
+
+          </div>
+
+          <!-- Upcoming timeline panel -->
+          <div class="glass-panel rounded-3xl p-6 h-fit">
+            <div class="flex items-center justify-between">
+              <h3 class="font-bold text-sm text-zinc-900 dark:text-white">Jadwal Pembayaran</h3>
+              <span class="text-[10px] font-bold px-2 py-1 rounded-full bg-rose-600/10 text-rose-700 dark:text-rose-400">1 terlewat</span>
+            </div>
+            <div class="mt-6 relative pl-5 before:absolute before:left-[5px] before:top-1.5 before:bottom-1.5 before:w-px before:bg-black/10 dark:before:bg-white/10">
+              <div class="relative pb-6">
+                <span class="absolute -left-5 top-1 w-[11px] h-[11px] rounded-full bg-rose-500 ring-4 ring-rose-500/15"></span>
+                <p class="font-mono text-[10px] text-rose-600 dark:text-rose-400 font-bold uppercase tracking-wider">Terlewat</p>
+                <p class="font-bold text-sm text-zinc-900 dark:text-white mt-1">Denda Lapor PPN Agt</p>
+                <p class="font-mono text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">Rp 2,1 Jt · 02 Agt 2026</p>
+              </div>
+              <div class="relative pb-6">
+                <span class="absolute -left-5 top-1 w-[11px] h-[11px] rounded-full bg-amber-500 ring-4 ring-amber-500/15"></span>
+                <p class="font-mono text-[10px] text-amber-600 dark:text-amber-400 font-bold uppercase tracking-wider">05 Sep · 4 hari</p>
+                <p class="font-bold text-sm text-zinc-900 dark:text-white mt-1">Listrik PLN Bisnis</p>
+                <p class="font-mono text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">Rp 18,45 Jt</p>
+              </div>
+              <div class="relative pb-6">
+                <span class="absolute -left-5 top-1 w-[11px] h-[11px] rounded-full bg-zinc-400 ring-4 ring-zinc-400/15"></span>
+                <p class="font-mono text-[10px] text-zinc-500 dark:text-zinc-400 font-bold uppercase tracking-wider">08 Sep · 7 hari</p>
+                <p class="font-bold text-sm text-zinc-900 dark:text-white mt-1">Internet Biznet 1Gbps</p>
+                <p class="font-mono text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">Rp 6,75 Jt</p>
+              </div>
+              <div class="relative pb-6">
+                <span class="absolute -left-5 top-1 w-[11px] h-[11px] rounded-full bg-zinc-400 ring-4 ring-zinc-400/15"></span>
+                <p class="font-mono text-[10px] text-zinc-500 dark:text-zinc-400 font-bold uppercase tracking-wider">12 Sep · 11 hari</p>
+                <p class="font-bold text-sm text-zinc-900 dark:text-white mt-1">Sewa Kantor Lantai 4</p>
+                <p class="font-mono text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">Rp 95 Jt</p>
+              </div>
+              <div class="relative">
+                <span class="absolute -left-5 top-1 w-[11px] h-[11px] rounded-full bg-emerald-500 ring-4 ring-emerald-500/15"></span>
+                <p class="font-mono text-[10px] text-emerald-600 dark:text-emerald-400 font-bold uppercase tracking-wider">02 Okt · 31 hari</p>
+                <p class="font-bold text-sm text-zinc-900 dark:text-white mt-1">PPN Masa September</p>
+                <p class="font-mono text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">Rp 72,4 Jt</p>
+              </div>
+            </div>
+            <button onclick="payBill('seluruh tagihan mendatang','jadwal otomatis')" class="mt-5 w-full py-2.5 rounded-xl border border-black/10 dark:border-white/10 text-xs font-bold text-zinc-700 dark:text-zinc-300 hover:bg-black/5 dark:hover:bg-white/5 flex items-center justify-center gap-1.5"><i data-lucide="calendar-range" class="w-3.5 h-3.5"></i> Jadwalkan Otomatis</button>
+          </div>
+        </div>
+
+        <!-- Piutang clients -->
+        <div class="glass-panel rounded-3xl p-6">
+          <div class="flex items-center justify-between">
+            <h3 class="font-bold text-sm text-zinc-900 dark:text-white">Piutang Klien</h3>
+            <span class="text-[10px] font-mono font-bold text-zinc-500 dark:text-zinc-400">4 faktur · Rp 340 Jt</span>
+          </div>
+          <div class="mt-4 grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-black/5 dark:divide-white/5">
+            <div class="md:pr-6 pb-4 md:pb-0">
+              <div class="flex items-center justify-between gap-3">
+                <div class="min-w-0">
+                  <p class="font-bold text-sm text-zinc-900 dark:text-white truncate">PT Kreasi Nusantara Teknologi</p>
+                  <p class="text-[11px] text-zinc-500 dark:text-zinc-400 mt-0.5">Invoice #INV-191 · jatuh 20 Agt · <span class="font-semibold text-rose-600 dark:text-rose-400">10 hari terlambat</span></p>
+                </div>
+                <div class="text-right shrink-0">
+                  <p class="font-mono font-bold text-sm text-zinc-900 dark:text-white">Rp 128 Jt</p>
+                  <button onclick="payBill('Reminder Invoice #INV-191','128 Jt')" class="mt-1 text-[11px] font-bold text-zinc-700 dark:text-zinc-300 hover:underline flex items-center gap-1"><i data-lucide="bell" class="w-3 h-3"></i> Ingatkan</button>
+                </div>
+              </div>
+            </div>
+            <div class="md:pl-6 pt-4 md:pt-0">
+              <div class="flex items-center justify-between gap-3">
+                <div class="min-w-0">
+                  <p class="font-bold text-sm text-zinc-900 dark:text-white truncate">PT Solusi Logistik Andalan</p>
+                  <p class="text-[11px] text-zinc-500 dark:text-zinc-400 mt-0.5">Invoice #INV-188 · jatuh 25 Agt · <span class="font-semibold text-amber-600 dark:text-amber-400">5 hari terlambat</span></p>
+                </div>
+                <div class="text-right shrink-0">
+                  <p class="font-mono font-bold text-sm text-zinc-900 dark:text-white">Rp 212 Jt</p>
+                  <button onclick="payBill('Reminder Invoice #INV-188','212 Jt')" class="mt-1 text-[11px] font-bold text-zinc-700 dark:text-zinc-300 hover:underline flex items-center gap-1"><i data-lucide="bell" class="w-3 h-3"></i> Ingatkan</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==================== VIEW 5: ANGGARAN ==================== -->
+      <div id="view-anggaran" class="u-view space-y-6">
+        <!-- Header -->
+        <div class="flex flex-wrap items-end justify-between gap-4">
+          <div>
+            <h1 class="text-2xl font-bold tracking-tight text-zinc-900 dark:text-white">Pagu &amp; Realisasi Anggaran</h1>
+            <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-1 max-w-lg">Alokasi plafon per pos, realisasi berjalan, dan peringatan dini over-budget.</p>
+          </div>
+          <div class="flex items-center gap-2">
+            <div class="flex items-center gap-1.5 bg-black/5 dark:bg-white/5 p-1 rounded-2xl">
+              <button data-budget-period="q3" onclick="setBudgetPeriod(this,'q3')" class="px-3.5 py-2 rounded-xl text-xs font-bold bg-black text-white dark:bg-white dark:text-black shadow-sm">Q3 2026</button>
+              <button data-budget-period="q4" onclick="setBudgetPeriod(this,'q4')" class="px-3.5 py-2 rounded-xl text-xs font-bold text-zinc-600 dark:text-zinc-400 hover:text-black dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/5">Q4 2026</button>
+              <button data-budget-period="tahunan" onclick="setBudgetPeriod(this,'tahunan')" class="px-3.5 py-2 rounded-xl text-xs font-bold text-zinc-600 dark:text-zinc-400 hover:text-black dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/5">Tahun</button>
+            </div>
+            <button onclick="addBudget()" class="px-4 py-2.5 rounded-2xl bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 text-xs font-bold flex items-center gap-2 shadow-sm hover:opacity-90 active:scale-[0.98] transition"><i data-lucide="plus" class="w-3.5 h-3.5"></i> Tambah Pos</button>
+          </div>
+        </div>
+
+        <!-- KPI Strip -->
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          <div class="glass-panel p-5 rounded-3xl">
+            <p class="text-[10px] font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">Total Pagu</p>
+            <p class="mt-2 text-2xl font-bold font-mono tracking-tight text-zinc-900 dark:text-white">Rp 890 Jt</p>
+            <p class="mt-1 text-[11px] text-zinc-500 dark:text-zinc-400">5 pos anggaran aktif</p>
+          </div>
+          <div class="glass-panel p-5 rounded-3xl">
+            <p class="text-[10px] font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">Realisasi</p>
+            <p class="mt-2 text-2xl font-bold font-mono tracking-tight text-zinc-900 dark:text-white">Rp 410 Jt</p>
+            <p class="mt-1 text-[11px] text-zinc-500 dark:text-zinc-400">tercatat mutasi terverifikasi</p>
+          </div>
+          <div class="glass-panel p-5 rounded-3xl">
+            <p class="text-[10px] font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">Terpakai</p>
+            <p class="mt-2 text-2xl font-bold font-mono tracking-tight text-amber-600 dark:text-amber-400">46%</p>
+            <p class="mt-1 flex items-center gap-2 text-[11px] text-zinc-500 dark:text-zinc-400"><span class="w-16 h-1.5 rounded-full bg-black/5 dark:bg-white/10 overflow-hidden inline-block"><span class="block h-full rounded-full bg-amber-500" style="width:46%"></span></span> di Q3</p>
+          </div>
+          <div class="glass-panel p-5 rounded-3xl">
+            <p class="text-[10px] font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">Sisa Pagu</p>
+            <p class="mt-2 text-2xl font-bold font-mono tracking-tight text-emerald-600 dark:text-emerald-400">Rp 480 Jt</p>
+            <p class="mt-1 text-[11px] text-zinc-500 dark:text-zinc-400"><span class="font-semibold text-emerald-600 dark:text-emerald-400">+Rp 52 Jt</span> hemat dari target</p>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+          <!-- Budget cards -->
+          <div class="lg:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-4">
+
+            <div class="glass-panel rounded-3xl p-5">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                  <div class="w-9 h-9 rounded-xl bg-black/5 dark:bg-white/10 grid place-items-center text-zinc-800 dark:text-zinc-200"><i data-lucide="server" class="w-4 h-4"></i></div>
+                  <p class="font-bold text-sm text-zinc-900 dark:text-white">Operasional IT</p>
+                </div>
+                <span class="text-[10px] font-bold px-2 py-1 rounded-full bg-emerald-600/10 text-emerald-700 dark:text-emerald-400">Aman</span>
+              </div>
+              <div class="mt-4 flex items-end justify-between">
+                <p class="text-xs text-zinc-500 dark:text-zinc-400">Realisasi <span class="font-mono font-bold text-zinc-900 dark:text-white">Rp 158 Jt</span></p>
+                <p class="text-xs text-zinc-500 dark:text-zinc-400">Pagu <span class="font-mono font-bold text-zinc-900 dark:text-white">Rp 240 Jt</span></p>
+              </div>
+              <div class="mt-2.5 h-2 rounded-full bg-black/5 dark:bg-white/10 overflow-hidden"><div class="h-full rounded-full bg-emerald-500 dark:bg-emerald-400" style="width:66%"></div></div>
+              <div class="mt-3 flex items-center justify-between text-[11px]">
+                <span class="font-mono text-zinc-500 dark:text-zinc-400">66%</span>
+                <span class="text-zinc-500 dark:text-zinc-400">Sisa <span class="font-mono font-bold text-emerald-600 dark:text-emerald-400">Rp 82 Jt</span></span>
+              </div>
+            </div>
+
+            <div class="glass-panel rounded-3xl p-5">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                  <div class="w-9 h-9 rounded-xl bg-black/5 dark:bg-white/10 grid place-items-center text-zinc-800 dark:text-zinc-200"><i data-lucide="megaphone" class="w-4 h-4"></i></div>
+                  <p class="font-bold text-sm text-zinc-900 dark:text-white">Marketing &amp; Sales</p>
+                </div>
+                <span class="text-[10px] font-bold px-2 py-1 rounded-full bg-emerald-600/10 text-emerald-700 dark:text-emerald-400">Aman</span>
+              </div>
+              <div class="mt-4 flex items-end justify-between">
+                <p class="text-xs text-zinc-500 dark:text-zinc-400">Realisasi <span class="font-mono font-bold text-zinc-900 dark:text-white">Rp 121 Jt</span></p>
+                <p class="text-xs text-zinc-500 dark:text-zinc-400">Pagu <span class="font-mono font-bold text-zinc-900 dark:text-white">Rp 180 Jt</span></p>
+              </div>
+              <div class="mt-2.5 h-2 rounded-full bg-black/5 dark:bg-white/10 overflow-hidden"><div class="h-full rounded-full bg-emerald-500 dark:bg-emerald-400" style="width:67%"></div></div>
+              <div class="mt-3 flex items-center justify-between text-[11px]">
+                <span class="font-mono text-zinc-500 dark:text-zinc-400">67%</span>
+                <span class="text-zinc-500 dark:text-zinc-400">Sisa <span class="font-mono font-bold text-emerald-600 dark:text-emerald-400">Rp 59 Jt</span></span>
+              </div>
+            </div>
+
+            <div class="glass-panel rounded-3xl p-5">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                  <div class="w-9 h-9 rounded-xl bg-amber-500/15 text-amber-600 dark:text-amber-400 grid place-items-center"><i data-lucide="hand-coins" class="w-4 h-4"></i></div>
+                  <p class="font-bold text-sm text-zinc-900 dark:text-white">SDM &amp; Gaji</p>
+                </div>
+                <span class="text-[10px] font-bold px-2 py-1 rounded-full bg-amber-500/15 text-amber-700 dark:text-amber-400">Hampir penuh</span>
+              </div>
+              <div class="mt-4 flex items-end justify-between">
+                <p class="text-xs text-zinc-500 dark:text-zinc-400">Realisasi <span class="font-mono font-bold text-zinc-900 dark:text-white">Rp 296 Jt</span></p>
+                <p class="text-xs text-zinc-500 dark:text-zinc-400">Pagu <span class="font-mono font-bold text-zinc-900 dark:text-white">Rp 320 Jt</span></p>
+              </div>
+              <div class="mt-2.5 h-2 rounded-full bg-black/5 dark:bg-white/10 overflow-hidden"><div class="h-full rounded-full bg-amber-500 dark:bg-amber-400" style="width:93%"></div></div>
+              <div class="mt-3 flex items-center justify-between text-[11px]">
+                <span class="font-mono text-zinc-500 dark:text-zinc-400">93%</span>
+                <span class="text-zinc-500 dark:text-zinc-400">Sisa <span class="font-mono font-bold text-amber-600 dark:text-amber-400">Rp 24 Jt</span></span>
+              </div>
+            </div>
+
+            <div class="glass-panel rounded-3xl p-5">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                  <div class="w-9 h-9 rounded-xl bg-rose-600/15 text-rose-700 dark:text-rose-400 grid place-items-center"><i data-lucide="package" class="w-4 h-4"></i></div>
+                  <p class="font-bold text-sm text-zinc-900 dark:text-white">Procurement &amp; Inventaris</p>
+                </div>
+                <span class="text-[10px] font-bold px-2 py-1 rounded-full bg-rose-600/10 text-rose-700 dark:text-rose-400">Over budget</span>
+              </div>
+              <div class="mt-4 flex items-end justify-between">
+                <p class="text-xs text-zinc-500 dark:text-zinc-400">Realisasi <span class="font-mono font-bold text-zinc-900 dark:text-white">Rp 96 Jt</span></p>
+                <p class="text-xs text-zinc-500 dark:text-zinc-400">Pagu <span class="font-mono font-bold text-zinc-900 dark:text-white">Rp 90 Jt</span></p>
+              </div>
+              <div class="mt-2.5 h-2 rounded-full bg-black/5 dark:bg-white/10 overflow-hidden"><div class="h-full rounded-full bg-rose-500 dark:bg-rose-400" style="width:107%"></div></div>
+              <div class="mt-3 flex items-center justify-between text-[11px]">
+                <span class="font-mono text-zinc-500 dark:text-zinc-400">107%</span>
+                <span class="text-zinc-500 dark:text-zinc-400">Melebihi <span class="font-mono font-bold text-rose-600 dark:text-rose-400">Rp 6 Jt</span></span>
+              </div>
+            </div>
+
+            <div class="glass-panel rounded-3xl p-5">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                  <div class="w-9 h-9 rounded-xl bg-black/5 dark:bg-white/10 grid place-items-center text-zinc-800 dark:text-zinc-200"><i data-lucide="scale" class="w-4 h-4"></i></div>
+                  <p class="font-bold text-sm text-zinc-900 dark:text-white">Legal &amp; Kepatuhan</p>
+                </div>
+                <span class="text-[10px] font-bold px-2 py-1 rounded-full bg-emerald-600/10 text-emerald-700 dark:text-emerald-400">Aman</span>
+              </div>
+              <div class="mt-4 flex items-end justify-between">
+                <p class="text-xs text-zinc-500 dark:text-zinc-400">Realisasi <span class="font-mono font-bold text-zinc-900 dark:text-white">Rp 32 Jt</span></p>
+                <p class="text-xs text-zinc-500 dark:text-zinc-400">Pagu <span class="font-mono font-bold text-zinc-900 dark:text-white">Rp 60 Jt</span></p>
+              </div>
+              <div class="mt-2.5 h-2 rounded-full bg-black/5 dark:bg-white/10 overflow-hidden"><div class="h-full rounded-full bg-emerald-500 dark:bg-emerald-400" style="width:53%"></div></div>
+              <div class="mt-3 flex items-center justify-between text-[11px]">
+                <span class="font-mono text-zinc-500 dark:text-zinc-400">53%</span>
+                <span class="text-zinc-500 dark:text-zinc-400">Sisa <span class="font-mono font-bold text-emerald-600 dark:text-emerald-400">Rp 28 Jt</span></span>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Distribution donut -->
+          <div class="glass-panel rounded-3xl p-6 h-fit">
+            <div class="flex items-center justify-between">
+              <h3 class="font-bold text-sm text-zinc-900 dark:text-white">Distribusi Realisasi</h3>
+              <span class="text-[10px] font-mono font-bold text-zinc-500 dark:text-zinc-400">Q3 · Rp 703 Jt</span>
+            </div>
+            <div class="mt-6 flex justify-center">
+              <div class="relative w-44 h-44">
+                <svg viewBox="0 0 100 100" class="w-full h-full -rotate-90">
+                  <circle cx="50" cy="50" r="38" fill="none" stroke="currentColor" class="text-black/5 dark:text-white/10" stroke-width="12"/>
+                  <circle cx="50" cy="50" r="38" fill="none" stroke="#10b981" stroke-width="12" pathLength="100" stroke-dasharray="22.5 77.5" stroke-dashoffset="0" stroke-linecap="butt"/>
+                  <circle cx="50" cy="50" r="38" fill="none" stroke="#f59e0b" stroke-width="12" pathLength="100" stroke-dasharray="17.2 82.8" stroke-dashoffset="-22.5" stroke-linecap="butt"/>
+                  <circle cx="50" cy="50" r="38" fill="none" stroke="#a1a1aa" stroke-width="12" pathLength="100" stroke-dasharray="42.1 57.9" stroke-dashoffset="-39.7" stroke-linecap="butt"/>
+                  <circle cx="50" cy="50" r="38" fill="none" stroke="#f43f5e" stroke-width="12" pathLength="100" stroke-dasharray="13.7 86.3" stroke-dashoffset="-81.8" stroke-linecap="butt"/>
+                  <circle cx="50" cy="50" r="38" fill="none" stroke="#71717a" stroke-width="12" pathLength="100" stroke-dasharray="4.5 95.5" stroke-dashoffset="-95.5" stroke-linecap="butt"/>
+                </svg>
+                <div class="absolute inset-0 grid place-items-center text-center">
+                  <div>
+                    <p class="font-mono text-lg font-extrabold tracking-tight text-zinc-900 dark:text-white">46%</p>
+                    <p class="text-[9px] uppercase tracking-wider text-zinc-500 dark:text-zinc-400 mt-0.5">terpakai</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="mt-6 space-y-2.5">
+              <div class="flex items-center justify-between text-xs">
+                <span class="flex items-center gap-2 text-zinc-600 dark:text-zinc-300"><span class="w-2.5 h-2.5 rounded-full" style="background:#10b981"></span> SDM &amp; Gaji</span>
+                <span class="font-mono font-bold text-zinc-900 dark:text-white">Rp 296 Jt</span>
+              </div>
+              <div class="flex items-center justify-between text-xs">
+                <span class="flex items-center gap-2 text-zinc-600 dark:text-zinc-300"><span class="w-2.5 h-2.5 rounded-full" style="background:#a1a1aa"></span> Operasional IT</span>
+                <span class="font-mono font-bold text-zinc-900 dark:text-white">Rp 158 Jt</span>
+              </div>
+              <div class="flex items-center justify-between text-xs">
+                <span class="flex items-center gap-2 text-zinc-600 dark:text-zinc-300"><span class="w-2.5 h-2.5 rounded-full" style="background:#f59e0b"></span> Marketing &amp; Sales</span>
+                <span class="font-mono font-bold text-zinc-900 dark:text-white">Rp 121 Jt</span>
+              </div>
+              <div class="flex items-center justify-between text-xs">
+                <span class="flex items-center gap-2 text-zinc-600 dark:text-zinc-300"><span class="w-2.5 h-2.5 rounded-full" style="background:#f43f5e"></span> Procurement</span>
+                <span class="font-mono font-bold text-zinc-900 dark:text-white">Rp 96 Jt</span>
+              </div>
+              <div class="flex items-center justify-between text-xs">
+                <span class="flex items-center gap-2 text-zinc-600 dark:text-zinc-300"><span class="w-2.5 h-2.5 rounded-full" style="background:#71717a"></span> Legal &amp; Kepatuhan</span>
+                <span class="font-mono font-bold text-zinc-900 dark:text-white">Rp 32 Jt</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+<!-- ==================== VIEW 6: TABUNGAN ==================== -->
+      <div id="view-tabungan" class="u-view space-y-6">
+        <!-- Header -->
+        <div class="flex flex-wrap items-end justify-between gap-4">
+          <div>
+            <h1 class="text-2xl font-bold tracking-tight text-zinc-900 dark:text-white">Dana &amp; Target Tabungan</h1>
+            <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-1 max-w-lg">Sinking fund untuk belanja modal, ekspansi operasional, dan cadangan strategis.</p>
+          </div>
+          <button onclick="addGoal()" class="px-4 py-2.5 rounded-2xl bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 text-xs font-bold flex items-center gap-2 shadow-sm hover:opacity-90 active:scale-[0.98] transition"><i data-lucide="plus" class="w-3.5 h-3.5"></i> Target Baru</button>
+        </div>
+
+        <!-- KPI Strip -->
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          <div class="glass-panel p-5 rounded-3xl">
+            <p class="text-[10px] font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">Total Target</p>
+            <p class="mt-2 text-2xl font-bold font-mono tracking-tight text-zinc-900 dark:text-white">Rp 51,3 M</p>
+            <p class="mt-1 text-[11px] text-zinc-500 dark:text-zinc-400">5 program aktif</p>
+          </div>
+          <div class="glass-panel p-5 rounded-3xl">
+            <p class="text-[10px] font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">Terkumpul</p>
+            <p class="mt-2 text-2xl font-bold font-mono tracking-tight text-emerald-600 dark:text-emerald-400">Rp 35,8 M</p>
+            <p class="mt-1 text-[11px] text-zinc-500 dark:text-zinc-400">alokasi rutin 12% dari arus</p>
+          </div>
+          <div class="glass-panel p-5 rounded-3xl">
+            <p class="text-[10px] font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">Progres Rata-rata</p>
+            <p class="mt-2 text-2xl font-bold font-mono tracking-tight text-zinc-900 dark:text-white">70%</p>
+            <p class="mt-1 flex items-center gap-2 text-[11px] text-zinc-500 dark:text-zinc-400"><span class="w-16 h-1.5 rounded-full bg-black/5 dark:bg-white/10 overflow-hidden inline-block"><span class="block h-full rounded-full bg-emerald-500" style="width:70%"></span></span> vs rencana</p>
+          </div>
+          <div class="glass-panel p-5 rounded-3xl">
+            <p class="text-[10px] font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">Proyeksi Tercapai</p>
+            <p class="mt-2 text-2xl font-bold font-mono tracking-tight text-zinc-900 dark:text-white">Apr 2027</p>
+            <p class="mt-1 text-[11px] text-emerald-600 dark:text-emerald-400 font-semibold">Maju 2 bln dari rencana</p>
+          </div>
+        </div>
+
+        <!-- Goals grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+
+          <div class="glass-panel rounded-3xl p-6 relative overflow-hidden">
+            <div class="absolute -right-8 -top-8 w-36 h-36 rounded-full bg-emerald-500/10 blur-2xl pointer-events-none"></div>
+            <div class="flex items-center justify-between">
+              <div class="w-10 h-10 rounded-xl bg-emerald-600/10 text-emerald-700 dark:text-emerald-400 grid place-items-center"><i data-lucide="umbrella" class="w-5 h-5"></i></div>
+              <span class="text-[10px] font-bold px-2 py-1 rounded-full bg-emerald-600/10 text-emerald-700 dark:text-emerald-400">On track</span>
+            </div>
+            <h3 class="mt-4 font-bold text-sm text-zinc-900 dark:text-white">Dana Darurat Operasional</h3>
+            <p class="text-[11px] text-zinc-500 dark:text-zinc-400 mt-1">3 bulan biaya tetap · selesai Des 2026</p>
+            <div class="mt-5 flex items-end justify-between">
+              <p class="font-mono text-2xl font-bold tracking-tight text-zinc-900 dark:text-white">Rp 6,2 M</p>
+              <p class="font-mono text-sm font-bold text-zinc-500 dark:text-zinc-400">/ Rp 7,8 M</p>
+            </div>
+            <div class="mt-3 h-2 rounded-full bg-black/5 dark:bg-white/10 overflow-hidden"><div class="h-full rounded-full bg-emerald-500 dark:bg-emerald-400" style="width:80%"></div></div>
+            <div class="mt-3 flex items-center justify-between text-[11px]">
+              <span class="font-mono font-bold text-emerald-600 dark:text-emerald-400">80%</span>
+              <span class="text-zinc-500 dark:text-zinc-400">+Rp 1,6 M lagi</span>
+            </div>
+            <div class="mt-4 flex gap-2">
+              <button onclick="goalAction('penarikan','Dana Darurat')" class="flex-1 py-2.5 rounded-xl border border-black/10 dark:border-white/10 text-xs font-bold text-zinc-700 dark:text-zinc-300 hover:bg-black/5 dark:hover:bg-white/5">Tarik</button>
+              <button onclick="goalAction('alokasi','Dana Darurat')" class="flex-1 py-2.5 rounded-xl bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 text-xs font-bold hover:opacity-90">Alokasi</button>
+            </div>
+          </div>
+
+          <div class="glass-panel rounded-3xl p-6 relative overflow-hidden">
+            <div class="absolute -right-8 -top-8 w-36 h-36 rounded-full bg-zinc-500/10 blur-2xl pointer-events-none"></div>
+            <div class="flex items-center justify-between">
+              <div class="w-10 h-10 rounded-xl bg-black/5 dark:bg-white/10 text-zinc-800 dark:text-zinc-200 grid place-items-center"><i data-lucide="cog" class="w-5 h-5"></i></div>
+              <span class="text-[10px] font-bold px-2 py-1 rounded-full bg-emerald-600/10 text-emerald-700 dark:text-emerald-400">On track</span>
+            </div>
+            <h3 class="mt-4 font-bold text-sm text-zinc-900 dark:text-white">Mesin &amp; Peralatan Produksi</h3>
+            <p class="text-[11px] text-zinc-500 dark:text-zinc-400 mt-1">Line ke-2 · selesai Mar 2027</p>
+            <div class="mt-5 flex items-end justify-between">
+              <p class="font-mono text-2xl font-bold tracking-tight text-zinc-900 dark:text-white">Rp 9,4 M</p>
+              <p class="font-mono text-sm font-bold text-zinc-500 dark:text-zinc-400">/ Rp 15,6 M</p>
+            </div>
+            <div class="mt-3 h-2 rounded-full bg-black/5 dark:bg-white/10 overflow-hidden"><div class="h-full rounded-full bg-zinc-500 dark:bg-zinc-400" style="width:60%"></div></div>
+            <div class="mt-3 flex items-center justify-between text-[11px]">
+              <span class="font-mono font-bold text-zinc-600 dark:text-zinc-400">60%</span>
+              <span class="text-zinc-500 dark:text-zinc-400">+Rp 6,2 M lagi</span>
+            </div>
+            <div class="mt-4 flex gap-2">
+              <button onclick="goalAction('penarikan','Mesin Produksi')" class="flex-1 py-2.5 rounded-xl border border-black/10 dark:border-white/10 text-xs font-bold text-zinc-700 dark:text-zinc-300 hover:bg-black/5 dark:hover:bg-white/5">Tarik</button>
+              <button onclick="goalAction('alokasi','Mesin Produksi')" class="flex-1 py-2.5 rounded-xl bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 text-xs font-bold hover:opacity-90">Alokasi</button>
+            </div>
+          </div>
+
+          <div class="glass-panel rounded-3xl p-6 relative overflow-hidden">
+            <div class="absolute -right-8 -top-8 w-36 h-36 rounded-full bg-amber-500/10 blur-2xl pointer-events-none"></div>
+            <div class="flex items-center justify-between">
+              <div class="w-10 h-10 rounded-xl bg-amber-500/15 text-amber-600 dark:text-amber-400 grid place-items-center"><i data-lucide="palette" class="w-5 h-5"></i></div>
+              <span class="text-[10px] font-bold px-2 py-1 rounded-full bg-amber-500/15 text-amber-700 dark:text-amber-400">Sisa 1 bulan</span>
+            </div>
+            <h3 class="mt-4 font-bold text-sm text-zinc-900 dark:text-white">Rebranding &amp; Website</h3>
+            <p class="text-[11px] text-zinc-500 dark:text-zinc-400 mt-1">Kampanye Q4 · selesai Sep 2026</p>
+            <div class="mt-5 flex items-end justify-between">
+              <p class="font-mono text-2xl font-bold tracking-tight text-zinc-900 dark:text-white">Rp 920 Jt</p>
+              <p class="font-mono text-sm font-bold text-zinc-500 dark:text-zinc-400">/ Rp 1,0 M</p>
+            </div>
+            <div class="mt-3 h-2 rounded-full bg-black/5 dark:bg-white/10 overflow-hidden"><div class="h-full rounded-full bg-amber-500 dark:bg-amber-400" style="width:92%"></div></div>
+            <div class="mt-3 flex items-center justify-between text-[11px]">
+              <span class="font-mono font-bold text-amber-600 dark:text-amber-400">92%</span>
+              <span class="text-zinc-500 dark:text-zinc-400">+Rp 80 Jt lagi</span>
+            </div>
+            <div class="mt-4 flex gap-2">
+              <button onclick="goalAction('penarikan','Rebranding')" class="flex-1 py-2.5 rounded-xl border border-black/10 dark:border-white/10 text-xs font-bold text-zinc-700 dark:text-zinc-300 hover:bg-black/5 dark:hover:bg-white/5">Tarik</button>
+              <button onclick="goalAction('alokasi','Rebranding')" class="flex-1 py-2.5 rounded-xl bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 text-xs font-bold hover:opacity-90">Alokasi</button>
+            </div>
+          </div>
+
+          <div class="glass-panel rounded-3xl p-6">
+            <div class="flex items-center justify-between">
+              <div class="w-10 h-10 rounded-xl bg-black/5 dark:bg-white/10 text-zinc-800 dark:text-zinc-200 grid place-items-center"><i data-lucide="warehouse" class="w-5 h-5"></i></div>
+              <span class="text-[10px] font-bold px-2 py-1 rounded-full bg-emerald-600/10 text-emerald-700 dark:text-emerald-400">On track</span>
+            </div>
+            <h3 class="mt-4 font-bold text-sm text-zinc-900 dark:text-white">Gudang Serbaguna</h3>
+            <p class="text-[11px] text-zinc-500 dark:text-zinc-400 mt-1">Ekspansi lantai 2 · selesai Jun 2027</p>
+            <div class="mt-5 flex items-end justify-between">
+              <p class="font-mono text-2xl font-bold tracking-tight text-zinc-900 dark:text-white">Rp 13,5 M</p>
+              <p class="font-mono text-sm font-bold text-zinc-500 dark:text-zinc-400">/ Rp 22,5 M</p>
+            </div>
+            <div class="mt-3 h-2 rounded-full bg-black/5 dark:bg-white/10 overflow-hidden"><div class="h-full rounded-full bg-zinc-500 dark:bg-zinc-400" style="width:60%"></div></div>
+            <div class="mt-3 flex items-center justify-between text-[11px]">
+              <span class="font-mono font-bold text-zinc-600 dark:text-zinc-400">60%</span>
+              <span class="text-zinc-500 dark:text-zinc-400">+Rp 9 M lagi</span>
+            </div>
+            <div class="mt-4 flex gap-2">
+              <button onclick="goalAction('penarikan','Gudang Serbaguna')" class="flex-1 py-2.5 rounded-xl border border-black/10 dark:border-white/10 text-xs font-bold text-zinc-700 dark:text-zinc-300 hover:bg-black/5 dark:hover:bg-white/5">Tarik</button>
+              <button onclick="goalAction('alokasi','Gudang Serbaguna')" class="flex-1 py-2.5 rounded-xl bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 text-xs font-bold hover:opacity-90">Alokasi</button>
+            </div>
+          </div>
+
+          <div class="glass-panel rounded-3xl p-6">
+            <div class="flex items-center justify-between">
+              <div class="w-10 h-10 rounded-xl bg-emerald-600/10 text-emerald-700 dark:text-emerald-400 grid place-items-center"><i data-lucide="shield" class="w-5 h-5"></i></div>
+              <span class="text-[10px] font-bold px-2 py-1 rounded-full bg-emerald-600/10 text-emerald-700 dark:text-emerald-400">Prorata</span>
+            </div>
+            <h3 class="mt-4 font-bold text-sm text-zinc-900 dark:text-white">Cadangan Pajak Korporat</h3>
+            <p class="text-[11px] text-zinc-500 dark:text-zinc-400 mt-1">PPh Badan &amp; PPN · setoran Apr 2027</p>
+            <div class="mt-5 flex items-end justify-between">
+              <p class="font-mono text-2xl font-bold tracking-tight text-zinc-900 dark:text-white">Rp 5,8 M</p>
+              <p class="font-mono text-sm font-bold text-zinc-500 dark:text-zinc-400">/ Rp 7,8 M</p>
+            </div>
+            <div class="mt-3 h-2 rounded-full bg-black/5 dark:bg-white/10 overflow-hidden"><div class="h-full rounded-full bg-emerald-500 dark:bg-emerald-400" style="width:74%"></div></div>
+            <div class="mt-3 flex items-center justify-between text-[11px]">
+              <span class="font-mono font-bold text-emerald-600 dark:text-emerald-400">74%</span>
+              <span class="text-zinc-500 dark:text-zinc-400">sesuai proyeksi pajak</span>
+            </div>
+            <div class="mt-4 flex gap-2">
+              <button onclick="goalAction('penarikan','Cadangan Pajak')" class="flex-1 py-2.5 rounded-xl border border-black/10 dark:border-white/10 text-xs font-bold text-zinc-700 dark:text-zinc-300 hover:bg-black/5 dark:hover:bg-white/5">Tarik</button>
+              <button onclick="goalAction('alokasi','Cadangan Pajak')" class="flex-1 py-2.5 rounded-xl bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 text-xs font-bold hover:opacity-90">Alokasi</button>
+            </div>
+          </div>
+
+          <div class="glass-panel rounded-3xl p-6 border border-dashed border-black/15 dark:border-white/15 grid place-items-center text-center">
+            <div>
+              <div class="w-12 h-12 mx-auto rounded-2xl bg-black/5 dark:bg-white/10 grid place-items-center text-zinc-500 dark:text-zinc-400"><i data-lucide="piggy-bank" class="w-6 h-6"></i></div>
+              <p class="mt-4 font-bold text-sm text-zinc-900 dark:text-white">Buat Target Baru</p>
+              <p class="mt-1 text-[11px] text-zinc-500 dark:text-zinc-400 max-w-[14rem]">Tambahkan sinking fund baru dan tentukan juta nominal serta tenggatnya.</p>
+              <button onclick="addGoal()" class="mt-4 px-4 py-2.5 rounded-xl bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 text-xs font-bold hover:opacity-90 flex items-center gap-1.5 mx-auto"><i data-lucide="plus" class="w-3.5 h-3.5"></i> Tambah Target</button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+<!-- ==================== VIEW 7: ASET ==================== -->
+      <div id="view-aset" class="u-view space-y-6">
+        <!-- Header -->
+        <div class="flex flex-wrap items-end justify-between gap-4">
+          <div>
+            <h1 class="text-2xl font-bold tracking-tight text-zinc-900 dark:text-white">Portofolio &amp; Investasi</h1>
+            <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-1 max-w-lg">Nilai wajar seluruh instrumen keuangan dan aset jangka panjang, diperbarui dari pasar.</p>
+          </div>
+          <div class="flex flex-wrap items-center gap-2">
+            <span class="text-[11px] font-mono font-bold px-3 py-2 rounded-2xl bg-emerald-600/10 text-emerald-700 dark:text-emerald-400 border border-emerald-600/20 flex items-center gap-1.5"><i data-lucide="trending-up" class="w-3.5 h-3.5"></i> +Rp 214 Jt tahun ini</span>
+            <button onclick="addAsset()" class="px-4 py-2.5 rounded-2xl bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 text-xs font-bold flex items-center gap-2 shadow-sm hover:opacity-90 active:scale-[0.98] transition"><i data-lucide="plus" class="w-3.5 h-3.5"></i> Tambah Aset</button>
+          </div>
+        </div>
+
+        <!-- KPI Strip -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div class="glass-panel p-5 rounded-3xl flex items-center gap-4">
+            <div class="w-11 h-11 rounded-2xl bg-black/5 dark:bg-white/10 grid place-items-center text-zinc-800 dark:text-zinc-200 shrink-0"><i data-lucide="banknote" class="w-5 h-5"></i></div>
+            <div>
+              <p class="text-[10px] font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">Total Nilai Aset</p>
+              <p class="mt-1 text-2xl font-bold font-mono tracking-tight text-zinc-900 dark:text-white">Rp 7,85 M</p>
+              <p class="text-[10px] text-zinc-400 dark:text-zinc-500 mt-0.5">4 posisi · nilai wajar saat ini</p>
+            </div>
+          </div>
+          <div class="glass-panel p-5 rounded-3xl flex items-center gap-4">
+            <div class="w-11 h-11 rounded-2xl bg-emerald-600/10 text-emerald-700 dark:text-emerald-400 grid place-items-center shrink-0"><i data-lucide="calendar-check" class="w-5 h-5"></i></div>
+            <div>
+              <p class="text-[10px] font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">Dividen &amp; Bagi Hasil</p>
+              <p class="mt-1 text-2xl font-bold font-mono tracking-tight text-emerald-600 dark:text-emerald-400">+Rp 18,5 Jt</p>
+              <p class="text-[10px] text-zinc-400 dark:text-zinc-500 mt-0.5">diterima tahun berjalan</p>
+            </div>
+          </div>
+          <div class="glass-panel p-5 rounded-3xl flex items-center gap-4">
+            <div class="w-11 h-11 rounded-2xl bg-amber-500/15 text-amber-600 dark:text-amber-400 grid place-items-center shrink-0"><i data-lucide="percent" class="w-5 h-5"></i></div>
+            <div>
+              <p class="text-[10px] font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">Imbal Hasil Rata-rata</p>
+              <p class="mt-1 text-2xl font-bold font-mono tracking-tight text-zinc-900 dark:text-white">+9,4%</p>
+              <p class="text-[10px] text-zinc-400 dark:text-zinc-500 mt-0.5">YTD tertimbang (naik 1,2pt)</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+          <!-- Asset cards -->
+          <div class="lg:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-4">
+
+            <div class="glass-panel rounded-3xl p-5">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                  <div class="w-10 h-10 rounded-xl bg-emerald-600/10 text-emerald-700 dark:text-emerald-400 grid place-items-center"><i data-lucide="line-chart" class="w-4 h-4"></i></div>
+                  <div>
+                    <p class="font-bold text-sm text-zinc-900 dark:text-white">Saham Publik</p>
+                    <p class="text-[10px] text-zinc-500 dark:text-zinc-400 mt-0.5 uppercase tracking-wider font-semibold">Emiten blue-chip</p>
+                  </div>
+                </div>
+                <span class="text-[10px] font-bold px-2 py-1 rounded-full bg-emerald-600/10 text-emerald-700 dark:text-emerald-400">+11,3%</span>
+              </div>
+              <p class="mt-5 font-mono text-2xl font-bold tracking-tight text-zinc-900 dark:text-white">Rp 2,45 M</p>
+              <div class="mt-3 h-1.5 rounded-full bg-black/5 dark:bg-white/10 overflow-hidden"><div class="h-full rounded-full bg-emerald-500 dark:bg-emerald-400" style="width:31%"></div></div>
+              <div class="mt-3 flex items-center justify-between text-[11px]">
+                <span class="text-zinc-500 dark:text-zinc-400">Bobot portofolio</span>
+                <span class="font-mono font-bold text-zinc-900 dark:text-white">31%</span>
+              </div>
+              <div class="mt-4 pt-4 border-t border-black/5 dark:border-white/5 flex items-center justify-between text-[11px]">
+                <span class="text-zinc-500 dark:text-zinc-400">Dividen bulan ini</span>
+                <span class="font-mono font-bold text-emerald-600 dark:text-emerald-400">+Rp 7,5 Jt</span>
+              </div>
+              <button onclick="assetAction('jual','Saham Publik')" class="mt-4 w-full py-2.5 rounded-xl border border-black/10 dark:border-white/10 text-xs font-bold text-zinc-700 dark:text-zinc-300 hover:bg-black/5 dark:hover:bg-white/5">Jual / Aksi</button>
+            </div>
+
+            <div class="glass-panel rounded-3xl p-5">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                  <div class="w-10 h-10 rounded-xl bg-black/5 dark:bg-white/10 grid place-items-center text-zinc-800 dark:text-zinc-200"><i data-lucide="shapes" class="w-4 h-4"></i></div>
+                  <div>
+                    <p class="font-bold text-sm text-zinc-900 dark:text-white">Reksadana</p>
+                    <p class="text-[10px] text-zinc-500 dark:text-zinc-400 mt-0.5 uppercase tracking-wider font-semibold">Pasar uang &amp; pendapatan tetap</p>
+                  </div>
+                </div>
+                <span class="text-[10px] font-bold px-2 py-1 rounded-full bg-emerald-600/10 text-emerald-700 dark:text-emerald-400">+6,8%</span>
+              </div>
+              <p class="mt-5 font-mono text-2xl font-bold tracking-tight text-zinc-900 dark:text-white">Rp 1,28 M</p>
+              <div class="mt-3 h-1.5 rounded-full bg-black/5 dark:bg-white/10 overflow-hidden"><div class="h-full rounded-full bg-zinc-500 dark:bg-zinc-400" style="width:16%"></div></div>
+              <div class="mt-3 flex items-center justify-between text-[11px]">
+                <span class="text-zinc-500 dark:text-zinc-400">Bobot portofolio</span>
+                <span class="font-mono font-bold text-zinc-900 dark:text-white">16%</span>
+              </div>
+              <div class="mt-4 pt-4 border-t border-black/5 dark:border-white/5 flex items-center justify-between text-[11px]">
+                <span class="text-zinc-500 dark:text-zinc-400">Bagi hasil bulan ini</span>
+                <span class="font-mono font-bold text-emerald-600 dark:text-emerald-400">+Rp 3,1 Jt</span>
+              </div>
+              <button onclick="assetAction('redeem','Reksadana')" class="mt-4 w-full py-2.5 rounded-xl border border-black/10 dark:border-white/10 text-xs font-bold text-zinc-700 dark:text-zinc-300 hover:bg-black/5 dark:hover:bg-white/5">Jual / Aksi</button>
+            </div>
+
+            <div class="glass-panel rounded-3xl p-5">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                  <div class="w-10 h-10 rounded-xl bg-amber-500/15 text-amber-600 dark:text-amber-400 grid place-items-center"><i data-lucide="building-2" class="w-4 h-4"></i></div>
+                  <div>
+                    <p class="font-bold text-sm text-zinc-900 dark:text-white">Properti Komersial</p>
+                    <p class="text-[10px] text-zinc-500 dark:text-zinc-400 mt-0.5 uppercase tracking-wider font-semibold">Menara Karya Lt. 4-6</p>
+                  </div>
+                </div>
+                <span class="text-[10px] font-bold px-2 py-1 rounded-full bg-amber-500/15 text-amber-700 dark:text-amber-400">Apresiasi 4,2%</span>
+              </div>
+              <p class="mt-5 font-mono text-2xl font-bold tracking-tight text-zinc-900 dark:text-white">Rp 3,40 M</p>
+              <div class="mt-3 h-1.5 rounded-full bg-black/5 dark:bg-white/10 overflow-hidden"><div class="h-full rounded-full bg-amber-500 dark:bg-amber-400" style="width:43%"></div></div>
+              <div class="mt-3 flex items-center justify-between text-[11px]">
+                <span class="text-zinc-500 dark:text-zinc-400">Bobot portofolio</span>
+                <span class="font-mono font-bold text-zinc-900 dark:text-white">43%</span>
+              </div>
+              <div class="mt-4 pt-4 border-t border-black/5 dark:border-white/5 flex items-center justify-between text-[11px]">
+                <span class="text-zinc-500 dark:text-zinc-400">Nilai wajar per m²</span>
+                <span class="font-mono font-bold text-zinc-900 dark:text-white">Rp 28,4 Jt</span>
+              </div>
+              <button onclick="assetAction('jual','Properti Komersial')" class="mt-4 w-full py-2.5 rounded-xl border border-black/10 dark:border-white/10 text-xs font-bold text-zinc-700 dark:text-zinc-300 hover:bg-black/5 dark:hover:bg-white/5">Jual / Aksi</button>
+            </div>
+
+            <div class="glass-panel rounded-3xl p-5">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                  <div class="w-10 h-10 rounded-xl bg-rose-600/10 text-rose-700 dark:text-rose-400 grid place-items-center"><i data-lucide="gem" class="w-4 h-4"></i></div>
+                  <div>
+                    <p class="font-bold text-sm text-zinc-900 dark:text-white">Logam Mulia</p>
+                    <p class="text-[10px] text-zinc-500 dark:text-zinc-400 mt-0.5 uppercase tracking-wider font-semibold">Emas batangan 1.500 gr</p>
+                  </div>
+                </div>
+                <span class="text-[10px] font-bold px-2 py-1 rounded-full bg-emerald-600/10 text-emerald-700 dark:text-emerald-400">+7,9%</span>
+              </div>
+              <p class="mt-5 font-mono text-2xl font-bold tracking-tight text-zinc-900 dark:text-white">Rp 720 Jt</p>
+              <div class="mt-3 h-1.5 rounded-full bg-black/5 dark:bg-white/10 overflow-hidden"><div class="h-full rounded-full bg-rose-500 dark:bg-rose-400" style="width:9%"></div></div>
+              <div class="mt-3 flex items-center justify-between text-[11px]">
+                <span class="text-zinc-500 dark:text-zinc-400">Bobot portofolio</span>
+                <span class="font-mono font-bold text-zinc-900 dark:text-white">9%</span>
+              </div>
+              <div class="mt-4 pt-4 border-t border-black/5 dark:border-white/5 flex items-center justify-between text-[11px]">
+                <span class="text-zinc-500 dark:text-zinc-400">Harga emas hari ini</span>
+                <span class="font-mono font-bold text-emerald-600 dark:text-emerald-400">+0,6%</span>
+              </div>
+              <button onclick="assetAction('jual','Logam Mulia')" class="mt-4 w-full py-2.5 rounded-xl border border-black/10 dark:border-white/10 text-xs font-bold text-zinc-700 dark:text-zinc-300 hover:bg-black/5 dark:hover:bg-white/5">Jual / Aksi</button>
+            </div>
+
+          </div>
+
+          <!-- Allocation donut -->
+          <div class="glass-panel rounded-3xl p-6 h-fit">
+            <div class="flex items-center justify-between">
+              <h3 class="font-bold text-sm text-zinc-900 dark:text-white">Alokasi Portofolio</h3>
+              <span class="text-[10px] font-mono font-bold text-zinc-500 dark:text-zinc-400">Rp 7,85 M</span>
+            </div>
+            <div class="mt-6 flex justify-center">
+              <div class="relative w-44 h-44">
+                <svg viewBox="0 0 100 100" class="w-full h-full -rotate-90">
+                  <circle cx="50" cy="50" r="38" fill="none" stroke="currentColor" class="text-black/5 dark:text-white/10" stroke-width="12"/>
+                  <circle cx="50" cy="50" r="38" fill="none" stroke="#10b981" stroke-width="12" pathLength="100" stroke-dasharray="31.2 68.8" stroke-dashoffset="0" stroke-linecap="butt"/>
+                  <circle cx="50" cy="50" r="38" fill="none" stroke="#71717a" stroke-width="12" pathLength="100" stroke-dasharray="16.3 83.7" stroke-dashoffset="-31.2" stroke-linecap="butt"/>
+                  <circle cx="50" cy="50" r="38" fill="none" stroke="#f59e0b" stroke-width="12" pathLength="100" stroke-dasharray="43.3 56.7" stroke-dashoffset="-47.5" stroke-linecap="butt"/>
+                  <circle cx="50" cy="50" r="38" fill="none" stroke="#f43f5e" stroke-width="12" pathLength="100" stroke-dasharray="9.2 90.8" stroke-dashoffset="-90.8" stroke-linecap="butt"/>
+                </svg>
+                <div class="absolute inset-0 grid place-items-center text-center">
+                  <div>
+                    <p class="font-mono text-lg font-extrabold tracking-tight text-zinc-900 dark:text-white">4 posisi</p>
+                    <p class="text-[9px] uppercase tracking-wider text-zinc-500 dark:text-zinc-400 mt-0.5">terdiversifikasi</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="mt-6 space-y-2.5">
+              <div class="flex items-center justify-between text-xs">
+                <span class="flex items-center gap-2 text-zinc-600 dark:text-zinc-300"><span class="w-2.5 h-2.5 rounded-full" style="background:#f59e0b"></span> Properti</span>
+                <span class="font-mono font-bold text-zinc-900 dark:text-white">43%</span>
+              </div>
+              <div class="flex items-center justify-between text-xs">
+                <span class="flex items-center gap-2 text-zinc-600 dark:text-zinc-300"><span class="w-2.5 h-2.5 rounded-full" style="background:#10b981"></span> Saham</span>
+                <span class="font-mono font-bold text-zinc-900 dark:text-white">31%</span>
+              </div>
+              <div class="flex items-center justify-between text-xs">
+                <span class="flex items-center gap-2 text-zinc-600 dark:text-zinc-300"><span class="w-2.5 h-2.5 rounded-full" style="background:#71717a"></span> Reksadana</span>
+                <span class="font-mono font-bold text-zinc-900 dark:text-white">16%</span>
+              </div>
+              <div class="flex items-center justify-between text-xs">
+                <span class="flex items-center gap-2 text-zinc-600 dark:text-zinc-300"><span class="w-2.5 h-2.5 rounded-full" style="background:#f43f5e"></span> Logam Mulia</span>
+                <span class="font-mono font-bold text-zinc-900 dark:text-white">9%</span>
+              </div>
+            </div>
+            <div class="mt-5 pt-4 border-t border-black/5 dark:border-white/5 space-y-2.5 text-[11px]">
+              <div class="flex items-center justify-between"><span class="text-zinc-500 dark:text-zinc-400">Diversifikasi</span><span class="font-semibold text-emerald-600 dark:text-emerald-400">Sehat</span></div>
+              <div class="flex items-center justify-between"><span class="text-zinc-500 dark:text-zinc-400">Aturan 100 - umur</span><span class="font-mono font-bold text-zinc-900 dark:text-white">Saham &gt; target 2pt</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+<!-- ==================== VIEW 8: PAJAK ==================== -->
+      <div id="view-pajak" class="u-view space-y-6">
+        <!-- Header -->
+        <div class="flex flex-wrap items-end justify-between gap-4">
+          <div>
+            <h1 class="text-2xl font-bold tracking-tight text-zinc-900 dark:text-white">Pajak &amp; Kepatuhan PPh</h1>
+            <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-1 max-w-lg">Komitmen pajak masa, ambang batas pengenaan, dan riwayat SPT dalam satu dasbor.</p>
+          </div>
+          <div class="flex flex-wrap items-center gap-2">
+            <span class="text-[11px] font-mono font-bold px-3 py-2 rounded-2xl bg-rose-600/10 text-rose-700 dark:text-rose-400 border border-rose-600/20 flex items-center gap-1.5"><i data-lucide="clock" class="w-3.5 h-3.5"></i> 1 KBU terlewat</span>
+            <span class="text-[11px] font-mono font-bold px-3 py-2 rounded-2xl bg-emerald-600/10 text-emerald-700 dark:text-emerald-400 border border-emerald-600/20 flex items-center gap-1.5"><i data-lucide="check-circle" class="w-3.5 h-3.5"></i> SPT Tahunan terlampir</span>
+          </div>
+        </div>
+
+        <!-- Summary cards -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+          <div class="glass-panel rounded-3xl p-5">
+            <div class="flex items-center justify-between">
+              <p class="text-[10px] font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">PPN Masa</p>
+              <span class="text-[10px] font-bold px-2 py-1 rounded-full bg-amber-500/15 text-amber-700 dark:text-amber-400">Menunggu</span>
+            </div>
+            <p class="mt-3 font-mono text-2xl font-bold tracking-tight text-amber-600 dark:text-amber-400">Rp 72,4 Jt</p>
+            <p class="mt-1 text-[11px] text-zinc-500 dark:text-zinc-400">Masa Agt · setor 02 Okt 2026</p>
+            <button onclick="taxAction('setor','PPN Masa Agustus')" class="mt-4 w-full py-2.5 rounded-xl bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 text-xs font-bold hover:opacity-90">Setor Sekarang</button>
+          </div>
+          <div class="glass-panel rounded-3xl p-5">
+            <div class="flex items-center justify-between">
+              <p class="text-[10px] font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">PPh 21 Final</p>
+              <span class="text-[10px] font-bold px-2 py-1 rounded-full bg-emerald-600/10 text-emerald-700 dark:text-emerald-400">Lunas</span>
+            </div>
+            <p class="mt-3 font-mono text-2xl font-bold tracking-tight text-zinc-900 dark:text-white">Rp 34,1 Jt</p>
+            <p class="mt-1 text-[11px] text-zinc-500 dark:text-zinc-400">Masa Agt · dibayar 12 Agt 2026</p>
+            <button onclick="taxAction('lihat','PPh 21 Final')" class="mt-4 w-full py-2.5 rounded-xl border border-black/10 dark:border-white/10 text-xs font-bold text-zinc-700 dark:text-zinc-300 hover:bg-black/5 dark:hover:bg-white/5 flex items-center justify-center gap-1.5"><i data-lucide="receipt-text" class="w-3.5 h-3.5"></i> Lihat Bukti</button>
+          </div>
+          <div class="glass-panel rounded-3xl p-5">
+            <div class="flex items-center justify-between">
+              <p class="text-[10px] font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">PPh 23 Jasa</p>
+              <span class="text-[10px] font-bold px-2 py-1 rounded-full bg-amber-500/15 text-amber-700 dark:text-amber-400">Belum jadi</span>
+            </div>
+            <p class="mt-3 font-mono text-2xl font-bold tracking-tight text-amber-600 dark:text-amber-400">Rp 11,6 Jt</p>
+            <p class="mt-1 text-[11px] text-zinc-500 dark:text-zinc-400">Masa Agt · draft 8 of 12 bukti potong</p>
+            <button onclick="taxAction('lengkap','PPh 23 Jasa')" class="mt-4 w-full py-2.5 rounded-xl bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 text-xs font-bold hover:opacity-90">Lengkapi Bukti</button>
+          </div>
+          <div class="glass-panel rounded-3xl p-5">
+            <div class="flex items-center justify-between">
+              <p class="text-[10px] font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">PPh Badan</p>
+              <span class="text-[10px] font-bold px-2 py-1 rounded-full bg-rose-600/10 text-rose-700 dark:text-rose-400">Proyeksi</span>
+            </div>
+            <p class="mt-3 font-mono text-2xl font-bold tracking-tight text-rose-600 dark:text-rose-400">Rp 118 Jt</p>
+            <p class="mt-1 text-[11px] text-zinc-500 dark:text-zinc-400">FY 2026 · estimasi 0,6% dari omset</p>
+            <button onclick="taxAction('hitung','PPh Badan FY2026')" class="mt-4 w-full py-2.5 rounded-xl border border-black/10 dark:border-white/10 text-xs font-bold text-zinc-700 dark:text-zinc-300 hover:bg-black/5 dark:hover:bg-white/5 flex items-center justify-center gap-1.5"><i data-lucide="calculator" class="w-3.5 h-3.5"></i> Hitung Ulang</button>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+          <!-- SPT history -->
+          <div class="lg:col-span-2 glass-panel rounded-3xl p-6">
+            <div class="flex flex-wrap items-center justify-between gap-3">
+              <h3 class="font-bold text-sm text-zinc-900 dark:text-white">Riwayat Pelaporan</h3>
+              <div class="flex items-center gap-1.5 bg-black/5 dark:bg-white/5 p-1 rounded-2xl">
+                <button onclick="taxAction('filter','Semua')" class="px-3.5 py-2 rounded-xl text-xs font-bold bg-black text-white dark:bg-white dark:text-black shadow-sm">Semua</button>
+                <button onclick="taxAction('filter','PPN')" class="px-3.5 py-2 rounded-xl text-xs font-bold text-zinc-600 dark:text-zinc-400 hover:text-black dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/5">PPN</button>
+                <button onclick="taxAction('filter','PPh')" class="px-3.5 py-2 rounded-xl text-xs font-bold text-zinc-600 dark:text-zinc-400 hover:text-black dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/5">PPh</button>
+              </div>
+            </div>
+            <div class="mt-5 overflow-x-auto">
+              <table class="w-full min-w-[38rem] text-left">
+                <thead>
+                  <tr class="text-[10px] uppercase tracking-wider text-zinc-500 dark:text-zinc-400 border-b border-black/10 dark:border-white/10">
+                    <th class="pb-3 font-bold">Periode</th>
+                    <th class="pb-3 font-bold">Jenis</th>
+                    <th class="pb-3 font-bold">Nominal</th>
+                    <th class="pb-3 font-bold">Status</th>
+                    <th class="pb-3 font-bold">Tanggal</th>
+                    <th class="pb-3"></th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-black/5 dark:divide-white/5 text-xs">
+                  <tr>
+                    <td class="py-3.5 font-mono font-bold text-zinc-900 dark:text-white">Agt 2026</td>
+                    <td class="py-3.5 text-zinc-600 dark:text-zinc-300">PPh 21 Final</td>
+                    <td class="py-3.5 font-mono font-bold text-zinc-900 dark:text-white">Rp 34,1 Jt</td>
+                    <td class="py-3.5"><span class="text-[10px] font-bold px-2 py-1 rounded-full bg-emerald-600/10 text-emerald-700 dark:text-emerald-400">Lunas</span></td>
+                    <td class="py-3.5 font-mono text-zinc-500 dark:text-zinc-400">12 Agt 26</td>
+                    <td class="py-3.5 text-right"><button onclick="taxAction('lihat','PPh 21 Agt 2026')" class="text-zinc-600 dark:text-zinc-300 hover:text-black dark:hover:text-white"><i data-lucide="eye" class="w-3.5 h-3.5"></i></button></td>
+                  </tr>
+                  <tr>
+                    <td class="py-3.5 font-mono font-bold text-zinc-900 dark:text-white">Agt 2026</td>
+                    <td class="py-3.5 text-zinc-600 dark:text-zinc-300">PPh 23 Jasa</td>
+                    <td class="py-3.5 font-mono font-bold text-zinc-900 dark:text-white">Rp 11,6 Jt</td>
+                    <td class="py-3.5"><span class="text-[10px] font-bold px-2 py-1 rounded-full bg-amber-500/15 text-amber-700 dark:text-amber-400">Draft</span></td>
+                    <td class="py-3.5 font-mono text-zinc-500 dark:text-zinc-400">-</td>
+                    <td class="py-3.5 text-right"><button onclick="taxAction('lihat','PPh 23 Agt 2026')" class="text-zinc-600 dark:text-zinc-300 hover:text-black dark:hover:text-white"><i data-lucide="eye" class="w-3.5 h-3.5"></i></button></td>
+                  </tr>
+                  <tr>
+                    <td class="py-3.5 font-mono font-bold text-zinc-900 dark:text-white">Jul 2026</td>
+                    <td class="py-3.5 text-zinc-600 dark:text-zinc-300">PPN Masa</td>
+                    <td class="py-3.5 font-mono font-bold text-zinc-900 dark:text-white">Rp 68,9 Jt</td>
+                    <td class="py-3.5"><span class="text-[10px] font-bold px-2 py-1 rounded-full bg-emerald-600/10 text-emerald-700 dark:text-emerald-400">Lunas</span></td>
+                    <td class="py-3.5 font-mono text-zinc-500 dark:text-zinc-400">12 Agt 26</td>
+                    <td class="py-3.5 text-right"><button onclick="taxAction('lihat','PPN Jul 2026')" class="text-zinc-600 dark:text-zinc-300 hover:text-black dark:hover:text-white"><i data-lucide="eye" class="w-3.5 h-3.5"></i></button></td>
+                  </tr>
+                  <tr>
+                    <td class="py-3.5 font-mono font-bold text-zinc-900 dark:text-white">Jul 2026</td>
+                    <td class="py-3.5 text-zinc-600 dark:text-zinc-300">PPh 21 Final</td>
+                    <td class="py-3.5 font-mono font-bold text-zinc-900 dark:text-white">Rp 33,8 Jt</td>
+                    <td class="py-3.5"><span class="text-[10px] font-bold px-2 py-1 rounded-full bg-emerald-600/10 text-emerald-700 dark:text-emerald-400">Lunas</span></td>
+                    <td class="py-3.5 font-mono text-zinc-500 dark:text-zinc-400">12 Jul 26</td>
+                    <td class="py-3.5 text-right"><button onclick="taxAction('lihat','PPh 21 Jul 2026')" class="text-zinc-600 dark:text-zinc-300 hover:text-black dark:hover:text-white"><i data-lucide="eye" class="w-3.5 h-3.5"></i></button></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Threshold panel -->
+          <div class="glass-panel rounded-3xl p-6 h-fit">
+            <div class="flex items-center justify-between">
+              <h3 class="font-bold text-sm text-zinc-900 dark:text-white">Ambang Batas &amp; Status</h3>
+              <span class="text-[10px] font-mono font-bold text-zinc-500 dark:text-zinc-400">PDB · PMK 23/2018</span>
+            </div>
+            <div class="mt-5 space-y-4">
+              <div>
+                <div class="flex items-center justify-between text-xs">
+                  <span class="text-zinc-600 dark:text-zinc-300">Omset Tahunan <span class="text-zinc-400 dark:text-zinc-500">· agregat grup</span></span>
+                  <span class="font-mono font-bold text-zinc-900 dark:text-white">Rp 19,7 M</span>
+                </div>
+                <div class="mt-2 h-2 rounded-full bg-black/5 dark:bg-white/10 overflow-hidden"><div class="h-full rounded-full bg-zinc-500 dark:bg-zinc-400" style="width:98%"></div></div>
+                <p class="mt-2 text-[11px] text-amber-600 dark:text-amber-400 font-semibold">Di atas Rp 4,8 M > pengusaha kena pajak (PKP)</p>
+              </div>
+              <div class="border-t border-black/5 dark:border-white/5 pt-4">
+                <div class="flex items-center justify-between text-xs">
+                  <span class="text-zinc-600 dark:text-zinc-300">Memotong PPh</span>
+                  <span class="text-[10px] font-bold px-2 py-1 rounded-full bg-emerald-600/10 text-emerald-700 dark:text-emerald-400">Wajib</span>
+                </div>
+                <div class="flex items-center justify-between text-xs mt-2">
+                  <span class="text-zinc-600 dark:text-zinc-300">Penerbitan Faktur</span>
+                  <span class="text-[10px] font-bold px-2 py-1 rounded-full bg-emerald-600/10 text-emerald-700 dark:text-emerald-400">e-Faktur 3.2</span>
+                </div>
+                <div class="flex items-center justify-between text-xs mt-2">
+                  <span class="text-zinc-600 dark:text-zinc-300">Rangka e-SPT</span>
+                  <span class="text-[10px] font-bold px-2 py-1 rounded-full bg-emerald-600/10 text-emerald-700 dark:text-emerald-400">Aktif</span>
+                </div>
+              </div>
+              <div class="border-t border-black/5 dark:border-white/5 pt-4">
+                <p class="text-xs font-bold text-zinc-900 dark:text-white flex items-center gap-2"><i data-lucide="scale" class="w-4 h-4 text-zinc-500 dark:text-zinc-400"></i> Klasifikasi Usaha</p>
+                <p class="mt-2 text-[11px] text-zinc-500 dark:text-zinc-400">KBLI 62011 · Perdagangan Besar atas Dasar Balas Jasa (Fee) atau Kontrak</p>
+                <button onclick="taxAction('ubah-klasifikasi','KBLI')" class="mt-3 text-[11px] font-bold text-zinc-700 dark:text-zinc-300 hover:underline flex items-center gap-1"><i data-lucide="pencil" class="w-3 h-3"></i> Ubah klasifikasi</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+<!-- ==================== VIEW 9: LAPORAN ==================== -->
+      <div id="view-laporan" class="u-view space-y-6">
+        <!-- Header -->
+        <div class="flex flex-wrap items-end justify-between gap-4">
+          <div>
+            <h1 class="text-2xl font-bold tracking-tight text-zinc-900 dark:text-white">Laporan Keuangan</h1>
+            <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-1 max-w-lg">Ringkasan performa, unduhan CSV/PDF, dan penjadwalan laporan ke penerima tetap.</p>
+          </div>
+          <div class="flex items-center gap-2">
+            <div class="flex items-center gap-1.5 bg-black/5 dark:bg-white/5 p-1 rounded-2xl">
+              <button data-report-period="harian" onclick="setReportPeriod(this,'harian')" class="px-3.5 py-2 rounded-xl text-xs font-bold bg-black text-white dark:bg-white dark:text-black shadow-sm">Harian</button>
+              <button data-report-period="mingguan" onclick="setReportPeriod(this,'mingguan')" class="px-3.5 py-2 rounded-xl text-xs font-bold text-zinc-600 dark:text-zinc-400 hover:text-black dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/5">Mingguan</button>
+              <button data-report-period="bulanan" onclick="setReportPeriod(this,'bulanan')" class="px-3.5 py-2 rounded-xl text-xs font-bold text-zinc-600 dark:text-zinc-400 hover:text-black dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/5">Bulanan</button>
+            </div>
+            <button onclick="downloadReport('csv','Laporan Keuangan')" class="px-4 py-2.5 rounded-2xl border border-black/10 dark:border-white/10 text-xs font-bold text-zinc-700 dark:text-zinc-300 hover:bg-black/5 dark:hover:bg-white/5 flex items-center gap-2"><i data-lucide="file-down" class="w-3.5 h-3.5"></i> CSV</button>
+            <button onclick="downloadReport('pdf','Laporan Keuangan')" class="px-4 py-2.5 rounded-2xl bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 text-xs font-bold flex items-center gap-2 shadow-sm hover:opacity-90"><i data-lucide="file-text" class="w-3.5 h-3.5"></i> PDF</button>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <!-- Report cards -->
+          <div class="glass-panel rounded-3xl p-6">
+            <div class="flex items-start justify-between gap-3">
+              <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-emerald-600/10 text-emerald-700 dark:text-emerald-400 grid place-items-center"><i data-lucide="arrow-down-left" class="w-4 h-4"></i></div>
+                <div>
+                  <p class="font-bold text-sm text-zinc-900 dark:text-white">Arus Kas Masuk</p>
+                  <p class="text-[10px] text-zinc-500 dark:text-zinc-400 mt-0.5 uppercase tracking-wider font-semibold">Pemasukan · 30 hari berjalan</p>
+                </div>
+              </div>
+              <span class="text-[10px] font-bold px-2 py-1 rounded-full bg-emerald-600/10 text-emerald-700 dark:text-emerald-400 flex items-center gap-1"><i data-lucide="trending-up" class="w-3 h-3"></i> +18,2%</span>
+            </div>
+            <div class="mt-5 flex items-end justify-between">
+              <div>
+                <p class="font-mono text-2xl font-bold tracking-tight text-emerald-600 dark:text-emerald-400">Rp 892 Jt</p>
+                <p class="text-[11px] text-zinc-500 dark:text-zinc-400 mt-1">Rp 1,42 M bulan lalu <span class="text-zinc-400 dark:text-zinc-500">· 342 mutasi</span></p>
+              </div>
+              <svg viewBox="0 0 120 36" class="w-28 h-10 shrink-0 overflow-visible" preserveAspectRatio="none">
+                <polyline fill="none" stroke="#10b981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" points="0,26 15,24 30,27 45,20 60,22 75,15 90,17 105,9 120,5"/>
+              </svg>
+            </div>
+            <div class="mt-4 pt-4 border-t border-black/5 dark:border-white/5 flex items-center justify-between">
+              <button onclick="downloadReport('csv','Arus Kas Masuk')" class="text-[11px] font-bold text-zinc-600 dark:text-zinc-300 flex items-center gap-1 hover:underline"><i data-lucide="file-down" class="w-3 h-3"></i> Unduh CSV</button>
+              <button onclick="downloadReport('pdf','Arus Kas Masuk')" class="text-[11px] font-bold text-zinc-600 dark:text-zinc-300 flex items-center gap-1 hover:underline"><i data-lucide="file-text" class="w-3 h-3"></i> Unduh PDF</button>
+            </div>
+          </div>
+
+          <div class="glass-panel rounded-3xl p-6">
+            <div class="flex items-start justify-between gap-3">
+              <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-rose-600/10 text-rose-700 dark:text-rose-400 grid place-items-center"><i data-lucide="arrow-up-right" class="w-4 h-4"></i></div>
+                <div>
+                  <p class="font-bold text-sm text-zinc-900 dark:text-white">Arus Kas Keluar</p>
+                  <p class="text-[10px] text-zinc-500 dark:text-zinc-400 mt-0.5 uppercase tracking-wider font-semibold">Pengeluaran · 30 hari berjalan</p>
+                </div>
+              </div>
+              <span class="text-[10px] font-bold px-2 py-1 rounded-full bg-rose-600/10 text-rose-700 dark:text-rose-400 flex items-center gap-1"><i data-lucide="trending-down" class="w-3 h-3"></i> -4,6%</span>
+            </div>
+            <div class="mt-5 flex items-end justify-between">
+              <div>
+                <p class="font-mono text-2xl font-bold tracking-tight text-rose-600 dark:text-rose-400">Rp 410 Jt</p>
+                <p class="text-[11px] text-zinc-500 dark:text-zinc-400 mt-1">Rp 430 Jt bulan lalu <span class="text-zinc-400 dark:text-zinc-500">· 248 mutasi</span></p>
+              </div>
+              <svg viewBox="0 0 120 36" class="w-28 h-10 shrink-0 overflow-visible" preserveAspectRatio="none">
+                <polyline fill="none" stroke="#f43f5e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" points="0,8 15,10 30,7 45,13 60,11 75,17 90,15 105,21 120,20"/>
+              </svg>
+            </div>
+            <div class="mt-4 pt-4 border-t border-black/5 dark:border-white/5 flex items-center justify-between">
+              <button onclick="downloadReport('csv','Arus Kas Keluar')" class="text-[11px] font-bold text-zinc-600 dark:text-zinc-300 flex items-center gap-1 hover:underline"><i data-lucide="file-down" class="w-3 h-3"></i> Unduh CSV</button>
+              <button onclick="downloadReport('pdf','Arus Kas Keluar')" class="text-[11px] font-bold text-zinc-600 dark:text-zinc-300 flex items-center gap-1 hover:underline"><i data-lucide="file-text" class="w-3 h-3"></i> Unduh PDF</button>
+            </div>
+          </div>
+
+          <div class="glass-panel rounded-3xl p-6">
+            <div class="flex items-start justify-between gap-3">
+              <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-black/5 dark:bg-white/10 grid place-items-center text-zinc-800 dark:text-zinc-200"><i data-lucide="scale" class="w-4 h-4"></i></div>
+                <div>
+                  <p class="font-bold text-sm text-zinc-900 dark:text-white">Neraca Saldo</p>
+                  <p class="text-[10px] text-zinc-500 dark:text-zinc-400 mt-0.5 uppercase tracking-wider font-semibold">Posisi 31 Agt 2026</p>
+                </div>
+              </div>
+              <span class="text-[10px] font-bold px-2 py-1 rounded-full bg-emerald-600/10 text-emerald-700 dark:text-emerald-400">Seimbang</span>
+            </div>
+            <div class="mt-5 grid grid-cols-2 gap-4">
+              <div class="rounded-2xl bg-black/5 dark:bg-white/5 p-4">
+                <p class="text-[10px] font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">Aset</p>
+                <p class="mt-2 font-mono text-xl font-bold tracking-tight text-zinc-900 dark:text-white">Rp 14,2 M</p>
+                <p class="text-[11px] text-zinc-500 dark:text-zinc-400 mt-1">+18 pos jurnal</p>
+              </div>
+              <div class="rounded-2xl bg-black/5 dark:bg-white/5 p-4">
+                <p class="text-[10px] font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">Liabilitas</p>
+                <p class="mt-2 font-mono text-xl font-bold tracking-tight text-zinc-900 dark:text-white">Rp 14,2 M</p>
+                <p class="text-[11px] text-zinc-500 dark:text-zinc-400 mt-1">+13 pos jurnal</p>
+              </div>
+            </div>
+            <div class="mt-4 pt-4 border-t border-black/5 dark:border-white/5 flex items-center justify-between">
+              <button onclick="downloadReport('csv','Neraca Saldo')" class="text-[11px] font-bold text-zinc-600 dark:text-zinc-300 flex items-center gap-1 hover:underline"><i data-lucide="file-down" class="w-3 h-3"></i> Unduh CSV</button>
+              <button onclick="downloadReport('pdf','Neraca Saldo')" class="text-[11px] font-bold text-zinc-600 dark:text-zinc-300 flex items-center gap-1 hover:underline"><i data-lucide="file-text" class="w-3 h-3"></i> Unduh PDF</button>
+            </div>
+          </div>
+
+          <div class="glass-panel rounded-3xl p-6">
+            <div class="flex items-start justify-between gap-3">
+              <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-amber-500/15 text-amber-600 dark:text-amber-400 grid place-items-center"><i data-lucide="percent" class="w-4 h-4"></i></div>
+                <div>
+                  <p class="font-bold text-sm text-zinc-900 dark:text-white">Rasio Keuangan</p>
+                  <p class="text-[10px] text-zinc-500 dark:text-zinc-400 mt-0.5 uppercase tracking-wider font-semibold">Likuiditas &amp; profitabilitas</p>
+                </div>
+              </div>
+              <span class="text-[10px] font-bold px-2 py-1 rounded-full bg-emerald-600/10 text-emerald-700 dark:text-emerald-400">Sehat</span>
+            </div>
+            <div class="mt-5 grid grid-cols-2 gap-x-6 gap-y-3 text-xs">
+              <div class="flex items-center justify-between">
+                <span class="text-zinc-500 dark:text-zinc-400">Current ratio</span>
+                <span class="font-mono font-bold text-zinc-900 dark:text-white">4,2x</span>
+              </div>
+              <div class="flex items-center justify-between">
+                <span class="text-zinc-500 dark:text-zinc-400">Net margin</span>
+                <span class="font-mono font-bold text-zinc-900 dark:text-white">21,8%</span>
+              </div>
+              <div class="flex items-center justify-between">
+                <span class="text-zinc-500 dark:text-zinc-400">Quick ratio</span>
+                <span class="font-mono font-bold text-zinc-900 dark:text-white">3,1x</span>
+              </div>
+              <div class="flex items-center justify-between">
+                <span class="text-zinc-500 dark:text-zinc-400">ROE</span>
+                <span class="font-mono font-bold text-zinc-900 dark:text-white">16,4%</span>
+              </div>
+              <div class="flex items-center justify-between">
+                <span class="text-zinc-500 dark:text-zinc-400">DER</span>
+                <span class="font-mono font-bold text-zinc-900 dark:text-white">0,38x</span>
+              </div>
+              <div class="flex items-center justify-between">
+                <span class="text-zinc-500 dark:text-zinc-400">Opex/opmset</span>
+                <span class="font-mono font-bold text-zinc-900 dark:text-white">38,9%</span>
+              </div>
+            </div>
+            <div class="mt-4 pt-4 border-t border-black/5 dark:border-white/5 flex items-center justify-between">
+              <button onclick="downloadReport('csv','Rasio Keuangan')" class="text-[11px] font-bold text-zinc-600 dark:text-zinc-300 flex items-center gap-1 hover:underline"><i data-lucide="file-down" class="w-3 h-3"></i> Unduh CSV</button>
+              <button onclick="downloadReport('pdf','Rasio Keuangan')" class="text-[11px] font-bold text-zinc-600 dark:text-zinc-300 flex items-center gap-1 hover:underline"><i data-lucide="file-text" class="w-3 h-3"></i> Unduh PDF</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Schedule panel -->
+        <div class="glass-panel rounded-3xl p-6 flex flex-wrap items-center justify-between gap-4">
+          <div class="flex items-center gap-4">
+            <div class="w-11 h-11 rounded-2xl bg-black/5 dark:bg-white/10 grid place-items-center text-zinc-800 dark:text-zinc-200 shrink-0"><i data-lucide="calendar-clock" class="w-5 h-5"></i></div>
+            <div>
+              <p class="font-bold text-sm text-zinc-900 dark:text-white">Laporan Bulanan Otomatis</p>
+              <p class="text-[11px] text-zinc-500 dark:text-zinc-400 mt-0.5">Ringkasan arus kas dikirim ke finance@ &amp; direksi@ setiap tanggal 1</p>
+            </div>
+          </div>
+          <div class="flex items-center gap-3">
+            <span class="text-[10px] font-bold px-2.5 py-1 rounded-full bg-emerald-600/10 text-emerald-700 dark:text-emerald-400">Aktif</span>
+            <button onclick="scheduleToggle()" class="relative w-11 h-6 rounded-full bg-emerald-500 transition-colors" aria-label="Jadwal laporan otomatis">
+              <span class="absolute top-0.5 left-[22px] w-5 h-5 rounded-full bg-white shadow"></span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+<!-- ==================== VIEW 10: PENGATURAN ==================== -->
+      <style>
+        .appearance-card{position:relative}
+        .appearance-card.selected{border-color:rgba(16,185,129,.55);box-shadow:0 0 0 3px rgba(16,185,129,.15)}
+        .appearance-card.selected::after{content:"";position:absolute;top:10px;right:10px;width:18px;height:18px;border-radius:9999px;background:#10b981;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 6 9 17l-5-5'/%3E%3C/svg%3E");background-size:12px;background-position:center;background-repeat:no-repeat}
+      </style>
+      <div id="view-pengaturan" class="u-view space-y-6">
+        <!-- Header -->
+        <div class="flex flex-wrap items-end justify-between gap-4">
+          <div>
+            <h1 class="text-2xl font-bold tracking-tight text-zinc-900 dark:text-white">Pengaturan Pencatatan</h1>
+            <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-1 max-w-lg">Konfigurasi ruang kerja, format lokal, dan tampilan modul keuangan korporat.</p>
+          </div>
+          <button onclick="saveGeneral()" class="px-4 py-2.5 rounded-2xl bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 text-xs font-bold flex items-center gap-2 shadow-sm hover:opacity-90 active:scale-[0.98] transition"><i data-lucide="save" class="w-3.5 h-3.5"></i> Simpan Perubahan</button>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+          <!-- Settings nav -->
+          <aside class="glass-panel rounded-3xl p-2 h-fit">
+            <button onclick="settingsNav('umum')" data-settings-nav="umum" class="w-full flex items-center gap-3 px-3.5 py-3 rounded-2xl text-left text-xs font-bold text-zinc-600 dark:text-zinc-400 hover:bg-black/5 dark:hover:bg-white/5 hover:text-black dark:hover:text-white"><i data-lucide="sliders-horizontal" class="w-4 h-4"></i> Umum</button>
+            <button onclick="settingsNav('penagihan')" data-settings-nav="penagihan" class="w-full flex items-center gap-3 px-3.5 py-3 rounded-2xl text-left text-xs font-bold text-zinc-600 dark:text-zinc-400 hover:bg-black/5 dark:hover:bg-white/5 hover:text-black dark:hover:text-white"><i data-lucide="receipt" class="w-4 h-4"></i> Penagihan</button>
+            <button onclick="settingsNav('notifikasi')" data-settings-nav="notifikasi" class="w-full flex items-center gap-3 px-3.5 py-3 rounded-2xl text-left text-xs font-bold text-zinc-600 dark:text-zinc-400 hover:bg-black/5 dark:hover:bg-white/5 hover:text-black dark:hover:text-white"><i data-lucide="bell" class="w-4 h-4"></i> Notifikasi</button>
+            <button onclick="settingsNav('tim')" data-settings-nav="tim" class="w-full flex items-center gap-3 px-3.5 py-3 rounded-2xl text-left text-xs font-bold text-zinc-600 dark:text-zinc-400 hover:bg-black/5 dark:hover:bg-white/5 hover:text-black dark:hover:text-white"><i data-lucide="users" class="w-4 h-4"></i> Tim</button>
+          </aside>
+
+          <!-- Panels -->
+          <div class="lg:col-span-3 space-y-6">
+
+            <div class="glass-panel rounded-3xl p-6">
+              <div class="flex items-center gap-4">
+                <div class="w-11 h-11 rounded-2xl bg-black/5 dark:bg-white/10 grid place-items-center text-zinc-800 dark:text-zinc-200 shrink-0"><i data-lucide="building-2" class="w-5 h-5"></i></div>
+                <div>
+                  <h3 class="font-bold text-sm text-zinc-900 dark:text-white">Workspace</h3>
+                  <p class="text-[11px] text-zinc-500 dark:text-zinc-400 mt-0.5">Entitas pencatatan default untuk transaksi baru</p>
+                </div>
+              </div>
+              <div class="mt-5 flex items-center justify-between gap-4 rounded-2xl border border-black/10 dark:border-white/10 px-4 py-3.5">
+                <div>
+                  <p class="font-bold text-sm text-zinc-900 dark:text-white">PT Sukses Fin Tech Nusantara</p>
+                  <p class="text-[11px] text-zinc-500 dark:text-zinc-400 mt-0.5">NPWP 01.234.567.8-012.000 · PKP</p>
+                </div>
+                <button onclick="settingsNav('tim')" class="text-[11px] font-bold text-zinc-700 dark:text-zinc-300 hover:underline flex items-center gap-1 shrink-0"><i data-lucide="pencil" class="w-3 h-3"></i> Ganti</button>
+              </div>
+            </div>
+
+            <div class="glass-panel rounded-3xl p-6">
+              <div class="flex items-center gap-4">
+                <div class="w-11 h-11 rounded-2xl bg-black/5 dark:bg-white/10 grid place-items-center text-zinc-800 dark:text-zinc-200 shrink-0"><i data-lucide="globe" class="w-5 h-5"></i></div>
+                <div>
+                  <h3 class="font-bold text-sm text-zinc-900 dark:text-white">Lokalisasi</h3>
+                  <p class="text-[11px] text-zinc-500 dark:text-zinc-400 mt-0.5">Format angka, mata uang, dan zona waktu laporan</p>
+                </div>
+              </div>
+              <div class="mt-5 space-y-4">
+                <div class="flex flex-wrap items-center justify-between gap-3">
+                  <div>
+                    <p class="font-bold text-xs text-zinc-900 dark:text-white">Format Angka</p>
+                    <p class="text-[11px] text-zinc-500 dark:text-zinc-400 mt-0.5">Nilai dalam jutaan, pemisah titik, desimal pulaan</p>
+                  </div>
+                  <div class="flex items-center gap-1.5 bg-black/5 dark:bg-white/5 p-1 rounded-2xl">
+                    <button onclick="settingsNav('umum')" class="px-3.5 py-2 rounded-xl text-xs font-bold bg-black text-white dark:bg-white dark:text-black shadow-sm">IDR · juta</button>
+                    <button onclick="settingsNav('umum')" class="px-3.5 py-2 rounded-xl text-xs font-bold text-zinc-600 dark:text-zinc-400 hover:text-black dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/5">IDR · penuh</button>
+                    <button onclick="settingsNav('umum')" class="px-3.5 py-2 rounded-xl text-xs font-bold text-zinc-600 dark:text-zinc-400 hover:text-black dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/5">USD</button>
+                  </div>
+                </div>
+                <div class="flex flex-wrap items-center justify-between gap-3 border-t border-black/5 dark:border-white/5 pt-4">
+                  <div>
+                    <p class="font-bold text-xs text-zinc-900 dark:text-white">Mata Uang Pelaporan</p>
+                    <p class="text-[11px] text-zinc-500 dark:text-zinc-400 mt-0.5">IDR (Rp) · kurs referensi BI harian</p>
+                  </div>
+                  <span class="text-xs font-mono font-bold text-zinc-900 dark:text-white">Rp 16.285</span>
+                </div>
+                <div class="flex flex-wrap items-center justify-between gap-3 border-t border-black/5 dark:border-white/5 pt-4">
+                  <div>
+                    <p class="font-bold text-xs text-zinc-900 dark:text-white">Zona Waktu</p>
+                    <p class="text-[11px] text-zinc-500 dark:text-zinc-400 mt-0.5">Jakarta, GMT+7 · tanpa DST</p>
+                  </div>
+                  <span class="text-xs font-mono font-bold text-zinc-900 dark:text-white">Asia/Jakarta</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="glass-panel rounded-3xl p-6">
+              <div class="flex items-center gap-4">
+                <div class="w-11 h-11 rounded-2xl bg-black/5 dark:bg-white/10 grid place-items-center text-zinc-800 dark:text-zinc-200 shrink-0"><i data-lucide="palette" class="w-5 h-5"></i></div>
+                <div>
+                  <h3 class="font-bold text-sm text-zinc-900 dark:text-white">Tampilan</h3>
+                  <p class="text-[11px] text-zinc-500 dark:text-zinc-400 mt-0.5">Warna aksen dan penyorotan kategori pada modul keuangan</p>
+                </div>
+              </div>
+              <div class="mt-5 grid grid-cols-2 sm:grid-cols-4 gap-4">
+                <button onclick="selectedAppearance='Kompas';(renderAppearance())" class="appearance-card rounded-2xl border border-black/10 dark:border-white/10 p-4 text-left">
+                  <p class="text-[10px] font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">Kompas</p>
+                  <div class="mt-3 space-y-1.5">
+                    <span class="block h-2 w-16 rounded-full bg-emerald-500"></span>
+                    <span class="block h-2 w-11 rounded-full bg-zinc-300 dark:bg-zinc-700"></span>
+                    <span class="block h-2 w-14 rounded-full bg-zinc-200 dark:bg-zinc-800"></span>
+                  </div>
+                </button>
+                <button onclick="selectedAppearance='Ledger';(renderAppearance())" class="appearance-card rounded-2xl border border-black/10 dark:border-white/10 p-4 text-left">
+                  <p class="text-[10px] font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">Ledger</p>
+                  <div class="mt-3 space-y-1.5">
+                    <span class="block h-2 w-16 rounded-full bg-indigo-500"></span>
+                    <span class="block h-2 w-11 rounded-full bg-zinc-300 dark:bg-zinc-700"></span>
+                    <span class="block h-2 w-14 rounded-full bg-zinc-200 dark:bg-zinc-800"></span>
+                  </div>
+                </button>
+                <button onclick="selectedAppearance='Amber';(renderAppearance())" class="appearance-card rounded-2xl border border-black/10 dark:border-white/10 p-4 text-left">
+                  <p class="text-[10px] font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">Amber</p>
+                  <div class="mt-3 space-y-1.5">
+                    <span class="block h-2 w-16 rounded-full bg-amber-500"></span>
+                    <span class="block h-2 w-11 rounded-full bg-zinc-300 dark:bg-zinc-700"></span>
+                    <span class="block h-2 w-14 rounded-full bg-zinc-200 dark:bg-zinc-800"></span>
+                  </div>
+                </button>
+                <button onclick="selectedAppearance='Azure';(renderAppearance())" class="appearance-card rounded-2xl border border-black/10 dark:border-white/10 p-4 text-left">
+                  <p class="text-[10px] font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">Azure</p>
+                  <div class="mt-3 space-y-1.5">
+                    <span class="block h-2 w-16 rounded-full bg-sky-500"></span>
+                    <span class="block h-2 w-11 rounded-full bg-zinc-300 dark:bg-zinc-700"></span>
+                    <span class="block h-2 w-14 rounded-full bg-zinc-200 dark:bg-zinc-800"></span>
+                  </div>
+                </button>
+              </div>
+              <div class="mt-5 pt-4 border-t border-black/5 dark:border-white/5 flex items-center justify-between gap-3">
+                <p class="text-xs text-zinc-500 dark:text-zinc-400">Tema cerah / gelap mengikuti preferensi sistem operasi.</p>
+                <span class="text-[10px] font-bold px-2.5 py-1 rounded-full bg-black/5 dark:bg-white/10 text-zinc-600 dark:text-zinc-300">Auto</span>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <!-- ==================== JAVASCRIPT CORE ==================== -->
+  <script>
+    (function initTheme() {
+      const saved = localStorage.getItem('uroo-theme');
+      if (saved === 'dark' || (!saved && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+        document.documentElement.classList.add('dark');
+        document.documentElement.classList.remove('light');
+        document.body.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+        document.documentElement.classList.add('light');
+        document.body.classList.remove('dark');
+      }
+    })();
+
+    function toggleTheme() {
+      const isDark = document.documentElement.classList.toggle('dark');
+      document.body.classList.toggle('dark', isDark);
+      if (!isDark) {
+        document.documentElement.classList.add('light');
+        document.body.classList.add('light');
+      } else {
+        document.documentElement.classList.remove('light');
+        document.body.classList.remove('light');
+      }
+      try { localStorage.setItem('uroo-theme', isDark ? 'dark' : 'light'); } catch (e) {}
+      lucide.createIcons();
+    }
+
+    const sidebar = document.getElementById('sidebar');
+    function openDrawer() {
+      sidebar.classList.add('open');
+      document.getElementById('overlay').classList.remove('opacity-0', 'pointer-events-none');
+    }
+    function closeDrawer() {
+      sidebar.classList.remove('open');
+      document.getElementById('overlay').classList.add('opacity-0', 'pointer-events-none');
+    }
+
+    function toast(msg, type) {
+      const t = document.createElement('div');
+      t.className = 'fixed bottom-5 right-5 z-[90] glass-panel rounded-2xl px-4 py-3 text-sm font-semibold shadow-2xl anim-toast-in flex items-center gap-2.5 pointer-events-none max-w-sm text-zinc-900 dark:text-zinc-100';
+      t.innerHTML = '<i data-lucide="' + (type || 'check-circle') + '" class="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0"></i><span>' + msg + '</span>';
+      document.body.appendChild(t);
+      lucide.createIcons();
+      setTimeout(() => {
+        t.style.opacity = '0';
+        setTimeout(() => t.remove(), 300);
+      }, 2400);
+    }
+
+    const VIEWS = ['ringkasan', 'transaksi', 'dompet', 'tagihan', 'anggaran', 'tabungan', 'aset', 'pajak', 'laporan', 'pengaturan'];
+
+    function switchView(viewId, updateHash = true) {
+      if (!VIEWS.includes(viewId)) viewId = 'ringkasan';
+
+      document.querySelectorAll('.u-view').forEach(el => el.classList.remove('active'));
+      const target = document.getElementById('view-' + viewId);
+      if (target) target.classList.add('active');
+
+      document.querySelectorAll('.nav-link').forEach(btn => {
+        const nav = btn.getAttribute('data-nav');
+        if (nav === viewId) {
+          btn.className = 'nav-link w-full flex items-center gap-3 px-3 py-2.5 rounded-2xl text-sm font-medium transition bg-black text-white dark:bg-white dark:text-black shadow-sm';
+        } else {
+          btn.className = 'nav-link w-full flex items-center gap-3 px-3 py-2.5 rounded-2xl text-sm font-medium transition text-zinc-600 dark:text-zinc-400 hover:bg-black/5 dark:hover:bg-white/5 hover:text-black dark:hover:text-white';
+        }
+      });
+
+      if (updateHash && window.location.hash !== '#' + viewId) {
+        window.location.hash = viewId;
+      }
+
+      closeDrawer();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      lucide.createIcons();
+    }
+
+    window.addEventListener('hashchange', () => {
+      const hash = window.location.hash.replace('#', '');
+      if (hash && VIEWS.includes(hash)) switchView(hash, false);
+    });
+
+    document.addEventListener('DOMContentLoaded', () => {
+      lucide.createIcons();
+      const initialHash = window.location.hash.replace('#', '');
+      if (initialHash && VIEWS.includes(initialHash)) switchView(initialHash, false);
+      else switchView('ringkasan', false);
+    });
+
+    /* ============ VIEW: TRANSAKSI ============ */
+    function setTxFilter(type) {
+      document.querySelectorAll('[data-tx-filter]').forEach(btn => {
+        const active = btn.getAttribute('data-tx-filter') === type;
+        btn.className = active
+          ? 'px-3.5 py-2 rounded-xl text-xs font-bold bg-black text-white dark:bg-white dark:text-black shadow-sm'
+          : 'px-3.5 py-2 rounded-xl text-xs font-bold text-zinc-600 dark:text-zinc-400 hover:text-black dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/5';
+      });
+      document.querySelectorAll('#view-transaksi tbody tr[data-type]').forEach(row => {
+        row.style.display = (type === 'semua' || row.getAttribute('data-type') === type) ? '' : 'none';
+      });
+    }
+
+    function addTransaction() {
+      toast('Formulir transaksi baru', 'Buka modal pencatatan untuk menambah mutasi.');
+    }
+
+    function exportLedger() {
+      toast('Ekspor ledger', 'Ledger CSV sedang disiapkan dan akan diunduh.');
+    }
+
+    function txRowAction(action) {
+      toast(action === 'lihat' ? 'Detail transaksi' : 'Edit transaksi', 'Operasi diteruskan ke modul pencatatan mutasi.');
+    }
+
+    /* ============ VIEW: DOMPET ============ */
+    function walletAction(action, name) {
+      toast(action === 'tarik' ? 'Penarikan' : 'Pengisian', 'Transaksi ' + name + ' dibuka pada formulir mutasi.');
+    }
+
+    function addWallet() {
+      toast('Tambah dompet baru', 'Formulir koneksi rekening atau e-wallet dibuka.');
+    }
+
+    /* ============ VIEW: TAGIHAN ============ */
+    function payBill(name, amount) {
+      toast('Bayar tagihan', name + ' — ' + amount + '. Pembayaran diteruskan ke gateway.');
+    }
+
+    /* ============ VIEW: ANGGARAN ============ */
+    function setBudgetPeriod(el, period) {
+      document.querySelectorAll('[data-budget-period]').forEach(btn => {
+        const active = btn.getAttribute('data-budget-period') === period;
+        btn.className = active
+          ? 'px-3.5 py-2 rounded-xl text-xs font-bold bg-black text-white dark:bg-white dark:text-black shadow-sm'
+          : 'px-3.5 py-2 rounded-xl text-xs font-bold text-zinc-600 dark:text-zinc-400 hover:text-black dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/5';
+      });
+      toast('Periode anggaran', 'Menampilkan data kuartal atau tahun sesuai pilihan.');
+    }
+
+    function addBudget() {
+      toast('Tambah pos anggaran', 'Formulir plafon baru dibuka.');
+    }
+
+    /* ============ VIEW: TABUNGAN ============ */
+    function goalAction(action, name) {
+      toast(action === 'penarikan' ? 'Penarikan dana' : 'Alokasi dana', name + ' — operasi diteruskan ke modul tabungan.');
+    }
+
+    function addGoal() {
+      toast('Target baru', 'Formulir sinking fund dibuka.');
+    }
+
+    /* ============ VIEW: ASET ============ */
+    function assetAction(action, name) {
+      const label = { jual: 'Jual', redeem: 'Redempti', revalue: 'Revaluasi' }[action] || 'Aksi';
+      toast(label + ' aset', name + ' — formulir aksi portofolio dibuka.');
+    }
+
+    function addAsset() {
+      toast('Tambah aset', 'Pencatatan posisi portofolio baru dibuka.');
+    }
+
+    /* ============ VIEW: PAJAK ============ */
+    function taxAction(action, name) {
+      const label = { setor: 'Setor', lihat: 'Lihat', lengkap: 'Lengkapi', hitung: 'Hitung', filter: 'Filter', 'ubah-klasifikasi': 'Klasifikasi' }[action] || 'Aksi';
+      toast(label, name + ' — aksi kepatuhan pajak diteruskan.');
+    }
+
+    /* ============ VIEW: LAPORAN ============ */
+    function setReportPeriod(el, period) {
+      document.querySelectorAll('[data-report-period]').forEach(btn => {
+        const active = btn.getAttribute('data-report-period') === period;
+        btn.className = active
+          ? 'px-3.5 py-2 rounded-xl text-xs font-bold bg-black text-white dark:bg-white dark:text-black shadow-sm'
+          : 'px-3.5 py-2 rounded-xl text-xs font-bold text-zinc-600 dark:text-zinc-400 hover:text-black dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/5';
+      });
+      toast('Periode laporan', 'Deret waktu diperbarui untuk periode ' + period + '.');
+    }
+
+    function downloadReport(format, name) {
+      toast('Unduh ' + format.toUpperCase(), name + ' sedang digenerate dan akan diunduh.');
+    }
+
+    function scheduleToggle() {
+      toast('Laporan otomatis', 'Jadwal kirim tanggal 1 aktif — penerima finance@ &amp; direksi@.');
+    }
+
+    /* ============ VIEW: PENGATURAN ============ */
+    function settingsNav(tab) {
+      document.querySelectorAll('[data-settings-nav]').forEach(btn => {
+        const active = btn.getAttribute('data-settings-nav') === tab;
+        btn.className = active
+          ? 'w-full flex items-center gap-3 px-3.5 py-3 rounded-2xl text-left text-xs font-bold bg-black text-white dark:bg-white dark:text-black shadow-sm'
+          : 'w-full flex items-center gap-3 px-3.5 py-3 rounded-2xl text-left text-xs font-bold text-zinc-600 dark:text-zinc-400 hover:bg-black/5 dark:hover:bg-white/5 hover:text-black dark:hover:text-white';
+      });
+      toast('Pengaturan', 'Bagian ' + tab.charAt(0).toUpperCase() + tab.slice(1) + ' dipilih.');
+    }
+
+    let selectedAppearance = 'Kompas';
+    function renderAppearance() {
+      document.querySelectorAll('#view-pengaturan .appearance-card').forEach(card => {
+        card.classList.toggle('selected', card.textContent.trim().startsWith(selectedAppearance));
+      });
+    }
+
+    function saveGeneral() {
+      renderAppearance();
+      toast('Pengaturan tersimpan', 'Preferensi pencatatan keuangan disimpan.');
+    }
+
+    renderAppearance();
+  </script>
+<script src="../../assets/js/uroo-nav.js"></script>
+</body>
+</html>

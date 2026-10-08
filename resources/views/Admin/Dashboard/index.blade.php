@@ -1,0 +1,718 @@
+@extends('Admin.Layout.index')
+
+@section('title', 'Dashboard Manajemen Peminjaman Alat')
+
+@section('content')
+<div class="space-y-6">
+
+    <!-- TOP HEADER / BREADCRUMB & ACTIONS -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+            <div class="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-zinc-400 dark:text-zinc-500">
+                <button onclick="openDrawer()" class="md:hidden p-1 -ml-1 rounded hover:bg-black/5 dark:hover:bg-white/10 text-zinc-600 dark:text-zinc-300">
+                    <i data-lucide="menu" class="w-4 h-4"></i>
+                </button>
+                <span>Panel Admin</span>
+                <span>/</span>
+                <span class="text-zinc-700 dark:text-zinc-300">Sistem Peminjaman Alat</span>
+            </div>
+            <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight text-zinc-900 dark:text-white mt-1">
+                Dashboard & Manajemen Alat
+            </h1>
+            <p class="text-xs sm:text-sm text-zinc-500 dark:text-zinc-400 mt-0.5">
+                Monitoring ketersediaan stok alat, verifikasi pengajuan, dan log pengembalian laboratorium.
+            </p>
+        </div>
+
+        <div class="flex items-center gap-2">
+            <button onclick="openModal('modal-tambah-alat')" class="u-btn u-btn-primary text-xs sm:text-sm shadow-lg">
+                <i data-lucide="plus" class="w-4 h-4"></i> Tambah Alat Baru
+            </button>
+            <button onclick="toast('Laporan bulanan berhasil diekspor ke PDF', 'file-down')" class="u-btn u-btn-ghost text-xs sm:text-sm border border-black/10 dark:border-white/10">
+                <i data-lucide="download" class="w-4 h-4"></i> Ekspor Rekap
+            </button>
+        </div>
+    </div>
+
+    <!-- ALERT COMPONENT NOTIFICATIONS -->
+    <div class="space-y-3">
+        <!-- Alert Peringatan Terlambat -->
+        <div class="u-alert u-alert-danger">
+            <div class="u-alert-icon">
+                <i data-lucide="alert-octagon" class="w-5 h-5"></i>
+            </div>
+            <div class="flex-1 min-w-0">
+                <h4 class="u-alert-title text-zinc-900 dark:text-zinc-100">3 Peminjaman Melewati Batas Waktu (Jatuh Tempo)</h4>
+                <p class="u-alert-desc">
+                    Terdapat peminjaman alat kategori <strong>Drone DJI Mavic</strong> dan <strong>Total Station</strong> yang belum dikembalikan melewati batas waktu. Harap hubungi kontak peminjam.
+                </p>
+            </div>
+            <button onclick="this.closest('.u-alert').remove()" class="text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200 p-1">
+                <i data-lucide="x" class="w-4 h-4"></i>
+            </button>
+        </div>
+
+        <!-- Alert Info Pengajuan Baru -->
+        <div class="u-alert u-alert-info">
+            <div class="u-alert-icon">
+                <i data-lucide="bell" class="w-5 h-5"></i>
+            </div>
+            <div class="flex-1 min-w-0">
+                <h4 class="u-alert-title text-zinc-900 dark:text-zinc-100">7 Pengajuan Peminjaman Baru Menunggu Verifikasi</h4>
+                <p class="u-alert-desc">
+                    Mahasiswa dan staf telah mengajukan pinjam alat praktikum. Silakan periksa kelengkapan form pada tabel pengajuan di bawah.
+                </p>
+            </div>
+            <button onclick="this.closest('.u-alert').remove()" class="text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200 p-1">
+                <i data-lucide="x" class="w-4 h-4"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- STAT CARDS (4 COLUMNS) -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <!-- Stat 1 -->
+        <div class="glass-panel rounded-2xl p-5 border border-black/5 dark:border-white/10">
+            <div class="flex items-center justify-between">
+                <span class="text-xs font-semibold text-zinc-500 dark:text-zinc-400">Total Inventaris Alat</span>
+                <span class="grid place-items-center w-9 h-9 rounded-xl bg-black/5 dark:bg-white/10 text-zinc-600 dark:text-zinc-300">
+                    <i data-lucide="boxes" class="w-4 h-4"></i>
+                </span>
+            </div>
+            <p class="mt-3 text-3xl font-extrabold tracking-tight text-zinc-900 dark:text-white">148</p>
+            <p class="mt-1 text-xs font-semibold text-emerald-600 dark:text-emerald-400 inline-flex items-center gap-1">
+                <i data-lucide="check" class="w-3.5 h-3.5"></i> 116 Siap Pakai
+            </p>
+        </div>
+
+        <!-- Stat 2 -->
+        <div class="glass-panel rounded-2xl p-5 border border-black/5 dark:border-white/10">
+            <div class="flex items-center justify-between">
+                <span class="text-xs font-semibold text-zinc-500 dark:text-zinc-400">Sedang Dipinjam</span>
+                <span class="grid place-items-center w-9 h-9 rounded-xl bg-sky-500/15 text-sky-600 dark:text-sky-400">
+                    <i data-lucide="hand-metal" class="w-4 h-4"></i>
+                </span>
+            </div>
+            <p class="mt-3 text-3xl font-extrabold tracking-tight text-zinc-900 dark:text-white">32</p>
+            <p class="mt-1 text-xs font-semibold text-sky-600 dark:text-sky-400 inline-flex items-center gap-1">
+                <i data-lucide="clock" class="w-3.5 h-3.5"></i> 18 Transaksi Aktif
+            </p>
+        </div>
+
+        <!-- Stat 3 -->
+        <div class="glass-panel rounded-2xl p-5 border border-black/5 dark:border-white/10">
+            <div class="flex items-center justify-between">
+                <span class="text-xs font-semibold text-zinc-500 dark:text-zinc-400">Menunggu Approval</span>
+                <span class="grid place-items-center w-9 h-9 rounded-xl bg-amber-500/15 text-amber-600 dark:text-amber-400">
+                    <i data-lucide="user-check" class="w-4 h-4"></i>
+                </span>
+            </div>
+            <p class="mt-3 text-3xl font-extrabold tracking-tight text-zinc-900 dark:text-white">7</p>
+            <p class="mt-1 text-xs font-semibold text-amber-600 dark:text-amber-400 inline-flex items-center gap-1">
+                <i data-lucide="alert-circle" class="w-3.5 h-3.5"></i> Perlu Tindakan
+            </p>
+        </div>
+
+        <!-- Stat 4 -->
+        <div class="glass-panel rounded-2xl p-5 border border-black/5 dark:border-white/10">
+            <div class="flex items-center justify-between">
+                <span class="text-xs font-semibold text-zinc-500 dark:text-zinc-400">Telat Pengembalian</span>
+                <span class="grid place-items-center w-9 h-9 rounded-xl bg-rose-500/15 text-rose-600 dark:text-rose-400">
+                    <i data-lucide="alarm-clock-off" class="w-4 h-4"></i>
+                </span>
+            </div>
+            <p class="mt-3 text-3xl font-extrabold tracking-tight text-zinc-900 dark:text-white">3</p>
+            <p class="mt-1 text-xs font-semibold text-rose-600 dark:text-rose-400 inline-flex items-center gap-1">
+                <i data-lucide="alert-triangle" class="w-3.5 h-3.5"></i> Jatuh Tempo
+            </p>
+        </div>
+    </div>
+
+    <!-- QUICK ACTIONS -->
+    <div class="glass-panel rounded-2xl p-4 border border-black/5 dark:border-white/10">
+        <div class="flex flex-wrap items-center justify-between gap-3">
+            <div class="flex items-center gap-2 text-xs font-bold text-zinc-700 dark:text-zinc-300">
+                <i data-lucide="zap" class="w-4 h-4 text-amber-500"></i> Aksi Cepat:
+            </div>
+            <div class="flex flex-wrap items-center gap-2">
+                <button onclick="openModal('modal-tambah-alat')" class="u-btn u-btn-ghost u-btn-sm text-xs">
+                    <i data-lucide="plus" class="w-3.5 h-3.5"></i> Tambah Alat
+                </button>
+                <button onclick="toast('Kamera pemindai barcode / QR alat aktif', 'scan')" class="u-btn u-btn-ghost u-btn-sm text-xs">
+                    <i data-lucide="scan" class="w-3.5 h-3.5"></i> Scan Barcode Alat
+                </button>
+                <button onclick="toast('Laporan harian berhasil diunduh', 'printer')" class="u-btn u-btn-ghost u-btn-sm text-xs">
+                    <i data-lucide="printer" class="w-3.5 h-3.5"></i> Cetak Berita Acara
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- TABEL 1: DAFTAR PENGAJUAN & STATUS PEMINJAMAN ALAT -->
+    <section id="tabel-peminjaman" class="glass-panel rounded-2xl overflow-hidden border border-black/5 dark:border-white/10 shadow-xl space-y-4 p-5">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-2 border-b border-black/5 dark:border-white/10">
+            <div>
+                <h3 class="text-base font-bold text-zinc-900 dark:text-white flex items-center gap-2">
+                    <i data-lucide="clipboard-list" class="w-5 h-5 text-zinc-500"></i>
+                    Manajemen Pengajuan Peminjaman Alat
+                </h3>
+                <p class="text-xs text-zinc-500 dark:text-zinc-400">Daftar transaksi peminjaman aktif, permohonan persetujuan, dan pengembalian.</p>
+            </div>
+            <div class="flex items-center gap-2">
+                <select id="filterStatusPinjam" onchange="filterPeminjaman(this.value)" class="u-select py-1.5 px-3 text-xs w-auto">
+                    <option value="all">Semua Status</option>
+                    <option value="Menunggu">Menunggu Approval</option>
+                    <option value="Dipinjam">Sedang Dipinjam</option>
+                    <option value="Terlambat">Terlambat</option>
+                    <option value="Selesai">Selesai</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs text-zinc-600 dark:text-zinc-300">
+                <thead class="text-[11px] font-bold uppercase tracking-wider bg-black/5 dark:bg-white/5 text-zinc-500 dark:text-zinc-400 rounded-lg">
+                    <tr>
+                        <th class="py-3 px-4 rounded-l-xl">No. Tiket</th>
+                        <th class="py-3 px-4">Peminjam</th>
+                        <th class="py-3 px-4">Alat & Jumlah</th>
+                        <th class="py-3 px-4">Tgl Pinjam - Kembali</th>
+                        <th class="py-3 px-4">Status</th>
+                        <th class="py-3 px-4 text-right rounded-r-xl">Aksi Petugas</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-black/5 dark:divide-white/5" id="peminjamanTableBody">
+
+                    <!-- Row 1: Menunggu Approval -->
+                    <tr class="hover:bg-black/5 dark:hover:bg-white/5 transition-colors" data-status="Menunggu">
+                        <td class="py-3.5 px-4 font-mono font-bold text-zinc-900 dark:text-white">
+                            PINJAM-2026-0091
+                        </td>
+                        <td class="py-3.5 px-4">
+                            <div class="font-bold text-zinc-900 dark:text-white">Rian Pratama</div>
+                            <div class="text-[11px] text-zinc-400">NIM: 2205356041 • Teknik Elektro</div>
+                        </td>
+                        <td class="py-3.5 px-4">
+                            <div class="font-semibold text-zinc-900 dark:text-white">Oscilloscope Rigol DS1054Z</div>
+                            <div class="text-[11px] text-zinc-400">1 Unit • Praktikum DSP</div>
+                        </td>
+                        <td class="py-3.5 px-4">
+                            <div>08 Okt 2026</div>
+                            <div class="text-zinc-400 text-[11px]">s/d 10 Okt 2026</div>
+                        </td>
+                        <td class="py-3.5 px-4">
+                            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold bg-amber-500/15 text-amber-600 dark:text-amber-400">
+                                <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span> Menunggu Approval
+                            </span>
+                        </td>
+                        <td class="py-3.5 px-4 text-right">
+                            <div class="inline-flex items-center gap-1">
+                                <button onclick="openApprovalModal('PINJAM-2026-0091', 'Rian Pratama', 'Oscilloscope Rigol DS1054Z (1 Unit)')" class="u-btn u-btn-success u-btn-sm py-1 px-2.5 text-[11px]" title="Setujui Pengajuan">
+                                    <i data-lucide="check" class="w-3.5 h-3.5"></i> Setujui
+                                </button>
+                                <button onclick="rejectLoan('PINJAM-2026-0091')" class="u-btn u-btn-danger u-btn-sm py-1 px-2 text-[11px]" title="Tolak">
+                                    <i data-lucide="x" class="w-3.5 h-3.5"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+
+                    <!-- Row 2: Sedang Dipinjam -->
+                    <tr class="hover:bg-black/5 dark:hover:bg-white/5 transition-colors" data-status="Dipinjam">
+                        <td class="py-3.5 px-4 font-mono font-bold text-zinc-900 dark:text-white">
+                            PINJAM-2026-0088
+                        </td>
+                        <td class="py-3.5 px-4">
+                            <div class="font-bold text-zinc-900 dark:text-white">Siti Nurhaliza</div>
+                            <div class="text-[11px] text-zinc-400">NIM: 2105346012 • Fablab</div>
+                        </td>
+                        <td class="py-3.5 px-4">
+                            <div class="font-semibold text-zinc-900 dark:text-white">3D Printer Ender 3 V2</div>
+                            <div class="text-[11px] text-zinc-400">1 Unit • Tugas Akhir</div>
+                        </td>
+                        <td class="py-3.5 px-4">
+                            <div>06 Okt 2026</div>
+                            <div class="text-emerald-500 font-semibold text-[11px]">s/d 09 Okt 2026</div>
+                        </td>
+                        <td class="py-3.5 px-4">
+                            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold bg-sky-500/15 text-sky-600 dark:text-sky-400">
+                                <span class="w-1.5 h-1.5 rounded-full bg-sky-500"></span> Sedang Dipinjam
+                            </span>
+                        </td>
+                        <td class="py-3.5 px-4 text-right">
+                            <button onclick="openReturnModal('PINJAM-2026-0088', 'Siti Nurhaliza', '3D Printer Ender 3 V2')" class="u-btn u-btn-ghost u-btn-sm py-1 px-2.5 text-[11px] border border-black/10 dark:border-white/10">
+                                <i data-lucide="corner-down-left" class="w-3.5 h-3.5"></i> Kembalikan
+                            </button>
+                        </td>
+                    </tr>
+
+                    <!-- Row 3: Terlambat -->
+                    <tr class="hover:bg-black/5 dark:hover:bg-white/5 transition-colors bg-rose-500/5" data-status="Terlambat">
+                        <td class="py-3.5 px-4 font-mono font-bold text-rose-600 dark:text-rose-400">
+                            PINJAM-2026-0074
+                        </td>
+                        <td class="py-3.5 px-4">
+                            <div class="font-bold text-zinc-900 dark:text-white">Bagas Wicaksono</div>
+                            <div class="text-[11px] text-zinc-400">NIM: 2005336029 • UKM Robotika</div>
+                        </td>
+                        <td class="py-3.5 px-4">
+                            <div class="font-semibold text-zinc-900 dark:text-white">Drone DJI Mavic 3</div>
+                            <div class="text-[11px] text-zinc-400">1 Unit • Dokumentasi Lomba</div>
+                        </td>
+                        <td class="py-3.5 px-4">
+                            <div>01 Okt 2026</div>
+                            <div class="text-rose-500 font-bold text-[11px]">Jatuh Tempo: 05 Okt 2026</div>
+                        </td>
+                        <td class="py-3.5 px-4">
+                            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold bg-rose-500/15 text-rose-600 dark:text-rose-400">
+                                <span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span> Telat 3 Hari
+                            </span>
+                        </td>
+                        <td class="py-3.5 px-4 text-right">
+                            <button onclick="openReturnModal('PINJAM-2026-0074', 'Bagas Wicaksono', 'Drone DJI Mavic 3', 3)" class="u-btn u-btn-danger u-btn-sm py-1 px-2.5 text-[11px]">
+                                <i data-lucide="corner-down-left" class="w-3.5 h-3.5"></i> Proses Sanksi
+                            </button>
+                        </td>
+                    </tr>
+
+                    <!-- Row 4: Selesai -->
+                    <tr class="hover:bg-black/5 dark:hover:bg-white/5 transition-colors" data-status="Selesai">
+                        <td class="py-3.5 px-4 font-mono font-bold text-zinc-400">
+                            PINJAM-2026-0062
+                        </td>
+                        <td class="py-3.5 px-4">
+                            <div class="font-bold text-zinc-900 dark:text-white">Dewi Lestari</div>
+                            <div class="text-[11px] text-zinc-400">NIP: 19880121 • Lab Jaringan</div>
+                        </td>
+                        <td class="py-3.5 px-4">
+                            <div class="font-semibold text-zinc-900 dark:text-white">Fusion Splicer Fujikura</div>
+                            <div class="text-[11px] text-zinc-400">1 Unit • Instalasi Fiber</div>
+                        </td>
+                        <td class="py-3.5 px-4">
+                            <div>02 Okt 2026</div>
+                            <div class="text-zinc-400 text-[11px]">Dikembalikan 04 Okt</div>
+                        </td>
+                        <td class="py-3.5 px-4">
+                            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold bg-emerald-500/15 text-emerald-600 dark:text-emerald-400">
+                                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Selesai (Tepat Waktu)
+                            </span>
+                        </td>
+                        <td class="py-3.5 px-4 text-right">
+                            <button onclick="toast('Log detail peminjaman PINJAM-2026-0062 diarsip', 'archive')" class="u-btn u-btn-ghost u-btn-sm py-1 px-2 text-[11px]" title="Detail Arsip">
+                                <i data-lucide="eye" class="w-3.5 h-3.5"></i>
+                            </button>
+                        </td>
+                    </tr>
+
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- TABEL 2: DATA INVENTARIS ALAT & KONDISI -->
+    <section id="tabel-alat" class="glass-panel rounded-2xl overflow-hidden border border-black/5 dark:border-white/10 shadow-xl space-y-4 p-5">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-2 border-b border-black/5 dark:border-white/10">
+            <div>
+                <h3 class="text-base font-bold text-zinc-900 dark:text-white flex items-center gap-2">
+                    <i data-lucide="boxes" class="w-5 h-5 text-zinc-500"></i>
+                    Inventaris & Stok Fisik Alat
+                </h3>
+                <p class="text-xs text-zinc-500 dark:text-zinc-400">Daftar master alat, lokasi rak penyimpanan, dan status kelayakan pakai.</p>
+            </div>
+            <div class="flex items-center gap-2">
+                <input type="text" id="searchToolTable" onkeyup="filterInventoryTable()" placeholder="Cari nama / kode alat..." class="u-input py-1.5 px-3 text-xs w-48 sm:w-60" />
+            </div>
+        </div>
+
+        <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs text-zinc-600 dark:text-zinc-300">
+                <thead class="text-[11px] font-bold uppercase tracking-wider bg-black/5 dark:bg-white/5 text-zinc-500 dark:text-zinc-400 rounded-lg">
+                    <tr>
+                        <th class="py-3 px-4 rounded-l-xl">Kode</th>
+                        <th class="py-3 px-4">Nama Alat</th>
+                        <th class="py-3 px-4">Kategori</th>
+                        <th class="py-3 px-4">Stok (Tersedia / Total)</th>
+                        <th class="py-3 px-4">Kondisi</th>
+                        <th class="py-3 px-4">Lokasi Rak</th>
+                        <th class="py-3 px-4 text-right rounded-r-xl">Aksi</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-black/5 dark:divide-white/5" id="inventoryTableBody">
+
+                    <tr class="hover:bg-black/5 dark:hover:bg-white/5 transition-colors">
+                        <td class="py-3 px-4 font-mono font-bold text-zinc-900 dark:text-white">OSC-0102</td>
+                        <td class="py-3 px-4 font-bold text-zinc-900 dark:text-white">Oscilloscope Rigol DS1054Z 50MHz</td>
+                        <td class="py-3 px-4">Alat Ukur</td>
+                        <td class="py-3 px-4 font-semibold text-emerald-600 dark:text-emerald-400">3 / 4 Unit</td>
+                        <td class="py-3 px-4">
+                            <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/15 text-emerald-600">Sangat Baik</span>
+                        </td>
+                        <td class="py-3 px-4 text-zinc-400">Rak Lab E-02</td>
+                        <td class="py-3 px-4 text-right">
+                            <div class="inline-flex items-center gap-1">
+                                <button onclick="editToolModal('OSC-0102', 'Oscilloscope Rigol DS1054Z', 'Alat Ukur', 4, 'Rak Lab E-02')" class="p-1 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 text-zinc-500" title="Edit Data">
+                                    <i data-lucide="edit-3" class="w-4 h-4"></i>
+                                </button>
+                                <button onclick="confirmDeleteModal('Oscilloscope Rigol DS1054Z (OSC-0102)')" class="p-1 rounded-lg hover:bg-rose-500/10 text-rose-500" title="Hapus Data">
+                                    <i data-lucide="trash-2" class="w-4 h-4"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+
+                    <tr class="hover:bg-black/5 dark:hover:bg-white/5 transition-colors">
+                        <td class="py-3 px-4 font-mono font-bold text-zinc-900 dark:text-white">3DP-0021</td>
+                        <td class="py-3 px-4 font-bold text-zinc-900 dark:text-white">3D Printer Creality Ender 3 V2</td>
+                        <td class="py-3 px-4">Fabrikasi</td>
+                        <td class="py-3 px-4 font-semibold text-emerald-600 dark:text-emerald-400">2 / 3 Unit</td>
+                        <td class="py-3 px-4">
+                            <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/15 text-emerald-600">Baik</span>
+                        </td>
+                        <td class="py-3 px-4 text-zinc-400">Ruang Fablab F-01</td>
+                        <td class="py-3 px-4 text-right">
+                            <div class="inline-flex items-center gap-1">
+                                <button onclick="editToolModal('3DP-0021', '3D Printer Ender 3 V2', 'Fabrikasi', 3, 'Ruang Fablab F-01')" class="p-1 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 text-zinc-500" title="Edit Data">
+                                    <i data-lucide="edit-3" class="w-4 h-4"></i>
+                                </button>
+                                <button onclick="confirmDeleteModal('3D Printer Ender 3 V2 (3DP-0021)')" class="p-1 rounded-lg hover:bg-rose-500/10 text-rose-500" title="Hapus Data">
+                                    <i data-lucide="trash-2" class="w-4 h-4"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+
+                    <tr class="hover:bg-black/5 dark:hover:bg-white/5 transition-colors">
+                        <td class="py-3 px-4 font-mono font-bold text-zinc-900 dark:text-white">DRN-0005</td>
+                        <td class="py-3 px-4 font-bold text-zinc-900 dark:text-white">Drone DJI Mavic 3 Enterprise</td>
+                        <td class="py-3 px-4">Multimedia</td>
+                        <td class="py-3 px-4 font-semibold text-rose-500">0 / 1 Unit</td>
+                        <td class="py-3 px-4">
+                            <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/15 text-amber-600">Dipinjam</span>
+                        </td>
+                        <td class="py-3 px-4 text-zinc-400">Gudang Inventaris</td>
+                        <td class="py-3 px-4 text-right">
+                            <div class="inline-flex items-center gap-1">
+                                <button onclick="editToolModal('DRN-0005', 'Drone DJI Mavic 3 Enterprise', 'Multimedia', 1, 'Gudang Inventaris')" class="p-1 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 text-zinc-500" title="Edit Data">
+                                    <i data-lucide="edit-3" class="w-4 h-4"></i>
+                                </button>
+                                <button onclick="confirmDeleteModal('Drone DJI Mavic 3 (DRN-0005)')" class="p-1 rounded-lg hover:bg-rose-500/10 text-rose-500" title="Hapus Data">
+                                    <i data-lucide="trash-2" class="w-4 h-4"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+</div>
+@endsection
+
+@push('modals')
+<!-- MODAL 1: TAMBAH / EDIT ALAT (Medium/Large Modal) -->
+<div id="modal-tambah-alat" class="modal-container" role="dialog" aria-modal="true">
+    <div class="modal-backdrop" onclick="closeModal('modal-tambah-alat')"></div>
+    <div class="modal-panel modal-md glass-panel">
+        <div class="modal-head">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-zinc-900 text-white dark:bg-white dark:text-zinc-900 grid place-items-center font-bold">
+                    <i data-lucide="box" class="w-5 h-5"></i>
+                </div>
+                <div>
+                    <h3 class="text-base font-bold text-zinc-900 dark:text-white" id="modalToolTitle">Tambah Alat Inventaris Baru</h3>
+                    <p class="text-xs text-zinc-500 dark:text-zinc-400">Masukkan detail spesifikasi dan stok alat lab.</p>
+                </div>
+            </div>
+            <button onclick="closeModal('modal-tambah-alat')" class="p-1.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 text-zinc-400">
+                <i data-lucide="x" class="w-4 h-4"></i>
+            </button>
+        </div>
+
+        <form onsubmit="saveToolForm(event)">
+            <div class="modal-body space-y-4">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="u-field-label">Kode Alat / Barcode <span class="u-req">*</span></label>
+                        <input type="text" id="inpToolCode" required placeholder="Contoh: OSC-0109" class="u-input" />
+                    </div>
+                    <div>
+                        <label class="u-field-label">Kategori Alat <span class="u-req">*</span></label>
+                        <select id="inpToolCat" class="u-select" required>
+                            <option value="Alat Ukur">Alat Ukur & Uji</option>
+                            <option value="Elektronika">Elektronika & IoT</option>
+                            <option value="Fabrikasi">Fabrikasi & 3D Print</option>
+                            <option value="Multimedia">Multimedia & AV</option>
+                            <option value="Mesin Perkakas">Mesin Perkakas</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="u-field-label">Nama Peralatan <span class="u-req">*</span></label>
+                    <input type="text" id="inpToolName" required placeholder="Contoh: Signal Generator Rigol DG1022" class="u-input" />
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <div>
+                        <label class="u-field-label">Stok Total <span class="u-req">*</span></label>
+                        <input type="number" id="inpToolStock" min="1" value="1" required class="u-input" />
+                    </div>
+                    <div>
+                        <label class="u-field-label">Kondisi Alat <span class="u-req">*</span></label>
+                        <select class="u-select" required>
+                            <option value="Sangat Baik">Sangat Baik</option>
+                            <option value="Baik">Baik</option>
+                            <option value="Perlu Kalibrasi">Perlu Kalibrasi</option>
+                            <option value="Rusak Ringan">Rusak Ringan</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="u-field-label">Lokasi Rak / Lab <span class="u-req">*</span></label>
+                        <input type="text" id="inpToolLoc" required placeholder="Rak E-03" class="u-input" />
+                    </div>
+                </div>
+
+                <div>
+                    <label class="u-field-label">Deskripsi Spesifikasi & Kelengkapan</label>
+                    <textarea rows="2" placeholder="Tuliskan spesifikasi teknis penting..." class="u-textarea"></textarea>
+                </div>
+            </div>
+
+            <div class="modal-foot">
+                <button type="button" onclick="closeModal('modal-tambah-alat')" class="u-btn u-btn-ghost u-btn-sm">
+                    Batal
+                </button>
+                <button type="submit" class="u-btn u-btn-primary u-btn-sm">
+                    <i data-lucide="save" class="w-3.5 h-3.5"></i> Simpan Data Alat
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- MODAL 2: APPROVAL / PERSETUJUAN PEMINJAMAN (Medium Modal) -->
+<div id="modal-verifikasi" class="modal-container" role="dialog" aria-modal="true">
+    <div class="modal-backdrop" onclick="closeModal('modal-verifikasi')"></div>
+    <div class="modal-panel modal-md glass-panel">
+        <div class="modal-head">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 grid place-items-center font-bold">
+                    <i data-lucide="check-circle" class="w-5 h-5"></i>
+                </div>
+                <div>
+                    <h3 class="text-base font-bold text-zinc-900 dark:text-white">Verifikasi & Setujui Peminjaman</h3>
+                    <p class="text-xs text-zinc-500 dark:text-zinc-400" id="appTicketCode">PINJAM-2026-0091</p>
+                </div>
+            </div>
+            <button onclick="closeModal('modal-verifikasi')" class="p-1.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 text-zinc-400">
+                <i data-lucide="x" class="w-4 h-4"></i>
+            </button>
+        </div>
+        <div class="modal-body space-y-4 text-xs sm:text-sm">
+            <div class="p-4 rounded-xl bg-black/5 dark:bg-white/5 space-y-2">
+                <div class="flex justify-between">
+                    <span class="text-zinc-400">Nama Peminjam:</span>
+                    <strong class="text-zinc-900 dark:text-white" id="appName">-</strong>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-zinc-400">Item Alat:</span>
+                    <strong class="text-zinc-900 dark:text-white" id="appTool">-</strong>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-zinc-400">Pemeriksaan Fisik:</span>
+                    <span class="text-emerald-500 font-bold">Stok Ready di Rak E-02</span>
+                </div>
+            </div>
+
+            <div>
+                <label class="u-field-label">Catatan Tambahan Petugas (Opsional)</label>
+                <input type="text" placeholder="Misal: Sudah dicek kabel probe lengkap..." class="u-input" />
+            </div>
+        </div>
+        <div class="modal-foot">
+            <button onclick="closeModal('modal-verifikasi')" class="u-btn u-btn-ghost u-btn-sm">
+                Batal
+            </button>
+            <button onclick="confirmApproval()" class="u-btn u-btn-success u-btn-sm">
+                <i data-lucide="check" class="w-3.5 h-3.5"></i> Konfirmasi Setujui
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL 3: PENGEMBALIAN ALAT & CEK KONDISI (Medium Modal) -->
+<div id="modal-pengembalian" class="modal-container" role="dialog" aria-modal="true">
+    <div class="modal-backdrop" onclick="closeModal('modal-pengembalian')"></div>
+    <div class="modal-panel modal-md glass-panel">
+        <div class="modal-head">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-sky-500/15 text-sky-600 dark:text-sky-400 grid place-items-center font-bold">
+                    <i data-lucide="corner-down-left" class="w-5 h-5"></i>
+                </div>
+                <div>
+                    <h3 class="text-base font-bold text-zinc-900 dark:text-white">Proses Pengembalian Alat</h3>
+                    <p class="text-xs text-zinc-500 dark:text-zinc-400" id="retTicketCode">-</p>
+                </div>
+            </div>
+            <button onclick="closeModal('modal-pengembalian')" class="p-1.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 text-zinc-400">
+                <i data-lucide="x" class="w-4 h-4"></i>
+            </button>
+        </div>
+        <div class="modal-body space-y-4 text-xs sm:text-sm">
+            <div class="p-3.5 rounded-xl bg-black/5 dark:bg-white/5 space-y-1.5 text-xs">
+                <div>Peminjam: <strong class="text-zinc-900 dark:text-white" id="retName">-</strong></div>
+                <div>Alat: <strong class="text-zinc-900 dark:text-white" id="retTool">-</strong></div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                    <label class="u-field-label">Kondisi Pengembalian <span class="u-req">*</span></label>
+                    <select class="u-select">
+                        <option value="Lengkap & Normal">Lengkap & Normal</option>
+                        <option value="Ada Kerusakan">Ada Kerusakan</option>
+                        <option value="Aksesoris Hilang">Aksesoris Hilang</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="u-field-label">Denda Keterlambatan (Rp)</label>
+                    <input type="number" id="retDenda" value="0" class="u-input" />
+                </div>
+            </div>
+
+            <div>
+                <label class="u-field-label">Catatan Serah Terima</label>
+                <textarea rows="2" placeholder="Catatan kondisi saat pengembalian..." class="u-textarea"></textarea>
+            </div>
+        </div>
+        <div class="modal-foot">
+            <button onclick="closeModal('modal-pengembalian')" class="u-btn u-btn-ghost u-btn-sm">
+                Batal
+            </button>
+            <button onclick="confirmReturnProcess()" class="u-btn u-btn-primary u-btn-sm">
+                <i data-lucide="check-check" class="w-3.5 h-3.5"></i> Selesaikan Pengembalian
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL 4: KONFIRMASI HAPUS DATA (Small Modal) -->
+<div id="modal-hapus" class="modal-container" role="dialog" aria-modal="true">
+    <div class="modal-backdrop" onclick="closeModal('modal-hapus')"></div>
+    <div class="modal-panel modal-sm glass-panel">
+        <div class="modal-head">
+            <div class="flex items-center gap-3">
+                <div class="w-9 h-9 rounded-xl bg-rose-500/15 text-rose-500 grid place-items-center font-bold">
+                    <i data-lucide="trash-2" class="w-4 h-4"></i>
+                </div>
+                <h3 class="text-sm font-bold text-zinc-900 dark:text-white">Konfirmasi Hapus</h3>
+            </div>
+            <button onclick="closeModal('modal-hapus')" class="p-1 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 text-zinc-400">
+                <i data-lucide="x" class="w-4 h-4"></i>
+            </button>
+        </div>
+        <div class="modal-body text-xs text-zinc-600 dark:text-zinc-300">
+            Apakah Anda yakin ingin menghapus data <strong class="text-zinc-900 dark:text-white" id="delItemName">Alat</strong> dari inventaris sistem? Tindakan ini tidak dapat dibatalkan.
+        </div>
+        <div class="modal-foot">
+            <button onclick="closeModal('modal-hapus')" class="u-btn u-btn-ghost u-btn-sm">
+                Batal
+            </button>
+            <button onclick="executeDelete()" class="u-btn u-btn-danger u-btn-sm">
+                <i data-lucide="trash-2" class="w-3.5 h-3.5"></i> Hapus Permanen
+            </button>
+        </div>
+    </div>
+</div>
+@endpush
+
+@push('script')
+<script>
+    // Filter Table Peminjaman by Status
+    function filterPeminjaman(status) {
+        const rows = document.querySelectorAll('#peminjamanTableBody tr');
+        rows.forEach(row => {
+            if (status === 'all' || row.dataset.status === status) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+    }
+
+    // Filter Table Inventory by Search
+    function filterInventoryTable() {
+        const query = document.getElementById('searchToolTable').value.toLowerCase();
+        const rows = document.querySelectorAll('#inventoryTableBody tr');
+        rows.forEach(row => {
+            const text = row.innerText.toLowerCase();
+            if (text.includes(query)) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+    }
+
+    // Modal Approval Helpers
+    function openApprovalModal(ticket, name, tool) {
+        document.getElementById('appTicketCode').innerText = ticket;
+        document.getElementById('appName').innerText = name;
+        document.getElementById('appTool').innerText = tool;
+        openModal('modal-verifikasi');
+    }
+
+    function confirmApproval() {
+        closeModal('modal-verifikasi');
+        toast('Pengajuan peminjaman berhasil disetujui!', 'check-circle');
+    }
+
+    function rejectLoan(ticket) {
+        toast(`Pengajuan ${ticket} telah ditolak.`, 'x-circle');
+    }
+
+    // Modal Return Process Helpers
+    function openReturnModal(ticket, name, tool, lateDays = 0) {
+        document.getElementById('retTicketCode').innerText = ticket;
+        document.getElementById('retName').innerText = name;
+        document.getElementById('retTool').innerText = tool;
+        document.getElementById('retDenda').value = lateDays * 15000;
+        openModal('modal-pengembalian');
+    }
+
+    function confirmReturnProcess() {
+        closeModal('modal-pengembalian');
+        toast('Alat berhasil dicatat telah dikembalikan ke rak penyimpanan.', 'check-check');
+    }
+
+    // Modal Edit Tool
+    function editToolModal(code, name, cat, stock, loc) {
+        document.getElementById('modalToolTitle').innerText = 'Edit Data Alat Inventaris';
+        document.getElementById('inpToolCode').value = code;
+        document.getElementById('inpToolName').value = name;
+        document.getElementById('inpToolCat').value = cat;
+        document.getElementById('inpToolStock').value = stock;
+        document.getElementById('inpToolLoc').value = loc;
+        openModal('modal-tambah-alat');
+    }
+
+    // Save Tool Form Dummy
+    function saveToolForm(e) {
+        e.preventDefault();
+        closeModal('modal-tambah-alat');
+        toast('Data alat inventaris berhasil disimpan!', 'save');
+    }
+
+    // Modal Delete Confirm
+    function confirmDeleteModal(name) {
+        document.getElementById('delItemName').innerText = name;
+        openModal('modal-hapus');
+    }
+
+    function executeDelete() {
+        closeModal('modal-hapus');
+        toast('Data alat berhasil dihapus dari inventaris.', 'trash-2');
+    }
+</script>
+@endpush

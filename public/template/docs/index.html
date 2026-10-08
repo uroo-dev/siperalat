@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="id" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Uroo UI — Dokumentasi</title>
+  <meta name="description" content="Dokumentasi resmi Uroo UI Design System — Monochromatic Liquid Glassmorphism.">
+  <script src="../assets/js/tailwind.js"></script>
+  <script src="../assets/js/lucide.js"></script>
+  <script>
+    tailwind.config = { darkMode: 'class', theme: { extend: { colors: { glass: {
+      light: 'rgba(255,255,255,0.65)', 'light-border': 'rgba(255,255,255,0.8)',
+      dark: 'rgba(18,18,20,0.65)', 'dark-border': 'rgba(255,255,255,0.1)'
+    } } } } };
+  </script>
+  <link rel="stylesheet" href="../assets/css/uroo.css">
+  <style>
+    .u-bg{position:fixed;inset:0;z-index:-10;transition:opacity .35s ease}
+    .u-bg-light{background:linear-gradient(135deg,#dfe3ea,#f4f4f5)}
+    .u-bg-dark{background:linear-gradient(135deg,#0a0a0b,#1a1a1e);opacity:0}
+    body.dark .u-bg-light{opacity:0}
+    body.dark .u-bg-dark{opacity:1}
+    .u-glow{position:fixed;border-radius:9999px;filter:blur(90px);z-index:-9;pointer-events:none;background:rgba(0,0,0,0.06);transition:background-color .35s ease}
+    body.dark .u-glow{background:rgba(255,255,255,0.05)}
+    .u-glow-1{width:420px;height:420px;top:-140px;left:-140px}
+    .u-glow-2{width:520px;height:520px;bottom:-200px;right:-140px}
+    .doc-link{display:flex;align-items:center;gap:.55rem;padding:.5rem .7rem;border-radius:.65rem;font-size:.8rem;color:#71717a;transition:background-color .15s ease,color .2s ease}
+    .doc-link:hover{background:rgba(0,0,0,.05);color:#18181b}
+    body.dark .doc-link:hover{background:rgba(255,255,255,.07);color:#fafafa}
+    .doc-link.active{background:rgba(0,0,0,.06);color:#18181b;font-weight:600}
+    body.dark .doc-link.active{background:rgba(255,255,255,.08);color:#fafafa}
+    .tb th{text-align:left;font-size:.68rem;text-transform:uppercase;letter-spacing:.08em;color:#a1a1aa;padding:.5rem .75rem}
+    .tb td{font-size:.78rem;padding:.5rem .75rem;border-top:1px solid rgba(0,0,0,.06)}
+    body.dark .tb td{border-top-color:rgba(255,255,255,.07)}
+    .code{font-family:ui-monospace,monospace;font-size:.72rem;line-height:1.6;background:rgba(0,0,0,.04);border:1px solid rgba(0,0,0,.07);border-radius:.8rem;padding:1rem;overflow:auto;white-space:pre}
+    body.dark .code{background:rgba(255,255,255,.03);border-color:rgba(255,255,255,.08)}
+    h2.sec{font-size:1.15rem;font-weight:700;margin-top:2rem}
+  </style>
+</head>
+<body class="min-h-screen font-sans antialiased text-zinc-800 dark:text-zinc-100">
+  <script>(function initTheme(){var saved=null;try{saved=localStorage.getItem('uroo-theme')}catch(e){};var dark=(saved==='dark')||(!saved&&window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches);var de=document.documentElement;if(dark){de.classList.add('dark');de.classList.remove('light');if(document.body){document.body.classList.add('dark');document.body.classList.remove('light');}}else{de.classList.remove('dark');de.classList.add('light');if(document.body){document.body.classList.remove('dark');document.body.classList.add('light');}}})();</script>
+  <div class="u-bg u-bg-light" aria-hidden="true"></div>
+  <div class="u-bg u-bg-dark" aria-hidden="true"></div>
+  <div class="u-glow u-glow-1" aria-hidden="true"></div>
+  <div class="u-glow u-glow-2" aria-hidden="true"></div>
+
+  <button onclick="toggleTheme()" class="fixed top-4 right-4 z-50 p-2 rounded-full glass-panel shadow-2xl" title="Toggle tema">
+    <i data-lucide="sun" class="w-4 h-4 hidden dark:block"></i>
+    <i data-lucide="moon" class="w-4 h-4 block dark:hidden"></i>
+  </button>
+
+  <div class="max-w-6xl mx-auto px-4 py-6 flex flex-col lg:flex-row gap-8">
+    <!-- SIDEBAR -->
+    <aside class="lg:w-56 flex-none">
+
+      <div class="glass-panel rounded-2xl p-3 space-y-0.5 lg:sticky lg:top-6">
+        <p class="text-[10px] font-bold uppercase tracking-wide text-zinc-400 px-2 pt-1 mb-1">Dokumentasi</p>
+        <a class="doc-link" href="#pendahuluan"><i data-lucide="info" class="w-3.5 h-3.5"></i> Pendahuluan</a>
+        <a class="doc-link" href="#stack"><i data-lucide="layers" class="w-3.5 h-3.5"></i> Stack</a>
+        <a class="doc-link" href="#struktur"><i data-lucide="folder" class="w-3.5 h-3.5"></i> Struktur</a>
+        <a class="doc-link" href="#penggunaan"><i data-lucide="code" class="w-3.5 h-3.5"></i> Penggunaan</a>
+        <a class="doc-link" href="#komponen"><i data-lucide="box" class="w-3.5 h-3.5"></i> Komponen</a>
+        <a class="doc-link" href="#layout"><i data-lucide="layout-dashboard" class="w-3.5 h-3.5"></i> Layout</a>
+        <a class="doc-link" href="#halaman"><i data-lucide="file-text" class="w-3.5 h-3.5"></i> Halaman</a>
+        <a class="doc-link" href="#modul"><i data-lucide="layers" class="w-3.5 h-3.5"></i> Modul</a>
+      </div>
+    </aside>
+
+    <!-- CONTENT -->
+    <main class="min-w-0 flex-1 space-y-5">
+
+      <header class="glass-panel rounded-3xl p-6 sm:p-8" id="pendahuluan">
+        <span class="inline-flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-1 rounded-full bg-black/5 dark:bg-white/5 mb-3">
+          <i data-lucide="book-open" class="w-3 h-3"></i> Docs
+        </span>
+        <h1 class="text-3xl font-extrabold tracking-tight">Uroo UI — Design System</h1>
+        <p class="text-sm text-zinc-500 dark:text-zinc-400 mt-1">Design system &amp; UI library berbasis <b>Monochromatic Liquid Glassmorphism</b>. HTML5 + Tailwind CSS v3 + Lucide, sepenuhnya offline.</p>
+        <div class="mt-5 flex flex-wrap gap-2">
+          <a href="../index.html" class="px-4 py-2 rounded-xl text-xs font-semibold bg-black text-white dark:bg-white dark:text-black flex items-center gap-2"><i data-lucide="layout-grid" class="w-3.5 h-3.5"></i> Buka Index</a>
+          <a href="../pages/utilities/glass.html" class="px-4 py-2 rounded-xl text-xs font-semibold glass-panel shadow flex items-center gap-2"><i data-lucide="droplets" class="w-3.5 h-3.5"></i> Glass Engine</a>
+        </div>
+      </header>
+
+      <section class="glass-panel rounded-3xl p-6 sm:p-8" id="stack">
+        <h2 class="sec">1. Stack</h2>
+        <div class="mt-3 overflow-x-auto">
+          <table class="tb w-full">
+            <thead><tr><th>Lapisan</th><th>Teknologi</th></tr></thead>
+            <tbody>
+              <tr><td>Markup</td><td>HTML5</td></tr>
+              <tr><td>Styling</td><td>Tailwind CSS v3 (lokal) + Custom CSS <code>.glass-panel</code></td></tr>
+              <tr><td>Icons</td><td>Lucide (lokal) + <code>lucide.createIcons()</code></td></tr>
+              <tr><td>Font</td><td>Inter / Plus Jakarta Sans (lokal)</td></tr>
+              <tr><td>Konsep</td><td>Monochromatic Liquid Glassmorphism</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="text-xs text-emerald-600 dark:text-emerald-400 mt-3 flex items-center gap-1.5"><i data-lucide="circle-check" class="w-3.5 h-3.5"></i> 100% offline — Tailwind, Lucide, font &amp; gambar sudah lokal di <code>assets/</code>.</p>
+      </section>
+
+      <section class="glass-panel rounded-3xl p-6 sm:p-8" id="struktur">
+        <h2 class="sec">2. Struktur Folder</h2>
+        <pre class="code mt-3">uroo-ui/
+├── core/        Tokens: colors, typography, spacing, radius, shadows, breakpoints, z-index, animations
+├── components/  48 komponen standalone (button, modal, tabs, tree, ...)
+├── layouts/     8 layout engine (app, admin, dashboard, auth, ...)
+├── pages/       40 halaman penuh + foundation style tokens
+├── modules/     8 modul fungsional (ecommerce, crm, hr, finance, ...)
+├── themes/      light, dark, custom
+├── assets/      Shared CSS (uroo.css) &amp; JS (lucide.js, tailwind.js)
+├── docs/        Dokumentasi ini
+└── examples/    Kumpulan contoh siap pakai</pre>
+      </section>
+
+      <section class="glass-panel rounded-3xl p-6 sm:p-8" id="penggunaan">
+        <h2 class="sec">3. Penggunaan</h2>
+        <p class="text-sm text-zinc-500 dark:text-zinc-400 mt-2">Semua file standalone &amp; siap dibuka langsung di browser. Pola boilerplate (contoh di kedalaman 2, prefix <code>../../assets/</code>):</p>
+        <pre class="code mt-3">&lt;!DOCTYPE html&gt;
+&lt;html lang="id" class="dark"&gt;
+&lt;head&gt;
+  &lt;script src="../../assets/js/tailwind.js"&gt;&lt;/script&gt;
+  &lt;script src="../../assets/js/lucide.js"&gt;&lt;/script&gt;
+  &lt;script&gt;tailwind.config={darkMode:'class',theme:{extend:{colors:{glass:{...}}}}}&lt;/script&gt;
+  &lt;link rel="stylesheet" href="../../assets/css/uroo.css"&gt;
+&lt;/head&gt;
+&lt;body class="min-h-screen font-sans antialiased text-zinc-800 dark:text-zinc-100"&gt;
+  &lt;!-- Konten --&gt;
+  &lt;script&gt;lucide.createIcons(); /* + toggleTheme() */&lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;</pre>
+        <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-3">Kelas <code>.glass-panel</code> = <code>backdrop-filter: blur(20px) saturate(180%)</code>. Panggil <code>toggleTheme()</code> untuk beralih gelap/terang.</p>
+      </section>
+
+      <section class="glass-panel rounded-3xl p-6 sm:p-8" id="komponen">
+        <h2 class="sec">4. Komponen (48)</h2>
+        <p class="text-sm text-zinc-500 dark:text-zinc-400 mt-1">Setiap panel demo punya tombol <b>Lihat Kode / Salin</b>.</p>
+        <div class="mt-3 overflow-x-auto">
+          <table class="tb w-full">
+            <thead><tr><th>#</th><th>Komponen</th><th>Deskripsi</th></tr></thead>
+            <tbody>
+              <tr><td>6</td><td>Button</td><td>6 varian, 4 ukuran, loading</td></tr>
+              <tr><td>26</td><td>Modal</td><td>Ukuran, form, confirm</td></tr>
+              <tr><td>42</td><td>Tabs</td><td>Underline/pill + icon</td></tr>
+              <tr><td>45</td><td>Toast</td><td>Auto-dismiss, stacked</td></tr>
+              <tr><td>1</td><td>Accordion</td><td>Multi/single open, chevron rotate</td></tr>
+              <tr><td>41</td><td>Table</td><td>Sortable, striped</td></tr>
+              <tr><td>48</td><td>Tree</td><td>Expand/collapse, checkbox</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-3">Daftar lengkap 48 komponen: accordion, alert, avatar, badge, breadcrumb, button, calendar, card, carousel, checkbox, chip, command, context-menu, date-picker, dialog, divider, drawer, dropdown, empty-state, file-upload, hover-card, input, input-group, kbd, label, menu, modal, pagination, popover, progress, radio, rating, select, separator, skeleton, slider, spinner, stat-card, stepper, switch, table, tabs, textarea, timeline, toast, toggle, tooltip, tree.</p>
+      </section>
+
+      <section class="glass-panel rounded-3xl p-6 sm:p-8" id="layout">
+        <h2 class="sec">5. Layout (8)</h2>
+        <div class="mt-3 overflow-x-auto">
+          <table class="tb w-full">
+            <thead><tr><th>Layout</th><th>Keterangan</th></tr></thead>
+            <tbody>
+              <tr><td>App</td><td>Shell aplikasi lengkap</td></tr>
+              <tr><td>Admin</td><td>Panel administrasi</td></tr>
+              <tr><td>Dashboard</td><td>KPI &amp; grafik</td></tr>
+              <tr><td>Auth</td><td>Login &amp; registrasi</td></tr>
+              <tr><td>Marketing</td><td>Landing/perusahaan</td></tr>
+              <tr><td>Ecommerce</td><td>Toko online</td></tr>
+              <tr><td>Checkout</td><td>Alur pembayaran</td></tr>
+              <tr><td>Print</td><td>Printable dengan <code>window.print()</code></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="glass-panel rounded-3xl p-6 sm:p-8" id="halaman">
+        <h2 class="sec">6. Halaman (40) &amp; Foundation</h2>
+        <p class="text-sm text-zinc-500 dark:text-zinc-400 mt-1">Landing, dashboard, auth, ecommerce, profile, settings, invoice, errors — plus 9 halaman style tokens (typography, colors, spacing, radius, shadow, breakpoints, z-index, animations, glass).</p>
+      </section>
+
+      <section class="glass-panel rounded-3xl p-6 sm:p-8" id="modul">
+        <h2 class="sec">7. Modul (8)</h2>
+        <p class="text-sm text-zinc-500 dark:text-zinc-400 mt-1">ecommerce, finance, inventory, crm, hr, project-management, analytics, notification — lengkap dengan data Indonesia realistis &amp; interaktivitas nyata.</p>
+      </section>
+
+    </main>
+  </div>
+
+  <script>
+    lucide.createIcons();
+    function toggleTheme() {
+      const h = document.documentElement, b = document.body;
+      h.classList.toggle('dark'); b.classList.toggle('dark');
+      try { localStorage.setItem('uroo-theme', b.classList.contains('dark') ? 'dark' : 'light'); } catch (e) {}
+      lucide.createIcons();
+    }
+  </script>
+<script src="../assets/js/uroo-nav.js"></script>
+</body>
+</html>

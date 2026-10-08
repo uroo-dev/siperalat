@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="id" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Uroo UI - Menu Konteks</title>
+  <script src="../../assets/js/tailwind.js"></script>
+  <script src="../../assets/js/lucide.js"></script>
+  <script>tailwind.config={darkMode:'class',theme:{extend:{colors:{glass:{light:'rgba(255,255,255,0.65)','light-border':'rgba(255,255,255,0.8)',dark:'rgba(18,18,20,0.65)','dark-border':'rgba(255,255,255,0.1)'}}}}}</script>
+  <link rel="stylesheet" href="../../assets/css/uroo.css">
+  <style>
+    body { background: linear-gradient(135deg,#dfe3ea,#f4f4f5) !important; }
+    body.dark { background: linear-gradient(135deg,#0a0a0c,#1a1a1e) !important; }
+
+    .glass-panel {
+      backdrop-filter: blur(20px) saturate(180%);
+      -webkit-backdrop-filter: blur(20px) saturate(180%);
+      background-color: rgba(255,255,255,0.55);
+      border: 1px solid rgba(255,255,255,0.8);
+      box-shadow: 0 20px 40px -15px rgba(0,0,0,0.05), inset 0 1px 1px 0 rgba(255,255,255,0.9);
+    }
+    .dark .glass-panel {
+      background-color: rgba(24,24,27,0.55);
+      border: 1px solid rgba(255,255,255,0.08);
+      box-shadow: 0 20px 40px -15px rgba(0,0,0,0.5), inset 0 1px 1px 0 rgba(255,255,255,0.1);
+    }
+
+    @keyframes u-scale-in { from { opacity:0; transform:scale(.95); } to { opacity:1; transform:scale(1); } }
+    @keyframes u-slide-up { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:translateY(0); } }
+    @keyframes u-fade-in { from { opacity:0; } to { opacity:1; } }
+    @keyframes u-toast-in { from { opacity:0; transform:translateX(-50%) translateY(20px) scale(.96); } to { opacity:1; transform:translateX(-50%) translateY(0) scale(1); } }
+    .anim-slide-up { animation: u-slide-up .35s cubic-bezier(.16,1,.3,1); }
+    .anim-scale-in { animation: u-scale-in .3s cubic-bezier(.16,1,.3,1); }
+
+    .uroo-kbd {
+      display: inline-flex; align-items:center; padding:1px 6px;
+      font-family: ui-monospace,'SF Mono',monospace; font-size:11px;
+      border-radius:6px; border:1px solid rgba(0,0,0,.12);
+      background:rgba(0,0,0,.05); color:#71717a;
+    }
+    .dark .uroo-kbd { border-color:rgba(255,255,255,.16); background:rgba(255,255,255,.06); color:#a1a1aa; }
+
+    /* ==== Custom element: menu konteks ==== */
+    uroo-context-menu { position: fixed; z-index: 1100; display: none; }
+    uroo-context-menu.uroo-open { display: block; }
+    .uroo-cm-card {
+      min-width: 236px; padding: 6px; border-radius: 14px;
+      backdrop-filter: blur(20px) saturate(180%);
+      -webkit-backdrop-filter: blur(20px) saturate(180%);
+      background: rgba(255,255,255,0.78);
+      border: 1px solid rgba(255,255,255,0.85);
+      box-shadow: 0 24px 48px -16px rgba(0,0,0,0.12), 0 8px 20px -8px rgba(0,0,0,0.10), inset 0 1px 1px 0 rgba(255,255,255,0.9);
+      animation: u-scale-in .14s cubic-bezier(.16,1,.3,1);
+    }
+    .dark .uroo-cm-card {
+      background: rgba(24,24,27,0.82);
+      border: 1px solid rgba(255,255,255,0.10);
+      box-shadow: 0 24px 48px -16px rgba(0,0,0,0.6), inset 0 1px 1px 0 rgba(255,255,255,0.08);
+    }
+    .uroo-cm-item {
+      width: 100%; display: flex; align-items: center; gap: 10px; text-align:left;
+      padding: 8px 10px; border-radius: 9px; font-size: 13px; font-weight: 500;
+      color:#27272a; cursor: pointer;
+      transition: background-color .12s ease, color .12s ease;
+    }
+    .dark .uroo-cm-item { color:#e4e4e7; }
+    .uroo-cm-item:hover, .dark .uroo-cm-item:hover { background: rgba(0,0,0,.08); }
+    .dark .uroo-cm-item:hover { background: rgba(255,255,255,.10); }
+    .uroo-cm-item:focus-visible {
+      outline: 2px solid rgba(0,0,0,.7); outline-offset:-2px; background: rgba(0,0,0,.08);
+    }
+    .dark .uroo-cm-item:focus-visible { outline-color: rgba(255,255,255,.8); background: rgba(255,255,255,.10); }
+    .uroo-cm-item[disabled], .uroo-cm-item.is-disabled { opacity:.38; cursor:not-allowed; pointer-events:none; }
+    .uroo-cm-item.is-danger { color:#dc2626; }
+    .dark .uroo-cm-item.is-danger { color:#f87171; }
+    .uroo-cm-ic { width:16px; height:16px; flex:none; color:#52525b; }
+    .dark .uroo-cm-ic { color:#a1a1aa; }
+    .uroo-cm-item.is-danger .uroo-cm-ic { color:#dc2626; }
+    .dark .uroo-cm-item.is-danger .uroo-cm-ic { color:#f87171; }
+    .uroo-cm-sep { height:1px; margin:6px 8px; background: rgba(0,0,0,.07); }
+    .dark .uroo-cm-sep { background: rgba(255,255,255,.10); }
+    .uroo-cm-kbd { margin-left:auto; font-size:11px; color:#a1a1aa; font-family:ui-monospace,'SF Mono',monospace; }
+    .dark .uroo-cm-kbd { color:#71717a; }
+
+    .uroo-cm-zone {
+      border: 1.5px dashed rgba(0,0,0,.18); border-radius: 14px;
+      background: rgba(255,255,255,.35);
+      transition: border-color .15s ease, background-color .15s ease;
+    }
+    .dark .uroo-cm-zone { border-color: rgba(255,255,255,.16); background: rgba(255,255,255,.03); }
+    .uroo-cm-zone:hover { border-color: rgba(0,0,0,.45); }
+    .dark .uroo-cm-zone:hover { border-color: rgba(255,255,255,.42); }
+  </style>
+</head>
+<body class="min-h-screen p-6 font-sans antialiased text-zinc-800 dark:text-zinc-100" style="background:linear-gradient(135deg,#dfe3ea,#f4f4f5)">
+  <script>(function initTheme(){var saved=null;try{saved=localStorage.getItem('uroo-theme')}catch(e){};var dark=(saved==='dark')||(!saved&&window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches);var de=document.documentElement;if(dark){de.classList.add('dark');de.classList.remove('light');if(document.body){document.body.classList.add('dark');document.body.classList.remove('light');}}else{de.classList.remove('dark');de.classList.add('light');if(document.body){document.body.classList.remove('dark');document.body.classList.add('light');}}})();</script>
+
+  <!-- Ambient glow circles -->
+  <div aria-hidden="true" class="pointer-events-none fixed -top-32 -left-32 h-[420px] w-[420px] rounded-full bg-zinc-300/50 blur-3xl dark:bg-zinc-600/20"></div>
+  <div aria-hidden="true" class="pointer-events-none fixed -bottom-36 -right-28 h-[400px] w-[400px] rounded-full bg-zinc-400/25 blur-3xl dark:bg-zinc-700/25"></div>
+  <div aria-hidden="true" class="pointer-events-none fixed top-1/3 right-1/4 h-64 w-64 rounded-full bg-white/40 blur-3xl dark:bg-zinc-800/30"></div>
+
+  <header class="relative mx-auto max-w-6xl">
+    <div class="mb-6 flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-zinc-500 dark:text-zinc-400">
+      <span class="inline-flex h-1.5 w-1.5 rounded-full bg-zinc-700 dark:bg-zinc-200"></span>
+      Komponen Uroo UI
+      <span class="text-zinc-300 dark:text-zinc-600">/</span>
+      Menu Konteks
+    </div>
+    <h1 class="text-3xl font-bold tracking-tight">Menu Konteks</h1>
+    <p class="mt-2 max-w-2xl text-sm text-zinc-500 dark:text-zinc-400">
+      Klik kanan pada area demo untuk membuka menu konteks. Navigasi dengan tombol panah,
+      pilih dengan Enter, dan tutup dengan Esc atau klik di luar menu.
+    </p>
+  </header>
+
+  <main class="relative mx-auto mt-6 grid max-w-6xl gap-5 lg:grid-cols-3">
+
+    <!-- Scene 1: Editor teks -->
+    <section data-copy class="glass-panel anim-slide-up rounded-2xl p-5">
+      <div class="mb-3 flex items-center justify-between">
+        <h2 class="text-sm font-semibold">Editor Catatan</h2>
+        <span class="rounded-full px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider bg-black/5 text-zinc-500 dark:bg-white/10 dark:text-zinc-400">Dokumen</span>
+      </div>
+      <div id="zone-editor" class="uroo-cm-zone cursor-context-menu p-4" oncontextmenu="return false" data-cm="menu-editor" role="application" aria-label="Area klik kanan editor catatan">
+        <div class="flex items-center gap-2 text-xs font-medium text-zinc-400 dark:text-zinc-500">
+          <i data-lucide="mouse-pointer-click" class="h-4 w-4"></i>
+          <span>Klik kanan di sini</span>
+        </div>
+        <p class="mt-3 text-[13px] leading-relaxed text-zinc-600 dark:text-zinc-300">
+          Ringkasan rapat sprint 12. Pilih bagian mana pun dari catatan lalu klik kanan
+          untuk menyalin, memotong, atau menambahkan komentar pada pilihan tersebut.
+        </p>
+        <div class="mt-3 flex items-center gap-2">
+          <span class="uroo-kbd">Esc</span>
+          <span class="uroo-kbd">Panah</span>
+          <span class="uroo-kbd">Enter</span>
+        </div>
+      </div>
+      <p id="out-editor" class="mt-3 h-4 text-xs text-zinc-400 dark:text-zinc-500">Belum ada tindakan.</p>
+    </section>
+
+    <!-- Scene 2: Pengelola file -->
+    <section data-copy class="glass-panel anim-slide-up rounded-2xl p-5">
+      <div class="mb-3 flex items-center justify-between">
+        <h2 class="text-sm font-semibold">Pengelola File</h2>
+        <span class="rounded-full px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider bg-black/5 text-zinc-500 dark:bg-white/10 dark:text-zinc-400">File</span>
+      </div>
+      <div id="zone-file" class="uroo-cm-zone cursor-context-menu flex items-center gap-3 p-4" oncontextmenu="return false" data-cm="menu-file" role="application" aria-label="Area klik kanan pengelola file">
+        <div class="flex h-10 w-10 flex-none items-center justify-center rounded-xl bg-black/5 text-zinc-600 dark:bg-white/10 dark:text-zinc-200">
+          <i data-lucide="file-text" class="h-5 w-5"></i>
+        </div>
+        <div class="min-w-0">
+          <p class="truncate text-[13px] font-semibold">Laporan-Keuangan-Q3.pdf</p>
+          <p class="text-xs text-zinc-500 dark:text-zinc-400">12,4 MB - 29 Agu 2026</p>
+        </div>
+        <div class="ml-auto flex-none text-zinc-400 dark:text-zinc-500">
+          <i data-lucide="mouse-pointer-click" class="h-4 w-4"></i>
+        </div>
+      </div>
+      <p class="mt-3 text-xs text-zinc-400 dark:text-zinc-500">
+        Item "Buang ke Sampah" dinonaktifkan karena berkas sedang dipakai proses lain.
+      </p>
+      <p id="out-file" class="mt-1 h-4 text-xs text-zinc-400 dark:text-zinc-500">Belum ada tindakan.</p>
+    </section>
+
+    <!-- Scene 3: Percakapan -->
+    <section data-copy class="glass-panel anim-slide-up rounded-2xl p-5">
+      <div class="mb-3 flex items-center justify-between">
+        <h2 class="text-sm font-semibold">Percakapan</h2>
+        <span class="rounded-full px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider bg-black/5 text-zinc-500 dark:bg-white/10 dark:text-zinc-400">Chat</span>
+      </div>
+      <div id="zone-chat" class="uroo-cm-zone cursor-context-menu p-4" oncontextmenu="return false" data-cm="menu-chat" role="application" aria-label="Area klik kanan percakapan">
+        <div class="flex items-center gap-2 text-xs font-medium text-zinc-400 dark:text-zinc-500">
+          <i data-lucide="mouse-pointer-click" class="h-4 w-4"></i>
+          <span>Klik kanan pada pesan</span>
+        </div>
+        <div class="mt-3 rounded-xl border border-zinc-200/70 bg-white/50 p-3 dark:border-white/10 dark:bg-white/5">
+          <p class="text-[12px] font-semibold text-zinc-700 dark:text-zinc-200">Nia Paramita <span class="ml-1 font-normal text-zinc-400 dark:text-zinc-500">10.24</span></p>
+          <p class="mt-1 text-[13px] leading-relaxed text-zinc-600 dark:text-zinc-300">
+            Dokumen revisi sudah saya unggah ke folder bersama. Tolong dicek sebelum rapat sore ini.
+          </p>
+        </div>
+      </div>
+      <p id="out-chat" class="mt-3 h-4 text-xs text-zinc-400 dark:text-zinc-500">Belum ada tindakan.</p>
+    </section>
+
+  </main>
+
+  <footer class="relative mx-auto mt-6 max-w-6xl">
+    <p class="text-xs text-zinc-400 dark:text-zinc-600">
+      Menu konteks dibangun sebagai custom element <code class="uroo-kbd">uroo-context-menu</code> dengan dukungan keyboard: panah atas/bawah untuk navigasi, Enter untuk memilih, Esc untuk menutup.
+    </p>
+  </footer>
+
+  <!-- ============ Menu konteks (custom element) ============ -->
+  <uroo-context-menu id="menu-editor" data-out="#out-editor" role="menu" aria-label="Menu konteks catatan">
+    <div class="uroo-cm-card">
+      <button type="button" class="uroo-cm-item" role="menuitem" data-action="copy" data-label="Salin">
+        <i data-lucide="copy" class="uroo-cm-ic"></i><span>Salin</span><span class="uroo-cm-kbd">Ctrl+C</span>
+      </button>
+      <button type="button" class="uroo-cm-item" role="menuitem" data-action="paste" data-label="Tempel">
+        <i data-lucide="clipboard" class="uroo-cm-ic"></i><span>Tempel</span><span class="uroo-cm-kbd">Ctrl+V</span>
+      </button>
+      <button type="button" class="uroo-cm-item" role="menuitem" data-action="cut" data-label="Potong">
+        <i data-lucide="scissors" class="uroo-cm-ic"></i><span>Potong</span><span class="uroo-cm-kbd">Ctrl+X</span>
+      </button>
+      <button type="button" class="uroo-cm-item" role="menuitem" data-action="select-all" data-label="Pilih Semua">
+        <i data-lucide="type" class="uroo-cm-ic"></i><span>Pilih Semua</span><span class="uroo-cm-kbd">Ctrl+A</span>
+      </button>
+      <div class="uroo-cm-sep" role="separator"></div>
+      <button type="button" class="uroo-cm-item" role="menuitem" data-action="comment" data-label="Tambah Komentar">
+        <i data-lucide="message-circle" class="uroo-cm-ic"></i><span>Tambah Komentar</span><span class="uroo-cm-kbd">Ctrl+M</span>
+      </button>
+      <div class="uroo-cm-sep" role="separator"></div>
+      <button type="button" class="uroo-cm-item" role="menuitem" data-action="cancel" data-label="Batal">
+        <i data-lucide="x" class="uroo-cm-ic"></i><span>Batal</span>
+      </button>
+    </div>
+  </uroo-context-menu>
+
+  <uroo-context-menu id="menu-file" data-out="#out-file" role="menu" aria-label="Menu konteks berkas">
+    <div class="uroo-cm-card">
+      <button type="button" class="uroo-cm-item" role="menuitem" data-action="open" data-label="Buka">
+        <i data-lucide="folder-open" class="uroo-cm-ic"></i><span>Buka</span>
+      </button>
+      <button type="button" class="uroo-cm-item" role="menuitem" data-action="open-new" data-label="Buka di Tab Baru">
+        <i data-lucide="external-link" class="uroo-cm-ic"></i><span>Buka di Tab Baru</span>
+      </button>
+      <div class="uroo-cm-sep" role="separator"></div>
+      <button type="button" class="uroo-cm-item" role="menuitem" data-action="download" data-label="Unduh">
+        <i data-lucide="download" class="uroo-cm-ic"></i><span>Unduh</span><span class="uroo-cm-kbd">Ctrl+D</span>
+      </button>
+      <button type="button" class="uroo-cm-item" role="menuitem" data-action="rename" data-label="Ubah Nama">
+        <i data-lucide="pencil" class="uroo-cm-ic"></i><span>Ubah Nama</span><span class="uroo-cm-kbd">F2</span>
+      </button>
+      <button type="button" class="uroo-cm-item" role="menuitem" data-action="move" data-label="Pindahkan ke...">
+        <i data-lucide="move" class="uroo-cm-ic"></i><span>Pindahkan ke...</span>
+      </button>
+      <button type="button" class="uroo-cm-item" role="menuitem" data-action="copy-file" data-label="Salin ke Papan Klip">
+        <i data-lucide="clipboard" class="uroo-cm-ic"></i><span>Salin ke Papan Klip</span><span class="uroo-cm-kbd">Ctrl+C</span>
+      </button>
+      <div class="uroo-cm-sep" role="separator"></div>
+      <button type="button" class="uroo-cm-item is-danger" role="menuitem" data-action="trash" data-label="Buang ke Sampah" disabled aria-disabled="true">
+        <i data-lucide="trash-2" class="uroo-cm-ic"></i><span>Buang ke Sampah</span>
+      </button>
+    </div>
+  </uroo-context-menu>
+
+  <uroo-context-menu id="menu-chat" data-out="#out-chat" role="menu" aria-label="Menu konteks percakapan">
+    <div class="uroo-cm-card">
+      <button type="button" class="uroo-cm-item" role="menuitem" data-action="reply" data-label="Balas">
+        <i data-lucide="reply" class="uroo-cm-ic"></i><span>Balas</span>
+      </button>
+      <button type="button" class="uroo-cm-item" role="menuitem" data-action="forward" data-label="Teruskan">
+        <i data-lucide="forward" class="uroo-cm-ic"></i><span>Teruskan</span>
+      </button>
+      <button type="button" class="uroo-cm-item" role="menuitem" data-action="copy-text" data-label="Salin Teks">
+        <i data-lucide="copy" class="uroo-cm-ic"></i><span>Salin Teks</span>
+      </button>
+      <div class="uroo-cm-sep" role="separator"></div>
+      <button type="button" class="uroo-cm-item" role="menuitem" data-action="pin" data-label="Sematkan Percakapan">
+        <i data-lucide="pin" class="uroo-cm-ic"></i><span>Sematkan Percakapan</span>
+      </button>
+      <button type="button" class="uroo-cm-item" role="menuitem" data-action="unread" data-label="Tandai Belum Dibaca">
+        <i data-lucide="mail" class="uroo-cm-ic"></i><span>Tandai Belum Dibaca</span>
+      </button>
+      <div class="uroo-cm-sep" role="separator"></div>
+      <button type="button" class="uroo-cm-item is-danger" role="menuitem" data-action="delete-chat" data-label="Hapus Percakapan" disabled aria-disabled="true">
+        <i data-lucide="trash-2" class="uroo-cm-ic"></i><span>Hapus Percakapan</span>
+      </button>
+    </div>
+  </uroo-context-menu>
+
+  <!-- Theme toggle -->
+  <button onclick="toggleTheme()" aria-label="Ubah tema"
+      class="glass-panel fixed top-4 right-4 z-50 rounded-full p-2.5 shadow-lg transition-transform hover:scale-105">
+    <i data-lucide="sun" class="hidden h-5 w-5 text-zinc-600 dark:block dark:text-zinc-200"></i>
+    <i data-lucide="moon" class="block h-5 w-5 text-zinc-600 dark:hidden dark:text-zinc-200"></i>
+  </button>
+
+  <script>
+    lucide.createIcons();
+
+    function toggleTheme(){
+      const h=document.documentElement,b=document.body;
+      h.classList.toggle('dark');
+      b.classList.toggle('dark');
+      try{localStorage.setItem('uroo-theme',b.classList.contains('dark')?'dark':'light')}catch(e){};
+      lucide.createIcons();
+    }
+
+    (function(){
+      if (document.documentElement.classList.contains('dark')) document.body.classList.add('dark');
+      else document.body.classList.remove('dark');
+    })();
+
+    function showToast(msg){
+      const t=document.createElement('div');
+      t.className='glass-panel';
+      t.textContent=msg;
+      t.style.cssText='position:fixed;left:50%;bottom:24px;transform:translateX(-50%);z-index:1200;padding:10px 16px;border-radius:12px;font-size:13px;font-weight:500;animation:u-toast-in .3s cubic-bezier(.16,1,.3,1);color:#27272a;';
+      if (document.body.classList.contains('dark')) t.style.color='#e4e4e7';
+      document.body.appendChild(t);
+      setTimeout(function(){
+        t.style.transition='opacity .3s ease, transform .3s ease';
+        t.style.opacity='0';
+        t.style.transform='translateX(-50%) translateY(10px)';
+        setTimeout(function(){ t.remove(); }, 320);
+      }, 2600);
+    }
+
+    window.UrooCm = function(action, item){
+      var menu = item.closest('uroo-context-menu');
+      var out = menu && menu.dataset.out ? document.querySelector(menu.dataset.out) : null;
+      var label = item.dataset.label || 'Konfirmasi';
+      if (out) out.textContent = 'Terakhir: ' + label;
+      showToast(label);
+    };
+
+    /* ---- Custom element: uroo-context-menu ---- */
+    class UrooContextMenu extends HTMLElement {
+      constructor() { super(); this._open = false; this._anchor = null; }
+
+      connectedCallback() {
+        this.addEventListener('contextmenu', function(e){ e.preventDefault(); });
+        this.addEventListener('click', function(e){
+          var item = e.target.closest('.uroo-cm-item');
+          if (!item) return;
+          if (item.hasAttribute('disabled') || item.classList.contains('is-disabled')) { e.preventDefault(); return; }
+          if (typeof window.UrooCm === 'function') window.UrooCm(item.dataset.action, item);
+          this.close();
+        });
+        this.addEventListener('keydown', function(e){
+          if (e.key === 'Escape') { e.preventDefault(); this.close(); return; }
+          if (e.key === 'ArrowDown' || e.key === 'ArrowUp' || e.key === 'Tab') {
+            e.preventDefault();
+            var items = this.querySelectorAll('.uroo-cm-item:not([disabled])');
+            items = Array.prototype.filter.call(items, function(i){ return !i.classList.contains('is-disabled'); });
+            if (!items.length) return;
+            var idx = items.indexOf(document.activeElement);
+            var next;
+            if (e.key === 'ArrowDown' || !e.shiftKey && e.key === 'Tab') next = (idx + 1) % items.length;
+            else next = (idx - 1 + items.length) % items.length;
+            items[next].focus();
+          } else if (e.key === 'Enter') {
+            if (document.activeElement && document.activeElement.classList && document.activeElement.classList.contains('uroo-cm-item')) {
+              e.preventDefault();
+              document.activeElement.click();
+            }
+          }
+        });
+        var self = this;
+        document.addEventListener('click', function(e){
+          if (self._open && !self.contains(e.target)) self.close();
+        });
+      }
+
+      open(x, y, anchor) {
+        if (this._open) return;
+        this._open = true;
+        this._anchor = anchor || null;
+        this.classList.add('uroo-open');
+        this.style.left = '0px';
+        this.style.top = '0px';
+        var r = this.getBoundingClientRect();
+        var pad = 8;
+        var left = Math.min(x, window.innerWidth - r.width - pad);
+        var top = Math.min(y, window.innerHeight - r.height - pad);
+        this.style.left = Math.max(pad, left) + 'px';
+        this.style.top = Math.max(pad, top) + 'px';
+        var first = this.querySelector('.uroo-cm-item:not([disabled])');
+        if (first && !first.classList.contains('is-disabled')) first.focus();
+      }
+
+      close() {
+        if (!this._open) return;
+        this._open = false;
+        this.classList.remove('uroo-open');
+        if (this._anchor && typeof this._anchor.focus === 'function') this._anchor.focus();
+        this._anchor = null;
+      }
+    }
+    customElements.define('uroo-context-menu', UrooContextMenu);
+
+    /* ---- Bind area klik kanan ---- */
+    document.querySelectorAll('[data-cm]').forEach(function(zone){
+      zone.addEventListener('contextmenu', function(e){
+        e.preventDefault();
+        var menu = document.getElementById(zone.dataset.cm);
+        if (menu && typeof menu.open === 'function') menu.open(e.clientX, e.clientY, zone);
+      });
+    });
+  </script>
+<script src="../../assets/js/uroo-copy.js"></script>
+<script src="../../assets/js/uroo-nav.js"></script>
+</body>
+</html>

@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="id" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Uroo UI - Detail Transaksi</title>
+  <script src="../../assets/js/tailwind.js"></script>
+  <script src="../../assets/js/lucide.js"></script>
+  <script>tailwind.config={darkMode:'class',theme:{extend:{colors:{glass:{light:'rgba(255,255,255,0.65)','light-border':'rgba(255,255,255,0.8)',dark:'rgba(18,18,20,0.65)','dark-border':'rgba(255,255,255,0.1)'}}}}}</script>
+  <link rel="stylesheet" href="../../assets/css/uroo.css">
+  <style>
+    .u-bg{position:fixed;inset:0;z-index:-10;transition:opacity .35s ease}
+    .u-bg-light{background:linear-gradient(135deg,#dfe3ea,#f4f4f5)}
+    .u-bg-dark{background:linear-gradient(135deg,#0a0a0b,#1a1a1e);opacity:0}
+    body.dark .u-bg-light{opacity:0}
+    body.dark .u-bg-dark{opacity:1}
+    .u-glow{position:fixed;border-radius:9999px;filter:blur(90px);z-index:-9;pointer-events:none;background:rgba(0,0,0,0.06);transition:background-color .35s ease}
+    body.dark .u-glow{background:rgba(255,255,255,0.05)}
+    .u-glow-1{width:420px;height:420px;top:-140px;left:-140px}
+    .u-glow-2{width:520px;height:520px;bottom:-200px;right:-140px}
+    .u-glow-3{width:300px;height:300px;top:42%;left:58%}
+
+    #toast{transition:opacity .3s ease,transform .3s ease}
+    #toast.hidden-toast{opacity:0;transform:translateY(20px) scale(.96);pointer-events:none}
+  </style>
+</head>
+<body class="min-h-screen font-sans antialiased text-zinc-800 dark:text-zinc-100">
+  <script>(function initTheme(){var saved=null;try{saved=localStorage.getItem('uroo-theme')}catch(e){};var dark=(saved==='dark')||(!saved&&window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches);var de=document.documentElement;if(dark){de.classList.add('dark');de.classList.remove('light');if(document.body){document.body.classList.add('dark');document.body.classList.remove('light');}}else{de.classList.remove('dark');de.classList.add('light');if(document.body){document.body.classList.remove('dark');document.body.classList.add('light');}}})();</script>
+
+  <div class="u-bg u-bg-light" aria-hidden="true"></div>
+  <div class="u-bg u-bg-dark" aria-hidden="true"></div>
+  <div class="u-glow u-glow-1" aria-hidden="true"></div>
+  <div class="u-glow u-glow-2" aria-hidden="true"></div>
+  <div class="u-glow u-glow-3" aria-hidden="true"></div>
+
+  <div class="max-w-5xl mx-auto px-4 py-6 md:py-10">
+    <!-- TOPBAR -->
+    <header class="glass-panel rounded-2xl px-4 py-3 flex items-center gap-3 sticky top-4 z-30 mb-6">
+      <div class="flex items-center gap-2.5 min-w-0">
+        <img src="../../assets/img/uroo_ui.png" alt="Uroo UI" class="w-9 h-9 rounded-xl object-cover shadow-lg shrink-0">
+        <div class="min-w-0">
+          <p class="font-extrabold text-[15px] leading-none tracking-tight">Uroo UI</p>
+          <p class="mt-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-zinc-400 dark:text-zinc-500">Detail Transaksi</p>
+        </div>
+      </div>
+      <div class="ml-auto flex items-center gap-1.5">
+        <span class="grid place-items-center w-9 h-9 rounded-full bg-gradient-to-br from-zinc-500 to-zinc-800 dark:from-zinc-300 dark:to-zinc-600 text-white dark:text-zinc-900 text-xs font-bold">RA</span>
+      </div>
+    </header>
+
+    <!-- Page header -->
+    <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
+      <div class="flex items-center gap-3">
+        <a href="#" onclick="event.preventDefault();history.back()" class="p-2 rounded-xl bg-black/5 dark:bg-white/10 text-zinc-500 dark:text-zinc-400 hover:bg-black/10 dark:hover:bg-white/15"><i data-lucide="arrow-left" class="w-4 h-4"></i></a>
+        <div>
+          <h1 class="text-2xl md:text-3xl font-extrabold tracking-tight flex items-center gap-2">
+            #INV-2026-0087
+            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 text-xs font-bold"><i data-lucide="check-circle-2" class="w-3.5 h-3.5"></i> Berhasil</span>
+          </h1>
+          <p class="text-sm text-zinc-500 dark:text-zinc-400 mt-1">Langganan Uroo UI Pro &#183; PT Nusantara Digital Kreatif</p>
+        </div>
+      </div>
+      <div class="flex flex-wrap gap-2">
+        <button onclick="downloadPDF()" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-black/5 dark:bg-white/10 text-sm font-bold hover:bg-black/10 dark:hover:bg-white/15"><i data-lucide="file-down" class="w-4 h-4"></i> PDF</button>
+        <button onclick="downloadPDF()" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-black/5 dark:bg-white/10 text-sm font-bold hover:bg-black/10 dark:hover:bg-white/15"><i data-lucide="download" class="w-4 h-4"></i> Unduh</button>
+        <button onclick="window.print()" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-black/5 dark:bg-white/10 text-sm font-bold hover:bg-black/10 dark:hover:bg-white/15"><i data-lucide="printer" class="w-4 h-4"></i> Cetak</button>
+        <button onclick="openModal('modal-refund')" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-rose-500/15 text-rose-500 text-sm font-bold hover:bg-rose-500/25"><i data-lucide="rotate-ccw" class="w-4 h-4"></i> Ajukan Pengembalian</button>
+      </div>
+    </div>
+
+    <!-- Summary cards -->
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+      <div class="glass-panel rounded-2xl p-5">
+        <p class="text-xs font-semibold text-zinc-500 dark:text-zinc-400">Jumlah Tagihan</p>
+        <p class="mt-2 text-2xl font-extrabold tracking-tight">Rp 542.013</p>
+        <p class="mt-1 text-[11px] text-zinc-400 font-semibold">Termasuk PPN 11%</p>
+      </div>
+      <div class="glass-panel rounded-2xl p-5">
+        <p class="text-xs font-semibold text-zinc-500 dark:text-zinc-400">Status</p>
+        <p class="mt-2 inline-flex items-center gap-1.5 font-extrabold text-emerald-600 dark:text-emerald-400"><i data-lucide="check-circle-2" class="w-5 h-5"></i> Lunas</p>
+        <p class="mt-1 text-[11px] text-zinc-400 font-semibold">Pembayaran diterima</p>
+      </div>
+      <div class="glass-panel rounded-2xl p-5">
+        <p class="text-xs font-semibold text-zinc-500 dark:text-zinc-400">Metode</p>
+        <p class="mt-2 inline-flex items-center gap-2 font-extrabold">
+          <span class="grid place-items-center w-8 h-6 rounded bg-sky-600 text-white text-[8px] font-extrabold">BCA</span> Transfer Bank
+        </p>
+        <p class="mt-1 text-[11px] text-zinc-400 font-semibold">VA BCA &#8226;&#8226;&#8226;&#8226; 3456</p>
+      </div>
+      <div class="glass-panel rounded-2xl p-5">
+        <p class="text-xs font-semibold text-zinc-500 dark:text-zinc-400">Tanggal</p>
+        <p class="mt-2 font-extrabold">29 Agu 2026</p>
+        <p class="mt-1 text-[11px] text-zinc-400 font-semibold">08:12 WIB</p>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <!-- Left: breakdown + timeline -->
+      <div class="lg:col-span-2 space-y-6">
+        <!-- Item breakdown -->
+        <div class="glass-panel rounded-2xl p-6">
+          <h2 class="font-bold tracking-tight mb-5">Rincian Item</h2>
+          <div class="overflow-x-auto -mx-6 px-6">
+            <table class="w-full text-sm min-w-[460px]">
+              <thead>
+                <tr class="text-left text-xs uppercase tracking-wider text-zinc-400 border-b border-black/5 dark:border-white/10">
+                  <th class="pb-3 font-bold">Item</th><th class="pb-3 font-bold">Qty</th><th class="pb-3 font-bold text-right">Harga</th><th class="pb-3 font-bold text-right">Subtotal</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-black/5 dark:divide-white/10">
+                <tr><td class="py-3.5"><p class="font-semibold">Paket Pro - 10 anggota</p><p class="text-xs text-zinc-400 mt-0.5">Kode: PLN-PRO</p></td><td class="text-zinc-400">1</td><td class="text-right text-zinc-400">Rp 299.000</td><td class="text-right font-semibold">Rp 299.000</td></tr>
+                <tr><td class="py-3.5"><p class="font-semibold">Penyimpanan tambahan 50 GB</p><p class="text-xs text-zinc-400 mt-0.5">Kode: ADD-100</p></td><td class="text-zinc-400">1</td><td class="text-right text-zinc-400">Rp 75.000</td><td class="text-right font-semibold">Rp 75.000</td></tr>
+                <tr><td class="py-3.5"><p class="font-semibold">Dukungan prioritas</p><p class="text-xs text-zinc-400 mt-0.5">Kode: SUP-SS</p></td><td class="text-zinc-400">1</td><td class="text-right text-zinc-400">Rp 50.000</td><td class="text-right font-semibold">Rp 50.000</td></tr>
+                <tr><td class="py-3.5"><p class="font-semibold">Seat anggota tambahan</p><p class="text-xs text-zinc-400 mt-0.5">Kode: SEAT-01</p></td><td class="text-zinc-400">2</td><td class="text-right text-zinc-400">Rp 45.000</td><td class="text-right font-semibold">Rp 90.000</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="mt-5 pt-4 border-t border-black/5 dark:border-white/10 max-w-xs ml-auto space-y-2 text-sm">
+            <div class="flex justify-between text-zinc-500 dark:text-zinc-400"><span>Subtotal</span><span class="font-semibold">Rp 514.000</span></div>
+            <div class="flex justify-between text-zinc-500 dark:text-zinc-400"><span>Diskon (5%)</span><span class="font-semibold">- Rp 25.700</span></div>
+            <div class="flex justify-between text-zinc-500 dark:text-zinc-400"><span>PPN 11%</span><span class="font-semibold">Rp 53.713</span></div>
+            <div class="flex justify-between text-base pt-2 border-t border-black/5 dark:border-white/10"><span class="font-extrabold">Total</span><span class="font-extrabold">Rp 542.013</span></div>
+          </div>
+        </div>
+
+        <!-- Timeline -->
+        <div class="glass-panel rounded-2xl p-6">
+          <h2 class="font-bold tracking-tight mb-5">Linimasa Transaksi</h2>
+          <div class="relative pl-6 space-y-6 before:content-[''] before:absolute before:left-[7px] before:top-1 before:bottom-1 before:w-px before:bg-black/10 dark:before:bg-white/10">
+            <div class="relative">
+              <span class="absolute -left-6 top-0.5 grid place-items-center w-3.5 h-3.5 rounded-full bg-emerald-500 ring-4 ring-white dark:ring-zinc-900"></span>
+              <p class="text-sm font-semibold">Pembayaran diterima</p>
+              <p class="text-[11px] text-zinc-400 mt-0.5">29 Agu 2026, 08:12 WIB &#183; Dana masuk ke rekening Uroo UI</p>
+            </div>
+            <div class="relative">
+              <span class="absolute -left-6 top-0.5 grid place-items-center w-3.5 h-3.5 rounded-full bg-zinc-900 dark:bg-zinc-50 ring-4 ring-white dark:ring-zinc-900"></span>
+              <p class="text-sm font-semibold">Transaksi dibuat</p>
+              <p class="text-[11px] text-zinc-400 mt-0.5">29 Agu 2026, 07:58 WIB &#183; Tagihan otomatis dari langganan</p>
+            </div>
+            <div class="relative">
+              <span class="absolute -left-6 top-0.5 grid place-items-center w-3.5 h-3.5 rounded-full bg-zinc-400 dark:bg-zinc-600 ring-4 ring-white dark:ring-zinc-900"></span>
+              <p class="text-sm font-semibold">Pengiriman faktur</p>
+              <p class="text-[11px] text-zinc-400 mt-0.5">28 Agu 2026, 22:00 WIB &#183; Email berisi tagihan dikirim</p>
+            </div>
+            <div class="relative">
+              <span class="absolute -left-6 top-0.5 grid place-items-center w-3.5 h-3.5 rounded-full bg-zinc-400 dark:bg-zinc-600 ring-4 ring-white dark:ring-zinc-900"></span>
+              <p class="text-sm font-semibold">Periode penagihan dimulai</p>
+              <p class="text-[11px] text-zinc-400 mt-0.5">12 Agu 2026 &#183; Periode 12 Agu - 12 Sep 2026</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: info sidebar -->
+      <div class="space-y-6">
+        <div class="glass-panel rounded-2xl p-6">
+          <h2 class="font-bold tracking-tight mb-4">Informasi Tagihan</h2>
+          <dl class="space-y-3 text-sm">
+            <div class="flex justify-between"><dt class="text-zinc-400">Nomor Invoice</dt><dd class="font-semibold u-mono" style="font-family:ui-monospace,monospace">INV-2026-0087</dd></div>
+            <div class="flex justify-between"><dt class="text-zinc-400">Referensi</dt><dd class="font-semibold" style="font-family:ui-monospace,monospace">PAY-4531-2026</dd></div>
+            <div class="flex justify-between"><dt class="text-zinc-400">Bank</dt><dd class="font-semibold">BCA Virtual Account</dd></div>
+            <div class="flex justify-between"><dt class="text-zinc-400">Penerbit</dt><dd class="font-semibold">Uroo UI</dd></div>
+            <div class="flex justify-between"><dt class="text-zinc-400">Pelanggan</dt><dd class="font-semibold text-right sm:text-left">PT Nusantara Digital Kreatif</dd></div>
+          </dl>
+        </div>
+
+        <div class="glass-panel rounded-2xl p-6">
+          <h2 class="font-bold tracking-tight mb-4">Dokumen Terkait</h2>
+          <div class="space-y-2.5">
+            <button onclick="downloadPDF()" class="w-full flex items-center gap-3 rounded-xl bg-black/5 dark:bg-white/10 p-3 text-left hover:bg-black/10 dark:hover:bg-white/15">
+              <span class="grid place-items-center w-9 h-9 rounded-lg bg-rose-500/15 text-rose-500 shrink-0"><i data-lucide="file-text" class="w-4 h-4"></i></span>
+              <span class="min-w-0 flex-1"><span class="block text-sm font-bold truncate">Nota Pembayaran.pdf</span><span class="block text-[11px] text-zinc-400">240 KB</span></span>
+              <i data-lucide="download" class="w-4 h-4 text-zinc-400 shrink-0"></i>
+            </button>
+            <button onclick="downloadPDF()" class="w-full flex items-center gap-3 rounded-xl bg-black/5 dark:bg-white/10 p-3 text-left hover:bg-black/10 dark:hover:bg-white/15">
+              <span class="grid place-items-center w-9 h-9 rounded-lg bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 shrink-0"><i data-lucide="file-check" class="w-4 h-4"></i></span>
+              <span class="min-w-0 flex-1"><span class="block text-sm font-bold truncate">Bukti Transfer.pdf</span><span class="block text-[11px] text-zinc-400">980 KB</span></span>
+              <i data-lucide="download" class="w-4 h-4 text-zinc-400 shrink-0"></i>
+            </button>
+          </div>
+        </div>
+
+        <div class="glass-panel rounded-2xl p-6">
+          <h2 class="font-bold tracking-tight mb-3 text-rose-500">Perlu Bantuan?</h2>
+          <p class="text-sm text-zinc-500 dark:text-zinc-400">Jika ada masalah dengan transaksi ini, tim penagihan kami siap membantu.</p>
+          <button onclick="showToast('Pesan terkirim','Tim dukungan akan menghubungi Anda')" class="mt-4 w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-black/5 dark:bg-white/10 text-sm font-bold hover:bg-black/10 dark:hover:bg-white/15"><i data-lucide="message-circle" class="w-4 h-4"></i> Hubungi Dukungan</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- REFUND CONFIRM DIALOG -->
+  <div id="modal-refund" class="fixed inset-0 z-50 hidden items-center justify-center p-4">
+    <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" onclick="closeModal('modal-refund')"></div>
+    <div class="glass-panel rounded-2xl p-6 w-full max-w-md relative z-10 anim-scale-in">
+      <div class="flex items-start gap-4">
+        <span class="grid place-items-center w-12 h-12 rounded-2xl bg-rose-500/15 text-rose-500 shrink-0"><i data-lucide="alert-triangle" class="w-6 h-6"></i></span>
+        <div>
+          <h2 class="font-bold text-lg">Konfirmasi Pengembalian Dana</h2>
+          <p class="text-sm text-zinc-500 dark:text-zinc-400 mt-1">Anda akan mengajukan pengembalian dana sebesar <span class="font-bold text-zinc-800 dark:text-zinc-100">Rp 542.013</span> untuk transaksi #INV-2026-0087. Dana akan dikembalikan ke BCA VA &#8226;&#8226;&#8226;&#8226; 3456 dalam 5-7 hari kerja setelah persetujuan.</p>
+        </div>
+      </div>
+      <div class="mt-5 rounded-xl bg-black/5 dark:bg-white/10 p-4">
+        <label class="text-xs font-semibold text-zinc-500 dark:text-zinc-400" for="refund-reason">Alasan Pengembalian</label>
+        <select id="refund-reason" class="mt-1.5 w-full h-11 px-3.5 rounded-xl bg-black/5 dark:bg-white/10 border border-black/5 dark:border-white/10 text-sm font-medium outline-none focus:ring-2 ring-zinc-900/10 dark:ring-white/20 appearance-none">
+          <option>Transaksi ganda / duplikat</option>
+          <option>Salah nominal</option>
+          <option>Barang/layanan tidak sesuai</option>
+          <option>Lainnya</option>
+        </select>
+      </div>
+      <div class="mt-4 flex justify-end gap-2">
+        <button onclick="closeModal('modal-refund')" class="px-4 py-2 rounded-xl bg-black/5 dark:bg-white/10 text-sm font-bold">Batal</button>
+        <button onclick="confirmRefund()" class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-rose-500 text-white text-sm font-bold hover:bg-rose-600"><i data-lucide="rotate-ccw" class="w-4 h-4"></i> Konfirmasi Pengembalian</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div id="toast" class="toast hidden-toast fixed bottom-6 left-1/2 -translate-x-1/2 z-[70] glass-panel rounded-2xl px-5 py-3.5 flex items-center gap-3 shadow-2xl">
+    <span class="grid place-items-center w-7 h-7 rounded-full bg-emerald-500/15 text-emerald-600 dark:text-emerald-400"><i data-lucide="check" class="w-4 h-4"></i></span>
+    <div><p id="toast-title" class="text-sm font-bold">Berhasil</p><p id="toast-msg" class="text-xs text-zinc-500 dark:text-zinc-400"></p></div>
+  </div>
+
+  <button onclick="toggleTheme()" class="fixed top-5 right-5 z-[60] p-2.5 rounded-full glass-panel shadow-2xl text-zinc-600 dark:text-zinc-300">
+    <i data-lucide="moon" class="w-4 h-4 hidden dark:block"></i>
+    <i data-lucide="sun" class="w-4 h-4 block dark:hidden"></i>
+  </button>
+
+  <script>
+    lucide.createIcons();
+    function toggleTheme(){const b=document.body;const h=document.documentElement;b.classList.toggle('dark');h.classList.toggle('dark');try{localStorage.setItem('uroo-theme',b.classList.contains('dark')?'dark':'light')}catch(e){};lucide.createIcons();}
+
+    const toast=document.getElementById('toast');
+    let toastTimer;
+    function showToast(title,msg){document.getElementById('toast-title').textContent=title||'Berhasil';document.getElementById('toast-msg').textContent=msg||'';toast.classList.remove('hidden-toast');toast.classList.add('anim-toast-in');clearTimeout(toastTimer);toastTimer=setTimeout(()=>{toast.classList.add('hidden-toast');toast.classList.remove('anim-toast-in')},2800);}
+    function closeModal(id){const m=document.getElementById(id);m.classList.add('hidden');m.classList.remove('flex');}
+    function openModal(id){const m=document.getElementById(id);m.classList.remove('hidden');m.classList.add('flex');}
+
+    function downloadPDF(){showToast('Dokumen diunduh','File berhasil diunduh ke perangkat Anda');}
+
+    function confirmRefund(){
+      const reason=document.getElementById('refund-reason').value;
+      closeModal('modal-refund');
+      showToast('Pengembalian diajukan','Permintaan pengembalian dana telah dikirim');
+    }
+  </script>
+<script src="../../assets/js/uroo-nav.js"></script>
+</body>
+</html>

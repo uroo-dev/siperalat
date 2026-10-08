@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="id" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Uroo UI - Drawer</title>
+  <script src="../../assets/js/tailwind.js"></script>
+  <script src="../../assets/js/lucide.js"></script>
+  <script>tailwind.config={darkMode:'class',theme:{extend:{colors:{glass:{light:'rgba(255,255,255,0.65)','light-border':'rgba(255,255,255,0.8)',dark:'rgba(18,18,20,0.65)','dark-border':'rgba(255,255,255,0.1)'}}}}}</script>
+  <link rel="stylesheet" href="../../assets/css/uroo.css">
+  <style>
+    body { background: linear-gradient(135deg,#dfe3ea,#f4f4f5) !important; }
+    body.dark { background: linear-gradient(135deg,#0a0a0c,#1a1a1e) !important; }
+
+    .glass-panel {
+      backdrop-filter: blur(20px) saturate(180%);
+      -webkit-backdrop-filter: blur(20px) saturate(180%);
+      background-color: rgba(255,255,255,0.55);
+      border: 1px solid rgba(255,255,255,0.8);
+      box-shadow: 0 20px 40px -15px rgba(0,0,0,0.05), inset 0 1px 1px 0 rgba(255,255,255,0.9);
+    }
+    .dark .glass-panel {
+      background-color: rgba(24,24,27,0.55);
+      border: 1px solid rgba(255,255,255,0.08);
+      box-shadow: 0 20px 40px -15px rgba(0,0,0,0.5), inset 0 1px 1px 0 rgba(255,255,255,0.1);
+    }
+
+    @keyframes u-slide-up { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:translateY(0); } }
+    @keyframes u-toast-in { from { opacity:0; transform:translateX(-50%) translateY(20px) scale(.96); } to { opacity:1; transform:translateX(-50%) translateY(0) scale(1); } }
+    .anim-slide-up { animation: u-slide-up .35s cubic-bezier(.16,1,.3,1); }
+
+    .uroo-kbd {
+      display:inline-flex; align-items:center; padding:1px 6px;
+      font-family:ui-monospace,'SF Mono',monospace; font-size:11px;
+      border-radius:6px; border:1px solid rgba(0,0,0,.12);
+      background:rgba(0,0,0,.05); color:#71717a;
+    }
+    .dark .uroo-kbd { border-color:rgba(255,255,255,.16); background:rgba(255,255,255,.06); color:#a1a1aa; }
+
+    /* ==== Drawer ==== */
+    .uroo-drawer-wrap { position:fixed; inset:0; z-index:1040; pointer-events:none; }
+    .uroo-drawer-overlay {
+      position:absolute; inset:0;
+      background:rgba(0,0,0,.38);
+      backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);
+      opacity:0; transition:opacity .3s ease;
+    }
+    .uroo-drawer {
+      position:absolute; top:0; bottom:0; width:min(92vw, 372px);
+      display:flex; flex-direction:column;
+      transition:transform .38s cubic-bezier(.16,1,.3,1);
+      box-shadow: 0 0 70px -18px rgba(0,0,0,.45);
+    }
+    .uroo-drawer-right { right:0; transform:translateX(104%); }
+    .uroo-drawer-left { left:0; transform:translateX(-104%); }
+    .uroo-drawer-wrap.uroo-open { pointer-events:auto; }
+    .uroo-drawer-wrap.uroo-open .uroo-drawer-overlay { opacity:1; }
+    .uroo-drawer-wrap.uroo-open .uroo-drawer { transform:translateX(0); }
+
+    .uroo-drawer-head {
+      display:flex; align-items:center; gap:12px; padding:16px 18px;
+      border-bottom:1px solid rgba(0,0,0,.06);
+    }
+    .dark .uroo-drawer-head { border-bottom-color:rgba(255,255,255,.08); }
+    .uroo-drawer-head-title { font-size:14.5px; font-weight:700; }
+    .uroo-drawer-close { padding:7px; border-radius:9px; color:#71717a; transition:background-color .15s, color .15s; }
+    .uroo-drawer-close:hover { background:rgba(0,0,0,.07); color:#18181b; }
+    .dark .uroo-drawer-close:hover { background:rgba(255,255,255,.1); color:#fafafa; }
+    .uroo-drawer-body { flex:1; overflow-y:auto; padding:16px 18px; }
+    .uroo-drawer-foot { padding:14px 18px; border-top:1px solid rgba(0,0,0,.06); }
+    .dark .uroo-drawer-foot { border-top-color:rgba(255,255,255,.08); }
+    .uroo-drawer-section-label {
+      display:block; font-size:10.5px; font-weight:700; text-transform:uppercase; letter-spacing:.09em;
+      color:#a1a1aa; margin:16px 12px 6px;
+    }
+    .dark .uroo-drawer-section-label { color:#71717a; }
+
+    .uroo-drawer-navitem {
+      display:flex; align-items:center; gap:12px; width:100%; padding:9px 12px; border-radius:11px;
+      font-size:13.5px; font-weight:500; color:#3f3f46; text-align:left;
+      transition:background-color .15s, color .15s;
+    }
+    .uroo-drawer-navitem:hover { background:rgba(0,0,0,.06); color:#18181b; }
+    .dark .uroo-drawer-navitem { color:#d4d4d8; }
+    .dark .uroo-drawer-navitem:hover { background:rgba(255,255,255,.1); color:#fafafa; }
+    .uroo-drawer-navitem.is-active { background:#18181b; color:#fff; }
+    .dark .uroo-drawer-navitem.is-active { background:#fafafa; color:#18181b; }
+    .uroo-dr-icon { width:16px; height:16px; flex:none; color:#71717a; }
+    .dark .uroo-dr-icon { color:#a1a1aa; }
+    .uroo-drawer-navitem.is-active .uroo-dr-icon { color:inherit; opacity:.75; }
+
+    .uroo-notif-item { display:flex; align-items:flex-start; gap:12px; padding:12px; border-radius:12px; cursor:pointer; transition:background-color .15s; }
+    .uroo-notif-item:hover { background:rgba(0,0,0,.04); }
+    .dark .uroo-notif-item:hover { background:rgba(255,255,255,.06); }
+    .uroo-notif-ic {
+      flex:none; display:grid; place-items:center; height:38px; width:38px; border-radius:12px;
+      background:rgba(0,0,0,.05); color:#52525b;
+    }
+    .dark .uroo-notif-ic { background:rgba(255,255,255,.08); color:#a1a1aa; }
+    .uroo-notif-text { font-size:12.5px; line-height:1.45; color:#3f3f46; }
+    .dark .uroo-notif-text { color:#d4d4d8; }
+    .uroo-notif-time { margin-top:3px; font-size:11px; color:#a1a1aa; }
+    .dark .uroo-notif-time { color:#71717a; }
+    .uroo-notif-dot { margin-top:5px; height:8px; width:8px; flex:none; border-radius:9999px; background:#18181b; }
+    .dark .uroo-notif-dot { background:#fafafa; }
+
+    /* ==== Utility: buttons, fields ==== */
+    .uroo-btn { display:inline-flex; align-items:center; justify-content:center; gap:7px; font-size:13.5px; font-weight:600; padding:9px 16px; border-radius:11px; transition:background-color .15s, opacity .15s; }
+    .uroo-btn-primary { background:#18181b; color:#fff; }
+    .dark .uroo-btn-primary { background:#fafafa; color:#18181b; }
+    .uroo-btn-primary:hover { opacity:.87; }
+    .uroo-btn-ghost { background:rgba(0,0,0,.05); color:#3f3f46; }
+    .dark .uroo-btn-ghost { background:rgba(255,255,255,.08); color:#e4e4e7; }
+    .uroo-btn-ghost:hover { background:rgba(0,0,0,.09); }
+    .dark .uroo-btn-ghost:hover { background:rgba(255,255,255,.13); }
+
+    .uroo-field-label { display:block; font-size:12px; font-weight:600; margin-bottom:5px; color:#52525b; }
+    .dark .uroo-field-label { color:#a1a1aa; }
+    .uroo-input, .uroo-select {
+      width:100%; padding:9px 12px; border-radius:11px; font-size:13.5px; color:#18181b;
+      background:rgba(255,255,255,.6); border:1px solid rgba(0,0,0,.14);
+      transition:border-color .15s ease;
+    }
+    .dark .uroo-input, .dark .uroo-select { color:#fafafa; background:rgba(255,255,255,.05); border-color:rgba(255,255,255,.14); }
+    .uroo-input:focus, .uroo-select:focus { outline:none; border-color:rgba(0,0,0,.55); }
+    .dark .uroo-input:focus, .dark .uroo-select:focus { border-color:rgba(255,255,255,.55); }
+    .uroo-check { display:flex; align-items:flex-start; gap:8px; font-size:13px; color:#3f3f46; cursor:pointer; }
+    .dark .uroo-check { color:#d4d4d8; }
+    .uroo-check input { margin-top:2px; accent-color:#18181b; }
+    .dark .uroo-check input { accent-color:#fafafa; }
+  </style>
+</head>
+<body class="min-h-screen p-6 font-sans antialiased text-zinc-800 dark:text-zinc-100" style="background:linear-gradient(135deg,#dfe3ea,#f4f4f5)">
+  <script>(function initTheme(){var saved=null;try{saved=localStorage.getItem('uroo-theme')}catch(e){};var dark=(saved==='dark')||(!saved&&window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches);var de=document.documentElement;if(dark){de.classList.add('dark');de.classList.remove('light');if(document.body){document.body.classList.add('dark');document.body.classList.remove('light');}}else{de.classList.remove('dark');de.classList.add('light');if(document.body){document.body.classList.remove('dark');document.body.classList.add('light');}}})();</script>
+
+  <!-- Ambient glow circles -->
+  <div aria-hidden="true" class="pointer-events-none fixed -top-32 -left-32 h-[420px] w-[420px] rounded-full bg-zinc-300/50 blur-3xl dark:bg-zinc-600/20"></div>
+  <div aria-hidden="true" class="pointer-events-none fixed -bottom-36 -right-28 h-[400px] w-[400px] rounded-full bg-zinc-400/25 blur-3xl dark:bg-zinc-700/25"></div>
+
+  <header class="relative mx-auto max-w-6xl">
+    <div class="mb-6 flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-zinc-500 dark:text-zinc-400">
+      <span class="inline-flex h-1.5 w-1.5 rounded-full bg-zinc-700 dark:bg-zinc-200"></span>
+      Komponen Uroo UI
+      <span class="text-zinc-300 dark:text-zinc-600">/</span>
+      Drawer
+    </div>
+    <h1 class="text-3xl font-bold tracking-tight">Drawer</h1>
+    <p class="mt-2 max-w-2xl text-sm text-zinc-500 dark:text-zinc-400">
+      Panel geser masuk dari kiri atau kanan dengan lapisan redup. Setiap drawer dapat
+      ditutup lewat tombol, klik pada latar, atau tombol Esc.
+    </p>
+  </header>
+
+  <main class="relative mx-auto mt-6 grid max-w-6xl gap-5 lg:grid-cols-3">
+
+    <!-- Card 1: Navigasi -->
+    <section data-copy class="glass-panel anim-slide-up rounded-2xl p-5">
+      <div class="mb-3 flex items-center justify-between">
+        <h2 class="text-sm font-semibold">Navigasi Aplikasi</h2>
+        <span class="rounded-full px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider bg-black/5 text-zinc-500 dark:bg-white/10 dark:text-zinc-400">Kiri</span>
+      </div>
+      <p class="text-xs text-zinc-500 dark:text-zinc-400">
+        Drawer kiri berisi menu utama dan profil pengguna, cocok untuk navigasi sekunder.
+      </p>
+      <button type="button" class="uroo-btn uroo-btn-primary mt-4 w-full" data-open-drawer="drawer-nav">
+        <i data-lucide="menu" class="h-4 w-4"></i> Buka Navigasi
+      </button>
+      <ul class="mt-4 space-y-1 text-[12.5px] text-zinc-500 dark:text-zinc-400">
+        <li class="flex items-center gap-2"><i data-lucide="arrow-up-right" class="h-3.5 w-3.5 text-zinc-400"></i> Item aktif "Proyek" disorot.</li>
+        <li class="flex items-center gap-2"><i data-lucide="mouse-pointer-click" class="h-3.5 w-3.5 text-zinc-400"></i> Klik menu menutup drawer.</li>
+      </ul>
+    </section>
+
+    <!-- Card 2: Notifikasi -->
+    <section data-copy class="glass-panel anim-slide-up rounded-2xl p-5">
+      <div class="mb-3 flex items-center justify-between">
+        <h2 class="text-sm font-semibold">Pusat Notifikasi</h2>
+        <span class="rounded-full px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider bg-black/5 text-zinc-500 dark:bg-white/10 dark:text-zinc-400">Kanan</span>
+      </div>
+      <p class="text-xs text-zinc-500 dark:text-zinc-400">
+        Daftar notifikasi dengan indikator belum dibaca dan aksi massal "tandai semua".
+      </p>
+      <button type="button" class="uroo-btn uroo-btn-primary mt-4 w-full" data-open-drawer="drawer-notif">
+        <i data-lucide="bell" class="h-4 w-4"></i> Buka Notifikasi
+        <span class="ml-auto rounded-full px-2 py-0.5 text-[10px] font-bold text-white dark:text-zinc-900" id="notif-badge-demo">4</span>
+      </button>
+      <ul class="mt-4 space-y-1 text-[12.5px] text-zinc-500 dark:text-zinc-400">
+        <li class="flex items-center gap-2"><i data-lucide="circle-check" class="h-3.5 w-3.5 text-zinc-400"></i> Klik item menandai sudah dibaca.</li>
+        <li class="flex items-center gap-2"><i data-lucide="check-check" class="h-3.5 w-3.5 text-zinc-400"></i> Tombol tandai semua menghapus titik.</li>
+      </ul>
+    </section>
+
+    <!-- Card 3: Filter -->
+    <section data-copy class="glass-panel anim-slide-up rounded-2xl p-5">
+      <div class="mb-3 flex items-center justify-between">
+        <h2 class="text-sm font-semibold">Filter Katalog</h2>
+        <span class="rounded-full px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider bg-black/5 text-zinc-500 dark:bg-white/10 dark:text-zinc-400">Kanan</span>
+      </div>
+      <p class="text-xs text-zinc-500 dark:text-zinc-400">
+        Drawer berisi formulir filter dengan footer aksi reset dan terapkan.
+      </p>
+      <button type="button" class="uroo-btn uroo-btn-primary mt-4 w-full" data-open-drawer="drawer-filter">
+        <i data-lucide="sliders-horizontal" class="h-4 w-4"></i> Buka Filter Produk
+      </button>
+      <ul class="mt-4 space-y-1 text-[12.5px] text-zinc-500 dark:text-zinc-400">
+        <li class="flex items-center gap-2"><i data-lucide="rotate-ccw" class="h-3.5 w-3.5 text-zinc-400"></i> "Reset" mengembalikan nilai awal.</li>
+        <li class="flex items-center gap-2"><i data-lucide="check" class="h-3.5 w-3.5 text-zinc-400"></i> "Terapkan" merangkum pilihan.</li>
+      </ul>
+    </section>
+
+  </main>
+
+  <footer class="relative mx-auto mt-6 max-w-6xl">
+    <p class="flex items-center gap-2 rounded-xl border border-dashed border-zinc-300/60 px-4 py-3 text-xs text-zinc-500 dark:border-white/10 dark:text-zinc-400">
+      <i data-lucide="keyboard" class="h-4 w-4 flex-none"></i>
+      Tekan <span class="uroo-kbd">Esc</span> untuk menutup drawer terbuka. Geser transformasi dirapikan dengan kurva eksponensial; konten panjang dapat digulir di area badan.
+    </p>
+  </footer>
+
+  <!-- ============ Drawer Navigasi (kiri) ============ -->
+  <div id="drawer-nav" class="uroo-drawer-wrap" aria-hidden="true">
+    <div class="uroo-drawer-overlay" data-drawer-close></div>
+    <aside class="uroo-drawer uroo-drawer-left glass-panel" role="dialog" aria-modal="true" aria-labelledby="drawer-nav-title">
+      <div class="uroo-drawer-head">
+        <div class="flex items-center gap-2.5">
+          <div class="grid h-8 w-8 place-items-center rounded-lg overflow-hidden bg-zinc-900"><img src="../../assets/img/uroo_ui.png" alt="Uroo Dev" class="h-8 w-8 object-cover"></div>
+          <div>
+            <p id="drawer-nav-title" class="uroo-drawer-head-title leading-none">Uroo Dev</p>
+            <p class="mt-1 text-[11px] text-zinc-400 dark:text-zinc-500">Paket Tim - Pro</p>
+          </div>
+        </div>
+        <button type="button" class="uroo-drawer-close ml-auto" data-drawer-close aria-label="Tutup navigasi"><i data-lucide="x" class="h-4 w-4"></i></button>
+      </div>
+      <div class="uroo-drawer-body">
+        <span class="uroo-drawer-section-label">Menu Utama</span>
+        <nav class="space-y-0.5" aria-label="Menu utama">
+          <button type="button" class="uroo-drawer-navitem" data-nav="Beranda"><i data-lucide="home" class="uroo-dr-icon"></i> Beranda</button>
+          <button type="button" class="uroo-drawer-navitem" data-nav="Analitik"><i data-lucide="trending-up" class="uroo-dr-icon"></i> Analitik</button>
+          <button type="button" class="uroo-drawer-navitem is-active" data-nav="Proyek"><i data-lucide="folder" class="uroo-dr-icon"></i> Proyek</button>
+          <button type="button" class="uroo-drawer-navitem" data-nav="Pesan"><i data-lucide="message-circle" class="uroo-dr-icon"></i> Pesan</button>
+          <button type="button" class="uroo-drawer-navitem" data-nav="Pengaturan"><i data-lucide="settings" class="uroo-dr-icon"></i> Pengaturan</button>
+        </nav>
+        <span class="uroo-drawer-section-label">Kantor Aktif</span>
+        <nav class="space-y-0.5" aria-label="Kantor">
+          <button type="button" class="uroo-drawer-navitem" data-nav="Jakarta Pusat"><i data-lucide="map-pin" class="uroo-dr-icon"></i> Jakarta Pusat</button>
+          <button type="button" class="uroo-drawer-navitem" data-nav="Bandung"><i data-lucide="map-pin" class="uroo-dr-icon"></i> Bandung</button>
+        </nav>
+      </div>
+      <div class="uroo-drawer-foot">
+        <button type="button" class="uroo-drawer-navitem" data-nav="Akun Ria Pratiwi">
+          <div class="flex h-8 w-8 flex-none items-center justify-center rounded-full bg-black/5 text-[12px] font-bold text-zinc-700 dark:bg-white/10 dark:text-zinc-200">RP</div>
+          <span class="min-w-0 flex-1">
+            <span class="block truncate">Ria Pratiwi</span>
+            <span class="block text-[11px] font-normal opacity-60">ria@uroo.dev</span>
+          </span>
+          <i data-lucide="log-out" class="uroo-dr-icon"></i>
+        </button>
+      </div>
+    </aside>
+  </div>
+
+  <!-- ============ Drawer Notifikasi (kanan) ============ -->
+  <div id="drawer-notif" class="uroo-drawer-wrap" aria-hidden="true">
+    <div class="uroo-drawer-overlay" data-drawer-close></div>
+    <aside class="uroo-drawer uroo-drawer-right glass-panel" role="dialog" aria-modal="true" aria-labelledby="drawer-notif-title">
+      <div class="uroo-drawer-head">
+        <div class="flex items-center gap-2.5">
+          <i data-lucide="bell" class="h-5 w-5 text-zinc-500 dark:text-zinc-300"></i>
+          <p id="drawer-notif-title" class="uroo-drawer-head-title leading-none">Notifikasi</p>
+          <span class="rounded-full px-2 py-0.5 text-[10px] font-bold bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900" id="notif-count">4</span>
+        </div>
+        <button type="button" class="uroo-drawer-close ml-auto" data-drawer-close aria-label="Tutup notifikasi"><i data-lucide="x" class="h-4 w-4"></i></button>
+      </div>
+      <div class="uroo-drawer-body">
+        <ul id="list-notif" class="space-y-1" aria-label="Daftar notifikasi">
+          <li class="uroo-notif-item" data-notif>
+            <div class="uroo-notif-ic"><i data-lucide="user-plus" class="h-4 w-4"></i></div>
+            <div class="min-w-0 flex-1">
+              <p class="uroo-notif-text"><strong>Raka Saputra</strong> menambahkan kamu ke proyek Materi Q4.</p>
+              <p class="uroo-notif-time">2 menit lalu</p>
+            </div>
+            <span class="uroo-notif-dot" data-unread></span>
+          </li>
+          <li class="uroo-notif-item" data-notif>
+            <div class="uroo-notif-ic"><i data-lucide="circle-alert" class="h-4 w-4"></i></div>
+            <div class="min-w-0 flex-1">
+              <p class="uroo-notif-text">Tenggat laporan SDM melewati batas waktunya <strong>hari ini pukul 17.00</strong>.</p>
+              <p class="uroo-notif-time">34 menit lalu</p>
+            </div>
+            <span class="uroo-notif-dot" data-unread></span>
+          </li>
+          <li class="uroo-notif-item" data-notif>
+            <div class="uroo-notif-ic"><i data-lucide="message-circle" class="h-4 w-4"></i></div>
+            <div class="min-w-0 flex-1">
+              <p class="uroo-notif-text"><strong>Nia Paramita</strong> memberi komentar pada desain "Login Kaca".</p>
+              <p class="uroo-notif-time">1 jam lalu</p>
+            </div>
+            <span class="uroo-notif-dot" data-unread></span>
+          </li>
+          <li class="uroo-notif-item" data-notif>
+            <div class="uroo-notif-ic"><i data-lucide="calendar" class="h-4 w-4"></i></div>
+            <div class="min-w-0 flex-1">
+              <p class="uroo-notif-text">Undangan rapat: <strong>Sprint 13</strong>, Selasa pukul 09.00 WIB.</p>
+              <p class="uroo-notif-time">Kemarin</p>
+            </div>
+            <span class="uroo-notif-dot" data-unread></span>
+          </li>
+          <li class="uroo-notif-item" data-notif>
+            <div class="uroo-notif-ic"><i data-lucide="database" class="h-4 w-4"></i></div>
+            <div class="min-w-0 flex-1">
+              <p class="uroo-notif-text">Pencadangan data selesai: <strong>1,2 TB</strong> tersimpan aman.</p>
+              <p class="uroo-notif-time">3 jam lalu</p>
+            </div>
+          </li>
+          <li class="uroo-notif-item" data-notif>
+            <div class="uroo-notif-ic"><i data-lucide="clock" class="h-4 w-4"></i></div>
+            <div class="min-w-0 flex-1">
+              <p class="uroo-notif-text">Marka sorotan: proyek kamu <strong>1 minggu</strong> menuju tenggat.</p>
+              <p class="uroo-notif-time">Kemarin</p>
+            </div>
+          </li>
+        </ul>
+      </div>
+      <div class="uroo-drawer-foot">
+        <button type="button" id="btn-mark-all" class="uroo-btn uroo-btn-ghost w-full">
+          <i data-lucide="check-check" class="h-4 w-4"></i> Tandai Semua Dibaca
+        </button>
+      </div>
+    </aside>
+  </div>
+
+  <!-- ============ Drawer Filter (kanan) ============ -->
+  <div id="drawer-filter" class="uroo-drawer-wrap" aria-hidden="true">
+    <div class="uroo-drawer-overlay" data-drawer-close></div>
+    <aside class="uroo-drawer uroo-drawer-right glass-panel" role="dialog" aria-modal="true" aria-labelledby="drawer-filter-title">
+      <div class="uroo-drawer-head">
+        <div class="flex items-center gap-2.5">
+          <i data-lucide="sliders-horizontal" class="h-5 w-5 text-zinc-500 dark:text-zinc-300"></i>
+          <p id="drawer-filter-title" class="uroo-drawer-head-title leading-none">Filter Produk</p>
+        </div>
+        <button type="button" class="uroo-drawer-close ml-auto" data-drawer-close aria-label="Tutup filter"><i data-lucide="x" class="h-4 w-4"></i></button>
+      </div>
+      <div class="uroo-drawer-body">
+        <div>
+          <label class="uroo-field-label" for="f-kat">Kategori</label>
+          <select id="f-kat" class="uroo-select">
+            <option value="Semua" selected>Semua kategori</option>
+            <option value="Elektronik">Elektronik</option>
+            <option value="Furnitur">Furnitur</option>
+            <option value="Aksesoris">Aksesoris</option>
+          </select>
+        </div>
+        <div class="mt-4">
+          <label class="uroo-field-label" for="f-price">Harga maksimum</label>
+          <input id="f-price" type="range" min="0" max="15000000" step="500000" value="8000000" class="w-full accent-zinc-900 dark:accent-zinc-100">
+          <p class="mt-1 text-[12.5px] font-semibold text-zinc-700 dark:text-zinc-200" id="f-price-out">Rp 8.000.000</p>
+        </div>
+        <div class="mt-4">
+          <label class="uroo-field-label" for="f-stok">Status stok</label>
+          <select id="f-stok" class="uroo-select">
+            <option value="Semua" selected>Semua status</option>
+            <option value="Tersedia">Tersedia</option>
+            <option value="Menipis">Menipis</option>
+            <option value="Kosong">Kosong</option>
+          </select>
+        </div>
+        <div class="mt-4 space-y-2.5">
+          <label class="uroo-check"><input id="f-ready" type="checkbox" checked><span>Siap kirim dalam 24 jam</span></label>
+          <label class="uroo-check"><input id="f-free" type="checkbox"><span>Gratis ongkos kirim</span></label>
+          <label class="uroo-check"><input id="f-rate" type="checkbox" checked><span>Rating minimal 4 bintang</span></label>
+        </div>
+      </div>
+      <div class="uroo-drawer-foot flex gap-2">
+        <button type="button" id="f-reset" class="uroo-btn uroo-btn-ghost flex-1"><i data-lucide="rotate-ccw" class="h-4 w-4"></i> Reset</button>
+        <button type="button" id="f-apply" class="uroo-btn uroo-btn-primary flex-1"><i data-lucide="check" class="h-4 w-4"></i> Terapkan</button>
+      </div>
+    </aside>
+  </div>
+
+  <!-- Theme toggle -->
+  <button onclick="toggleTheme()" aria-label="Ubah tema"
+      class="glass-panel fixed top-4 right-4 z-50 rounded-full p-2.5 shadow-lg transition-transform hover:scale-105">
+    <i data-lucide="sun" class="hidden h-5 w-5 text-zinc-600 dark:block dark:text-zinc-200"></i>
+    <i data-lucide="moon" class="block h-5 w-5 text-zinc-600 dark:hidden dark:text-zinc-200"></i>
+  </button>
+
+  <script>
+    lucide.createIcons();
+
+    function toggleTheme(){
+      const h=document.documentElement,b=document.body;
+      h.classList.toggle('dark');
+      b.classList.toggle('dark');
+      try{localStorage.setItem('uroo-theme',b.classList.contains('dark')?'dark':'light')}catch(e){};
+      lucide.createIcons();
+    }
+
+    (function(){
+      if (document.documentElement.classList.contains('dark')) document.body.classList.add('dark');
+      else document.body.classList.remove('dark');
+    })();
+
+    var raf = window.requestAnimationFrame ? function(cb){ window.requestAnimationFrame(cb); } : function(cb){ setTimeout(cb, 16); };
+
+    function showToast(msg){
+      var t=document.createElement('div');
+      t.className='glass-panel';
+      t.textContent=msg;
+      t.style.cssText='position:fixed;left:50%;bottom:24px;transform:translateX(-50%);z-index:1200;padding:10px 16px;border-radius:12px;font-size:13px;font-weight:500;animation:u-toast-in .3s cubic-bezier(.16,1,.3,1);color:#27272a;';
+      if (document.body.classList.contains('dark')) t.style.color='#e4e4e7';
+      document.body.appendChild(t);
+      setTimeout(function(){
+        t.style.transition='opacity .3s ease, transform .3s ease';
+        t.style.opacity='0';
+        t.style.transform='translateX(-50%) translateY(10px)';
+        setTimeout(function(){ t.remove(); }, 320);
+      }, 2600);
+    }
+
+    /* ================= Drawer engine ================= */
+    function dwOpen(id){
+      var w=document.getElementById(id);
+      if(!w || w.classList.contains('uroo-open')) return;
+      w._lastFocus=document.activeElement;
+      w.classList.add('uroo-open');
+      w.setAttribute('aria-hidden','false');
+      document.body.classList.add('overflow-hidden');
+      raf(function(){
+        var f=w.querySelector('[data-drawer-close]');
+        if (f) f.focus();
+      });
+    }
+    function dwClose(wArg){
+      var w=wArg && wArg.classList ? wArg : document.querySelector('.uroo-drawer-wrap.uroo-open');
+      if(!w) return;
+      w.classList.remove('uroo-open');
+      w.setAttribute('aria-hidden','true');
+      var last=w._lastFocus; w._lastFocus=null;
+      if (last && typeof last.focus==='function') last.focus();
+      if (!document.querySelector('.uroo-drawer-wrap.uroo-open')) document.body.classList.remove('overflow-hidden');
+    }
+
+    document.querySelectorAll('[data-open-drawer]').forEach(function(b){
+      b.addEventListener('click', function(){ dwOpen(b.dataset.openDrawer); });
+    });
+    document.querySelectorAll('.uroo-drawer-wrap').forEach(function(w){
+      w.addEventListener('click', function(e){ if (e.target.hasAttribute('data-drawer-close')) dwClose(w); });
+    });
+    document.addEventListener('keydown', function(e){
+      if (e.key==='Escape'){
+        var open=document.querySelector('.uroo-drawer-wrap.uroo-open');
+        if (open) dwClose(open);
+      }
+    });
+
+    /* ================= aksi drawer navigasi ================= */
+    document.querySelectorAll('#drawer-nav .uroo-drawer-navitem').forEach(function(it){
+      it.addEventListener('click', function(){
+        if (!it.classList.contains('is-active')){
+          document.querySelectorAll('#drawer-nav .uroo-drawer-navitem').forEach(function(o){ o.classList.remove('is-active'); });
+          it.classList.add('is-active');
+        }
+        showToast('Navigasi: ' + it.dataset.nav);
+        dwClose(document.getElementById('drawer-nav'));
+      });
+    });
+
+    /* ================= aksi notifikasi ================= */
+    function updateNotifCount(){
+      var unread=document.querySelectorAll('#list-notif [data-unread]').length;
+      var count=document.getElementById('notif-count');
+      var demo=document.getElementById('notif-badge-demo');
+      if (count) count.textContent=String(unread);
+      if (demo) demo.textContent=String(unread);
+      var btn=document.getElementById('btn-mark-all');
+      if (btn) btn.disabled = unread===0;
+    }
+    function markRead(item){
+      var dot=item.querySelector('[data-unread]');
+      if (dot) dot.remove();
+      updateNotifCount();
+    }
+    document.querySelectorAll('#list-notif [data-notif]').forEach(function(it){
+      it.addEventListener('click', function(){
+        var unread=false;
+        var dot=it.querySelector('[data-unread]');
+        var txt=it.querySelector('.uroo-notif-text');
+        if (dot) unread=true;
+        var msg= txt ? txt.textContent.replace(/\s+/g,' ').trim() : '';
+        markRead(it);
+        showToast((unread?'Dibaca: ':'Dibuka ulang: ') + msg.slice(0, 42) + (msg.length>42?'...':''));
+      });
+    });
+    document.getElementById('btn-mark-all').addEventListener('click', function(){
+      var n=document.querySelectorAll('#list-notif [data-unread]').length;
+      document.querySelectorAll('#list-notif [data-unread]').forEach(function(d){ d.remove(); });
+      updateNotifCount();
+      showToast('Semua notifikasi ditandai sudah dibaca ('+n+' item).');
+    });
+    updateNotifCount();
+
+    /* ================= aksi filter ================= */
+    var fPrice=document.getElementById('f-price');
+    var fPriceOut=document.getElementById('f-price-out');
+    var rupiah=function(n){ return 'Rp ' + Number(n).toLocaleString('id-ID'); };
+    fPrice.addEventListener('input', function(){ fPriceOut.textContent=rupiah(fPrice.value); });
+    document.getElementById('f-reset').addEventListener('click', function(){
+      document.getElementById('f-kat').value='Semua';
+      fPrice.value='8000000'; fPriceOut.textContent=rupiah(8000000);
+      document.getElementById('f-stok').value='Semua';
+      document.getElementById('f-ready').checked=true;
+      document.getElementById('f-free').checked=false;
+      document.getElementById('f-rate').checked=true;
+      showToast('Filter dikembalikan ke pengaturan awal.');
+    });
+    document.getElementById('f-apply').addEventListener('click', function(){
+      var kat=document.getElementById('f-kat').value;
+      var stok=document.getElementById('f-stok').value;
+      var ekstra=[];
+      if (document.getElementById('f-ready').checked) ekstra.push('siap kirim');
+      if (document.getElementById('f-free').checked) ekstra.push('gratis ongkir');
+      if (document.getElementById('f-rate').checked) ekstra.push('rating 4+');
+      var msg='Filter: '+kat.toLowerCase()+', harga hingga '+rupiah(fPrice.value)+', stok '+stok.toLowerCase();
+      if (ekstra.length) msg+=', '+ekstra.join(', ');
+      showToast(msg+'.');
+      dwClose(document.getElementById('drawer-filter'));
+    });
+  </script>
+<script src="../../assets/js/uroo-copy.js"></script>
+<script src="../../assets/js/uroo-nav.js"></script>
+</body>
+</html>

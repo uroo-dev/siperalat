@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="id" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Uroo UI — Foundation: Colors</title>
+  <script src="../../assets/js/tailwind.js"></script>
+  <script src="../../assets/js/lucide.js"></script>
+  <script>
+    tailwind.config = { darkMode: 'class', theme: { extend: { colors: { glass: {
+      light: 'rgba(255,255,255,0.65)', 'light-border': 'rgba(255,255,255,0.8)',
+      dark: 'rgba(18,18,20,0.65)', 'dark-border': 'rgba(255,255,255,0.1)'
+    } } } } };
+  </script>
+  <link rel="stylesheet" href="../../assets/css/uroo.css">
+  <style>
+    .u-bg{position:fixed;inset:0;z-index:-10;transition:opacity .35s ease}
+    .u-bg-light{background:linear-gradient(135deg,#dfe3ea,#f4f4f5)}
+    .u-bg-dark{background:linear-gradient(135deg,#0a0a0b,#1a1a1e);opacity:0}
+    body.dark .u-bg-light{opacity:0}
+    body.dark .u-bg-dark{opacity:1}
+    .u-glow{position:fixed;border-radius:9999px;filter:blur(90px);z-index:-9;pointer-events:none;background:rgba(0,0,0,0.06);transition:background-color .35s ease}
+    body.dark .u-glow{background:rgba(255,255,255,0.05)}
+    .u-glow-1{width:420px;height:420px;top:-140px;left:-140px}
+    .u-glow-2{width:520px;height:520px;bottom:-200px;right:-140px}
+    .u-glow-3{width:300px;height:300px;top:42%;left:58%}
+    .u-swatch{height:56px;border-radius:.8rem;display:flex;align-items:flex-end;padding:.5rem .6rem;font-size:.62rem;font-weight:600;font-family:ui-monospace,monospace}
+  </style>
+</head>
+<body class="min-h-screen font-sans antialiased text-zinc-800 dark:text-zinc-100">
+  <script>(function initTheme(){var saved=null;try{saved=localStorage.getItem('uroo-theme')}catch(e){};var dark=(saved==='dark')||(!saved&&window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches);var de=document.documentElement;if(dark){de.classList.add('dark');de.classList.remove('light');if(document.body){document.body.classList.add('dark');document.body.classList.remove('light');}}else{de.classList.remove('dark');de.classList.add('light');if(document.body){document.body.classList.remove('dark');document.body.classList.add('light');}}})();</script>
+  <div class="u-bg u-bg-light" aria-hidden="true"></div>
+  <div class="u-bg u-bg-dark" aria-hidden="true"></div>
+  <div class="u-glow u-glow-1" aria-hidden="true"></div>
+  <div class="u-glow u-glow-2" aria-hidden="true"></div>
+  <div class="u-glow u-glow-3" aria-hidden="true"></div>
+
+  <button onclick="toggleTheme()" class="fixed top-4 right-4 z-50 p-2 rounded-full glass-panel shadow-2xl" title="Toggle tema">
+    <i data-lucide="sun" class="w-4 h-4 hidden dark:block"></i>
+    <i data-lucide="moon" class="w-4 h-4 block dark:hidden"></i>
+  </button>
+
+  <main class="max-w-5xl mx-auto px-5 py-10 space-y-6">
+
+    <header class="glass-panel rounded-3xl p-6 sm:p-8">
+      <span class="inline-flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-1 rounded-full bg-black/5 dark:bg-white/5 mb-3">
+        <i data-lucide="palette" class="w-3 h-3"></i> Foundation
+      </span>
+      <h1 class="text-3xl font-extrabold tracking-tight">Colors</h1>
+      <p class="text-sm text-zinc-500 dark:text-zinc-400 mt-1">Palet monokromatik + token glassmorphism — salin warna atau kode Tailwind-nya.</p>
+    </header>
+
+    <!-- NEUTRAL PALETTE -->
+    <section class="glass-panel rounded-3xl p-6 sm:p-8" data-copy data-lang="html">
+      <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-zinc-400 dark:text-zinc-500 mb-4">Palet Netral · Zinc</p>
+      <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
+        <div class="u-swatch text-white" style="background:#18181b">zinc-900 #18181b</div>
+        <div class="u-swatch text-white" style="background:#27272a">zinc-800 #27272a</div>
+        <div class="u-swatch text-white" style="background:#3f3f46">zinc-700 #3f3f46</div>
+        <div class="u-swatch text-white" style="background:#52525b">zinc-600 #52525b</div>
+        <div class="u-swatch text-white" style="background:#71717a">zinc-500 #71717a</div>
+        <div class="u-swatch text-black" style="background:#a1a1aa">zinc-400 #a1a1aa</div>
+        <div class="u-swatch text-black" style="background:#d4d4d8">zinc-300 #d4d4d8</div>
+        <div class="u-swatch text-black" style="background:#e4e4e7">zinc-200 #e4e4e7</div>
+        <div class="u-swatch text-black" style="background:#f4f4f5">zinc-100 #f4f4f5</div>
+        <div class="u-swatch text-black" style="background:#fafafa">zinc-50 #fafafa</div>
+      </div>
+    </section>
+
+    <!-- GLASS TOKENS -->
+    <section class="glass-panel rounded-3xl p-6 sm:p-8" data-copy data-lang="css">
+      <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-zinc-400 dark:text-zinc-500 mb-4">Token Glassmorphism</p>
+      <div class="grid gap-4 sm:grid-cols-2">
+        <div class="rounded-2xl p-5 shadow-xl" style="background:rgba(255,255,255,0.65);border:1px solid rgba(255,255,255,0.8)">
+          <p class="text-xs font-semibold mb-2">Mode Terang</p>
+          <p class="font-mono text-xs text-zinc-600">background: rgba(255,255,255,0.65)</p>
+          <p class="font-mono text-xs text-zinc-500 mt-1">border: rgba(255,255,255,0.8)</p>
+        </div>
+        <div class="rounded-2xl p-5 shadow-xl" style="background:rgba(18,18,20,0.65);border:1px solid rgba(255,255,255,0.1);color:#e4e4e7">
+          <p class="text-xs font-semibold mb-2 text-zinc-200">Mode Gelap</p>
+          <p class="font-mono text-xs text-zinc-400">background: rgba(18,18,20,0.65)</p>
+          <p class="font-mono text-xs text-zinc-500 mt-1">border: rgba(255,255,255,0.1)</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- SEMANTIC -->
+    <section class="glass-panel rounded-3xl p-6 sm:p-8" data-copy data-lang="html">
+      <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-zinc-400 dark:text-zinc-500 mb-4">Warna Semantik</p>
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <div class="u-swatch text-white" style="background:#10b981">Success #10b981</div>
+        <div class="u-swatch text-white" style="background:#f59e0b">Warning #f59e0b</div>
+        <div class="u-swatch text-white" style="background:#ef4444">Danger #ef4444</div>
+        <div class="u-swatch text-white" style="background:#3b82f6">Info #3b82f6</div>
+      </div>
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mt-3">
+        <div class="rounded-2xl p-4 text-center text-sm font-semibold" style="background:rgba(16,185,129,0.15);color:#059669">success</div>
+        <div class="rounded-2xl p-4 text-center text-sm font-semibold" style="background:rgba(245,158,11,0.15);color:#d97706">warning</div>
+        <div class="rounded-2xl p-4 text-center text-sm font-semibold" style="background:rgba(239,68,68,0.15);color:#dc2626">danger</div>
+        <div class="rounded-2xl p-4 text-center text-sm font-semibold" style="background:rgba(59,130,246,0.15);color:#2563eb">info</div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    lucide.createIcons();
+    function toggleTheme() {
+      const h = document.documentElement, b = document.body;
+      h.classList.toggle('dark'); b.classList.toggle('dark');
+      try { localStorage.setItem('uroo-theme', b.classList.contains('dark') ? 'dark' : 'light'); } catch (e) {}
+      lucide.createIcons();
+    }
+  </script>
+  <script src="../../assets/js/uroo-copy.js"></script>
+<script src="../../assets/js/uroo-nav.js"></script>
+</body>
+</html>

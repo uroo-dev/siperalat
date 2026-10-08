@@ -1,0 +1,1674 @@
+<!DOCTYPE html>
+<html lang="id" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Uroo UI — Analytics & Intelijen Data</title>
+  <script src="../../assets/js/tailwind.js"></script>
+  <script src="../../assets/js/lucide.js"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            glass: {
+              light: 'rgba(255, 255, 255, 0.55)',
+              'light-border': 'rgba(255, 255, 255, 0.8)',
+              dark: 'rgba(24, 24, 27, 0.55)',
+              'dark-border': 'rgba(255, 255, 255, 0.08)'
+            }
+          }
+        }
+      }
+    };
+  </script>
+  <link rel="stylesheet" href="../../assets/css/uroo.css">
+  <style>
+    /* Liquid Glassmorphism Core Effect */
+    .glass-panel {
+      backdrop-filter: blur(20px) saturate(180%);
+      -webkit-backdrop-filter: blur(20px) saturate(180%);
+    }
+
+    .light .glass-panel,
+    html:not(.dark) .glass-panel,
+    body:not(.dark) .glass-panel {
+      background-color: rgba(255, 255, 255, 0.55);
+      border: 1px solid rgba(255, 255, 255, 0.8);
+      box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.05),
+                  inset 0 1px 1px 0 rgba(255, 255, 255, 0.9);
+    }
+
+    .dark .glass-panel,
+    html.dark .glass-panel,
+    body.dark .glass-panel {
+      background-color: rgba(24, 24, 27, 0.55);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.5),
+                  inset 0 1px 1px 0 rgba(255, 255, 255, 0.1);
+    }
+
+    /* Smooth Transition Theme */
+    body, div, nav, button, a, input, select, textarea, section, aside, header, main, footer, span, li, table, tr, td, th {
+      transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    /* Sidebar Layout & Collapsed State */
+    #sidebar { width: 16.5rem; transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), width 0.28s cubic-bezier(0.16, 1, 0.3, 1); }
+    #sidebar.collapsed { width: 4.85rem; }
+    #sidebar .nav-label { transition: opacity 0.15s ease, width 0.15s ease; }
+    #sidebar.collapsed .nav-label { opacity: 0; width: 0; overflow: hidden; white-space: nowrap; }
+    #sidebar.collapsed .nav-link { justify-content: center; padding-left: 0; padding-right: 0; }
+    #sidebar.collapsed .group-title { justify-content: center; padding-left: 0; padding-right: 0; text-align: center; }
+    #sidebar.collapsed .nav-text { display: none; }
+    #sidebar.collapsed .logo-text { display: none; }
+    #sidebar .badge-dot { transition: opacity 0.15s; }
+    #sidebar.collapsed .badge-dot { opacity: 0; }
+    @media (max-width: 1023px) {
+      #sidebar { position: fixed; top: 1rem; bottom: 1rem; left: 1rem; z-index: 50; transform: translateX(-130%); width: 17rem; }
+      #sidebar.open { transform: translateX(0); }
+    }
+
+    /* SPA View Switching Animations */
+    .u-view { display: none; opacity: 0; transform: translateY(8px); transition: opacity 0.25s ease, transform 0.25s ease; }
+    .u-view.active { display: block; opacity: 1; transform: translateY(0); }
+
+    .hover-row:hover { background-color: rgba(0, 0, 0, 0.03); }
+    .dark .hover-row:hover { background-color: rgba(255, 255, 255, 0.04); }
+
+    /* Settings appearance selector */
+    .appearance-card.selected { background: rgba(0,0,0,.08); border-color: rgba(24,24,27,.6); }
+    body.dark .appearance-card.selected { background: rgba(255,255,255,.12); border-color: rgba(255,255,255,.5); }
+  </style>
+</head>
+<body class="bg-gray-100 dark:bg-zinc-950 text-zinc-800 dark:text-zinc-100 font-sans min-h-screen antialiased p-3 sm:p-4 lg:p-6">
+
+  <!-- Mobile Drawer Overlay -->
+  <div id="overlay" class="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm opacity-0 pointer-events-none transition-opacity duration-300 lg:hidden" onclick="closeDrawer()" aria-hidden="true"></div>
+
+  <!-- Floating Controller Bar -->
+  <div class="fixed top-4 right-6 z-50 flex items-center gap-2 p-1.5 rounded-full glass-panel shadow-2xl">
+    <button onclick="toggleTheme()" class="p-2 rounded-full hover:bg-black/5 dark:hover:bg-white/10 transition" title="Toggle Tema">
+      <i data-lucide="sun" class="w-4 h-4 hidden dark:block text-amber-400"></i>
+      <i data-lucide="moon" class="w-4 h-4 block dark:hidden text-zinc-800"></i>
+    </button>
+  </div>
+
+  <div class="max-w-[1600px] mx-auto lg:flex lg:gap-6 relative min-h-screen">
+
+    <!-- ============================ SIDEBAR ============================ -->
+    <aside id="sidebar" class="glass-panel rounded-3xl p-5 flex flex-col justify-between shrink-0 lg:sticky lg:top-6 lg:h-[calc(100vh-3rem)] z-40">
+      <div class="space-y-6">
+        <!-- Logo Brand -->
+        <div class="flex items-center gap-3 px-2">
+          <div class="w-8 h-8 rounded-xl bg-black dark:bg-white text-white dark:text-black flex items-center justify-center font-black text-lg shadow-sm"><img src="../../assets/img/uroo_ui.png" alt="Uroo UI" class="w-8 h-8 rounded-xl object-cover"></div>
+          <div class="logo-text min-w-0">
+            <div class="flex items-center gap-1.5">
+              <span class="font-bold text-lg tracking-tight text-zinc-900 dark:text-white">Uroo UI</span>
+              <span class="text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-black/5 dark:bg-white/10 text-zinc-700 dark:text-zinc-300">v1.2</span>
+            </div>
+            <p class="text-[10px] font-bold uppercase tracking-[0.16em] text-zinc-500 dark:text-zinc-400">Analytics</p>
+          </div>
+          <button onclick="closeDrawer()" class="ml-auto lg:hidden p-1.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 text-zinc-600 dark:text-zinc-400">
+            <i data-lucide="x" class="w-4 h-4"></i>
+          </button>
+        </div>
+
+        <!-- Navigation Links -->
+        <nav class="space-y-1 overflow-y-auto max-h-[calc(100vh-14rem)] pr-1 sidebar-scroll" aria-label="Menu Analytics">
+          <button onclick="switchView('overview')" data-nav="overview" class="nav-link w-full flex items-center gap-3 px-3 py-2.5 rounded-2xl text-sm font-medium transition bg-black text-white dark:bg-white dark:text-black shadow-sm">
+            <i data-lucide="layout-dashboard" class="w-4 h-4 shrink-0"></i>
+            <span class="nav-label text-left flex-1">Overview</span>
+          </button>
+          <button onclick="switchView('laporan')" data-nav="laporan" class="nav-link w-full flex items-center gap-3 px-3 py-2.5 rounded-2xl text-sm font-medium transition text-zinc-600 dark:text-zinc-400 hover:bg-black/5 dark:hover:bg-white/5 hover:text-black dark:hover:text-white">
+            <i data-lucide="line-chart" class="w-4 h-4 shrink-0"></i>
+            <span class="nav-label text-left flex-1">Laporan Tren</span>
+          </button>
+          <button onclick="switchView('segmen')" data-nav="segmen" class="nav-link w-full flex items-center gap-3 px-3 py-2.5 rounded-2xl text-sm font-medium transition text-zinc-600 dark:text-zinc-400 hover:bg-black/5 dark:hover:bg-white/5 hover:text-black dark:hover:text-white">
+            <i data-lucide="users" class="w-4 h-4 shrink-0"></i>
+            <span class="nav-label text-left flex-1">Segmen Pengguna</span>
+          </button>
+          <button onclick="switchView('realtime')" data-nav="realtime" class="nav-link w-full flex items-center gap-3 px-3 py-2.5 rounded-2xl text-sm font-medium transition text-zinc-600 dark:text-zinc-400 hover:bg-black/5 dark:hover:bg-white/5 hover:text-black dark:hover:text-white">
+            <i data-lucide="activity" class="w-4 h-4 shrink-0"></i>
+            <span class="nav-label text-left flex-1">Live Stream</span>
+            <span class="nav-text w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+          </button>
+          <button onclick="switchView('konversi')" data-nav="konversi" class="nav-link w-full flex items-center gap-3 px-3 py-2.5 rounded-2xl text-sm font-medium transition text-zinc-600 dark:text-zinc-400 hover:bg-black/5 dark:hover:bg-white/5 hover:text-black dark:hover:text-white">
+            <i data-lucide="target" class="w-4 h-4 shrink-0"></i>
+            <span class="nav-label text-left flex-1">Funnel Konversi</span>
+          </button>
+          <button onclick="switchView('ritel')" data-nav="ritel" class="nav-link w-full flex items-center gap-3 px-3 py-2.5 rounded-2xl text-sm font-medium transition text-zinc-600 dark:text-zinc-400 hover:bg-black/5 dark:hover:bg-white/5 hover:text-black dark:hover:text-white">
+            <i data-lucide="shopping-bag" class="w-4 h-4 shrink-0"></i>
+            <span class="nav-label text-left flex-1">Analitik Ritel</span>
+          </button>
+          <button onclick="switchView('media')" data-nav="media" class="nav-link w-full flex items-center gap-3 px-3 py-2.5 rounded-2xl text-sm font-medium transition text-zinc-600 dark:text-zinc-400 hover:bg-black/5 dark:hover:bg-white/5 hover:text-black dark:hover:text-white">
+            <i data-lucide="share-2" class="w-4 h-4 shrink-0"></i>
+            <span class="nav-label text-left flex-1">Kanal Kampanye</span>
+          </button>
+          <button onclick="switchView('pengaturan')" data-nav="pengaturan" class="nav-link w-full flex items-center gap-3 px-3 py-2.5 rounded-2xl text-sm font-medium transition text-zinc-600 dark:text-zinc-400 hover:bg-black/5 dark:hover:bg-white/5 hover:text-black dark:hover:text-white">
+            <i data-lucide="settings" class="w-4 h-4 shrink-0"></i>
+            <span class="nav-label text-left flex-1">Pengaturan</span>
+          </button>
+          <button onclick="switchView('bantuan')" data-nav="bantuan" class="nav-link w-full flex items-center gap-3 px-3 py-2.5 rounded-2xl text-sm font-medium transition text-zinc-600 dark:text-zinc-400 hover:bg-black/5 dark:hover:bg-white/5 hover:text-black dark:hover:text-white">
+            <i data-lucide="help-circle" class="w-4 h-4 shrink-0"></i>
+            <span class="nav-label text-left flex-1">Bantuan & FAQ</span>
+          </button>
+        </nav>
+      </div>
+
+      <!-- Upgrade Card -->
+      <div class="glass-panel p-4 rounded-2xl border border-black/10 dark:border-white/10 text-center relative overflow-hidden mt-4">
+        <div class="absolute -top-10 -right-10 w-20 h-20 bg-zinc-400/20 rounded-full blur-xl"></div>
+        <div class="w-8 h-8 rounded-full bg-black/5 dark:bg-white/10 flex items-center justify-center mx-auto mb-2 text-zinc-800 dark:text-zinc-200">
+          <i data-lucide="sparkles" class="w-4 h-4"></i>
+        </div>
+        <p class="font-bold text-sm text-zinc-900 dark:text-white">Uroo Analytics Pro</p>
+        <p class="text-xs text-zinc-500 dark:text-zinc-400 mb-2">Live AI Data Pipeline</p>
+        <button onclick="toast('Pipeline AI data aktif','sparkles')" class="w-full py-1.5 rounded-xl bg-black text-white dark:bg-white dark:text-black text-xs font-semibold hover:opacity-90">Enterprise Plan</button>
+      </div>
+    </aside>
+
+    <!-- ============================ MAIN CONTENT ============================ -->
+    <main class="flex-1 min-w-0 space-y-6">
+
+      <!-- TOPBAR -->
+      <header class="glass-panel rounded-3xl p-3 px-6 flex items-center justify-between sticky top-6 z-30">
+        <div class="flex items-center gap-3">
+          <button onclick="openDrawer()" class="lg:hidden p-2 -ml-2 rounded-xl hover:bg-black/5 dark:hover:bg-white/10 text-zinc-700 dark:text-zinc-300">
+            <i data-lucide="menu" class="w-5 h-5"></i>
+          </button>
+          <!-- Search Input -->
+          <div class="relative w-64 sm:w-80">
+            <i data-lucide="search" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400"></i>
+            <input type="text" placeholder="Cari metrik, laporan, cohort..." class="w-full bg-black/5 dark:bg-white/5 border-none rounded-2xl pl-9 pr-10 py-2 text-sm text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-black/20 dark:focus:ring-white/20">
+            <span class="hidden sm:inline-block absolute right-3 top-1/2 -translate-y-1/2 text-[10px] font-mono text-zinc-400 border border-zinc-300 dark:border-zinc-700 px-1.5 py-0.5 rounded-md">⌘K</span>
+          </div>
+        </div>
+
+        <!-- User Action Area -->
+        <div class="flex items-center gap-4">
+          <button onclick="toast('Semua metrik real-time sinkron','bell')" class="p-2 rounded-2xl hover:bg-black/5 dark:hover:bg-white/5 relative text-zinc-700 dark:text-zinc-300">
+            <i data-lucide="bell" class="w-4 h-4"></i>
+            <span class="w-1.5 h-1.5 bg-black dark:bg-white rounded-full absolute top-2 right-2"></span>
+          </button>
+          
+          <div class="h-6 w-[1px] bg-zinc-200 dark:bg-zinc-800"></div>
+
+          <!-- Profile Chip -->
+          <div class="flex items-center gap-3 pl-1">
+            <div class="w-9 h-9 rounded-2xl bg-black dark:bg-white text-white dark:text-black font-extrabold text-xs flex items-center justify-center ring-2 ring-black/10 dark:ring-white/10">DA</div>
+            <div class="text-left hidden sm:block">
+              <p class="text-xs font-bold leading-tight text-zinc-900 dark:text-white">Dimas Anggara</p>
+              <p class="text-[10px] text-zinc-500 dark:text-zinc-400">Chief Data Officer</p>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <!-- ==================== VIEW 1: OVERVIEW ==================== -->
+      <div id="view-overview" class="u-view active space-y-6">
+        <!-- Page Header -->
+        <div class="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <h1 class="text-2xl font-bold tracking-tight text-zinc-900 dark:text-white">Overview Analitik</h1>
+            <p class="text-xs text-zinc-500 dark:text-zinc-400">Ringkasan performa metriks bisnis dan konversi lalu lintas.</p>
+          </div>
+          <div class="flex items-center gap-2">
+            <button class="glass-panel px-4 py-2 rounded-2xl text-xs font-semibold flex items-center gap-2 text-zinc-700 dark:text-zinc-300 border border-black/5 dark:border-white/10">
+              <i data-lucide="calendar" class="w-3.5 h-3.5"></i> 30 Hari Terakhir <i data-lucide="chevron-down" class="w-3.5 h-3.5"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Stats Grid (4 Cards) -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div class="glass-panel p-5 rounded-3xl space-y-3">
+            <div class="flex justify-between items-start">
+              <span class="text-xs font-medium text-zinc-500 dark:text-zinc-400">Total Pendapatan</span>
+              <div class="p-2 rounded-2xl bg-black/5 dark:bg-white/5 text-zinc-800 dark:text-zinc-200"><i data-lucide="dollar-sign" class="w-4 h-4"></i></div>
+            </div>
+            <p class="text-2xl font-bold tracking-tight text-zinc-900 dark:text-white">Rp 248.500.000</p>
+            <p class="text-[11px] text-zinc-500 dark:text-zinc-400"><span class="text-emerald-600 dark:text-emerald-400 font-semibold">+12.5%</span> vs bulan lalu</p>
+          </div>
+
+          <div class="glass-panel p-5 rounded-3xl space-y-3">
+            <div class="flex justify-between items-start">
+              <span class="text-xs font-medium text-zinc-500 dark:text-zinc-400">Pengunjung Baru</span>
+              <div class="p-2 rounded-2xl bg-black/5 dark:bg-white/5 text-zinc-800 dark:text-zinc-200"><i data-lucide="users" class="w-4 h-4"></i></div>
+            </div>
+            <p class="text-2xl font-bold tracking-tight text-zinc-900 dark:text-white">48.290</p>
+            <p class="text-[11px] text-zinc-500 dark:text-zinc-400"><span class="text-emerald-600 dark:text-emerald-400 font-semibold">+8.2%</span> akuisisi user</p>
+          </div>
+
+          <div class="glass-panel p-5 rounded-3xl space-y-3">
+            <div class="flex justify-between items-start">
+              <span class="text-xs font-medium text-zinc-500 dark:text-zinc-400">Total Transaksi</span>
+              <div class="p-2 rounded-2xl bg-black/5 dark:bg-white/5 text-zinc-800 dark:text-zinc-200"><i data-lucide="shopping-bag" class="w-4 h-4"></i></div>
+            </div>
+            <p class="text-2xl font-bold tracking-tight text-zinc-900 dark:text-white">12.483</p>
+            <p class="text-[11px] text-zinc-500 dark:text-zinc-400"><span class="text-emerald-600 dark:text-emerald-400 font-semibold">+15.3%</span> order checkout</p>
+          </div>
+
+          <div class="glass-panel p-5 rounded-3xl space-y-3">
+            <div class="flex justify-between items-start">
+              <span class="text-xs font-medium text-zinc-500 dark:text-zinc-400">Tingkat Konversi</span>
+              <div class="p-2 rounded-2xl bg-black/5 dark:bg-white/5 text-zinc-800 dark:text-zinc-200"><i data-lucide="trending-up" class="w-4 h-4"></i></div>
+            </div>
+            <p class="text-2xl font-bold tracking-tight text-zinc-900 dark:text-white">4,82%</p>
+            <p class="text-[11px] text-zinc-500 dark:text-zinc-400"><span class="text-emerald-600 dark:text-emerald-400 font-semibold">+0.4%</span> funnel rate</p>
+          </div>
+        </div>
+
+        <!-- Charts & Activity Split Section -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          <!-- Revenue Line Chart SVG -->
+          <div class="lg:col-span-8 glass-panel p-6 rounded-3xl space-y-4">
+            <div class="flex items-center justify-between">
+              <div>
+                <h3 class="font-bold text-sm text-zinc-900 dark:text-white">Tren Pertumbuhan Pendapatan</h3>
+                <p class="text-xs text-zinc-500 dark:text-zinc-400">Realisasi bulan ini vs periode lalu</p>
+              </div>
+              <button class="px-3 py-1.5 rounded-xl bg-black/5 dark:bg-white/5 text-xs font-medium flex items-center gap-2 text-zinc-700 dark:text-zinc-300">
+                Bulan Ini <i data-lucide="chevron-down" class="w-3 h-3"></i>
+              </button>
+            </div>
+            
+            <!-- Monochromatic Liquid SVG Curve Chart -->
+            <div class="h-56 w-full pt-4">
+              <svg class="w-full h-full overflow-visible" viewBox="0 0 500 150">
+                <path d="M0,130 Q50,70 100,100 T200,40 T300,90 T400,20 T500,60" fill="none" class="stroke-zinc-300 dark:stroke-zinc-700" stroke-width="2" stroke-dasharray="4 4"/>
+                <path d="M0,110 Q50,90 100,60 T200,100 T300,50 T400,80 T500,20" fill="none" class="stroke-zinc-900 dark:stroke-zinc-100" stroke-width="2.5"/>
+                <circle cx="100" cy="60" r="4" class="fill-zinc-900 dark:fill-zinc-100"/>
+                <circle cx="200" cy="100" r="4" class="fill-zinc-900 dark:fill-zinc-100"/>
+                <circle cx="300" cy="50" r="4" class="fill-zinc-900 dark:fill-zinc-100"/>
+                <circle cx="400" cy="80" r="4" class="fill-zinc-900 dark:fill-zinc-100"/>
+                <circle cx="500" cy="20" r="4" class="fill-zinc-900 dark:fill-zinc-100"/>
+              </svg>
+            </div>
+            <div class="flex justify-between text-[11px] text-zinc-500 dark:text-zinc-400 pt-2 border-t border-black/5 dark:border-white/5">
+              <span>01 Agt</span><span>05 Agt</span><span>10 Agt</span><span>15 Agt</span><span>20 Agt</span><span>25 Agt</span><span>30 Agt</span>
+            </div>
+          </div>
+
+          <!-- Traffic Sources Donut -->
+          <div class="lg:col-span-4 glass-panel p-6 rounded-3xl space-y-4">
+            <div>
+              <h3 class="font-bold text-sm text-zinc-900 dark:text-white">Kanal Sumber Traffic</h3>
+              <p class="text-xs text-zinc-500 dark:text-zinc-400">Proporsi distribusi pengunjung</p>
+            </div>
+            
+            <div class="relative w-36 h-36 mx-auto flex items-center justify-center my-4">
+              <svg class="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
+                <path stroke-dasharray="65, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" class="stroke-zinc-900 dark:stroke-zinc-100" stroke-width="3.8"/>
+                <path stroke-dasharray="25, 100" stroke-dashoffset="-65" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" class="stroke-zinc-400 dark:stroke-zinc-600" stroke-width="3.8"/>
+                <path stroke-dasharray="10, 100" stroke-dashoffset="-90" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" class="stroke-zinc-200 dark:stroke-zinc-800" stroke-width="3.8"/>
+              </svg>
+              <div class="absolute text-center">
+                <span class="text-xl font-bold text-zinc-900 dark:text-white">65%</span>
+                <p class="text-[9px] text-zinc-500 dark:text-zinc-400">Direct</p>
+              </div>
+            </div>
+
+            <div class="space-y-2 text-xs">
+              <div class="flex justify-between items-center text-zinc-800 dark:text-zinc-200">
+                <span class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-zinc-900 dark:bg-zinc-100"></span> Direct Search</span>
+                <span class="font-semibold">65%</span>
+              </div>
+              <div class="flex justify-between items-center text-zinc-800 dark:text-zinc-200">
+                <span class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-zinc-400 dark:bg-zinc-600"></span> Organik Google</span>
+                <span class="font-semibold">25%</span>
+              </div>
+              <div class="flex justify-between items-center text-zinc-800 dark:text-zinc-200">
+                <span class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-zinc-200 dark:bg-zinc-800"></span> Social Campaign</span>
+                <span class="font-semibold">10%</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==================== VIEW 2: LAPORAN ==================== -->
+      <div id="view-laporan" class="u-view space-y-6">
+        <!-- Header + Period Selector + Export -->
+        <div class="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <h1 class="text-2xl font-bold tracking-tight text-zinc-900 dark:text-white">Laporan & Audit Tren</h1>
+            <p class="text-xs text-zinc-500 dark:text-zinc-400">Rangkuman kinerja analitik, audit tren kuartal dan tahunan.</p>
+          </div>
+          <div class="flex flex-wrap items-center gap-2">
+            <button class="glass-panel px-4 py-2 rounded-2xl text-xs font-semibold flex items-center gap-2 text-zinc-700 dark:text-zinc-300">
+              <i data-lucide="calendar" class="w-3.5 h-3.5"></i> Q3 2026 <i data-lucide="chevron-down" class="w-3.5 h-3.5"></i>
+            </button>
+            <button onclick="toast('Membuka wizard ekspor laporan','wand-2')" class="glass-panel px-4 py-2 rounded-2xl text-xs font-semibold flex items-center gap-2 text-zinc-700 dark:text-zinc-300">
+              <i data-lucide="download" class="w-3.5 h-3.5"></i> Ekspor
+            </button>
+          </div>
+        </div>
+
+        <!-- Report Cards Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div class="glass-panel p-5 rounded-3xl flex flex-col gap-4">
+            <div class="flex items-start justify-between">
+              <div class="p-2.5 rounded-2xl bg-black/5 dark:bg-white/5 text-zinc-800 dark:text-zinc-200"><i data-lucide="bar-chart-3" class="w-4 h-4"></i></div>
+              <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded-full bg-emerald-500/10 text-emerald-700 dark:text-emerald-400">Siap</span>
+            </div>
+            <div>
+              <h3 class="font-bold text-sm text-zinc-900 dark:text-white">Laporan Kinerja</h3>
+              <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-1">Ringkasan KPI inti bisnis dan capaian target periode.</p>
+            </div>
+            <svg viewBox="0 0 200 44" class="w-full h-11">
+              <path d="M0,34 L22,30 L44,33 L66,24 L88,27 L110,16 L132,20 L154,10 L176,13 L200,6" fill="none" class="stroke-zinc-900 dark:stroke-zinc-100" stroke-width="2"/>
+            </svg>
+            <div class="flex items-center justify-between pt-1 border-t border-black/5 dark:border-white/10">
+              <span class="text-[10px] text-zinc-500 dark:text-zinc-400">Seluruh workspace</span>
+              <div class="flex gap-1.5">
+                <button onclick="toast('Laporan Kinerja CSV siap diunduh','download')" class="px-2.5 py-1 rounded-lg bg-black/5 dark:bg-white/5 text-[10px] font-semibold text-zinc-700 dark:text-zinc-300">CSV</button>
+                <button onclick="toast('Laporan Kinerja PDF siap diunduh','file-text')" class="px-2.5 py-1 rounded-lg bg-black text-white dark:bg-white dark:text-black text-[10px] font-semibold">PDF</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="glass-panel p-5 rounded-3xl flex flex-col gap-4">
+            <div class="flex items-start justify-between">
+              <div class="p-2.5 rounded-2xl bg-black/5 dark:bg-white/5 text-zinc-800 dark:text-zinc-200"><i data-lucide="activity" class="w-4 h-4"></i></div>
+              <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400">Menunggu</span>
+            </div>
+            <div>
+              <h3 class="font-bold text-sm text-zinc-900 dark:text-white">Laporan Trafik</h3>
+              <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-1">Volume kunjungan, sumber traffic dan perilaku halaman.</p>
+            </div>
+            <svg viewBox="0 0 200 44" class="w-full h-11">
+              <rect x="10" y="26" width="10" height="18" rx="2" class="fill-zinc-300 dark:fill-zinc-700"/>
+              <rect x="28" y="20" width="10" height="24" rx="2" class="fill-zinc-300 dark:fill-zinc-700"/>
+              <rect x="46" y="14" width="10" height="30" rx="2" class="fill-zinc-300 dark:fill-zinc-700"/>
+              <rect x="64" y="22" width="10" height="22" rx="2" class="fill-zinc-400 dark:fill-zinc-600"/>
+              <rect x="82" y="10" width="10" height="34" rx="2" class="fill-zinc-900 dark:fill-zinc-100"/>
+              <rect x="100" y="16" width="10" height="28" rx="2" class="fill-zinc-400 dark:fill-zinc-600"/>
+              <rect x="118" y="8" width="10" height="36" rx="2" class="fill-zinc-900 dark:fill-zinc-100"/>
+              <rect x="136" y="18" width="10" height="26" rx="2" class="fill-zinc-400 dark:fill-zinc-600"/>
+              <rect x="154" y="6" width="10" height="38" rx="2" class="fill-zinc-900 dark:fill-zinc-100"/>
+              <rect x="172" y="12" width="10" height="32" rx="2" class="fill-zinc-400 dark:fill-zinc-600"/>
+            </svg>
+            <div class="flex items-center justify-between pt-1 border-t border-black/5 dark:border-white/10">
+              <span class="text-[10px] text-zinc-500 dark:text-zinc-400">Per domain</span>
+              <div class="flex gap-1.5">
+                <button onclick="toast('Laporan Trafik CSV siap diunduh','download')" class="px-2.5 py-1 rounded-lg bg-black/5 dark:bg-white/5 text-[10px] font-semibold text-zinc-700 dark:text-zinc-300">CSV</button>
+                <button onclick="toast('Jadwalkan laporan trafik harian','clock')" class="px-2.5 py-1 rounded-lg bg-black/5 dark:bg-white/5 text-[10px] font-semibold text-zinc-700 dark:text-zinc-300">PDF</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="glass-panel p-5 rounded-3xl flex flex-col gap-4">
+            <div class="flex items-start justify-between">
+              <div class="p-2.5 rounded-2xl bg-black/5 dark:bg-white/5 text-zinc-800 dark:text-zinc-200"><i data-lucide="filter" class="w-4 h-4"></i></div>
+              <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded-full bg-emerald-500/10 text-emerald-700 dark:text-emerald-400">Siap</span>
+            </div>
+            <div>
+              <h3 class="font-bold text-sm text-zinc-900 dark:text-white">Laporan Konversi</h3>
+              <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-1">Rasio konversi funnel dan titik kebocoran utama.</p>
+            </div>
+            <svg viewBox="0 0 200 44" class="w-full h-11">
+              <path d="M20,8 L182,8" fill="none" class="stroke-zinc-200 dark:stroke-zinc-800" stroke-width="2"/>
+              <path d="M20,8 L150,34" fill="none" class="stroke-zinc-900 dark:stroke-zinc-100" stroke-width="2" stroke-dasharray="5 3"/>
+              <polygon points="185,3 195,8 185,13" class="fill-zinc-900 dark:fill-zinc-100"/>
+            </svg>
+            <div class="flex items-center justify-between pt-1 border-t border-black/5 dark:border-white/10">
+              <span class="text-[10px] text-zinc-500 dark:text-zinc-400">Funnel utama</span>
+              <div class="flex gap-1.5">
+                <button onclick="toast('Laporan Konversi CSV siap diunduh','download')" class="px-2.5 py-1 rounded-lg bg-black/5 dark:bg-white/5 text-[10px] font-semibold text-zinc-700 dark:text-zinc-300">CSV</button>
+                <button onclick="toast('Laporan Konversi PDF siap diunduh','file-text')" class="px-2.5 py-1 rounded-lg bg-black text-white dark:bg-white dark:text-black text-[10px] font-semibold">PDF</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="glass-panel p-5 rounded-3xl flex flex-col gap-4">
+            <div class="flex items-start justify-between">
+              <div class="p-2.5 rounded-2xl bg-black/5 dark:bg-white/5 text-zinc-800 dark:text-zinc-200"><i data-lucide="wallet" class="w-4 h-4"></i></div>
+              <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded-full bg-emerald-500/10 text-emerald-700 dark:text-emerald-400">Siap</span>
+            </div>
+            <div>
+              <h3 class="font-bold text-sm text-zinc-900 dark:text-white">Laporan Pendapatan</h3>
+              <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-1">Agregasi pendapatan, AOV dan proyeksi pertumbuhan.</p>
+            </div>
+            <svg viewBox="0 0 200 44" class="w-full h-11">
+              <path d="M0,10 C30,18 40,6 70,14 S120,8 140,18 S185,6 200,14" fill="none" class="stroke-zinc-900 dark:stroke-zinc-100" stroke-width="2"/>
+              <path d="M0,10 C30,18 40,6 70,14 S120,8 140,18 S185,6 200,14 L200,44 L0,44 Z" fill="url(#revFill)" opacity="0.18"/>
+              <defs><linearGradient id="revFill" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="currentColor"/><stop offset="1" stop-color="currentColor" stop-opacity="0"/></linearGradient></defs>
+            </svg>
+            <div class="flex items-center justify-between pt-1 border-t border-black/5 dark:border-white/10">
+              <span class="text-[10px] text-zinc-500 dark:text-zinc-400">Semua kanal</span>
+              <div class="flex gap-1.5">
+                <button onclick="toast('Laporan Pendapatan CSV siap diunduh','download')" class="px-2.5 py-1 rounded-lg bg-black/5 dark:bg-white/5 text-[10px] font-semibold text-zinc-700 dark:text-zinc-300">CSV</button>
+                <button onclick="toast('Laporan Pendapatan PDF siap diunduh','file-text')" class="px-2.5 py-1 rounded-lg bg-black text-white dark:bg-white dark:text-black text-[10px] font-semibold">PDF</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="glass-panel p-5 rounded-3xl flex flex-col gap-4">
+            <div class="flex items-start justify-between">
+              <div class="p-2.5 rounded-2xl bg-black/5 dark:bg-white/5 text-zinc-800 dark:text-zinc-200"><i data-lucide="users" class="w-4 h-4"></i></div>
+              <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400">Menunggu</span>
+            </div>
+            <div>
+              <h3 class="font-bold text-sm text-zinc-900 dark:text-white">Laporan Pengguna</h3>
+              <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-1">Retensi cohort, aktifitas segmen dan pertumbuhan basis user.</p>
+            </div>
+            <svg viewBox="0 0 200 44" class="w-full h-11">
+              <circle cx="30" cy="22" r="8" class="fill-zinc-300 dark:fill-zinc-700"/>
+              <circle cx="30" cy="22" r="3" class="fill-zinc-900 dark:fill-zinc-100"/>
+              <circle cx="62" cy="20" r="10" class="fill-zinc-400 dark:fill-zinc-600"/>
+              <circle cx="62" cy="20" r="3.5" class="fill-zinc-900 dark:fill-zinc-100"/>
+              <circle cx="98" cy="24" r="13" class="fill-zinc-400 dark:fill-zinc-600"/>
+              <circle cx="98" cy="24" r="4" class="fill-zinc-900 dark:fill-zinc-100"/>
+              <circle cx="142" cy="19" r="16" class="fill-zinc-400 dark:fill-zinc-600"/>
+              <circle cx="142" cy="19" r="5" class="fill-zinc-900 dark:fill-zinc-100"/>
+              <circle cx="184" cy="22" r="19" class="fill-zinc-900 dark:fill-zinc-100"/>
+              <circle cx="184" cy="22" r="6" class="fill-zinc-100 dark:fill-zinc-900"/>
+            </svg>
+            <div class="flex items-center justify-between pt-1 border-t border-black/5 dark:border-white/10">
+              <span class="text-[10px] text-zinc-500 dark:text-zinc-400">Cohort 30 hari</span>
+              <div class="flex gap-1.5">
+                <button onclick="toast('Laporan Pengguna CSV siap diunduh','download')" class="px-2.5 py-1 rounded-lg bg-black/5 dark:bg-white/5 text-[10px] font-semibold text-zinc-700 dark:text-zinc-300">CSV</button>
+                <button onclick="toast('Laporan Pengguna PDF siap diunduh','file-text')" class="px-2.5 py-1 rounded-lg bg-black text-white dark:bg-white dark:text-black text-[10px] font-semibold">PDF</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="glass-panel p-5 rounded-3xl flex flex-col gap-4">
+            <div class="flex items-start justify-between">
+              <div class="p-2.5 rounded-2xl bg-black/5 dark:bg-white/5 text-zinc-800 dark:text-zinc-200"><i data-lucide="gauge" class="w-4 h-4"></i></div>
+              <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded-full bg-emerald-500/10 text-emerald-700 dark:text-emerald-400">Siap</span>
+            </div>
+            <div>
+              <h3 class="font-bold text-sm text-zinc-900 dark:text-white">Laporan Konversi Sales</h3>
+              <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-1">Analisis saluran penjualan dan konversi lead menjadi order.</p>
+            </div>
+            <svg viewBox="0 0 200 44" class="w-full h-11">
+              <path d="M6,38 A20,20 0 0 1 194,38" fill="none" class="stroke-zinc-200 dark:stroke-zinc-800" stroke-width="4"/>
+              <path d="M6,38 A20,20 0 0 1 120,24" fill="none" class="stroke-zinc-900 dark:stroke-zinc-100" stroke-width="4"/>
+              <circle cx="120" cy="24" r="3.5" class="fill-zinc-900 dark:fill-zinc-100"/>
+            </svg>
+            <div class="flex items-center justify-between pt-1 border-t border-black/5 dark:border-white/10">
+              <span class="text-[10px] text-zinc-500 dark:text-zinc-400">Sales pipeline</span>
+              <div class="flex gap-1.5">
+                <button onclick="toast('Laporan Sales CSV siap diunduh','download')" class="px-2.5 py-1 rounded-lg bg-black/5 dark:bg-white/5 text-[10px] font-semibold text-zinc-700 dark:text-zinc-300">CSV</button>
+                <button onclick="toast('Laporan Sales PDF siap diunduh','file-text')" class="px-2.5 py-1 rounded-lg bg-black text-white dark:bg-white dark:text-black text-[10px] font-semibold">PDF</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Schedule Export Panel -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div class="lg:col-span-2 glass-panel p-6 rounded-3xl space-y-4">
+            <div>
+              <h3 class="font-bold text-sm text-zinc-900 dark:text-white">Ekspor Terjadwal</h3>
+              <p class="text-xs text-zinc-500 dark:text-zinc-400">Atur kirim otomatis laporan ringkas ke email tim secara berkala.</p>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label class="text-xs font-semibold text-zinc-500 dark:text-zinc-400">Frekuensi</label>
+                <select class="mt-1.5 w-full h-11 px-3.5 rounded-xl bg-black/5 dark:bg-white/10 border border-black/5 dark:border-white/10 text-sm font-medium outline-none appearance-none">
+                  <option>Harian — 07:00 Pagi</option>
+                  <option selected>Mingguan — Senin</option>
+                  <option>Bulanan — Tanggal 1</option>
+                </select>
+              </div>
+              <div>
+                <label class="text-xs font-semibold text-zinc-500 dark:text-zinc-400">Penerima</label>
+                <input value="analytics@uroo.dev" class="mt-1.5 w-full h-11 px-3.5 rounded-xl bg-black/5 dark:bg-white/10 border border-black/5 dark:border-white/10 text-sm font-medium outline-none">
+              </div>
+            </div>
+            <div class="flex flex-wrap items-center gap-3 pt-2">
+              <button onclick="toast('Jadwal ekspor bulanan tersimpan','clock')" class="px-5 py-2.5 rounded-xl bg-black text-white dark:bg-white dark:text-black text-xs font-bold flex items-center gap-2">
+                <i data-lucide="calendar-plus" class="w-3.5 h-3.5"></i> Buat Jadwal
+              </button>
+              <span class="text-[11px] text-zinc-500 dark:text-zinc-400 flex items-center gap-1.5"><i data-lucide="clock" class="w-3.5 h-3.5"></i> 2 jadwal aktif</span>
+            </div>
+          </div>
+
+          <div class="glass-panel p-6 rounded-3xl space-y-4">
+            <h3 class="font-bold text-sm text-zinc-900 dark:text-white">Audit Tren Cepat</h3>
+            <p class="text-xs text-zinc-500 dark:text-zinc-400">Deteksi anomali otomatis pada metrik inti.</p>
+            <div class="space-y-3">
+              <div class="flex items-center justify-between text-xs">
+                <span class="text-zinc-700 dark:text-zinc-300 flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-emerald-500"></span> Pendapatan</span>
+                <span class="font-semibold text-emerald-600 dark:text-emerald-400">+12.5%</span>
+              </div>
+              <div class="flex items-center justify-between text-xs">
+                <span class="text-zinc-700 dark:text-zinc-300 flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-amber-500"></span> Trafik</span>
+                <span class="font-semibold text-amber-600 dark:text-amber-400">-3.1%</span>
+              </div>
+              <div class="flex items-center justify-between text-xs">
+                <span class="text-zinc-700 dark:text-zinc-300 flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-emerald-500"></span> Konversi</span>
+                <span class="font-semibold text-emerald-600 dark:text-emerald-400">+0.8%</span>
+              </div>
+              <div class="flex items-center justify-between text-xs">
+                <span class="text-zinc-700 dark:text-zinc-300 flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-rose-500"></span> Churn</span>
+                <span class="font-semibold text-rose-600 dark:text-rose-400">+1.4%</span>
+              </div>
+            </div>
+            <button onclick="toast('Audit tren dijalankan','radar')" class="w-full py-2.5 rounded-xl bg-black/5 dark:bg-white/5 text-xs font-bold text-zinc-800 dark:text-zinc-200">Jalankan Audit</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==================== VIEW 3: SEGMEN ==================== -->
+      <div id="view-segmen" class="u-view space-y-6">
+        <!-- Header -->
+        <div class="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <h1 class="text-2xl font-bold tracking-tight text-zinc-900 dark:text-white">Segmen & Persona Pengguna</h1>
+            <p class="text-xs text-zinc-500 dark:text-zinc-400">Analisis cohort, retensi dan profil persona pengguna aktif.</p>
+          </div>
+          <button class="glass-panel px-4 py-2 rounded-2xl text-xs font-semibold flex items-center gap-2 text-zinc-700 dark:text-zinc-300">
+            <i data-lucide="sliders-horizontal" class="w-3.5 h-3.5"></i> Filter Cohort
+          </button>
+        </div>
+
+        <!-- KPI Strip -->
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          <div class="glass-panel p-4 rounded-3xl flex items-center gap-3">
+            <div class="p-2.5 rounded-2xl bg-black/5 dark:bg-white/5 text-zinc-800 dark:text-zinc-200"><i data-lucide="users" class="w-4 h-4"></i></div>
+            <div>
+              <p class="text-[10px] font-semibold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">Total User</p>
+              <p class="text-xl font-bold text-zinc-900 dark:text-white">48.290</p>
+            </div>
+          </div>
+          <div class="glass-panel p-4 rounded-3xl flex items-center gap-3">
+            <div class="p-2.5 rounded-2xl bg-black/5 dark:bg-white/5 text-zinc-800 dark:text-zinc-200"><i data-lucide="zap" class="w-4 h-4"></i></div>
+            <div>
+              <p class="text-[10px] font-semibold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">Power Users</p>
+              <p class="text-xl font-bold text-zinc-900 dark:text-white">15.453</p>
+            </div>
+          </div>
+          <div class="glass-panel p-4 rounded-3xl flex items-center gap-3">
+            <div class="p-2.5 rounded-2xl bg-black/5 dark:bg-white/5 text-zinc-800 dark:text-zinc-200"><i data-lucide="repeat" class="w-4 h-4"></i></div>
+            <div>
+              <p class="text-[10px] font-semibold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">Retained</p>
+              <p class="text-xl font-bold text-zinc-900 dark:text-white">23.179</p>
+            </div>
+          </div>
+          <div class="glass-panel p-4 rounded-3xl flex items-center gap-3">
+            <div class="p-2.5 rounded-2xl bg-black/5 dark:bg-white/5 text-zinc-800 dark:text-zinc-200"><i data-lucide="user-x" class="w-4 h-4"></i></div>
+            <div>
+              <p class="text-[10px] font-semibold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">Churned</p>
+              <p class="text-xl font-bold text-zinc-900 dark:text-white">9.658</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Cohort Retention Grid + Persona -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          <div class="lg:col-span-8 glass-panel p-6 rounded-3xl space-y-4">
+            <div class="flex items-center justify-between">
+              <div>
+                <h3 class="font-bold text-sm text-zinc-900 dark:text-white">Retensi Cohort</h3>
+                <p class="text-xs text-zinc-500 dark:text-zinc-400">Persentase user per segmen yang tetap aktif tiap pekan.</p>
+              </div>
+              <span class="text-[10px] font-mono text-zinc-400 flex items-center gap-1"><span class="w-3 h-3 rounded bg-zinc-900 dark:bg-zinc-100 inline-block"></span> tinggi &nbsp;<span class="w-3 h-3 rounded bg-zinc-300 dark:bg-zinc-700 inline-block"></span> rendah</span>
+            </div>
+            <div class="overflow-x-auto">
+              <table class="w-full border-collapse text-center text-xs">
+                <thead>
+                  <tr class="text-[10px] uppercase tracking-wider text-zinc-500 dark:text-zinc-400">
+                    <th class="text-left pb-2 font-semibold">Segmen</th>
+                    <th class="pb-2 font-semibold">W1</th>
+                    <th class="pb-2 font-semibold">W2</th>
+                    <th class="pb-2 font-semibold">W3</th>
+                    <th class="pb-2 font-semibold">W4</th>
+                    <th class="pb-2 font-semibold">W5</th>
+                    <th class="pb-2 font-semibold">W6</th>
+                    <th class="pb-2 font-semibold">W7</th>
+                    <th class="pb-2 font-semibold">W8</th>
+                  </tr>
+                </thead>
+                <tbody class="text-zinc-800 dark:text-zinc-200">
+                  <tr>
+                    <td class="text-left font-semibold pr-3">Power Users</td>
+                    <td class="p-1"><span class="block py-1.5 rounded-md w-9 mx-auto" style="--co-a:1.0;background:rgb(24 24 27 / var(--co-a))">100</span></td>
+                    <td class="p-1"><span class="block py-1.5 rounded-md w-9 mx-auto" style="--co-a:0.92;background:rgb(82 82 91 / var(--co-a))">92</span></td>
+                    <td class="p-1"><span class="block py-1.5 rounded-md w-9 mx-auto" style="--co-a:0.86;background:rgb(82 82 91 / var(--co-a))">86</span></td>
+                    <td class="p-1"><span class="block py-1.5 rounded-md w-9 mx-auto" style="--co-a:0.8;background:rgb(113 113 122 / var(--co-a))">80</span></td>
+                    <td class="p-1"><span class="block py-1.5 rounded-md w-9 mx-auto" style="--co-a:0.74;background:rgb(113 113 122 / var(--co-a))">74</span></td>
+                    <td class="p-1"><span class="block py-1.5 rounded-md w-9 mx-auto" style="--co-a:0.68;background:rgb(161 161 170 / var(--co-a))">68</span></td>
+                    <td class="p-1"><span class="block py-1.5 rounded-md w-9 mx-auto" style="--co-a:0.62;background:rgb(161 161 170 / var(--co-a))">62</span></td>
+                    <td class="p-1"><span class="block py-1.5 rounded-md w-9 mx-auto" style="--co-a:0.56;background:rgb(161 161 170 / var(--co-a))">56</span></td>
+                  </tr>
+                  <tr>
+                    <td class="text-left font-semibold pr-3">Retained</td>
+                    <td class="p-1"><span class="block py-1.5 rounded-md w-9 mx-auto" style="--co-a:1.0;background:rgb(24 24 27 / var(--co-a))">100</span></td>
+                    <td class="p-1"><span class="block py-1.5 rounded-md w-9 mx-auto" style="--co-a:0.78;background:rgb(113 113 122 / var(--co-a))">78</span></td>
+                    <td class="p-1"><span class="block py-1.5 rounded-md w-9 mx-auto" style="--co-a:0.64;background:rgb(113 113 122 / var(--co-a))">64</span></td>
+                    <td class="p-1"><span class="block py-1.5 rounded-md w-9 mx-auto" style="--co-a:0.58;background:rgb(161 161 170 / var(--co-a))">58</span></td>
+                    <td class="p-1"><span class="block py-1.5 rounded-md w-9 mx-auto" style="--co-a:0.5;background:rgb(161 161 170 / var(--co-a))">50</span></td>
+                    <td class="p-1"><span class="block py-1.5 rounded-md w-9 mx-auto" style="--co-a:0.44;background:rgb(212 212 216 / var(--co-a))">44</span></td>
+                    <td class="p-1"><span class="block py-1.5 rounded-md w-9 mx-auto" style="--co-a:0.38;background:rgb(212 212 216 / var(--co-a))">38</span></td>
+                    <td class="p-1"><span class="block py-1.5 rounded-md w-9 mx-auto" style="--co-a:0.34;background:rgb(212 212 216 / var(--co-a))">34</span></td>
+                  </tr>
+                  <tr>
+                    <td class="text-left font-semibold pr-3">Kasual</td>
+                    <td class="p-1"><span class="block py-1.5 rounded-md w-9 mx-auto" style="--co-a:1.0;background:rgb(24 24 27 / var(--co-a))">100</span></td>
+                    <td class="p-1"><span class="block py-1.5 rounded-md w-9 mx-auto" style="--co-a:0.6;background:rgb(161 161 170 / var(--co-a))">60</span></td>
+                    <td class="p-1"><span class="block py-1.5 rounded-md w-9 mx-auto" style="--co-a:0.46;background:rgb(212 212 216 / var(--co-a))">46</span></td>
+                    <td class="p-1"><span class="block py-1.5 rounded-md w-9 mx-auto" style="--co-a:0.34;background:rgb(212 212 216 / var(--co-a))">34</span></td>
+                    <td class="p-1"><span class="block py-1.5 rounded-md w-9 mx-auto" style="--co-a:0.28;background:rgb(228 228 231 / var(--co-a))">28</span></td>
+                    <td class="p-1"><span class="block py-1.5 rounded-md w-9 mx-auto" style="--co-a:0.22;background:rgb(228 228 231 / var(--co-a))">22</span></td>
+                    <td class="p-1"><span class="block py-1.5 rounded-md w-9 mx-auto" style="--co-a:0.18;background:rgb(244 244 245 / var(--co-a))">18</span></td>
+                    <td class="p-1"><span class="block py-1.5 rounded-md w-9 mx-auto" style="--co-a:0.15;background:rgb(244 244 245 / var(--co-a))">15</span></td>
+                  </tr>
+                  <tr>
+                    <td class="text-left font-semibold pr-3">Churned</td>
+                    <td class="p-1"><span class="block py-1.5 rounded-md w-9 mx-auto" style="--co-a:1.0;background:rgb(24 24 27 / var(--co-a))">100</span></td>
+                    <td class="p-1"><span class="block py-1.5 rounded-md w-9 mx-auto" style="--co-a:0.4;background:rgb(212 212 216 / var(--co-a))">40</span></td>
+                    <td class="p-1"><span class="block py-1.5 rounded-md w-9 mx-auto" style="--co-a:0.24;background:rgb(228 228 231 / var(--co-a))">24</span></td>
+                    <td class="p-1"><span class="block py-1.5 rounded-md w-9 mx-auto" style="--co-a:0.14;background:rgb(244 244 245 / var(--co-a))">14</span></td>
+                    <td class="p-1"><span class="block py-1.5 rounded-md w-9 mx-auto" style="--co-a:0.09;background:rgb(250 250 250 / var(--co-a))">9</span></td>
+                    <td class="p-1"><span class="block py-1.5 rounded-md w-9 mx-auto" style="--co-a:0.06;background:rgb(250 250 250 / var(--co-a))">6</span></td>
+                    <td class="p-1"><span class="block py-1.5 rounded-md w-9 mx-auto" style="--co-a:0.04;background:rgb(250 250 250 / var(--co-a))">4</span></td>
+                    <td class="p-1"><span class="block py-1.5 rounded-md w-9 mx-auto" style="--co-a:0.02;background:rgb(250 250 250 / var(--co-a))">2</span></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Personas row -->
+          <div class="lg:col-span-4 space-y-4">
+            <div class="glass-panel p-5 rounded-3xl">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                  <div class="w-10 h-10 rounded-2xl bg-black dark:bg-white text-white dark:text-black grid place-items-center"><i data-lucide="zap" class="w-5 h-5"></i></div>
+                  <div>
+                    <p class="font-bold text-sm text-zinc-900 dark:text-white">Power User</p>
+                    <p class="text-[10px] text-zinc-500 dark:text-zinc-400">Aktif harian tinggi</p>
+                  </div>
+                </div>
+                <span class="text-lg font-bold text-zinc-900 dark:text-white">32%</span>
+              </div>
+              <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-3 leading-relaxed">Membuka produk 20+ hari/bulan, rajin eksplorasi fitur lanjutan dan berkontribusi pada komunitas.</p>
+              <div class="flex items-center gap-2 mt-3"><i data-lucide="trending-up" class="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400"></i><span class="text-[11px] font-semibold text-emerald-600 dark:text-emerald-400">+8% growth bulan ini</span></div>
+            </div>
+            <div class="glass-panel p-5 rounded-3xl">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                  <div class="w-10 h-10 rounded-2xl bg-zinc-300 dark:bg-zinc-700 text-zinc-900 dark:text-zinc-100 grid place-items-center"><i data-lucide="repeat" class="w-5 h-5"></i></div>
+                  <div>
+                    <p class="font-bold text-sm text-zinc-900 dark:text-white">Retained</p>
+                    <p class="text-[10px] text-zinc-500 dark:text-zinc-400">Kembali konsisten</p>
+                  </div>
+                </div>
+                <span class="text-lg font-bold text-zinc-900 dark:text-white">48%</span>
+              </div>
+              <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-3 leading-relaxed">Pengguna setia yang kembali secara berkala, stabil di tingkat aktivitas menengah.</p>
+              <div class="flex items-center gap-2 mt-3"><i data-lucide="minus" class="w-3.5 h-3.5 text-amber-600 dark:text-amber-400"></i><span class="text-[11px] font-semibold text-amber-600 dark:text-amber-400">Stabil ±2%</span></div>
+            </div>
+            <div class="glass-panel p-5 rounded-3xl">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                  <div class="w-10 h-10 rounded-2xl bg-rose-500/10 text-rose-600 dark:text-rose-400 grid place-items-center"><i data-lucide="user-x" class="w-5 h-5"></i></div>
+                  <div>
+                    <p class="font-bold text-sm text-zinc-900 dark:text-white">Churned</p>
+                    <p class="text-[10px] text-zinc-500 dark:text-zinc-400">Berisiko keluar</p>
+                  </div>
+                </div>
+                <span class="text-lg font-bold text-rose-600 dark:text-rose-400">20%</span>
+              </div>
+              <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-3 leading-relaxed">Tidak aktif selama 30+ hari. Perlu kampanye reaktivasi dan survei alasan keluar.</p>
+              <div class="flex items-center gap-2 mt-3"><i data-lucide="trending-down" class="w-3.5 h-3.5 text-rose-600 dark:text-rose-400"></i><span class="text-[11px] font-semibold text-rose-600 dark:text-rose-400">+1.4% naik bulan ini</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==================== VIEW 4: REALTIME ==================== -->
+      <div id="view-realtime" class="u-view space-y-6">
+        <!-- Header -->
+        <div class="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <div class="flex items-center gap-2.5">
+              <h1 class="text-2xl font-bold tracking-tight text-zinc-900 dark:text-white">Live Stream Aktivitas</h1>
+              <span class="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-[10px] font-bold uppercase tracking-wider">
+                <span class="relative flex w-2 h-2"><span class="animate-ping absolute inline-flex w-full h-full rounded-full bg-emerald-500 opacity-75"></span><span class="relative inline-flex rounded-full w-2 h-2 bg-emerald-500"></span></span>
+                LIVE
+              </span>
+            </div>
+            <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-1">Pantau aktivitas pengguna secara real-time di seluruh kanal.</p>
+          </div>
+          <div class="flex items-center gap-2">
+            <div class="glass-panel px-4 py-2 rounded-2xl text-xs font-semibold flex items-center gap-2 text-zinc-700 dark:text-zinc-300">
+              <i data-lucide="users" class="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400"></i>
+              <span id="rt-count" class="font-bold">524</span> User aktif
+            </div>
+            <button onclick="rtPause()" id="rt-pause-btn" class="glass-panel px-3.5 py-2 rounded-2xl text-xs font-semibold flex items-center gap-1.5 text-zinc-700 dark:text-zinc-300">
+              <i data-lucide="pause" class="w-3.5 h-3.5"></i> Pause
+            </button>
+            <button onclick="rtClear()" class="glass-panel px-3.5 py-2 rounded-2xl text-xs font-semibold flex items-center gap-1.5 text-zinc-700 dark:text-zinc-300">
+              <i data-lucide="trash-2" class="w-3.5 h-3.5"></i> Bersihkan
+            </button>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          <!-- Live Feed -->
+          <div class="lg:col-span-8 glass-panel p-6 rounded-3xl space-y-4">
+            <div class="flex items-center justify-between">
+              <div>
+                <h3 class="font-bold text-sm text-zinc-900 dark:text-white">Aktivitas Terbaru</h3>
+                <p class="text-xs text-zinc-500 dark:text-zinc-400">Semua event tersinkronistik secara langsung.</p>
+              </div>
+              <span class="text-[10px] font-mono text-zinc-400" id="rt-feed-count">0 item</span>
+            </div>
+            <ul id="rt-feed" class="space-y-1 divide-y divide-black/5 dark:divide-white/5 max-h-[420px] overflow-y-auto"></ul>
+          </div>
+
+          <!-- Event Distribution rail -->
+          <div class="lg:col-span-4 space-y-4">
+            <div class="glass-panel p-6 rounded-3xl space-y-5">
+              <h3 class="font-bold text-sm text-zinc-900 dark:text-white">Distribusi Event</h3>
+              <div class="space-y-4">
+                <div>
+                  <div class="flex items-center justify-between text-xs mb-1.5">
+                    <span class="flex items-center gap-2 text-zinc-700 dark:text-zinc-300"><i data-lucide="shopping-bag" class="w-3.5 h-3.5"></i> Pembelian</span>
+                    <span class="font-semibold" id="rt-m1pct">42%</span>
+                  </div>
+                  <div class="h-2 rounded-full bg-black/5 dark:bg-white/10 overflow-hidden"><div class="h-full w-[42%] rounded-full bg-zinc-900 dark:bg-zinc-100 transition-all" id="rt-m1"></div></div>
+                </div>
+                <div>
+                  <div class="flex items-center justify-between text-xs mb-1.5">
+                    <span class="flex items-center gap-2 text-zinc-700 dark:text-zinc-300"><i data-lucide="search" class="w-3.5 h-3.5"></i> Pencarian</span>
+                    <span class="font-semibold" id="rt-m2pct">31%</span>
+                  </div>
+                  <div class="h-2 rounded-full bg-black/5 dark:bg-white/10 overflow-hidden"><div class="h-full w-[31%] rounded-full bg-zinc-700 dark:bg-zinc-300 transition-all" id="rt-m2"></div></div>
+                </div>
+                <div>
+                  <div class="flex items-center justify-between text-xs mb-1.5">
+                    <span class="flex items-center gap-2 text-zinc-700 dark:text-zinc-300"><i data-lucide="message-square" class="w-3.5 h-3.5"></i> Komentar</span>
+                    <span class="font-semibold" id="rt-m3pct">27%</span>
+                  </div>
+                  <div class="h-2 rounded-full bg-black/5 dark:bg-white/10 overflow-hidden"><div class="h-full w-[27%] rounded-full bg-zinc-400 dark:bg-zinc-700 transition-all" id="rt-m3"></div></div>
+                </div>
+              </div>
+              <button onclick="toast('Perkiraan live di-refresh','refresh-cw')" class="w-full py-2.5 rounded-xl bg-black/5 dark:bg-white/5 text-xs font-bold text-zinc-800 dark:text-zinc-200">Refresh Perkiraan</button>
+            </div>
+
+            <div class="glass-panel p-6 rounded-3xl space-y-3">
+              <h3 class="font-bold text-sm text-zinc-900 dark:text-white">Ringkasan Real-time</h3>
+              <div class="flex items-center justify-between text-xs">
+                <span class="text-zinc-500 dark:text-zinc-400">Transaksi/menit</span>
+                <span class="font-bold text-zinc-900 dark:text-white">18</span>
+              </div>
+              <div class="flex items-center justify-between text-xs">
+                <span class="text-zinc-500 dark:text-zinc-400">Order berhasil</span>
+                <span class="font-bold text-emerald-600 dark:text-emerald-400">96.2%</span>
+              </div>
+              <div class="flex items-center justify-between text-xs">
+                <span class="text-zinc-500 dark:text-zinc-400">Revenue real-time</span>
+                <span class="font-bold text-zinc-900 dark:text-white">Rp 842.000</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==================== VIEW 5: KONVERSI ==================== -->
+      <div id="view-konversi" class="u-view space-y-6">
+        <!-- Header -->
+        <div class="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <h1 class="text-2xl font-bold tracking-tight text-zinc-900 dark:text-white">Funnel & Jalur Konversi</h1>
+            <p class="text-xs text-zinc-500 dark:text-zinc-400">Analisis tahapan konversi dari kunjungan hingga pembayaran.</p>
+          </div>
+          <button class="glass-panel px-4 py-2 rounded-2xl text-xs font-semibold flex items-center gap-2 text-zinc-700 dark:text-zinc-300">
+            <i data-lucide="calendar" class="w-3.5 h-3.5"></i> 30 Hari Terakhir <i data-lucide="chevron-down" class="w-3.5 h-3.5"></i>
+          </button>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          <!-- Vertical Funnel -->
+          <div class="lg:col-span-8 glass-panel p-6 rounded-3xl space-y-4">
+            <div>
+              <h3 class="font-bold text-sm text-zinc-900 dark:text-white">Funnel Konversi Utama</h3>
+              <p class="text-xs text-zinc-500 dark:text-zinc-400">Setiap bar mewakili tahapan; lebar menunjukkan volume relatif.</p>
+            </div>
+            <div class="space-y-2">
+              <div class="flex items-center gap-3">
+                <span class="w-32 shrink-0 text-[11px] font-semibold text-zinc-600 dark:text-zinc-300">Kunjungan</span>
+                <div class="flex-1 h-12 rounded-xl bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 flex items-center justify-between px-4 text-sm font-bold">48.290 <span class="text-[10px] font-semibold opacity-70">100%</span></div>
+              </div>
+              <div class="flex items-center gap-3">
+                <span class="w-32 shrink-0 text-[11px] font-semibold text-zinc-600 dark:text-zinc-300">Detail Produk</span>
+                <div class="flex-1 h-12 rounded-xl bg-zinc-800 dark:bg-zinc-200 text-white dark:text-zinc-900 flex items-center justify-between px-4 text-sm font-bold" style="max-width:86%">32.837 <span class="text-[10px] font-semibold opacity-70">68%</span></div>
+              </div>
+              <div class="flex items-center gap-3">
+                <span class="w-32 shrink-0 text-[11px] font-semibold text-zinc-600 dark:text-zinc-300">Keranjang</span>
+                <div class="flex-1 h-12 rounded-xl bg-zinc-700 dark:bg-zinc-300 text-white dark:text-zinc-900 flex items-center justify-between px-4 text-sm font-bold" style="max-width:65%">20.282 <span class="text-[10px] font-semibold opacity-70">42%</span></div>
+              </div>
+              <div class="flex items-center gap-3">
+                <span class="w-32 shrink-0 text-[11px] font-semibold text-zinc-600 dark:text-zinc-300">Checkout</span>
+                <div class="flex-1 h-12 rounded-xl bg-zinc-600 dark:bg-zinc-400 text-white dark:text-zinc-900 flex items-center justify-between px-4 text-sm font-bold" style="max-width:54%">11.590 <span class="text-[10px] font-semibold opacity-70">24%</span></div>
+              </div>
+              <div class="flex items-center gap-3">
+                <span class="w-32 shrink-0 text-[11px] font-semibold text-zinc-600 dark:text-zinc-300">Pembayaran</span>
+                <div class="flex-1 h-12 rounded-xl bg-zinc-400 dark:bg-zinc-500 text-white dark:text-zinc-900 flex items-center justify-between px-4 text-sm font-bold" style="max-width:44%">9.400 <span class="text-[10px] font-semibold opacity-70">19.5%</span></div>
+              </div>
+            </div>
+            <div class="flex items-center gap-2 pt-2 border-t border-black/5 dark:border-white/10 text-[11px] text-zinc-500 dark:text-zinc-400">
+              <i data-lucide="info" class="w-3.5 h-3.5"></i> Konversi end-to-end: 19.5% kunjungan menjadi pembayaran.
+            </div>
+          </div>
+
+          <!-- Donut + Leak -->
+          <div class="lg:col-span-4 space-y-4">
+            <div class="glass-panel p-6 rounded-3xl">
+              <h3 class="font-bold text-sm text-zinc-900 dark:text-white">Konversi Keseluruhan</h3>
+              <div class="relative w-32 h-32 mx-auto my-3 flex items-center justify-center">
+                <svg class="w-full h-full -rotate-90" viewBox="0 0 36 36">
+                  <path stroke-dasharray="78, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" class="stroke-zinc-900 dark:stroke-zinc-100" stroke-width="3.8"/>
+                  <path stroke-dasharray="22, 100" stroke-dashoffset="-78" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" class="stroke-zinc-400 dark:stroke-zinc-600" stroke-width="3.8"/>
+                </svg>
+                <div class="absolute text-center">
+                  <span class="text-xl font-bold text-zinc-900 dark:text-white">19.5%</span>
+                  <p class="text-[9px] text-zinc-500 dark:text-zinc-400">End-to-end</p>
+                </div>
+              </div>
+              <div class="space-y-1.5 text-xs">
+                <div class="flex justify-between"><span class="text-zinc-500 dark:text-zinc-400">Terkonversi</span><span class="font-semibold text-zinc-900 dark:text-white">9.400</span></div>
+                <div class="flex justify-between"><span class="text-zinc-500 dark:text-zinc-400">Gagal di tengah</span><span class="font-semibold text-zinc-900 dark:text-white">38.890</span></div>
+              </div>
+            </div>
+
+            <div class="glass-panel p-6 rounded-3xl">
+              <h3 class="font-bold text-sm text-zinc-900 dark:text-white">Titik Kebocoran</h3>
+              <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-1">Penurunan terbesar antar tahapan.</p>
+              <div class="space-y-3 mt-4">
+                <div class="flex items-center justify-between text-xs">
+                  <span class="text-zinc-700 dark:text-zinc-300">Keranjang → Checkout</span>
+                  <span class="font-bold text-rose-600 dark:text-rose-400">-18 pt</span>
+                </div>
+                <div class="flex items-center justify-between text-xs">
+                  <span class="text-zinc-700 dark:text-zinc-300">Kunjungan → Detail Produk</span>
+                  <span class="font-bold text-rose-500 dark:text-rose-500">-12 pt</span>
+                </div>
+                <div class="flex items-center justify-between text-xs">
+                  <span class="text-zinc-700 dark:text-zinc-300">Checkout → Pembayaran</span>
+                  <span class="font-bold text-amber-600 dark:text-amber-400">-5 pt</span>
+                </div>
+              </div>
+              <button onclick="toast('Rekomendasi optimalisasi disusun','lightbulb')" class="w-full mt-4 py-2.5 rounded-xl bg-black text-white dark:bg-white dark:text-black text-xs font-bold">Lihat Rekomendasi</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==================== VIEW 6: RITEL ==================== -->
+      <div id="view-ritel" class="u-view space-y-6">
+        <!-- Header -->
+        <div class="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <h1 class="text-2xl font-bold tracking-tight text-zinc-900 dark:text-white">Analitik Ritel & Produk</h1>
+            <p class="text-xs text-zinc-500 dark:text-zinc-400">Performa penjualan, kategori dan produk terlaris.</p>
+          </div>
+          <button class="glass-panel px-4 py-2 rounded-2xl text-xs font-semibold flex items-center gap-2 text-zinc-700 dark:text-zinc-300">
+            <i data-lucide="calendar" class="w-3.5 h-3.5"></i> Agustus 2026 <i data-lucide="chevron-down" class="w-3.5 h-3.5"></i>
+          </button>
+        </div>
+
+        <!-- KPI Cards -->
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          <div class="glass-panel p-5 rounded-3xl space-y-2">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-medium text-zinc-500 dark:text-zinc-400">Penjualan</span>
+              <div class="p-2 rounded-2xl bg-black/5 dark:bg-white/5 text-zinc-800 dark:text-zinc-200"><i data-lucide="dollar-sign" class="w-4 h-4"></i></div>
+            </div>
+            <p class="text-2xl font-bold text-zinc-900 dark:text-white">Rp 148,2 Jt</p>
+            <p class="text-[11px] text-emerald-600 dark:text-emerald-400 font-semibold">+12.5% vs bln lalu</p>
+          </div>
+          <div class="glass-panel p-5 rounded-3xl space-y-2">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-medium text-zinc-500 dark:text-zinc-400">Order</span>
+              <div class="p-2 rounded-2xl bg-black/5 dark:bg-white/5 text-zinc-800 dark:text-zinc-200"><i data-lucide="shopping-cart" class="w-4 h-4"></i></div>
+            </div>
+            <p class="text-2xl font-bold text-zinc-900 dark:text-white">12.483</p>
+            <p class="text-[11px] text-emerald-600 dark:text-emerald-400 font-semibold">+6.1% transaksi</p>
+          </div>
+          <div class="glass-panel p-5 rounded-3xl space-y-2">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-medium text-zinc-500 dark:text-zinc-400">AOV</span>
+              <div class="p-2 rounded-2xl bg-black/5 dark:bg-white/5 text-zinc-800 dark:text-zinc-200"><i data-lucide="baggage-claim" class="w-4 h-4"></i></div>
+            </div>
+            <p class="text-2xl font-bold text-zinc-900 dark:text-white">Rp 11.872</p>
+            <p class="text-[11px] text-emerald-600 dark:text-emerald-400 font-semibold">+3.0% per order</p>
+          </div>
+          <div class="glass-panel p-5 rounded-3xl space-y-2">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-medium text-zinc-500 dark:text-zinc-400">Return</span>
+              <div class="p-2 rounded-2xl bg-black/5 dark:bg-white/5 text-zinc-800 dark:text-zinc-200"><i data-lucide="rotate-ccw" class="w-4 h-4"></i></div>
+            </div>
+            <p class="text-2xl font-bold text-zinc-900 dark:text-white">2,4%</p>
+            <p class="text-[11px] text-amber-600 dark:text-amber-400 font-semibold">+0.3% pengembalian</p>
+          </div>
+        </div>
+
+        <!-- Bar chart + table -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          <div class="lg:col-span-5 glass-panel p-6 rounded-3xl space-y-4">
+            <div>
+              <h3 class="font-bold text-sm text-zinc-900 dark:text-white">Pendapatan per Kategori</h3>
+              <p class="text-xs text-zinc-500 dark:text-zinc-400">Kontribusi pendapatan tiap kategori produk.</p>
+            </div>
+            <div class="flex items-end gap-3 h-52">
+              <div class="flex-1 flex flex-col items-center gap-2">
+                <span class="text-[10px] font-semibold text-zinc-700 dark:text-zinc-300">42%</span>
+                <div class="w-full h-24 rounded-t-xl bg-zinc-900 dark:bg-zinc-100"></div>
+                <span class="text-[10px] text-zinc-500 dark:text-zinc-400">Elektronik</span>
+              </div>
+              <div class="flex-1 flex flex-col items-center gap-2">
+                <span class="text-[10px] font-semibold text-zinc-700 dark:text-zinc-300">28%</span>
+                <div class="w-full h-16 rounded-t-xl bg-zinc-700 dark:bg-zinc-300"></div>
+                <span class="text-[10px] text-zinc-500 dark:text-zinc-400">Aksesori</span>
+              </div>
+              <div class="flex-1 flex flex-col items-center gap-2">
+                <span class="text-[10px] font-semibold text-zinc-700 dark:text-zinc-300">18%</span>
+                <div class="w-full h-10 rounded-t-xl bg-zinc-500 dark:bg-zinc-500"></div>
+                <span class="text-[10px] text-zinc-500 dark:text-zinc-400">Pakaian</span>
+              </div>
+              <div class="flex-1 flex flex-col items-center gap-2">
+                <span class="text-[10px] font-semibold text-zinc-700 dark:text-zinc-300">12%</span>
+                <div class="w-full h-7 rounded-t-xl bg-zinc-300 dark:bg-zinc-700"></div>
+                <span class="text-[10px] text-zinc-500 dark:text-zinc-400">Rumah</span>
+              </div>
+            </div>
+            <div class="flex items-center gap-2 pt-2 border-t border-black/5 dark:border-white/10 text-[11px] text-zinc-500 dark:text-zinc-400">
+              <i data-lucide="trending-up" class="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400"></i> Elektronik tumbuh +18% tercepat bulan ini.
+            </div>
+          </div>
+
+          <div class="lg:col-span-7 glass-panel p-6 rounded-3xl space-y-4">
+            <div class="flex items-center justify-between">
+              <div>
+                <h3 class="font-bold text-sm text-zinc-900 dark:text-white">Produk Terlaris</h3>
+                <p class="text-xs text-zinc-500 dark:text-zinc-400">Ranking produk berdasarkan volume dan pendapatan.</p>
+              </div>
+              <button onclick="toast('Melihat semua produk','list')" class="px-3 py-1.5 rounded-xl bg-black/5 dark:bg-white/5 text-xs font-semibold text-zinc-700 dark:text-zinc-300">Semua</button>
+            </div>
+            <div class="overflow-x-auto">
+              <table class="w-full text-sm">
+                <thead>
+                  <tr class="text-[10px] uppercase tracking-wider text-zinc-500 dark:text-zinc-400 border-b border-black/5 dark:border-white/10">
+                    <th class="text-left py-2 pr-3 font-semibold">Produk</th>
+                    <th class="text-left py-2 pr-3 font-semibold">Kategori</th>
+                    <th class="text-right py-2 pr-3 font-semibold">Terjual</th>
+                    <th class="text-right py-2 pr-3 font-semibold">Pendapatan</th>
+                    <th class="text-right py-2 font-semibold">Margin</th>
+                  </tr>
+                </thead>
+                <tbody class="hover-row">
+                  <tr class="border-b border-black/5 dark:border-white/5">
+                    <td class="py-3 pr-3 font-semibold text-zinc-900 dark:text-white">Headphone Pro X</td>
+                    <td class="py-3 pr-3 text-xs text-zinc-500 dark:text-zinc-400">Elektronik</td>
+                    <td class="py-3 pr-3 text-right font-semibold">1.240</td>
+                    <td class="py-3 pr-3 text-right font-semibold">Rp 62,0 Jt</td>
+                    <td class="py-3 text-right text-emerald-600 dark:text-emerald-400 font-semibold">48%</td>
+                  </tr>
+                  <tr class="border-b border-black/5 dark:border-white/5">
+                    <td class="py-3 pr-3 font-semibold text-zinc-900 dark:text-white">TWS Buds Mini</td>
+                    <td class="py-3 pr-3 text-xs text-zinc-500 dark:text-zinc-400">Aksesori</td>
+                    <td class="py-3 pr-3 text-right font-semibold">980</td>
+                    <td class="py-3 pr-3 text-right font-semibold">Rp 29,4 Jt</td>
+                    <td class="py-3 text-right text-emerald-600 dark:text-emerald-400 font-semibold">42%</td>
+                  </tr>
+                  <tr class="border-b border-black/5 dark:border-white/5">
+                    <td class="py-3 pr-3 font-semibold text-zinc-900 dark:text-white">Smartwatch S2</td>
+                    <td class="py-3 pr-3 text-xs text-zinc-500 dark:text-zinc-400">Elektronik</td>
+                    <td class="py-3 pr-3 text-right font-semibold">720</td>
+                    <td class="py-3 pr-3 text-right font-semibold">Rp 36,0 Jt</td>
+                    <td class="py-3 text-right text-emerald-600 dark:text-emerald-400 font-semibold">51%</td>
+                  </tr>
+                  <tr class="border-b border-black/5 dark:border-white/5">
+                    <td class="py-3 pr-3 font-semibold text-zinc-900 dark:text-white">Keyboard Mech K65</td>
+                    <td class="py-3 pr-3 text-xs text-zinc-500 dark:text-zinc-400">Aksesori</td>
+                    <td class="py-3 pr-3 text-right font-semibold">540</td>
+                    <td class="py-3 pr-3 text-right font-semibold">Rp 21,6 Jt</td>
+                    <td class="py-3 text-right text-emerald-600 dark:text-emerald-400 font-semibold">39%</td>
+                  </tr>
+                  <tr>
+                    <td class="py-3 pr-3 font-semibold text-zinc-900 dark:text-white">Jacket Urban</td>
+                    <td class="py-3 pr-3 text-xs text-zinc-500 dark:text-zinc-400">Pakaian</td>
+                    <td class="py-3 pr-3 text-right font-semibold">410</td>
+                    <td class="py-3 pr-3 text-right font-semibold">Rp 14,4 Jt</td>
+                    <td class="py-3 text-right text-amber-600 dark:text-amber-400 font-semibold">28%</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==================== VIEW 7: MEDIA ==================== -->
+      <div id="view-media" class="u-view space-y-6">
+        <!-- Header -->
+        <div class="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <h1 class="text-2xl font-bold tracking-tight text-zinc-900 dark:text-white">Kanal Kampanye & Promosi</h1>
+            <p class="text-xs text-zinc-500 dark:text-zinc-400">Performa kanal iklan, efisiensi belanja dan ROAS.</p>
+          </div>
+          <button class="glass-panel px-4 py-2 rounded-2xl text-xs font-semibold flex items-center gap-2 text-zinc-700 dark:text-zinc-300">
+            <i data-lucide="calendar" class="w-3.5 h-3.5"></i> 30 Hari Terakhir <i data-lucide="chevron-down" class="w-3.5 h-3.5"></i>
+          </button>
+        </div>
+
+        <!-- KPI Strip -->
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          <div class="glass-panel p-4 rounded-3xl flex items-center gap-3">
+            <div class="p-2.5 rounded-2xl bg-black/5 dark:bg-white/5 text-zinc-800 dark:text-zinc-200"><i data-lucide="credit-card" class="w-4 h-4"></i></div>
+            <div>
+              <p class="text-[10px] font-semibold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">Total Spend</p>
+              <p class="text-xl font-bold text-zinc-900 dark:text-white">Rp 38,4 Jt</p>
+            </div>
+          </div>
+          <div class="glass-panel p-4 rounded-3xl flex items-center gap-3">
+            <div class="p-2.5 rounded-2xl bg-black/5 dark:bg-white/5 text-zinc-800 dark:text-zinc-200"><i data-lucide="recycle" class="w-4 h-4"></i></div>
+            <div>
+              <p class="text-[10px] font-semibold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">ROAS</p>
+              <p class="text-xl font-bold text-emerald-600 dark:text-emerald-400">4.2x</p>
+            </div>
+          </div>
+          <div class="glass-panel p-4 rounded-3xl flex items-center gap-3">
+            <div class="p-2.5 rounded-2xl bg-black/5 dark:bg-white/5 text-zinc-800 dark:text-zinc-200"><i data-lucide="mouse-pointer-click" class="w-4 h-4"></i></div>
+            <div>
+              <p class="text-[10px] font-semibold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">Klik</p>
+              <p class="text-xl font-bold text-zinc-900 dark:text-white">184.200</p>
+            </div>
+          </div>
+          <div class="glass-panel p-4 rounded-3xl flex items-center gap-3">
+            <div class="p-2.5 rounded-2xl bg-black/5 dark:bg-white/5 text-zinc-800 dark:text-zinc-200"><i data-lucide="target" class="w-4 h-4"></i></div>
+            <div>
+              <p class="text-[10px] font-semibold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">CPL</p>
+              <p class="text-xl font-bold text-zinc-900 dark:text-white">Rp 1.420</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Channel cards -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div class="glass-panel p-5 rounded-3xl space-y-4">
+            <div class="flex items-start justify-between">
+              <div class="p-2.5 rounded-2xl bg-black/5 dark:bg-white/5 text-zinc-800 dark:text-zinc-200"><i data-lucide="search" class="w-4 h-4"></i></div>
+              <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded-full bg-emerald-500/10 text-emerald-700 dark:text-emerald-400">Aktif</span>
+            </div>
+            <div>
+              <h3 class="font-bold text-sm text-zinc-900 dark:text-white">Google Ads</h3>
+              <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-1">Search + Shopping</p>
+            </div>
+            <div class="flex items-center justify-between text-sm">
+              <span class="text-zinc-500 dark:text-zinc-400">Spend</span>
+              <span class="font-bold text-zinc-900 dark:text-white">Rp 15,2 Jt</span>
+            </div>
+            <div class="flex items-center justify-between text-sm">
+              <span class="text-zinc-500 dark:text-zinc-400">ROAS</span>
+              <span class="font-bold text-emerald-600 dark:text-emerald-400">4.8x</span>
+            </div>
+            <div class="flex items-center justify-between text-sm">
+              <span class="text-zinc-500 dark:text-zinc-400">Klik</span>
+              <span class="font-bold text-zinc-900 dark:text-white">82.400 klik</span>
+            </div>
+            <button onclick="toast('Membuka detail Google Ads','external-link')" class="w-full py-2 rounded-xl bg-black/5 dark:bg-white/5 text-xs font-bold text-zinc-800 dark:text-zinc-200">Detail</button>
+          </div>
+
+          <div class="glass-panel p-5 rounded-3xl space-y-4">
+            <div class="flex items-start justify-between">
+              <div class="p-2.5 rounded-2xl bg-black/5 dark:bg-white/5 text-zinc-800 dark:text-zinc-200"><i data-lucide="thumbs-up" class="w-4 h-4"></i></div>
+              <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded-full bg-emerald-500/10 text-emerald-700 dark:text-emerald-400">Aktif</span>
+            </div>
+            <div>
+              <h3 class="font-bold text-sm text-zinc-900 dark:text-white">Meta Ads</h3>
+              <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-1">FB + IG Campaign</p>
+            </div>
+            <div class="flex items-center justify-between text-sm">
+              <span class="text-zinc-500 dark:text-zinc-400">Spend</span>
+              <span class="font-bold text-zinc-900 dark:text-white">Rp 11,8 Jt</span>
+            </div>
+            <div class="flex items-center justify-between text-sm">
+              <span class="text-zinc-500 dark:text-zinc-400">ROAS</span>
+              <span class="font-bold text-emerald-600 dark:text-emerald-400">5.1x</span>
+            </div>
+            <div class="flex items-center justify-between text-sm">
+              <span class="text-zinc-500 dark:text-zinc-400">Klik</span>
+              <span class="font-bold text-zinc-900 dark:text-white">61.300 klik</span>
+            </div>
+            <button onclick="toast('Membuka detail Meta Ads','external-link')" class="w-full py-2 rounded-xl bg-black/5 dark:bg-white/5 text-xs font-bold text-zinc-800 dark:text-zinc-200">Detail</button>
+          </div>
+
+          <div class="glass-panel p-5 rounded-3xl space-y-4">
+            <div class="flex items-start justify-between">
+              <div class="p-2.5 rounded-2xl bg-black/5 dark:bg-white/5 text-zinc-800 dark:text-zinc-200"><i data-lucide="video" class="w-4 h-4"></i></div>
+              <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400">Kinerja</span>
+            </div>
+            <div>
+              <h3 class="font-bold text-sm text-zinc-900 dark:text-white">TikTok Ads</h3>
+              <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-1">In-Feed + Spark</p>
+            </div>
+            <div class="flex items-center justify-between text-sm">
+              <span class="text-zinc-500 dark:text-zinc-400">Spend</span>
+              <span class="font-bold text-zinc-900 dark:text-white">Rp 7,6 Jt</span>
+            </div>
+            <div class="flex items-center justify-between text-sm">
+              <span class="text-zinc-500 dark:text-zinc-400">ROAS</span>
+              <span class="font-bold text-rose-600 dark:text-rose-400">2.9x</span>
+            </div>
+            <div class="flex items-center justify-between text-sm">
+              <span class="text-zinc-500 dark:text-zinc-400">Klik</span>
+              <span class="font-bold text-zinc-900 dark:text-white">28.900 klik</span>
+            </div>
+            <button onclick="toast('Membuka detail TikTok Ads','external-link')" class="w-full py-2 rounded-xl bg-black/5 dark:bg-white/5 text-xs font-bold text-zinc-800 dark:text-zinc-200">Detail</button>
+          </div>
+
+          <div class="glass-panel p-5 rounded-3xl space-y-4">
+            <div class="flex items-start justify-between">
+              <div class="p-2.5 rounded-2xl bg-black/5 dark:bg-white/5 text-zinc-800 dark:text-zinc-200"><i data-lucide="mail" class="w-4 h-4"></i></div>
+              <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded-full bg-emerald-500/10 text-emerald-700 dark:text-emerald-400">Aktif</span>
+            </div>
+            <div>
+              <h3 class="font-bold text-sm text-zinc-900 dark:text-white">Email</h3>
+              <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-1">Newsletter + Blast</p>
+            </div>
+            <div class="flex items-center justify-between text-sm">
+              <span class="text-zinc-500 dark:text-zinc-400">Spend</span>
+              <span class="font-bold text-zinc-900 dark:text-white">Rp 3,8 Jt</span>
+            </div>
+            <div class="flex items-center justify-between text-sm">
+              <span class="text-zinc-500 dark:text-zinc-400">ROAS</span>
+              <span class="font-bold text-emerald-600 dark:text-emerald-400">6.2x</span>
+            </div>
+            <div class="flex items-center justify-between text-sm">
+              <span class="text-zinc-500 dark:text-zinc-400">Klik</span>
+              <span class="font-bold text-zinc-900 dark:text-white">11.600 klik</span>
+            </div>
+            <button onclick="toast('Membuka detail Email','external-link')" class="w-full py-2 rounded-xl bg-black/5 dark:bg-white/5 text-xs font-bold text-zinc-800 dark:text-zinc-200">Detail</button>
+          </div>
+        </div>
+
+        <!-- Recent campaigns table -->
+        <div class="glass-panel p-6 rounded-3xl space-y-4">
+          <div class="flex items-center justify-between">
+            <div>
+              <h3 class="font-bold text-sm text-zinc-900 dark:text-white">Kampanye Terbaru</h3>
+              <p class="text-xs text-zinc-500 dark:text-zinc-400">Aktivitas kampanye terkini di semua kanal.</p>
+            </div>
+            <button onclick="toast('Melihat semua kampanye','list')" class="px-3 py-1.5 rounded-xl bg-black/5 dark:bg-white/5 text-xs font-semibold text-zinc-700 dark:text-zinc-300">Semua</button>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+              <thead>
+                <tr class="text-[10px] uppercase tracking-wider text-zinc-500 dark:text-zinc-400 border-b border-black/5 dark:border-white/10">
+                  <th class="text-left py-2 pr-3 font-semibold">Kampanye</th>
+                  <th class="text-left py-2 pr-3 font-semibold">Kanal</th>
+                  <th class="text-right py-2 pr-3 font-semibold">Spend</th>
+                  <th class="text-right py-2 pr-3 font-semibold">ROAS</th>
+                  <th class="text-right py-2 font-semibold">Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr class="border-b border-black/5 dark:border-white/5">
+                  <td class="py-3 pr-3 font-semibold text-zinc-900 dark:text-white">Promo 8.8 Flash Sale</td>
+                  <td class="py-3 pr-3 text-xs text-zinc-500 dark:text-zinc-400">Google Ads</td>
+                  <td class="py-3 pr-3 text-right font-semibold">Rp 4,2 Jt</td>
+                  <td class="py-3 pr-3 text-right font-semibold text-emerald-600 dark:text-emerald-400">5.6x</td>
+                  <td class="py-3 text-right"><span class="text-[10px] font-bold px-2 py-1 rounded-full bg-emerald-500/10 text-emerald-700 dark:text-emerald-400">Aktif</span></td>
+                </tr>
+                <tr class="border-b border-black/5 dark:border-white/5">
+                  <td class="py-3 pr-3 font-semibold text-zinc-900 dark:text-white">Reaktivasi Churned</td>
+                  <td class="py-3 pr-3 text-xs text-zinc-500 dark:text-zinc-400">Email</td>
+                  <td class="py-3 pr-3 text-right font-semibold">Rp 1,1 Jt</td>
+                  <td class="py-3 pr-3 text-right font-semibold text-emerald-600 dark:text-emerald-400">7.1x</td>
+                  <td class="py-3 text-right"><span class="text-[10px] font-bold px-2 py-1 rounded-full bg-emerald-500/10 text-emerald-700 dark:text-emerald-400">Aktif</span></td>
+                </tr>
+                <tr class="border-b border-black/5 dark:border-white/5">
+                  <td class="py-3 pr-3 font-semibold text-zinc-900 dark:text-white">Video Produk Baru</td>
+                  <td class="py-3 pr-3 text-xs text-zinc-500 dark:text-zinc-400">TikTok Ads</td>
+                  <td class="py-3 pr-3 text-right font-semibold">Rp 2,3 Jt</td>
+                  <td class="py-3 pr-3 text-right font-semibold text-rose-600 dark:text-rose-400">2.2x</td>
+                  <td class="py-3 text-right"><span class="text-[10px] font-bold px-2 py-1 rounded-full bg-zinc-500/10 text-zinc-600 dark:text-zinc-300">Selesai</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==================== VIEW 8: PENGATURAN ==================== -->
+      <div id="view-pengaturan" class="u-view space-y-6">
+        <div>
+          <h1 class="text-2xl font-bold tracking-tight text-zinc-900 dark:text-white">Pengaturan Analitik</h1>
+          <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-1">Konfigurasi workspace, lokalisasi dan tampilan analitik Anda.</p>
+        </div>
+
+        <div class="flex flex-col lg:flex-row gap-6">
+          <!-- Settings Sidebar Nav -->
+          <aside class="lg:w-60 shrink-0">
+            <div class="glass-panel rounded-3xl p-3 lg:sticky lg:top-24">
+              <p class="px-3 py-2 text-[10px] font-bold uppercase tracking-[0.18em] text-zinc-400 dark:text-zinc-500">Pengaturan</p>
+              <nav class="space-y-1">
+                <button class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-bold bg-zinc-900 text-zinc-50 dark:bg-zinc-50 dark:text-zinc-900 shadow-lg text-left"><i data-lucide="sliders-horizontal" class="w-[18px] h-[18px]"></i> Umum</button>
+                <button onclick="toast('Halaman penagihan dalam pengembangan','credit-card')" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-bold text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-50 hover:bg-black/5 dark:hover:bg-white/10 text-left"><i data-lucide="credit-card" class="w-[18px] h-[18px]"></i> Penagihan</button>
+                <button onclick="toast('Halaman notifikasi dalam pengembangan','bell')" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-bold text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-50 hover:bg-black/5 dark:hover:bg-white/10 text-left"><i data-lucide="bell" class="w-[18px] h-[18px]"></i> Notifikasi</button>
+                <button onclick="toast('Halaman tim dalam pengembangan','users')" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-bold text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-50 hover:bg-black/5 dark:hover:bg-white/10 text-left"><i data-lucide="users" class="w-[18px] h-[18px]"></i> Tim</button>
+              </nav>
+            </div>
+          </aside>
+
+          <!-- Settings Content -->
+          <div class="flex-1 min-w-0 space-y-4">
+            <div class="glass-panel rounded-3xl p-6">
+              <h2 class="font-bold tracking-tight text-zinc-900 dark:text-white">Workspace</h2>
+              <p class="text-sm text-zinc-500 dark:text-zinc-400 mt-1">Nama workspace tampil di seluruh produk dan email.</p>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-5">
+                <div>
+                  <label class="text-xs font-semibold text-zinc-500 dark:text-zinc-400">Nama Workspace</label>
+                  <input id="ws-name" value="PT Nusantara Digital Kreatif" class="mt-1.5 w-full h-11 px-3.5 rounded-xl bg-black/5 dark:bg-white/10 border border-black/5 dark:border-white/10 text-sm font-medium outline-none focus:ring-2 ring-zinc-900/10 dark:ring-white/20">
+                </div>
+                <div>
+                  <label class="text-xs font-semibold text-zinc-500 dark:text-zinc-400">Subdomain</label>
+                  <div class="mt-1.5 flex items-center h-11 rounded-xl bg-black/5 dark:bg-white/10 border border-black/5 dark:border-white/10 overflow-hidden focus-within:ring-2 ring-zinc-900/10 dark:ring-white/20">
+                    <span class="px-3.5 text-sm text-zinc-400 font-medium">https://</span>
+                    <input id="ws-sub" value="nusantara" class="flex-1 min-w-0 bg-transparent text-sm font-medium outline-none pr-1">
+                    <span class="pr-3.5 text-sm text-zinc-400 font-medium">.uroo.dev</span>
+                  </div>
+                </div>
+              </div>
+              <div class="mt-4">
+                <label class="text-xs font-semibold text-zinc-500 dark:text-zinc-400">Deskripsi</label>
+                <textarea rows="2" class="mt-1.5 w-full px-3.5 py-3 rounded-xl bg-black/5 dark:bg-white/10 border border-black/5 dark:border-white/10 text-sm font-medium outline-none resize-none">Analitik & intelijen data untuk e-commerce ritel.</textarea>
+              </div>
+            </div>
+
+            <div class="glass-panel rounded-3xl p-6">
+              <h2 class="font-bold tracking-tight text-zinc-900 dark:text-white">Lokalisasi</h2>
+              <p class="text-sm text-zinc-500 dark:text-zinc-400 mt-1">Bahasa dan zona waktu untuk seluruh anggota workspace.</p>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-5">
+                <div>
+                  <label class="text-xs font-semibold text-zinc-500 dark:text-zinc-400" for="lang">Bahasa Antarmuka</label>
+                  <select id="lang" class="mt-1.5 w-full h-11 px-3.5 rounded-xl bg-black/5 dark:bg-white/10 border border-black/5 dark:border-white/10 text-sm font-medium outline-none appearance-none">
+                    <option value="id" selected>Bahasa Indonesia</option>
+                    <option value="en">English</option>
+                    <option value="ja">日本語</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="text-xs font-semibold text-zinc-500 dark:text-zinc-400" for="tz">Zona Waktu</label>
+                  <select id="tz" class="mt-1.5 w-full h-11 px-3.5 rounded-xl bg-black/5 dark:bg-white/10 border border-black/5 dark:border-white/10 text-sm font-medium outline-none appearance-none">
+                    <option value="wib" selected>Asia/Jakarta (WIB) - UTC+7</option>
+                    <option value="wita">Asia/Makassar (WITA) - UTC+8</option>
+                    <option value="wit">Asia/Jayapura (WIT) - UTC+9</option>
+                    <option value="singapore">Asia/Singapore - UTC+8</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="text-xs font-semibold text-zinc-500 dark:text-zinc-400">Format Tanggal</label>
+                  <select class="mt-1.5 w-full h-11 px-3.5 rounded-xl bg-black/5 dark:bg-white/10 border border-black/5 dark:border-white/10 text-sm font-medium outline-none appearance-none">
+                    <option selected>DD/MM/YYYY</option>
+                    <option>MM/DD/YYYY</option>
+                    <option>YYYY-MM-DD</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="text-xs font-semibold text-zinc-500 dark:text-zinc-400">Mata Uang</label>
+                  <select class="mt-1.5 w-full h-11 px-3.5 rounded-xl bg-black/5 dark:bg-white/10 border border-black/5 dark:border-white/10 text-sm font-medium outline-none appearance-none">
+                    <option selected>IDR - Rupiah Indonesia (Rp)</option>
+                    <option>USD - US Dollar ($)</option>
+                    <option>SGD - Dolar Singapura (S$)</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <div class="glass-panel rounded-3xl p-6">
+              <h2 class="font-bold tracking-tight text-zinc-900 dark:text-white">Tampilan</h2>
+              <p class="text-sm text-zinc-500 dark:text-zinc-400 mt-1">Pilih tema default untuk antarmuka analitik Anda.</p>
+              <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-5">
+                <button type="button" class="appearance-card selected rounded-2xl border-2 border-transparent p-4 text-left transition-colors bg-black/5 dark:bg-white/10" data-appearance="light">
+                  <span class="flex items-center justify-between">
+                    <span class="grid place-items-center w-11 h-11 rounded-xl bg-white text-zinc-900 shadow"><i data-lucide="sun" class="w-5 h-5"></i></span>
+                    <span class="w-5 h-5 rounded-full border-2 grid place-items-center"><span class="appearance-check w-2.5 h-2.5 rounded-full bg-zinc-900 dark:bg-zinc-50"></span></span>
+                  </span>
+                  <p class="mt-3 font-bold text-sm text-zinc-900 dark:text-white">Terang</p>
+                  <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">Antarmuka cerah dan bersih</p>
+                </button>
+                <button type="button" class="appearance-card rounded-2xl border-2 border-transparent p-4 text-left transition-colors bg-black/5 dark:bg-white/10" data-appearance="dark">
+                  <span class="flex items-center justify-between">
+                    <span class="grid place-items-center w-11 h-11 rounded-xl bg-zinc-900 text-white shadow"><i data-lucide="moon" class="w-5 h-5"></i></span>
+                    <span class="w-5 h-5 rounded-full border-2 grid place-items-center"><span class="appearance-check w-2.5 h-2.5 rounded-full bg-transparent"></span></span>
+                  </span>
+                  <p class="mt-3 font-bold text-sm text-zinc-900 dark:text-white">Gelap</p>
+                  <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">Kontras tinggi, hemat daya</p>
+                </button>
+                <button type="button" class="appearance-card rounded-2xl border-2 border-transparent p-4 text-left transition-colors bg-black/5 dark:bg-white/10" data-appearance="system">
+                  <span class="flex items-center justify-between">
+                    <span class="grid place-items-center w-11 h-11 rounded-xl bg-gradient-to-br from-zinc-100 to-zinc-700 text-zinc-900 shadow"><i data-lucide="monitor" class="w-5 h-5"></i></span>
+                    <span class="w-5 h-5 rounded-full border-2 grid place-items-center"><span class="appearance-check w-2.5 h-2.5 rounded-full bg-transparent"></span></span>
+                  </span>
+                  <p class="mt-3 font-bold text-sm text-zinc-900 dark:text-white">Sistem</p>
+                  <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">Ikuti pengaturan perangkat</p>
+                </button>
+              </div>
+            </div>
+
+            <div class="flex justify-end">
+              <button onclick="saveGeneral()" class="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-zinc-900 dark:bg-zinc-50 text-zinc-50 dark:text-zinc-900 text-sm font-bold hover:opacity-90 shadow-lg">
+                <i data-lucide="save" class="w-4 h-4"></i> Simpan Perubahan
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==================== VIEW 9: BANTUAN ==================== -->
+      <div id="view-bantuan" class="u-view space-y-6">
+        <!-- Header + Search -->
+        <div class="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <h1 class="text-2xl font-bold tracking-tight text-zinc-900 dark:text-white">Pusat Bantuan & Panduan Metrik</h1>
+            <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-1">Pelajari metodologi kalkulasi metrik dan temukan jawaban.</p>
+          </div>
+          <div class="relative w-full sm:w-80">
+            <i data-lucide="search" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400"></i>
+            <input id="faq-search" type="text" oninput="filterFaq(this.value)" placeholder="Cari jawaban, mis. 'CAC'" class="w-full bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/10 rounded-2xl pl-9 pr-10 py-2.5 text-sm text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-black/20 dark:focus:ring-white/20">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          <!-- FAQ Accordion -->
+          <div class="lg:col-span-8 space-y-4">
+            <div class="glass-panel p-6 rounded-3xl space-y-1">
+              <h3 class="font-bold text-sm text-zinc-900 dark:text-white mb-2">Metrik & Kalkulasi</h3>
+              <div class="faq-item space-y-1 divide-y divide-black/5 dark:divide-white/5">
+                <button class="faq-q w-full flex items-center justify-between py-3 text-left text-sm font-semibold text-zinc-900 dark:text-white">
+                  Bagaimana LTV dihitung?
+                  <i data-lucide="chevron-down" class="faq-ic w-4 h-4 text-zinc-400 transition-transform"></i>
+                </button>
+                <div class="faq-a hidden pb-3 text-xs text-zinc-500 dark:text-zinc-400 leading-relaxed">LTV dihitung dari rata-rata nilai transaksi per user dikali frekuensi pembelian dalam satu periode, kemudian dikali rata-rata umur pelanggan (lifetime). Formula: AOV × Frekuensi × Lifetime.</div>
+
+                <button class="faq-q w-full flex items-center justify-between py-3 text-left text-sm font-semibold text-zinc-900 dark:text-white">
+                  Apa itu CAC dan bagaimana menghitungnya?
+                  <i data-lucide="chevron-down" class="faq-ic w-4 h-4 text-zinc-400 transition-transform"></i>
+                </button>
+                <div class="faq-a hidden pb-3 text-xs text-zinc-500 dark:text-zinc-400 leading-relaxed">CAC adalah total biaya akuisisi (spend iklan + biaya marketing) dibagi jumlah pelanggan baru yang didapat pada periode yang sama. Rasio LTV/CAC ideal di atas 3x.</div>
+
+                <button class="faq-q w-full flex items-center justify-between py-3 text-left text-sm font-semibold text-zinc-900 dark:text-white">
+                  Bagaimana Churn Rate diukur?
+                  <i data-lucide="chevron-down" class="faq-ic w-4 h-4 text-zinc-400 transition-transform"></i>
+                </button>
+                <div class="faq-a hidden pb-3 text-xs text-zinc-500 dark:text-zinc-400 leading-relaxed">Churn dipakai untuk user yang tidak aktif selama 30 hari atau yang membatalkan langganan. Dihitung sebagai jumlah user churned dibagi total user aktif di awal periode, dikali 100%.</div>
+              </div>
+            </div>
+
+            <div class="glass-panel p-6 rounded-3xl space-y-1">
+              <h3 class="font-bold text-sm text-zinc-900 dark:text-white mb-2">Integrasi Data</h3>
+              <div class="space-y-1 divide-y divide-black/5 dark:divide-white/5">
+                <button class="faq-q w-full flex items-center justify-between py-3 text-left text-sm font-semibold text-zinc-900 dark:text-white">
+                  Bagaimana menghubungkan Google Analytics 4?
+                  <i data-lucide="chevron-down" class="faq-ic w-4 h-4 text-zinc-400 transition-transform"></i>
+                </button>
+                <div class="faq-a hidden pb-3 text-xs text-zinc-500 dark:text-zinc-400 leading-relaxed">Buka menu Pengaturan &gt; konfigurasi tag, lalu salin Measurement ID (format G-XXXX) ke kolom yang tersedia. Data akan sinkron dalam beberapa menit setelah tag terpasang.</div>
+
+                <button class="faq-q w-full flex items-center justify-between py-3 text-left text-sm font-semibold text-zinc-900 dark:text-white">
+                  Apakah bisa impor data dari CSV/Excel?
+                  <i data-lucide="chevron-down" class="faq-ic w-4 h-4 text-zinc-400 transition-transform"></i>
+                </button>
+                <div class="faq-a hidden pb-3 text-xs text-zinc-500 dark:text-zinc-400 leading-relaxed">Ya. Gunakan menu Ekspor di bagian Laporan untuk mengunduh data, atau tarik data historis melalui konektor data di halaman Integrasi.</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Help card + quick links -->
+          <div class="lg:col-span-4 space-y-4">
+            <div class="glass-panel p-6 rounded-3xl text-center relative overflow-hidden">
+              <div class="absolute -top-10 -right-10 w-24 h-24 bg-zinc-400/20 rounded-full blur-xl"></div>
+              <div class="w-12 h-12 rounded-2xl bg-zinc-900 dark:bg-zinc-50 text-zinc-50 dark:text-zinc-900 grid place-items-center mx-auto">
+                <i data-lucide="headphones" class="w-5 h-5"></i>
+              </div>
+              <h3 class="font-bold text-sm text-zinc-900 dark:text-white mt-3">Butuh Bantuan Langsung?</h3>
+              <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-1">Tim dukungan kami siap membantu 24/7.</p>
+              <div class="flex flex-col gap-2 mt-4">
+                <button onclick="toast('Membuka chat dengan dukungan','message-circle')" class="w-full py-2.5 rounded-xl bg-zinc-900 text-zinc-50 dark:bg-zinc-50 dark:text-zinc-900 text-xs font-bold flex items-center justify-center gap-2">
+                  <i data-lucide="message-circle" class="w-3.5 h-3.5"></i> Mulai Chat
+                </button>
+                <button onclick="toast('Membuka form email dukungan','mail')" class="w-full py-2.5 rounded-xl bg-black/5 dark:bg-white/5 text-xs font-bold text-zinc-800 dark:text-zinc-200 flex items-center justify-center gap-2">
+                  <i data-lucide="mail" class="w-3.5 h-3.5"></i> Kirim Email
+                </button>
+              </div>
+            </div>
+
+            <div class="glass-panel p-6 rounded-3xl space-y-3">
+              <h3 class="font-bold text-sm text-zinc-900 dark:text-white">Tautan Cepat</h3>
+              <a href="#" onclick="toast('Membuka dokumentasi API','file-code')" class="flex items-center gap-2.5 py-2 text-xs font-medium text-zinc-700 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-white">
+                <i data-lucide="file-code" class="w-3.5 h-3.5 text-zinc-400"></i> Dokumentasi API
+              </a>
+              <a href="#" onclick="toast('Membuka forum komunitas','users')" class="flex items-center gap-2.5 py-2 text-xs font-medium text-zinc-700 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-white">
+                <i data-lucide="users" class="w-3.5 h-3.5 text-zinc-400"></i> Komunitas Pengguna
+              </a>
+              <a href="#" onclick="toast('Melihat catatan perubahan','git-branch')" class="flex items-center gap-2.5 py-2 text-xs font-medium text-zinc-700 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-white">
+                <i data-lucide="git-branch" class="w-3.5 h-3.5 text-zinc-400"></i> Changelog & Pembaruan
+              </a>
+              <a href="#" onclick="toast('Membuka status sistem','activity')" class="flex items-center gap-2.5 py-2 text-xs font-medium text-zinc-700 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-white">
+                <i data-lucide="activity" class="w-3.5 h-3.5 text-zinc-400"></i> Status Layanan
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <!-- ==================== JAVASCRIPT CORE ==================== -->
+  <script>
+    /* Theme Toggle */
+    (function initTheme() {
+      const saved = localStorage.getItem('uroo-theme');
+      if (saved === 'dark' || (!saved && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+        document.documentElement.classList.add('dark');
+        document.documentElement.classList.remove('light');
+        document.body.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+        document.documentElement.classList.add('light');
+        document.body.classList.remove('dark');
+      }
+    })();
+
+    function toggleTheme() {
+      const isDark = document.documentElement.classList.toggle('dark');
+      document.body.classList.toggle('dark', isDark);
+      if (!isDark) {
+        document.documentElement.classList.add('light');
+        document.body.classList.add('light');
+      } else {
+        document.documentElement.classList.remove('light');
+        document.body.classList.remove('light');
+      }
+      try { localStorage.setItem('uroo-theme', isDark ? 'dark' : 'light'); } catch (e) {}
+      lucide.createIcons();
+    }
+
+    /* Sidebar Drawer */
+    const sidebar = document.getElementById('sidebar');
+    function openDrawer() {
+      sidebar.classList.add('open');
+      document.getElementById('overlay').classList.remove('opacity-0', 'pointer-events-none');
+    }
+    function closeDrawer() {
+      sidebar.classList.remove('open');
+      document.getElementById('overlay').classList.add('opacity-0', 'pointer-events-none');
+    }
+
+    /* Toast */
+    function toast(msg, type) {
+      const t = document.createElement('div');
+      t.className = 'fixed bottom-5 right-5 z-[90] glass-panel rounded-2xl px-4 py-3 text-sm font-semibold shadow-2xl anim-toast-in flex items-center gap-2.5 pointer-events-none max-w-sm text-zinc-900 dark:text-zinc-100';
+      t.innerHTML = '<i data-lucide="' + (type || 'check-circle') + '" class="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0"></i><span>' + msg + '</span>';
+      document.body.appendChild(t);
+      lucide.createIcons();
+      setTimeout(() => {
+        t.style.opacity = '0';
+        setTimeout(() => t.remove(), 300);
+      }, 2400);
+    }
+
+    /* SPA Views */
+    const VIEWS = ['overview', 'laporan', 'segmen', 'realtime', 'konversi', 'ritel', 'media', 'pengaturan', 'bantuan'];
+
+    function switchView(viewId, updateHash = true) {
+      if (!VIEWS.includes(viewId)) viewId = 'overview';
+
+      document.querySelectorAll('.u-view').forEach(el => el.classList.remove('active'));
+      const target = document.getElementById('view-' + viewId);
+      if (target) target.classList.add('active');
+
+      document.querySelectorAll('.nav-link').forEach(btn => {
+        const nav = btn.getAttribute('data-nav');
+        if (nav === viewId) {
+          btn.className = 'nav-link w-full flex items-center gap-3 px-3 py-2.5 rounded-2xl text-sm font-medium transition bg-black text-white dark:bg-white dark:text-black shadow-sm';
+        } else {
+          btn.className = 'nav-link w-full flex items-center gap-3 px-3 py-2.5 rounded-2xl text-sm font-medium transition text-zinc-600 dark:text-zinc-400 hover:bg-black/5 dark:hover:bg-white/5 hover:text-black dark:hover:text-white';
+        }
+      });
+
+      if (updateHash && window.location.hash !== '#' + viewId) {
+        window.location.hash = viewId;
+      }
+
+      closeDrawer();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      lucide.createIcons();
+    }
+
+    window.addEventListener('hashchange', () => {
+      const hash = window.location.hash.replace('#', '');
+      if (hash && VIEWS.includes(hash)) switchView(hash, false);
+    });
+
+    document.addEventListener('DOMContentLoaded', () => {
+      lucide.createIcons();
+      const initialHash = window.location.hash.replace('#', '');
+      if (initialHash && VIEWS.includes(initialHash)) switchView(initialHash, false);
+      else switchView('overview', false);
+    });
+
+    /* ==================== VIEW: LIVE STREAM ==================== */
+    const rtFeed = document.getElementById('rt-feed');
+    const rtPool = [
+      { icon: 'shopping-bag', actor: 'Rina Sari', action: 'menyelesaikan pembayaran', goal: '3 produk', type: 'purchase' },
+      { icon: 'search', actor: 'Budi Hartono', action: 'mencari', goal: '"smarthome starter kit"', type: 'search' },
+      { icon: 'message-square', actor: 'Dewi Lestari', action: 'mengomentari', goal: 'ulasan produk Headphone Pro X', type: 'comment' },
+      { icon: 'heart', actor: 'Andi Wijaya', action: 'menyimpan', goal: 'Smartwatch S2 ke wishlist', type: 'search' },
+      { icon: 'shopping-cart', actor: 'Maya Putri', action: 'menambahkan ke keranjang', goal: 'TWS Buds Mini', type: 'search' },
+      { icon: 'tag', actor: 'Fajar Nugraha', action: 'mengklaim voucher', goal: 'diskon 20%', type: 'search' },
+      { icon: 'shopping-bag', actor: 'Lina Marlina', action: 'menyelesaikan pembayaran', goal: 'Jacket Urban', type: 'purchase' },
+      { icon: 'message-square', actor: 'Rizky Pratama', action: 'bertanya', goal: 'tentang garansi produk', type: 'comment' },
+      { icon: 'star', actor: 'Sari Dewi', action: 'memberi rating', goal: '5 bintang untuk Keyboard K65', type: 'comment' },
+      { icon: 'shopping-bag', actor: 'Adi Kurniawan', action: 'menyelesaikan pembayaran', goal: 'Aksesori bundle', type: 'purchase' }
+    ];
+    let rtPaused = false;
+    let rtTotal = 0;
+    const MAX_FEED = 18;
+
+    function rtTime() {
+      const d = new Date();
+      return String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0') + ':' + String(d.getSeconds()).padStart(2, '0');
+    }
+    function rtPush() {
+      if (rtPaused) return;
+      const item = rtPool[Math.floor(Math.random() * rtPool.length)];
+      const li = document.createElement('li');
+      li.className = 'flex items-center gap-3 py-3';
+      const color = item.type === 'purchase' ? 'text-emerald-600 dark:text-emerald-400' : 'text-zinc-800 dark:text-zinc-200';
+      li.innerHTML =
+        '<span class="grid place-items-center w-9 h-9 shrink-0 rounded-xl bg-black/5 dark:bg-white/5 ' + color + '"><i data-lucide="' + item.icon + '" class="w-4 h-4"></i></span>' +
+        '<div class="min-w-0 flex-1"><p class="text-xs"><span class="font-bold text-zinc-900 dark:text-white">' + item.actor + '</span> <span class="text-zinc-500 dark:text-zinc-400">' + item.action + '</span> <span class="font-semibold text-zinc-800 dark:text-zinc-200">' + item.goal + '</span></p></div>' +
+        '<span class="text-[10px] font-mono text-zinc-400 shrink-0">' + rtTime() + '</span>';
+      rtFeed.prepend(li);
+      rtTotal++;
+      const listItems = rtFeed.querySelectorAll('li');
+      if (listItems.length > MAX_FEED) for (let i = MAX_FEED; i < listItems.length; i++) listItems[i].remove();
+      document.getElementById('rt-feed-count').textContent = rtTotal + ' item';
+      lucide.createIcons();
+    }
+    function rtPause() {
+      rtPaused = !rtPaused;
+      const btn = document.getElementById('rt-pause-btn');
+      btn.innerHTML = rtPaused
+        ? '<i data-lucide="play" class="w-3.5 h-3.5"></i> Lanjut'
+        : '<i data-lucide="pause" class="w-3.5 h-3.5"></i> Pause';
+      lucide.createIcons();
+    }
+    function rtClear() {
+      rtFeed.innerHTML = '';
+      rtTotal = 0;
+      document.getElementById('rt-feed-count').textContent = '0 item';
+      toast('Feed dibersihkan', 'trash-2');
+    }
+
+    /* ==================== VIEW: BANTUAN & FAQ ==================== */
+    function filterFaq(q) {
+      const term = q.trim().toLowerCase();
+      document.querySelectorAll('.faq-item').forEach(group => {
+        let any = false;
+        group.querySelectorAll('.faq-q').forEach(qbtn => {
+          const visible = !term || qbtn.textContent.toLowerCase().includes(term) || (qbtn.nextElementSibling && qbtn.nextElementSibling.textContent.toLowerCase().includes(term));
+          qbtn.style.display = visible ? '' : 'none';
+          qbtn.nextElementSibling.style.display = 'none';
+          if (visible) any = true;
+        });
+        group.style.display = any ? '' : 'none';
+      });
+    }
+    function setupFaq() {
+      document.querySelectorAll('.faq-q').forEach(qbtn => {
+        qbtn.addEventListener('click', () => {
+          const ans = qbtn.nextElementSibling;
+          const closed = ans.classList.contains('hidden');
+          document.querySelectorAll('.faq-a').forEach(a => { a.classList.add('hidden'); a.previousElementSibling.querySelector('.faq-ic').classList.remove('rotate-180'); });
+          if (closed) {
+            ans.classList.remove('hidden');
+            qbtn.querySelector('.faq-ic').classList.add('rotate-180');
+          }
+        });
+      });
+    }
+
+    /* ==================== VIEW: PENGATURAN ==================== */
+    let selectedAppearance = 'system';
+    function renderAppearance() {
+      document.querySelectorAll('.appearance-card').forEach(card => {
+        const on = card.dataset.appearance === selectedAppearance;
+        card.classList.toggle('selected', on);
+        const check = card.querySelector('.appearance-check');
+        if (check) check.style.background = on ? '#18181b' : 'transparent';
+      });
+    }
+    function saveGeneral() {
+      const ws = document.getElementById('ws-name').value.trim();
+      const sub = document.getElementById('ws-sub').value.trim();
+      if (!ws || !sub) { toast('Nama dan subdomain harus diisi', 'alert-circle'); return; }
+      const lang = document.getElementById('lang') ? document.getElementById('lang').value : 'id';
+      const tz = document.getElementById('tz') ? document.getElementById('tz').value : 'wib';
+      toast('Pengaturan analitik berhasil disimpan', 'check-circle');
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      for (let i = 0; i < 5; i++) rtPush();
+      setInterval(rtPush, 2600);
+      setupFaq();
+      document.querySelectorAll('.appearance-card').forEach(card => {
+        card.addEventListener('click', () => { selectedAppearance = card.dataset.appearance; renderAppearance(); });
+      });
+      renderAppearance();
+    });
+  </script>
+<script src="../../assets/js/uroo-nav.js"></script>
+</body>
+</html>

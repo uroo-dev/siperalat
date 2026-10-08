@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="id" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Uroo UI - Detail Produk</title>
+  <script src="../../assets/js/tailwind.js"></script>
+  <script src="../../assets/js/lucide.js"></script>
+  <script>tailwind.config={darkMode:'class',theme:{extend:{colors:{glass:{light:'rgba(255,255,255,0.65)','light-border':'rgba(255,255,255,0.8)',dark:'rgba(18,18,20,0.65)','dark-border':'rgba(255,255,255,0.1)'}}}}}</script>
+  <link rel="stylesheet" href="../../assets/css/uroo.css">
+  <style>
+    .u-bg{position:fixed;inset:0;z-index:-10;transition:opacity .35s ease}
+    .u-bg-light{background:linear-gradient(135deg,#dfe3ea,#f4f4f5)}
+    .u-bg-dark{background:linear-gradient(135deg,#0a0a0b,#1a1a1e);opacity:0}
+    body.dark .u-bg-light{opacity:0}
+    body.dark .u-bg-dark{opacity:1}
+    .u-glow{position:fixed;border-radius:9999px;filter:blur(90px);z-index:-9;pointer-events:none;transition:background-color .35s ease;background:rgba(0,0,0,0.06)}
+    body.dark .u-glow{background:rgba(255,255,255,0.05)}
+    .u-glow-1{width:420px;height:420px;top:-140px;left:-140px}
+    .u-glow-2{width:520px;height:520px;bottom:-200px;right:-140px}
+    .u-glow-3{width:300px;height:300px;top:42%;left:58%}
+
+    html{background:#e7e8ec}
+    html.dark{background:#0a0a0c}
+    body:not(.dark) .u-ic-sun{display:none}
+    body.dark .u-ic-moon{display:none}
+
+    .u-search{width:100%;height:42px;border-radius:9999px;background:rgba(255,255,255,.55);border:1px solid rgba(24,24,27,.10);color:#18181b;font-size:13px;padding:0 42px 0 40px;outline:none;transition:border-color .2s ease,box-shadow .2s ease}
+    body.dark .u-search{background:rgba(255,255,255,.05);border-color:rgba(255,255,255,.12);color:#f4f4f5}
+    .u-search::placeholder{color:#a1a1aa}
+    .u-search:focus{border-color:rgba(24,24,27,.45);box-shadow:0 0 0 4px rgba(24,24,27,.08)}
+    body.dark .u-search:focus{border-color:rgba(255,255,255,.5);box-shadow:0 0 0 4px rgba(255,255,255,.08)}
+
+    .u-cartbadge{transition:transform .25s cubic-bezier(.16,1,.3,1)}
+
+    .u-btn{transition:transform .2s ease,box-shadow .2s ease,background-color .2s ease}
+    .u-btn:hover{transform:translateY(-1px)}
+    .u-btn:active{transform:scale(.96)}
+
+    .u-var{display:inline-flex;align-items:center;justify-content:center;min-width:44px;height:40px;padding:0 14px;border-radius:12px;border:1px solid rgba(24,24,27,.12);background:rgba(255,255,255,.5);color:#52525b;font-size:13px;font-weight:700;cursor:pointer;transition:background-color .2s ease,color .2s ease,border-color .2s ease,transform .2s ease}
+    body.dark .u-var{background:rgba(255,255,255,.05);border-color:rgba(255,255,255,.12);color:#a1a1aa}
+    .u-var:hover{transform:translateY(-1px)}
+    .u-var.u-on{background:#18181b;border-color:#18181b;color:#fff;box-shadow:0 8px 20px -8px rgba(0,0,0,.35)}
+    body.dark .u-var.u-on{background:#f4f4f5;border-color:#f4f4f5;color:#18181b}
+    .u-var.u-color{min-width:40px;height:40px;padding:0;border-radius:9999px}
+    .u-var.u-color.u-on{outline:2px solid #18181b;outline-offset:2px;border-color:transparent}
+    body.dark .u-var.u-color.u-on{outline-color:#f4f4f5}
+
+    .u-stepper{display:inline-flex;align-items:center;height:44px;border-radius:9999px;border:1px solid rgba(24,24,27,.12);background:rgba(255,255,255,.55);overflow:hidden}
+    body.dark .u-stepper{border-color:rgba(255,255,255,.12);background:rgba(255,255,255,.05)}
+    .u-stepper button{width:42px;height:100%;display:inline-flex;align-items:center;justify-content:center;color:#52525b;transition:color .2s ease,background-color .2s ease}
+    body.dark .u-stepper button{color:#a1a1aa}
+    .u-stepper button:hover{background:rgba(24,24,27,.06)}
+    body.dark .u-stepper button:hover{background:rgba(255,255,255,.08)}
+    .u-stepper input{width:44px;height:100%;text-align:center;font-weight:800;font-size:14px;background:transparent;color:#18181b;outline:none;-moz-appearance:textfield}
+    .u-stepper input::-webkit-outer-spin-button,.u-stepper input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+    body.dark .u-stepper input{color:#f4f4f5}
+
+    .u-thumb{border-radius:16px;overflow:hidden;border:2px solid transparent;cursor:pointer;transition:border-color .2s ease,opacity .2s ease,transform .2s ease}
+    .u-thumb:hover{transform:translateY(-2px)}
+    .u-thumb.u-on{border-color:rgba(24,24,27,.7)}
+    body.dark .u-thumb.u-on{border-color:rgba(255,255,255,.6)}
+
+    .u-tab{padding:12px 22px;border-radius:9999px;font-size:13px;font-weight:700;color:#71717a;transition:background-color .2s ease,color .2s ease}
+    body.dark .u-tab{color:#a1a1aa}
+    .u-tab.u-on{background:#18181b;color:#fff}
+    body.dark .u-tab.u-on{background:#f4f4f5;color:#18181b}
+    .u-pane{display:none}
+    .u-pane.u-on{display:block;animation:u-fade-in .3s ease}
+
+    .u-card{transition:transform .3s cubic-bezier(.16,1,.3,1),box-shadow .3s ease}
+    .u-card:hover{transform:translateY(-6px)}
+  </style>
+</head>
+<body class="min-h-screen font-sans antialiased text-zinc-800 dark dark:text-zinc-100">
+  <script>(function initTheme(){var saved=null;try{saved=localStorage.getItem('uroo-theme')}catch(e){};var dark=(saved==='dark')||(!saved&&window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches);var de=document.documentElement;if(dark){de.classList.add('dark');de.classList.remove('light');if(document.body){document.body.classList.add('dark');document.body.classList.remove('light');}}else{de.classList.remove('dark');de.classList.add('light');if(document.body){document.body.classList.remove('dark');document.body.classList.add('light');}}})();</script>
+
+
+<div class="u-bg u-bg-light"></div>
+<div class="u-bg u-bg-dark"></div>
+<div class="u-glow u-glow-1"></div>
+<div class="u-glow u-glow-2"></div>
+<div class="u-glow u-glow-3"></div>
+
+<button onclick="toggleTheme()" aria-label="Ganti tema" title="Ganti tema"
+  class="fixed top-4 right-4 z-50 glass-panel rounded-full p-2.5 text-zinc-600 dark:text-zinc-200 hover:scale-110 transition-transform">
+  <i data-lucide="sun" class="u-ic-sun w-5 h-5"></i>
+  <i data-lucide="moon" class="u-ic-moon w-5 h-5"></i>
+</button>
+
+<header class="sticky top-0 z-40 glass-panel rounded-none border-x-0 border-t-0">
+  <div class="max-w-7xl mx-auto h-16 px-4 sm:px-8 pr-16 flex items-center gap-4">
+    <a href="catalog.html" class="inline-flex items-center gap-2.5 shrink-0">
+      <span class="inline-flex items-center justify-center w-9 h-9 rounded-2xl bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900">
+        <i data-lucide="layers" class="w-5 h-5"></i>
+      </span>
+      <span class="hidden sm:block text-lg font-extrabold tracking-tight text-zinc-900 dark:text-white">Uroo Goods</span>
+    </a>
+    <nav class="hidden md:flex items-center gap-6 text-sm font-semibold text-zinc-500 dark:text-zinc-400 shrink-0">
+      <a href="catalog.html">Katalog</a>
+      <a href="order-tracking.html" class="hover:text-zinc-900 dark:hover:text-white transition-colors">Lacak Pesanan</a>
+    </nav>
+    <a href="cart.html" class="relative ml-auto shrink-0 inline-flex items-center justify-center w-11 h-11 rounded-full glass-panel text-zinc-700 dark:text-zinc-100 hover:scale-105 transition-transform" aria-label="Keranjang belanja">
+      <i data-lucide="shopping-cart" class="w-5 h-5"></i>
+      <span class="absolute -top-1.5 -right-1.5 inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 rounded-full bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900 text-[11px] font-extrabold">2</span>
+    </a>
+  </div>
+</header>
+
+<main class="relative max-w-7xl mx-auto px-4 sm:px-8 pt-8 pb-24">
+  <ol class="flex flex-wrap items-center gap-1.5 text-[11px] font-bold uppercase tracking-widest text-zinc-400 dark:text-zinc-500">
+    <li><a href="catalog.html" class="hover:text-zinc-900 dark:hover:text-zinc-100">Beranda</a></li>
+    <li><i data-lucide="chevron-right" class="w-3 h-3"></i></li>
+    <li><a href="catalog.html" class="hover:text-zinc-900 dark:hover:text-zinc-100">Katalog</a></li>
+    <li><i data-lucide="chevron-right" class="w-3 h-3"></i></li>
+    <li><a href="#" onclick="event.preventDefault();return false" class="hover:text-zinc-900 dark:hover:text-zinc-100">Elektronik</a></li>
+    <li><i data-lucide="chevron-right" class="w-3 h-3"></i></li>
+    <li class="text-zinc-700 dark:text-zinc-200">Headphone Studio Aero</li>
+  </ol>
+
+  <div class="mt-6 grid lg:grid-cols-2 gap-10 xl:gap-14">
+    <!-- Gallery -->
+    <div class="lg:sticky lg:top-24 self-start">
+      <div id="mainStage" class="glass-panel rounded-[28px] overflow-hidden">
+        <div id="mainImg" class="h-80 sm:h-[440px] flex items-center justify-center bg-gradient-to-br from-zinc-200 via-zinc-300 to-zinc-400 dark:from-zinc-700 dark:via-zinc-800 dark:to-zinc-600 anim-fade-in">
+          <span class="inline-flex items-center justify-center w-28 h-28 rounded-[32px] bg-white/40 backdrop-blur-md text-zinc-800 dark:bg-black/30 dark:text-zinc-100">
+            <i data-lucide="headphones" class="w-14 h-14"></i>
+          </span>
+        </div>
+      </div>
+      <div id="thumbs" class="mt-4 grid grid-cols-4 gap-3"></div>
+    </div>
+
+    <!-- Info -->
+    <div class="min-w-0">
+      <div class="flex flex-wrap items-center gap-2">
+        <span class="inline-flex items-center gap-1 rounded-full bg-black/75 text-white px-3 py-1 text-[10px] font-bold uppercase tracking-widest"><i data-lucide="zap" class="w-3 h-3"></i> Diskon</span>
+        <span class="inline-flex items-center gap-1 rounded-full bg-white/80 text-zinc-900 px-3 py-1 text-[10px] font-bold uppercase tracking-widest"><i data-lucide="shield-check" class="w-3 h-3"></i> Garansi Resmi</span>
+      </div>
+      <h1 class="mt-3 text-2xl sm:text-3xl font-extrabold tracking-tight text-zinc-900 dark:text-white">Headphone Studio Aero</h1>
+
+      <div class="mt-3 flex flex-wrap items-center gap-4 text-sm">
+        <button class="inline-flex items-center gap-1.5 group" onclick="event.preventDefault();document.getElementById('tabUlasan').click();">
+          <span class="inline-flex items-center gap-0.5">
+            <span class="w-2 h-2 rounded-[3px] bg-zinc-900 dark:bg-zinc-100"></span><span class="w-2 h-2 rounded-[3px] bg-zinc-900 dark:bg-zinc-100"></span><span class="w-2 h-2 rounded-[3px] bg-zinc-900 dark:bg-zinc-100"></span><span class="w-2 h-2 rounded-[3px] bg-zinc-900 dark:bg-zinc-100"></span><span class="w-2 h-2 rounded-[3px] bg-zinc-400/60"></span>
+          </span>
+          <span class="font-bold text-zinc-900 dark:text-zinc-100">4.7</span>
+          <span class="text-zinc-400 dark:text-zinc-500 underline underline-offset-2 group-hover:text-zinc-700 dark:group-hover:text-zinc-300">1.100 ulasan</span>
+        </button>
+        <span class="inline-flex items-center gap-1.5 text-zinc-500 dark:text-zinc-400">
+          <i data-lucide="shopping-bag" class="w-4 h-4"></i> 1.100+ terjual
+        </span>
+      </div>
+
+      <div class="mt-5 glass-panel rounded-3xl px-6 py-5">
+        <div class="flex flex-wrap items-end gap-x-4 gap-y-1">
+          <span class="text-3xl font-extrabold tracking-tight text-zinc-900 dark:text-white">Rp 1.290.000</span>
+          <span class="text-base text-zinc-400 dark:text-zinc-500 line-through">Rp 1.490.000</span>
+          <span class="inline-flex items-center gap-1 rounded-full bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 px-2.5 py-1 text-[11px] font-bold">Hemat 13%</span>
+        </div>
+        <p class="mt-1.5 text-xs text-zinc-400 dark:text-zinc-500">Harga sudah termasuk PPN 11%</p>
+      </div>
+
+      <div class="mt-7">
+        <p class="text-[13px] font-bold text-zinc-700 dark:text-zinc-300">Ukuran</p>
+        <div class="mt-2.5 flex items-center gap-2" id="sizeRow">
+          <button class="u-var" data-size="S">S</button>
+          <button class="u-var" data-size="M">M</button>
+          <button class="u-var" data-size="L">L</button>
+          <button class="u-var" data-size="XL">XL</button>
+          <button class="u-var" data-size="One Size" disabled style="opacity:.45;cursor:not-allowed">One Size</button>
+        </div>
+      </div>
+
+      <div class="mt-4">
+        <p class="text-[13px] font-bold text-zinc-700 dark:text-zinc-300">Warna</p>
+        <div class="mt-2.5 flex items-center gap-2.5" id="colorRow">
+          <button class="u-var u-color" data-color="Hitam" style="background:#27272a" aria-label="Warna Hitam"></button>
+          <button class="u-var u-color" data-color="Abu-abu" style="background:#a1a1aa" aria-label="Warna Abu-abu"></button>
+          <button class="u-var u-color" data-color="Putih" style="background:#fafafa;border-color:rgba(24,24,27,.2)" aria-label="Warna Putih"></button>
+          <button class="u-var u-color" data-color="Biru Malam" style="background:#1e293b" aria-label="Warna Biru Malam"></button>
+        </div>
+        <p class="mt-2 text-xs font-semibold text-zinc-500 dark:text-zinc-400"><span id="sizeLabel">Ukuran dipilih: -</span> · <span id="colorLabel">Warna: -</span></p>
+      </div>
+
+      <div class="mt-7 flex flex-wrap items-center gap-4">
+        <p class="text-[13px] font-bold text-zinc-700 dark:text-zinc-300">Jumlah</p>
+        <div class="u-stepper">
+          <button type="button" id="qtyMinus" aria-label="Kurangi jumlah"><i data-lucide="minus" class="w-4 h-4"></i></button>
+          <input id="qtyInput" type="number" value="1" min="1" max="10" aria-label="Jumlah barang">
+          <button type="button" id="qtyPlus" aria-label="Tambah jumlah"><i data-lucide="plus" class="w-4 h-4"></i></button>
+        </div>
+        <p class="text-xs text-zinc-400 dark:text-zinc-500">Stok tersedia: <span class="font-bold text-zinc-700 dark:text-zinc-300">14</span></p>
+      </div>
+
+      <div class="mt-7 grid sm:grid-cols-2 gap-3">
+        <button id="addCartBtn" type="button" class="u-btn inline-flex items-center justify-center gap-2 rounded-full glass-panel border-2 border-zinc-900/80 dark:border-zinc-100/80 px-5 py-3 text-sm font-bold text-zinc-900 dark:text-zinc-100 hover:shadow-lg">
+          <i data-lucide="shopping-cart" class="w-4 h-4"></i>
+          <span>Tambah ke Keranjang</span>
+        </button>
+        <button id="buyNowBtn" type="button" class="u-btn inline-flex items-center justify-center gap-2 rounded-full bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900 px-5 py-3 text-sm font-bold hover:shadow-lg">
+          <i data-lucide="zap" class="w-4 h-4"></i>
+          <span>Beli Sekarang</span>
+        </button>
+      </div>
+
+      <div id="perks" class="mt-7 grid grid-cols-3 gap-3 text-center">
+        <div class="glass-panel rounded-2xl px-3 py-4">
+          <i data-lucide="truck" class="w-5 h-5 text-zinc-900 dark:text-zinc-100 mx-auto"></i>
+          <p class="mt-2 text-[11px] font-bold text-zinc-700 dark:text-zinc-300">Gratis ongkir</p>
+          <p class="text-[10px] text-zinc-400 dark:text-zinc-500">Jabodetabek</p>
+        </div>
+        <div class="glass-panel rounded-2xl px-3 py-4">
+          <i data-lucide="rotate-ccw" class="w-5 h-5 text-zinc-900 dark:text-zinc-100 mx-auto"></i>
+          <p class="mt-2 text-[11px] font-bold text-zinc-700 dark:text-zinc-300">Pengembalian</p>
+          <p class="text-[10px] text-zinc-400 dark:text-zinc-500">7 hari</p>
+        </div>
+        <div class="glass-panel rounded-2xl px-3 py-4">
+          <i data-lucide="shield-check" class="w-5 h-5 text-zinc-900 dark:text-zinc-100 mx-auto"></i>
+          <p class="mt-2 text-[11px] font-bold text-zinc-700 dark:text-zinc-300">Garansi resmi</p>
+          <p class="text-[10px] text-zinc-400 dark:text-zinc-500">2 tahun</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tabs -->
+  <section class="mt-14">
+    <div class="glass-panel rounded-3xl p-5 sm:p-6">
+      <div class="flex items-center gap-2 overflow-x-auto pb-1" role="tablist" aria-label="Informasi produk">
+        <button role="tab" id="tabDeskripsi" class="u-tab u-on" data-tab="paneDeskripsi">Deskripsi</button>
+        <button role="tab" id="tabSpesifikasi" class="u-tab" data-tab="paneSpesifikasi">Spesifikasi</button>
+        <button role="tab" id="tabUlasan" class="u-tab" data-tab="paneUlasan">Ulasan</button>
+      </div>
+
+      <div class="mt-6 px-1">
+        <div id="paneDeskripsi" class="u-pane u-on">
+          <h3 class="text-lg font-bold text-zinc-900 dark:text-white">Dengarkan detail terkecil, tanpa kompromi.</h3>
+          <p class="mt-3 text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">
+            Headphone Studio Aero menghadirkan kualitas suara studio dengan driver dinamis
+            40mm dan peredam bising aktif (ANC) hingga 42dB. Dirancang di Bandung dan
+            dirakit dengan presisi untuk pendengar musik, podcaster, dan kreator konten
+            di Indonesia yang menuntut detail audio jernih.
+          </p>
+          <ul class="mt-5 space-y-3 text-sm text-zinc-600 dark:text-zinc-400">
+            <li class="flex items-start gap-3">
+              <span class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900 shrink-0"><i data-lucide="check" class="w-3.5 h-3.5"></i></span>
+              Isolasi suara aktif dengan empat mikrofon penyesuaian dinamis.
+            </li>
+            <li class="flex items-start gap-3">
+              <span class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900 shrink-0"><i data-lucide="check" class="w-3.5 h-3.5"></i></span>
+              Baterai 48 jam dengan ANC aktif, pengisian cepat 10 menit untuk 5 jam pemakaian.
+            </li>
+            <li class="flex items-start gap-3">
+              <span class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900 shrink-0"><i data-lucide="check" class="w-3.5 h-3.5"></i></span>
+              Koneksi Bluetooth 5.3 multipoint untuk dua perangkat sekaligus.
+            </li>
+            <li class="flex items-start gap-3">
+              <span class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900 shrink-0"><i data-lucide="check" class="w-3.5 h-3.5"></i></span>
+              Bantalan busa memori berlapis kulit protein dengan bobot hanya 248 gram.
+            </li>
+          </ul>
+        </div>
+
+        <div id="paneSpesifikasi" class="u-pane">
+          <div class="overflow-hidden rounded-2xl border border-zinc-900/10 dark:border-white/10">
+            <table class="w-full text-sm">
+              <tbody>
+                <tr class="bg-zinc-900/[.04] dark:bg-white/[.04]">
+                  <th class="text-left px-5 py-3.5 font-bold text-zinc-700 dark:text-zinc-300 w-1/3">Merek</th>
+                  <td class="px-5 py-3.5 text-zinc-600 dark:text-zinc-400">Uroo Audio</td>
+                </tr>
+                <tr>
+                  <th class="text-left px-5 py-3.5 font-bold text-zinc-700 dark:text-zinc-300">Driver</th>
+                  <td class="px-5 py-3.5 text-zinc-600 dark:text-zinc-400">Dinamis 40mm, impedansi 32 ohm</td>
+                </tr>
+                <tr class="bg-zinc-900/[.04] dark:bg-white/[.04]">
+                  <th class="text-left px-5 py-3.5 font-bold text-zinc-700 dark:text-zinc-300">Konektivitas</th>
+                  <td class="px-5 py-3.5 text-zinc-600 dark:text-zinc-400">Bluetooth 5.3, jack 3.5mm, USB-C</td>
+                </tr>
+                <tr>
+                  <th class="text-left px-5 py-3.5 font-bold text-zinc-700 dark:text-zinc-300">Daya tahan baterai</th>
+                  <td class="px-5 py-3.5 text-zinc-600 dark:text-zinc-400">48 jam (ANC aktif), 60 jam (ANC mati)</td>
+                </tr>
+                <tr class="bg-zinc-900/[.04] dark:bg-white/[.04]">
+                  <th class="text-left px-5 py-3.5 font-bold text-zinc-700 dark:text-zinc-300">Bobot</th>
+                  <td class="px-5 py-3.5 text-zinc-600 dark:text-zinc-400">248 gram</td>
+                </tr>
+                <tr>
+                  <th class="text-left px-5 py-3.5 font-bold text-zinc-700 dark:text-zinc-300">Dimensi kemasan</th>
+                  <td class="px-5 py-3.5 text-zinc-600 dark:text-zinc-400">22 x 18 x 9 cm</td>
+                </tr>
+                <tr class="bg-zinc-900/[.04] dark:bg-white/[.04]">
+                  <th class="text-left px-5 py-3.5 font-bold text-zinc-700 dark:text-zinc-300">Garansi</th>
+                  <td class="px-5 py-3.5 text-zinc-600 dark:text-zinc-400">Resmi 2 tahun</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div id="paneUlasan" class="u-pane">
+          <div class="flex flex-wrap items-center gap-5 mb-6">
+            <div class="text-center px-5 py-4 rounded-2xl glass-panel">
+              <p class="text-3xl font-extrabold text-zinc-900 dark:text-white">4.7</p>
+              <p class="mt-1 text-xs text-zinc-500 dark:text-zinc-400">dari 1.100 ulasan</p>
+            </div>
+            <div class="text-sm">"Suara jernih, ANC-nya mengagumkan. Cocok untuk kerja di kafe Jakarta."</div>
+          </div>
+          <div class="space-y-5">
+            <div class="glass-panel rounded-2xl p-5">
+              <div class="flex items-center gap-3">
+                <span class="inline-flex items-center justify-center w-10 h-10 rounded-full bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900 text-sm font-extrabold">RA</span>
+                <div class="flex-1">
+                  <p class="text-sm font-bold text-zinc-900 dark:text-white">Raka Adhitama</p>
+                  <p class="text-[11px] text-zinc-400 dark:text-zinc-500">Pembelian terverifikasi · 12 Agustus 2026</p>
+                </div>
+                <span class="text-xs font-bold text-zinc-900 dark:text-zinc-100">5.0</span>
+              </div>
+              <p class="mt-3 text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">
+                Kualitas build-nya premium untuk harga segini. ANC-nya sangat membantu saat meeting virtual di tengah kebisingan kota.
+              </p>
+            </div>
+            <div class="glass-panel rounded-2xl p-5">
+              <div class="flex items-center gap-3">
+                <span class="inline-flex items-center justify-center w-10 h-10 rounded-full bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900 text-sm font-extrabold">DP</span>
+                <div class="flex-1">
+                  <p class="text-sm font-bold text-zinc-900 dark:text-white">Dewi Pratiwi</p>
+                  <p class="text-[11px] text-zinc-400 dark:text-zinc-500">Pembelian terverifikasi · 3 Agustus 2026</p>
+                </div>
+                <span class="text-xs font-bold text-zinc-900 dark:text-zinc-100">4.0</span>
+              </div>
+              <p class="mt-3 text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">
+                Baterainya awet, tapi ukuran earcup agak pas untuk kepala yang besar. Suara bass tetap nyaman didengar berjam-jam.
+              </p>
+            </div>
+            <div class="glass-panel rounded-2xl p-5">
+              <div class="flex items-center gap-3">
+                <span class="inline-flex items-center justify-center w-10 h-10 rounded-full bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900 text-sm font-extrabold">MS</span>
+                <div class="flex-1">
+                  <p class="text-sm font-bold text-zinc-900 dark:text-white">Maya Salsabila</p>
+                  <p class="text-[11px] text-zinc-400 dark:text-zinc-500">Pembelian terverifikasi · 27 Juli 2026</p>
+                </div>
+                <span class="text-xs font-bold text-zinc-900 dark:text-zinc-100">5.0</span>
+              </div>
+              <p class="mt-3 text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">
+                Packaging rapi, dikirim dari Jakarta ke Surabaya dalam 2 hari. Pengalaman unboxing yang menyenangkan.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Related -->
+  <section class="mt-14">
+    <div class="flex items-center justify-between gap-4">
+      <div class="flex items-center gap-3">
+        <span class="h-6 w-1 rounded-full bg-zinc-900 dark:bg-zinc-100"></span>
+        <h2 class="text-xl font-extrabold tracking-tight text-zinc-900 dark:text-white">Produk Terkait</h2>
+      </div>
+      <a href="catalog.html" class="text-sm font-bold text-zinc-900 dark:text-zinc-100 inline-flex items-center gap-1.5 underline decoration-2 underline-offset-2">Lihat semua <i data-lucide="arrow-right" class="w-4 h-4"></i></a>
+    </div>
+    <div id="relatedRow" class="mt-6 grid grid-cols-2 lg:grid-cols-4 gap-5"></div>
+  </section>
+</main>
+
+<!-- Sticky summary bar -->
+<div id="stickyBar" class="fixed bottom-0 inset-x-0 z-40 translate-y-full transition-transform duration-300 lg:hidden">
+  <div class="glass-panel rounded-t-3xl rounded-b-none px-6 pt-4 pb-5 flex items-center gap-4">
+    <div class="min-w-0 flex-1">
+      <p class="text-[11px] font-bold uppercase tracking-widest text-zinc-400 dark:text-zinc-500">Headphone Studio Aero</p>
+      <p id="stickyPrice" class="text-lg font-extrabold tracking-tight text-zinc-900 dark:text-white truncate">Rp 1.290.000</p>
+    </div>
+    <button id="stickyAdd" class="shrink-0 inline-flex items-center gap-2 rounded-full bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900 px-5 py-3 text-sm font-bold">
+      <i data-lucide="shopping-cart" class="w-4 h-4"></i> <span id="stickyQtyLabel">1</span>
+    </button>
+  </div>
+</div>
+
+<script>
+  lucide.createIcons();
+  function toggleTheme(){const h=document.documentElement,b=document.body;h.classList.toggle('dark');b.classList.toggle('dark');try{localStorage.setItem('uroo-theme',b.classList.contains('dark')?'dark':'light')}catch(e){};lucide.createIcons();}
+
+  var toastT;
+  function toast(msg){
+    var t=document.createElement('div');
+    t.className='fixed bottom-24 lg:bottom-6 left-1/2 -translate-x-1/2 z-[60] glass-panel rounded-full px-5 py-3 flex items-center gap-2.5 text-sm font-semibold anim-toast-in';
+    t.innerHTML='<i data-lucide="check" class="w-4 h-4"></i><span>'+msg+'</span>';
+    document.body.appendChild(t);
+    lucide.createIcons();
+    setTimeout(function(){t.style.cssText+=';opacity:0;transition:opacity .4s ease'},2400);
+    setTimeout(function(){t.remove()},2900);
+  }
+
+  var PRICE=1290000;
+  var qty=1;
+
+  // Gallery
+  var THUMBS=[
+    {icon:'headphones',label:'Tampak depan',grad:'from-zinc-200 via-zinc-300 to-zinc-400 dark:from-zinc-700 dark:via-zinc-800 dark:to-zinc-600'},
+    {icon:'radio',label:'Tampak samping',grad:'from-zinc-300 via-zinc-400 to-zinc-600 dark:from-zinc-800 dark:via-zinc-700 dark:to-zinc-900'},
+    {icon:'mic',label:'Mikrofon',grad:'from-zinc-100 via-zinc-300 to-zinc-500 dark:from-zinc-600 dark:via-zinc-800 dark:to-zinc-950'},
+    {icon:'box',label:'Isi kemasan',grad:'from-zinc-200 via-zinc-400 to-zinc-500 dark:from-zinc-700 dark:via-zinc-900 dark:to-zinc-950'}
+  ];
+  var mainImg=document.getElementById('mainImg');
+  function setMain(i){
+    var t=THUMBS[i];
+    mainImg.className='h-80 sm:h-[440px] flex items-center justify-center bg-gradient-to-br '+t.grad+' anim-fade-in';
+    mainImg.innerHTML='<span class="inline-flex items-center justify-center w-28 h-28 rounded-[32px] bg-white/40 backdrop-blur-md text-zinc-800 dark:bg-black/30 dark:text-zinc-100"><i data-lucide="'+t.icon+'" class="w-14 h-14"></i></span>';
+    lucide.createIcons();
+    document.querySelectorAll('.u-thumb').forEach(function(b,i2){b.classList.toggle('u-on',i2===i)});
+  }
+  var thumbHTML='';
+  THUMBS.forEach(function(t,i){
+    thumbHTML+='<button class="u-thumb glass-panel h-24 sm:h-28 flex items-center justify-center '+t.grad+(i===0?' u-on':'')+'" data-thumb="'+i+'" aria-label="'+t.label+'">'+
+      '<span class="inline-flex items-center justify-center w-10 h-10 rounded-2xl bg-white/40 backdrop-blur-md text-zinc-800 dark:bg-black/30 dark:text-zinc-100"><i data-lucide="'+t.icon+'" class="w-5 h-5"></i></span></button>';
+  });
+  document.getElementById('thumbs').innerHTML=thumbHTML;
+  document.querySelectorAll('[data-thumb]').forEach(function(b){
+    b.addEventListener('click',function(){setMain(parseInt(this.getAttribute('data-thumb'),10))});
+  });
+
+  // Variants
+  var sizeEls=document.querySelectorAll('#sizeRow .u-var:not([disabled])');
+  sizeEls.forEach(function(b){
+    b.addEventListener('click',function(){
+      if(this.hasAttribute('disabled'))return;
+      sizeEls.forEach(function(x){x.classList.remove('u-on')});
+      this.classList.add('u-on');
+      document.getElementById('sizeLabel').textContent='Ukuran dipilih: '+this.getAttribute('data-size');
+    });
+  });
+  var colorEls=document.querySelectorAll('#colorRow .u-var');
+  colorEls.forEach(function(b){
+    b.addEventListener('click',function(){
+      colorEls.forEach(function(x){x.classList.remove('u-on')});
+      this.classList.add('u-on');
+      document.getElementById('colorLabel').textContent='Warna: '+this.getAttribute('data-color');
+    });
+  });
+
+  // Qty
+  function updateQty(v){
+    qty=Math.max(1,Math.min(10,v));
+    document.getElementById('qtyInput').value=qty;
+    document.getElementById('stickyQtyLabel').textContent=qty;
+  }
+  document.getElementById('qtyMinus').addEventListener('click',function(){updateQty(qty-1)});
+  document.getElementById('qtyPlus').addEventListener('click',function(){updateQty(qty+1)});
+  document.getElementById('qtyInput').addEventListener('input',function(){
+    var v=parseInt(this.value,10);
+    updateQty(isNaN(v)?1:v);
+  });
+
+  // Tabs
+  document.querySelectorAll('[data-tab]').forEach(function(tab){
+    tab.addEventListener('click',function(){
+      document.querySelectorAll('[data-tab]').forEach(function(x){x.classList.remove('u-on')});
+      this.classList.add('u-on');
+      document.querySelectorAll('.u-pane').forEach(function(p){p.classList.remove('u-on')});
+      document.getElementById(this.getAttribute('data-tab')).classList.add('u-on');
+    });
+  });
+
+  // Cart
+  function addToCart(silent){
+    document.getElementById('cartCount')/* noop for detail page */;
+    var ok=true;
+    if(!document.querySelector('#sizeRow .u-var.u-on')){toast('Silakan pilih ukuran terlebih dahulu');ok=false;}
+    if(!document.querySelector('#colorRow .u-var.u-on')){toast('Silakan pilih warna terlebih dahulu');ok=false;}
+    if(!ok)return;
+    var size=document.querySelector('#sizeRow .u-var.u-on').getAttribute('data-size');
+    var color=document.querySelector('#colorRow .u-var.u-on').getAttribute('data-color');
+    toast(qty+' x Headphone Studio Aero ('+size+', '+color+') ditambahkan ke keranjang');
+  }
+  document.getElementById('addCartBtn').addEventListener('click',function(){addToCart()});
+  document.getElementById('buyNowBtn').addEventListener('click',function(){
+    if(!document.querySelector('#sizeRow .u-var.u-on')||!document.querySelector('#colorRow .u-var.u-on')){
+      addToCart();return;
+    }
+    toast('Mengalihkan ke checkout...');
+    setTimeout(function(){window.location.href='checkout.html'},800);
+  });
+  document.getElementById('stickyAdd').addEventListener('click',function(){addToCart()});
+
+  // Sticky bar reveal on scroll
+  var bar=document.getElementById('stickyBar'),shown=false;
+  window.addEventListener('scroll',function(){
+    var info=document.getElementById('perks').getBoundingClientRect();
+    var sc=window.scrollY>300;
+    if(sc&&!shown){bar.classList.remove('translate-y-full');shown=true;}
+    else if(!sc&&shown){bar.classList.add('translate-y-full');shown=false;}
+  });
+
+  // Related products
+  var RELATED=[
+    {name:'Smartwatch Fit Pro',price:975000,rating:4.6,sold:'2,8rb',icon:'watch',grad:'from-zinc-200 via-zinc-300 to-zinc-400 dark:from-zinc-700 dark:via-zinc-800 dark:to-zinc-600'},
+    {name:'Earbuds Buds Mini',price:429000,rating:4.4,sold:'5,2rb',icon:'music',grad:'from-zinc-300 via-zinc-400 to-zinc-600 dark:from-zinc-800 dark:via-zinc-700 dark:to-zinc-900'},
+    {name:'Speaker Bluetooth Sonic',price:749000,rating:4.8,sold:'980',icon:'speaker',grad:'from-zinc-100 via-zinc-300 to-zinc-500 dark:from-zinc-600 dark:via-zinc-800 dark:to-zinc-950'},
+    {name:'Kabel Magfast 100W',price:129000,rating:4.5,sold:'4,5rb',icon:'usb',grad:'from-zinc-200 via-zinc-400 to-zinc-500 dark:from-zinc-700 dark:via-zinc-900 dark:to-zinc-950'}
+  ];
+  function fmtRp(n){return 'Rp '+n.toLocaleString('id-ID')}
+  document.getElementById('relatedRow').innerHTML=RELATED.map(function(p,i){
+    return '<a href="product-details.html" class="u-card glass-panel rounded-3xl overflow-hidden group">'+
+      '<div class="relative h-36 bg-gradient-to-br '+p.grad+' flex items-center justify-center"><span class="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-white/40 backdrop-blur-md text-zinc-800 dark:bg-black/30 dark:text-zinc-100"><i data-lucide="'+p.icon+'" class="w-6 h-6"></i></span></div>'+
+      '<div class="p-4">'+
+        '<p class="text-[15px] font-bold leading-snug text-zinc-900 dark:text-white">'+p.name+'</p>'+
+        '<div class="mt-2 flex items-center gap-1.5 text-xs text-zinc-500 dark:text-zinc-400">'+
+          '<i data-lucide="star" class="w-3.5 h-3.5 text-zinc-900 dark:text-zinc-100"></i><span class="font-bold text-zinc-800 dark:text-zinc-100">'+p.rating.toFixed(1)+'</span><span>('+p.sold+' terjual)</span>'+
+        '</div>'+
+        '<p class="mt-3 text-[15px] font-extrabold tracking-tight text-zinc-900 dark:text-white">'+fmtRp(p.price)+'</p>'+
+      '</div>'+
+    '</a>';
+  }).join('');
+  lucide.createIcons();
+</script>
+<script src="../../assets/js/uroo-nav.js"></script>
+</body>
+</html>

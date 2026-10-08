@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="id" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Uroo UI - Toggle</title>
+  <script src="../../assets/js/tailwind.js"></script>
+  <script src="../../assets/js/lucide.js"></script>
+  <script>tailwind.config={darkMode:'class',theme:{extend:{colors:{glass:{light:'rgba(255,255,255,0.65)','light-border':'rgba(255,255,255,0.8)',dark:'rgba(18,18,20,0.65)','dark-border':'rgba(255,255,255,0.1)'}}}}}</script>
+  <link rel="stylesheet" href="../../assets/css/uroo.css">
+  <style>
+    .u-bg{position:fixed;inset:0;z-index:-10;transition:opacity .35s ease}
+    .u-bg-light{background:linear-gradient(135deg,#dfe3ea,#f4f4f5)}
+    .u-bg-dark{background:linear-gradient(135deg,#0a0a0b,#1a1a1e);opacity:0}
+    body.dark .u-bg-light{opacity:0}
+    body.dark .u-bg-dark{opacity:1}
+    .u-glow{position:fixed;border-radius:9999px;filter:blur(90px);z-index:-9;pointer-events:none;transition:background-color .35s ease;background:rgba(0,0,0,0.06)}
+    body.dark .u-glow{background:rgba(255,255,255,0.05)}
+    .u-glow-1{width:420px;height:420px;top:-140px;left:-140px}
+    .u-glow-2{width:520px;height:520px;bottom:-200px;right:-140px}
+    .u-glow-3{width:300px;height:300px;top:42%;left:58%}
+
+    .u-row{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:0.875rem 0;}
+    .u-row + .u-row{border-top:1px dashed rgba(24,24,27,0.12);}
+    .dark .u-row + .u-row{border-top-color:rgba(255,255,255,0.1);}
+    .u-status{display:inline-flex;align-items:center;gap:0.375rem;border-radius:9999px;padding:0.25rem 0.625rem;font-size:0.6875rem;font-weight:700;letter-spacing:0.04em;text-transform:uppercase;border:1px solid rgba(24,24,27,0.18);color:rgba(24,24,27,0.55);}
+    .dark .u-status{border-color:rgba(255,255,255,0.18);color:rgba(255,255,255,0.55);}
+    .u-status .dot{width:0.375rem;height:0.375rem;border-radius:9999px;background:rgba(24,24,27,0.4);}
+    .dark .u-status .dot{background:rgba(255,255,255,0.45);}
+    .u-status.is-on{border-color:rgba(24,24,27,0.85);color:#18181b;background:rgba(24,24,27,0.06);}
+    .u-status.is-on .dot{background:#18181b;}
+    .dark .u-status.is-on{border-color:#fafafa;color:#fafafa;background:rgba(255,255,255,0.1);}
+    .dark .u-status.is-on .dot{background:#fafafa;}
+
+    .u-ts{position:relative;display:inline-flex;flex:none;}
+    .u-ts-input{position:absolute;opacity:0;pointer-events:none;}
+    .u-ts-track{position:relative;display:flex;align-items:center;justify-content:flex-start;width:10rem;height:2.5rem;padding:0.25rem;border-radius:9999px;background:rgba(24,24,27,0.08);border:1px solid rgba(24,24,27,0.14);cursor:pointer;transition:background .25s ease,border-color .25s ease;}
+    .dark .u-ts-track{background:rgba(255,255,255,0.07);border-color:rgba(255,255,255,0.14);}
+    .u-ts-thumb{position:absolute;top:0.25rem;left:0.25rem;display:flex;align-items:center;justify-content:center;width:4.5rem;height:calc(100% - 0.5rem);border-radius:9999px;background:#18181b;color:#fafafa;font-size:0.66rem;font-weight:700;letter-spacing:0.04em;text-transform:uppercase;transition:transform .3s cubic-bezier(0.22,1,0.36,1),background .25s ease,color .25s ease;}
+    .dark .u-ts-thumb{background:#fafafa;color:#18181b;}
+    .u-ts-thumb .on{display:none;}
+    .u-ts-input:checked + .u-ts-track .u-ts-thumb{transform:translateX(5rem);background:#16a34a;}
+    .dark .u-ts-input:checked + .u-ts-track .u-ts-thumb{background:#22c55e;}
+    .u-ts-input:checked + .u-ts-track .u-ts-thumb .on{display:block;}
+    .u-ts-input:checked + .u-ts-track .u-ts-thumb .off{display:none;}
+    .u-ts-input:focus-visible + .u-ts-track{box-shadow:0 0 0 3px rgba(24,24,27,0.18);}
+    .dark .u-ts-input:focus-visible + .u-ts-track{box-shadow:0 0 0 3px rgba(255,255,255,0.2);}
+
+    .u-ito{position:relative;display:inline-flex;flex:none;}
+    .u-ito-input{position:absolute;opacity:0;pointer-events:none;}
+    .u-ito-track{position:relative;display:flex;align-items:center;justify-content:flex-start;width:3.75rem;height:2.125rem;padding:0.1875rem;border-radius:9999px;background:rgba(24,24,27,0.08);border:1px solid rgba(24,24,27,0.14);cursor:pointer;transition:background .25s ease,border-color .25s ease;}
+    .dark .u-ito-track{background:rgba(255,255,255,0.07);border-color:rgba(255,255,255,0.14);}
+    .u-ito-knob{position:absolute;top:0.1875rem;left:0.1875rem;display:flex;align-items:center;justify-content:center;width:1.75rem;height:1.75rem;border-radius:9999px;background:#ffffff;border:1px solid rgba(24,24,27,0.12);color:#18181b;box-shadow:0 3px 8px -3px rgba(0,0,0,0.35);transition:transform .28s cubic-bezier(0.22,1,0.36,1),background .25s ease,color .25s ease,border-color .25s ease;}
+    .dark .u-ito-knob{background:#18181b;border-color:rgba(255,255,255,0.16);color:#d4d4d8;box-shadow:0 3px 8px -3px rgba(0,0,0,0.6);}
+    .u-ito-knob .lucide{width:0.875rem;height:0.875rem;}
+    .u-ito-knob .on-ic{display:none;}
+    .u-ito-input:checked + .u-ito-track .u-ito-knob{transform:translateX(1.625rem);}
+    .u-ito-input:checked + .u-ito-track .u-ito-knob .on-ic{display:block;}
+    .u-ito-input:checked + .u-ito-track .u-ito-knob .off-ic{display:none;}
+    .u-ito-input:checked + .u-ito-track{background:#18181b;border-color:#18181b;}
+    .dark .u-ito-input:checked + .u-ito-track{background:#fafafa;border-color:#fafafa;}
+    .u-ito-input:checked + .u-ito-track .u-ito-knob{background:#3f3f46;color:#fafafa;border-color:transparent;}
+    .dark .u-ito-input:checked + .u-ito-track .u-ito-knob{background:#e4e4e7;color:#18181b;border-color:transparent;}
+    .u-ito-input:focus-visible + .u-ito-track{box-shadow:0 0 0 3px rgba(24,24,27,0.18);}
+    .dark .u-ito-input:focus-visible + .u-ito-track{box-shadow:0 0 0 3px rgba(255,255,255,0.2);}
+
+    .u-seg{display:inline-flex;gap:0.25rem;padding:0.25rem;border-radius:0.875rem;border:1px solid rgba(24,24,27,0.12);background:rgba(24,24,27,0.05);}
+    .dark .u-seg{border-color:rgba(255,255,255,0.14);background:rgba(255,255,255,0.06);}
+    .u-seg-btn{display:inline-flex;align-items:center;gap:0.375rem;padding:0.5rem 0.875rem;border-radius:0.625rem;font-size:0.8125rem;font-weight:600;color:rgba(24,24,27,0.55);cursor:pointer;transition:all .2s ease;}
+    .u-seg-btn .lucide{width:0.875rem;height:0.875rem;}
+    .dark .u-seg-btn{color:rgba(255,255,255,0.55);}
+    .u-seg-btn:hover{color:#18181b;}
+    .dark .u-seg-btn:hover{color:#fafafa;}
+    .u-seg-btn.is-active{background:#18181b;color:#fafafa;box-shadow:0 4px 12px -6px rgba(0,0,0,0.45);}
+    .dark .u-seg-btn.is-active{background:#fafafa;color:#18181b;}
+    .u-seg-btn.is-active:hover{color:#fafafa;}
+    .dark .u-seg-btn.is-active:hover{color:#18181b;}
+
+    .lbl{font-size:0.8125rem;font-weight:600;}
+    .hint{font-size:0.75rem;color:rgba(24,24,27,0.55);}
+    .dark .hint{color:rgba(255,255,255,0.5);}
+    .u-card-sub{border-radius:0.875rem;border:1px solid rgba(24,24,27,0.1);background:rgba(255,255,255,0.55);padding:1rem;}
+    .dark .u-card-sub{border-color:rgba(255,255,255,0.1);background:rgba(255,255,255,0.04);}
+    .u-sum{display:flex;gap:0.625rem;border-radius:0.75rem;background:rgba(24,24,27,0.04);border:1px dashed rgba(24,24,27,0.18);padding:0.875rem 1rem;font-size:0.8125rem;line-height:1.6;}
+    .dark .u-sum{background:rgba(255,255,255,0.04);border-color:rgba(255,255,255,0.18);}
+  </style>
+</head>
+<body class="min-h-screen p-6 font-sans antialiased text-zinc-800 dark:text-zinc-100">
+  <script>(function initTheme(){var saved=null;try{saved=localStorage.getItem('uroo-theme')}catch(e){};var dark=(saved==='dark')||(!saved&&window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches);var de=document.documentElement;if(dark){de.classList.add('dark');de.classList.remove('light');if(document.body){document.body.classList.add('dark');document.body.classList.remove('light');}}else{de.classList.remove('dark');de.classList.add('light');if(document.body){document.body.classList.remove('dark');document.body.classList.add('light');}}})();</script>
+  <div class="u-bg u-bg-light" aria-hidden="true"></div>
+  <div class="u-bg u-bg-dark" aria-hidden="true"></div>
+  <div class="u-glow u-glow-1" aria-hidden="true"></div>
+  <div class="u-glow u-glow-2" aria-hidden="true"></div>
+  <div class="u-glow u-glow-3" aria-hidden="true"></div>
+
+  <div class="relative mx-auto max-w-6xl">
+    <header class="relative mb-10">
+      <p class="text-xs font-semibold uppercase tracking-[0.25em] text-zinc-500 dark:text-zinc-500">Uroo UI - Komponen</p>
+      <h1 class="mt-2 text-3xl font-bold tracking-tight md:text-4xl">Toggle</h1>
+      <p class="mt-3 max-w-2xl text-sm leading-relaxed text-zinc-500 dark:text-zinc-400">Saklar bergaya alternatif: berbasis teks, berbasis ikon, dan grup segmen, seluruhnya interaktif dengan status langsung.</p>
+    </header>
+
+    <main class="relative grid gap-6 md:grid-cols-2">
+
+      <section data-copy class="glass-panel rounded-2xl p-6 md:p-8">
+        <p class="text-xs font-semibold uppercase tracking-[0.2em] text-zinc-500 dark:text-zinc-500">Variasi - Berbasis teks</p>
+        <div class="mt-3">
+          <div class="u-row">
+            <div>
+              <p class="lbl">Mode hemat daya</p>
+              <p class="hint">Kurangi pembaruan latar belakang aplikasi.</p>
+            </div>
+            <div class="flex items-center gap-3">
+              <label class="u-ts">
+                <input type="checkbox" class="u-ts-input" id="tsHemat" data-out="stHemat" data-on="Hemat daya aktif" data-off="Hemat daya nonaktif" checked>
+                <span class="u-ts-track" aria-hidden="true"><span class="u-ts-thumb"><span class="off">Nonaktif</span><span class="on">Aktif</span></span></span>
+              </label>
+            </div>
+          </div>
+          <div class="u-row">
+            <div>
+              <p class="lbl">Sinkronisasi otomatis</p>
+              <p class="hint">Unggah perubahan setiap 30 menit saat tersambung.</p>
+            </div>
+            <div class="flex items-center gap-3">
+              <label class="u-ts">
+                <input type="checkbox" class="u-ts-input" id="tsSync" data-out="stSync" data-on="Sinkronisasi aktif" data-off="Sinkronisasi sementara">
+                <span class="u-ts-track" aria-hidden="true"><span class="u-ts-thumb"><span class="off">Nonaktif</span><span class="on">Aktif</span></span></span>
+              </label>
+            </div>
+          </div>
+        </div>
+        <div class="mt-4 flex flex-wrap gap-2">
+          <span id="stHemat" class="u-status is-on"><span class="dot"></span>Hemat daya aktif</span>
+          <span id="stSync" class="u-status"><span class="dot"></span>Sinkronisasi sementara</span>
+        </div>
+      </section>
+
+      <section data-copy class="glass-panel rounded-2xl p-6 md:p-8">
+        <p class="text-xs font-semibold uppercase tracking-[0.2em] text-zinc-500 dark:text-zinc-500">Variasi - Berbasis ikon</p>
+        <div class="mt-5 grid grid-cols-3 gap-4">
+          <div class="u-card-sub text-center">
+            <div class="flex justify-center">
+              <label class="u-ito">
+                <input type="checkbox" class="u-ito-input" id="itoTema">
+                <span class="u-ito-track" aria-hidden="true"><span class="u-ito-knob"><i data-lucide="sun" class="off-ic"></i><i data-lucide="moon" class="on-ic"></i></span></span>
+              </label>
+            </div>
+            <p class="lbl mt-3">Tema gelap</p>
+            <p class="hint" id="stTema">Menyala</p>
+          </div>
+          <div class="u-card-sub text-center">
+            <div class="flex justify-center">
+              <label class="u-ito">
+                <input type="checkbox" class="u-ito-input" id="itoBell" checked>
+                <span class="u-ito-track" aria-hidden="true"><span class="u-ito-knob"><i data-lucide="bell-off" class="off-ic"></i><i data-lucide="bell" class="on-ic"></i></span></span>
+              </label>
+            </div>
+            <p class="lbl mt-3">Notifikasi</p>
+            <p class="hint" id="stBell">Menyala</p>
+          </div>
+          <div class="u-card-sub text-center">
+            <div class="flex justify-center">
+              <label class="u-ito">
+                <input type="checkbox" class="u-ito-input" id="itoWifi">
+                <span class="u-ito-track" aria-hidden="true"><span class="u-ito-knob"><i data-lucide="wifi-off" class="off-ic"></i><i data-lucide="wifi" class="on-ic"></i></span></span>
+              </label>
+            </div>
+            <p class="lbl mt-3">Wi-Fi hemat</p>
+            <p class="hint" id="stWifi">Menyala</p>
+          </div>
+        </div>
+        <p class="mt-4 hint">Bilah saudara berwarna mengikuti kondisi nyala untuk keterbacaan cepat.</p>
+      </section>
+
+      <section data-copy class="glass-panel rounded-2xl p-6 md:p-8">
+        <p class="text-xs font-semibold uppercase tracking-[0.2em] text-zinc-500 dark:text-zinc-500">Variasi - Grup segmen</p>
+        <div class="mt-5 space-y-6">
+          <div>
+            <p class="lbl mb-2">Kepadatan tabel</p>
+            <div class="u-seg" id="segPadat">
+              <button type="button" class="u-seg-btn is-active" data-val="ringkas"><i data-lucide="compass"></i>Ringkas</button>
+              <button type="button" class="u-seg-btn" data-val="sedang">Sedang</button>
+              <button type="button" class="u-seg-btn" data-val="padat">Padat</button>
+            </div>
+            <p class="hint mt-2" id="stPadat">Tampilan ringkas dipilih: tinggi baris 32 piksel.</p>
+          </div>
+          <div>
+            <p class="lbl mb-2">Urutan catatan</p>
+            <div class="u-seg" id="segUrut">
+              <button type="button" class="u-seg-btn is-active" data-val="terbaru"><i data-lucide="arrow-down-wide-narrow"></i>Terbaru</button>
+              <button type="button" class="u-seg-btn" data-val="terlama">Terlama</button>
+              <button type="button" class="u-seg-btn" data-val="abjad">Abjad</button>
+            </div>
+            <p class="hint mt-2" id="stUrut">Catatan disusun dari yang paling baru ke lama.</p>
+          </div>
+        </div>
+      </section>
+
+      <section data-copy class="glass-panel rounded-2xl p-6 md:p-8">
+        <p class="text-xs font-semibold uppercase tracking-[0.2em] text-zinc-500 dark:text-zinc-500">Interaktif - Panel pengaturan</p>
+        <div class="mt-5 u-card-sub">
+          <div class="u-row">
+            <div>
+              <p class="lbl">Frekuensi ringkasan harian</p>
+              <p class="hint">Pilih waktu ringkasan otomatis dikirim.</p>
+            </div>
+            <div class="u-seg" id="segFrek">
+              <button type="button" class="u-seg-btn is-active" data-val="harian"><i data-lucide="calendar-days"></i>Harian</button>
+              <button type="button" class="u-seg-btn" data-val="mingguan">Mingguan</button>
+              <button type="button" class="u-seg-btn" data-val="mati"><i data-lucide="x"></i>Mati</button>
+            </div>
+          </div>
+          <div class="u-row">
+            <div>
+              <p class="lbl">Notifikasi push desktop</p>
+              <p class="hint">Tampilkan peringatan di layar saat tab tertutup.</p>
+            </div>
+            <label class="u-ts">
+              <input type="checkbox" class="u-ts-input" id="tsPush" checked>
+              <span class="u-ts-track" aria-hidden="true"><span class="u-ts-thumb"><span class="off">Off</span><span class="on">On</span></span></span>
+            </label>
+          </div>
+          <div class="u-row">
+            <div>
+              <p class="lbl">Bunyi saat pesan masuk</p>
+              <p class="hint">Pola nada lembut untuk percakapan tim.</p>
+            </div>
+            <label class="u-ito">
+              <input type="checkbox" class="u-ito-input" id="itoSound" checked>
+              <span class="u-ito-track" aria-hidden="true"><span class="u-ito-knob"><i data-lucide="volume-x" class="off-ic"></i><i data-lucide="volume-2" class="on-ic"></i></span></span>
+            </label>
+          </div>
+        </div>
+        <div class="u-sum mt-5">
+          <i data-lucide="sliders-horizontal" class="mt-0.5 h-4 w-4 flex-none text-zinc-500 dark:text-zinc-400"></i>
+          <p id="sumTxt" class="text-zinc-600 dark:text-zinc-300">Ringkasan: ringkasan harian aktif, notifikasi push menyala, dan bunyi pesan masuk dinyalakan.</p>
+        </div>
+      </section>
+    </main>
+
+    <footer class="relative mt-12 flex items-center justify-between border-t border-zinc-400/30 py-6 text-xs text-zinc-500 dark:border-white/10 dark:text-zinc-500">
+      <span>Uroo UI - Glassmorphism monokrom</span>
+      <span id="year"></span>
+    </footer>
+  </div>
+
+  <button onclick="toggleTheme()" class="glass-panel fixed right-4 top-4 z-50 inline-flex items-center justify-center rounded-full p-2.5" aria-label="Ganti tema">
+    <i data-lucide="sun" class="h-5 w-5 text-zinc-700 dark:hidden"></i>
+    <i data-lucide="moon" class="hidden h-5 w-5 text-zinc-200 dark:block"></i>
+  </button>
+
+  <script>
+    lucide.createIcons();
+    function toggleTheme(){const h=document.documentElement,b=document.body;h.classList.toggle('dark');b.classList.toggle('dark');try{localStorage.setItem('uroo-theme',b.classList.contains('dark')?'dark':'light')}catch(e){};lucide.createIcons();}
+    (function(){if(document.documentElement.classList.contains('dark')){document.body.classList.add('dark');}else{document.body.classList.remove('dark');}})();
+    document.getElementById('year').textContent = 'Uroo Dev - ' + new Date().getFullYear();
+
+    document.querySelectorAll('[data-out]').forEach(function(inp){
+      inp.addEventListener('change', function(){
+        var el = document.getElementById(inp.dataset.out);
+        if(!el) return;
+        el.textContent = inp.checked ? (inp.dataset.on || 'Aktif') : (inp.dataset.off || 'Nonaktif');
+        el.classList.toggle('is-on', inp.checked);
+      });
+    });
+
+    var itoTema = document.getElementById('itoTema');
+    var itoBell = document.getElementById('itoBell');
+    var itoWifi = document.getElementById('itoWifi');
+    function bindIto(inp, el){
+      inp.addEventListener('change', function(){ el.textContent = inp.checked ? 'Menyala' : 'Mati'; });
+    }
+    bindIto(itoTema, document.getElementById('stTema'));
+    bindIto(itoBell, document.getElementById('stBell'));
+    bindIto(itoWifi, document.getElementById('stWifi'));
+
+    function bindSeg(group, cb){
+      group.querySelectorAll('.u-seg-btn').forEach(function(btn){
+        btn.addEventListener('click', function(){
+          var active = group.querySelector('.u-seg-btn.is-active');
+          if(active === btn) return;
+          group.querySelectorAll('.u-seg-btn').forEach(function(b){ b.classList.remove('is-active'); });
+          btn.classList.add('is-active');
+          cb(btn.dataset.val);
+        });
+      });
+    }
+
+    var kepadatan = { ringkas: 'Tampilan ringkas dipilih: tinggi baris 32 piksel.', sedang: 'Tampilan sedang dipilih: tinggi baris 44 piksel.', padat: 'Tampilan padat dipilih: tinggi baris 56 piksel.' };
+    bindSeg(document.getElementById('segPadat'), function(val){ document.getElementById('stPadat').textContent = kepadatan[val]; });
+
+    var urutan = { terbaru: 'Catatan disusun dari yang paling baru ke lama.', terlama: 'Catatan disusun dari yang paling lama ke baru.', abjad: 'Catatan disusun berdasarkan urutan abjad judul.' };
+    bindSeg(document.getElementById('segUrut'), function(val){ document.getElementById('stUrut').textContent = urutan[val]; });
+
+    var frek = { harian: 'Ringkasan otomatis dikirim setiap hari pukul 17.00 WIB.', mingguan: 'Ringkasan otomatis dikirim setiap Senin pukul 08.00 WIB.', mati: 'Ringkasan otomatis dimatikan. Tidak ada pesan terjadwal.' };
+    var sumTxt = document.getElementById('sumTxt');
+    var segFrekLbl = frek.harian;
+    function upSum(){
+      var pushOn = document.getElementById('tsPush').checked;
+      var soundOn = document.getElementById('itoSound').checked;
+      sumTxt.textContent = 'Ringkasan: ' + segFrekLbl + ' Notifikasi push ' + (pushOn ? 'menyala' : 'mati') + ', bunyi pesan masuk ' + (soundOn ? 'dinyalakan' : 'dibisukan') + '.';
+    }
+    bindSeg(document.getElementById('segFrek'), function(val){ segFrekLbl = frek[val]; upSum(); });
+    document.getElementById('tsPush').addEventListener('change', upSum);
+    document.getElementById('itoSound').addEventListener('change', upSum);
+  </script>
+<script src="../../assets/js/uroo-copy.js"></script>
+<script src="../../assets/js/uroo-nav.js"></script>
+</body>
+</html>

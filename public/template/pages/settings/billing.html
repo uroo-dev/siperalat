@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="id" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Uroo UI - Penagihan</title>
+  <script src="../../assets/js/tailwind.js"></script>
+  <script src="../../assets/js/lucide.js"></script>
+  <script>tailwind.config={darkMode:'class',theme:{extend:{colors:{glass:{light:'rgba(255,255,255,0.65)','light-border':'rgba(255,255,255,0.8)',dark:'rgba(18,18,20,0.65)','dark-border':'rgba(255,255,255,0.1)'}}}}}</script>
+  <link rel="stylesheet" href="../../assets/css/uroo.css">
+  <style>
+    .u-bg{position:fixed;inset:0;z-index:-10;transition:opacity .35s ease}
+    .u-bg-light{background:linear-gradient(135deg,#dfe3ea,#f4f4f5)}
+    .u-bg-dark{background:linear-gradient(135deg,#0a0a0b,#1a1a1e);opacity:0}
+    body.dark .u-bg-light{opacity:0}
+    body.dark .u-bg-dark{opacity:1}
+    .u-glow{position:fixed;border-radius:9999px;filter:blur(90px);z-index:-9;pointer-events:none;background:rgba(0,0,0,0.06);transition:background-color .35s ease}
+    body.dark .u-glow{background:rgba(255,255,255,0.05)}
+    .u-glow-1{width:420px;height:420px;top:-140px;left:-140px}
+    .u-glow-2{width:520px;height:520px;bottom:-200px;right:-140px}
+    .u-glow-3{width:300px;height:300px;top:42%;left:58%}
+
+    #toast{transition:opacity .3s ease,transform .3s ease}
+    #toast.hidden-toast{opacity:0;transform:translateY(20px) scale(.96);pointer-events:none}
+    .plan-card.selected{background:rgba(0,0,0,.08);border-color:rgba(24,24,27,.6)}
+    body.dark .plan-card.selected{background:rgba(255,255,255,.12);border-color:rgba(255,255,255,.5)}
+    .usage-bar{transition:width .5s ease}
+  </style>
+</head>
+<body class="min-h-screen font-sans antialiased text-zinc-800 dark:text-zinc-100">
+  <script>(function initTheme(){var saved=null;try{saved=localStorage.getItem('uroo-theme')}catch(e){};var dark=(saved==='dark')||(!saved&&window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches);var de=document.documentElement;if(dark){de.classList.add('dark');de.classList.remove('light');if(document.body){document.body.classList.add('dark');document.body.classList.remove('light');}}else{de.classList.remove('dark');de.classList.add('light');if(document.body){document.body.classList.remove('dark');document.body.classList.add('light');}}})();</script>
+
+  <div class="u-bg u-bg-light" aria-hidden="true"></div>
+  <div class="u-bg u-bg-dark" aria-hidden="true"></div>
+  <div class="u-glow u-glow-1" aria-hidden="true"></div>
+  <div class="u-glow u-glow-2" aria-hidden="true"></div>
+  <div class="u-glow u-glow-3" aria-hidden="true"></div>
+
+  <div class="max-w-6xl mx-auto px-4 py-6 md:py-10">
+    <!-- TOPBAR -->
+    <header class="glass-panel rounded-2xl px-4 py-3 flex items-center gap-3 sticky top-4 z-30 mb-6">
+      <div class="flex items-center gap-2.5 min-w-0">
+        <img src="../../assets/img/uroo_ui.png" alt="Uroo UI" class="w-9 h-9 rounded-xl object-cover shadow-lg shrink-0">
+        <div class="min-w-0">
+          <p class="font-extrabold text-[15px] leading-none tracking-tight">Uroo UI</p>
+          <p class="mt-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-zinc-400 dark:text-zinc-500">Penagihan</p>
+        </div>
+      </div>
+      <div class="ml-auto flex items-center gap-1.5">
+        <span class="grid place-items-center w-9 h-9 rounded-full bg-gradient-to-br from-zinc-500 to-zinc-800 dark:from-zinc-300 dark:to-zinc-600 text-white dark:text-zinc-900 text-xs font-bold">RA</span>
+      </div>
+    </header>
+
+    <div class="flex flex-col lg:flex-row gap-6">
+      <!-- SIDEBAR -->
+      <aside class="lg:w-60 shrink-0">
+        <div class="glass-panel rounded-2xl p-3 lg:sticky lg:top-24">
+          <p class="px-3 py-2 text-[10px] font-bold uppercase tracking-[0.18em] text-zinc-400 dark:text-zinc-500">Pengaturan</p>
+          <nav class="space-y-1">
+            <a href="general.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-bold text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-50 hover:bg-black/5 dark:hover:bg-white/10"><i data-lucide="sliders-horizontal" class="w-[18px] h-[18px]"></i> Umum</a>
+            <a href="billing.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-bold bg-zinc-900 text-zinc-50 dark:bg-zinc-50 dark:text-zinc-900 shadow-lg"><i data-lucide="credit-card" class="w-[18px] h-[18px]"></i> Penagihan</a>
+            <a href="notifications.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-bold text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-50 hover:bg-black/5 dark:hover:bg-white/10"><i data-lucide="bell" class="w-[18px] h-[18px]"></i> Notifikasi</a>
+            <a href="team.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-bold text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-50 hover:bg-black/5 dark:hover:bg-white/10"><i data-lucide="users" class="w-[18px] h-[18px]"></i> Tim</a>
+          </nav>
+        </div>
+      </aside>
+
+      <!-- CONTENT -->
+      <main class="flex-1 min-w-0 space-y-4">
+        <!-- Current plan -->
+        <div class="glass-panel rounded-2xl p-6">
+          <div class="flex flex-col sm:flex-row sm:items-center gap-4">
+            <div class="flex-1">
+              <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-zinc-400 dark:text-zinc-500">Paket Saat Ini</p>
+              <h2 class="text-2xl font-extrabold tracking-tight mt-1">Pro</h2>
+              <p class="text-sm text-zinc-500 dark:text-zinc-400 mt-1">Rp 299.000 <span class="text-zinc-400">/ bulan</span> &#183; Perpanjangan 12 Sep 2026</p>
+            </div>
+            <div class="flex gap-2">
+              <button onclick="openModal('modal-plan')" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-zinc-900 dark:bg-zinc-50 text-zinc-50 dark:text-zinc-900 text-sm font-bold hover:opacity-90 shadow-lg"><i data-lucide="refresh-cw" class="w-4 h-4"></i> Ubah Paket</button>
+              <button onclick="showToast('Tagihan dibayar','Pembayaran Rp 299.000 berhasil')" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-black/5 dark:bg-white/10 text-sm font-bold hover:bg-black/10 dark:hover:bg-white/15"><i data-lucide="download" class="w-4 h-4"></i> Faktur</button>
+            </div>
+          </div>
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mt-6">
+            <div class="rounded-xl bg-black/5 dark:bg-white/10 p-3.5"><p class="text-xs text-zinc-400 font-semibold">Anggota</p><p class="text-lg font-extrabold mt-1">5 <span class="text-xs font-semibold text-zinc-400">/ 10</span></p></div>
+            <div class="rounded-xl bg-black/5 dark:bg-white/10 p-3.5"><p class="text-xs text-zinc-400 font-semibold">Proyek Aktif</p><p class="text-lg font-extrabold mt-1">12</p></div>
+            <div class="rounded-xl bg-black/5 dark:bg-white/10 p-3.5"><p class="text-xs text-zinc-400 font-semibold">Penyimpanan</p><p class="text-lg font-extrabold mt-1">48 <span class="text-xs font-semibold text-zinc-400">/ 100 GB</span></p></div>
+            <div class="rounded-xl bg-black/5 dark:bg-white/10 p-3.5"><p class="text-xs text-zinc-400 font-semibold">Tagihan Berikutnya</p><p class="text-lg font-extrabold mt-1">12 Sep</p></div>
+          </div>
+        </div>
+
+        <!-- Plans -->
+        <div class="glass-panel rounded-2xl p-6">
+          <h2 class="font-bold tracking-tight mb-1">Pilih Paket</h2>
+          <p class="text-sm text-zinc-500 dark:text-zinc-400 mb-5">Naikkan atau turunkan paket sesuai kebutuhan tim Anda.</p>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div class="plan-card rounded-2xl border-2 border-transparent bg-black/5 dark:bg-white/10 p-5 cursor-pointer" data-plan="basic">
+              <p class="font-bold">Basic</p>
+              <p class="mt-2 text-3xl font-extrabold">Rp 149rb<span class="text-sm font-semibold text-zinc-400">/bln</span></p>
+              <ul class="mt-4 space-y-2 text-sm text-zinc-500 dark:text-zinc-400">
+                <li class="flex gap-2"><i data-lucide="check" class="w-4 h-4 text-emerald-500 shrink-0"></i> Hingga 3 anggota</li>
+                <li class="flex gap-2"><i data-lucide="check" class="w-4 h-4 text-emerald-500 shrink-0"></i> 10 proyek aktif</li>
+                <li class="flex gap-2"><i data-lucide="check" class="w-4 h-4 text-emerald-500 shrink-0"></i> 50 GB penyimpanan</li>
+                <li class="flex gap-2"><i data-lucide="check" class="w-4 h-4 text-emerald-500 shrink-0"></i> Dukungan email</li>
+              </ul>
+              <button onclick="selectPlan(this,'basic')" class="mt-5 w-full py-2.5 rounded-xl bg-black/5 dark:bg-white/10 text-sm font-bold hover:bg-black/10 dark:hover:bg-white/15">Pilih Basic</button>
+            </div>
+            <div class="plan-card selected rounded-2xl border-2 bg-black/5 dark:bg-white/10 p-5 cursor-pointer relative" data-plan="pro">
+              <span class="absolute -top-3 left-5 px-2.5 py-1 rounded-full bg-zinc-900 dark:bg-zinc-50 text-zinc-50 dark:text-zinc-900 text-[10px] font-bold">SAAT INI</span>
+              <p class="font-bold">Pro</p>
+              <p class="mt-2 text-3xl font-extrabold">Rp 299rb<span class="text-sm font-semibold text-zinc-400">/bln</span></p>
+              <ul class="mt-4 space-y-2 text-sm text-zinc-500 dark:text-zinc-400">
+                <li class="flex gap-2"><i data-lucide="check" class="w-4 h-4 text-emerald-500 shrink-0"></i> Hingga 10 anggota</li>
+                <li class="flex gap-2"><i data-lucide="check" class="w-4 h-4 text-emerald-500 shrink-0"></i> Proyek tanpa batas</li>
+                <li class="flex gap-2"><i data-lucide="check" class="w-4 h-4 text-emerald-500 shrink-0"></i> 100 GB penyimpanan</li>
+                <li class="flex gap-2"><i data-lucide="check" class="w-4 h-4 text-emerald-500 shrink-0"></i> Analitik lanjutan</li>
+              </ul>
+              <button onclick="selectPlan(this,'pro')" class="mt-5 w-full py-2.5 rounded-xl bg-zinc-900 dark:bg-zinc-50 text-zinc-50 dark:text-zinc-900 text-sm font-bold shadow-lg">Paket Aktif</button>
+            </div>
+            <div class="plan-card rounded-2xl border-2 border-transparent bg-black/5 dark:bg-white/10 p-5 cursor-pointer" data-plan="biz">
+              <p class="font-bold">Bisnis</p>
+              <p class="mt-2 text-3xl font-extrabold">Rp 599rb<span class="text-sm font-semibold text-zinc-400">/bln</span></p>
+              <ul class="mt-4 space-y-2 text-sm text-zinc-500 dark:text-zinc-400">
+                <li class="flex gap-2"><i data-lucide="check" class="w-4 h-4 text-emerald-500 shrink-0"></i> Anggota tanpa batas</li>
+                <li class="flex gap-2"><i data-lucide="check" class="w-4 h-4 text-emerald-500 shrink-0"></i> 500 GB penyimpanan</li>
+                <li class="flex gap-2"><i data-lucide="check" class="w-4 h-4 text-emerald-500 shrink-0"></i> SSO &amp; audit log</li>
+                <li class="flex gap-2"><i data-lucide="check" class="w-4 h-4 text-emerald-500 shrink-0"></i> Dukungan prioritas</li>
+              </ul>
+              <button onclick="selectPlan(this,'biz')" class="mt-5 w-full py-2.5 rounded-xl bg-black/5 dark:bg-white/10 text-sm font-bold hover:bg-black/10 dark:hover:bg-white/15">Pilih Bisnis</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Usage meters -->
+        <div class="glass-panel rounded-2xl p-6">
+          <h2 class="font-bold tracking-tight mb-5">Penggunaan</h2>
+          <div class="space-y-5">
+            <div>
+              <div class="flex justify-between text-sm mb-1.5"><span class="font-semibold">Penyimpanan</span><span class="text-zinc-400">48 / 100 GB</span></div>
+              <div class="h-2.5 rounded-full bg-black/5 dark:bg-white/10"><div class="usage-bar h-2.5 rounded-full bg-zinc-900 dark:bg-zinc-50" style="width:48%"></div></div>
+            </div>
+            <div>
+              <div class="flex justify-between text-sm mb-1.5"><span class="font-semibold">API Calls</span><span class="text-zinc-400">812.000 / 1.000.000</span></div>
+              <div class="h-2.5 rounded-full bg-black/5 dark:bg-white/10"><div class="usage-bar h-2.5 rounded-full bg-emerald-500" style="width:81%"></div></div>
+            </div>
+            <div>
+              <div class="flex justify-between text-sm mb-1.5"><span class="font-semibold">Unduhan Aset</span><span class="text-zinc-400">6.540 / 10.000</span></div>
+              <div class="h-2.5 rounded-full bg-black/5 dark:bg-white/10"><div class="usage-bar h-2.5 rounded-full bg-amber-500" style="width:65%"></div></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Payment methods -->
+        <div class="glass-panel rounded-2xl p-6">
+          <div class="flex items-center justify-between mb-5">
+            <div><h2 class="font-bold tracking-tight">Metode Pembayaran</h2><p class="text-sm text-zinc-500 dark:text-zinc-400 mt-1">Kartu yang digunakan untuk pembayaran otomatis.</p></div>
+            <button onclick="openModal('modal-card')" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-black/5 dark:bg-white/10 text-sm font-bold hover:bg-black/10 dark:hover:bg-white/15"><i data-lucide="plus" class="w-4 h-4"></i> Tambah Kartu</button>
+          </div>
+          <div class="space-y-3">
+            <div class="flex items-center gap-4 rounded-2xl bg-black/5 dark:bg-white/5 p-4">
+              <span class="grid place-items-center w-12 h-8 rounded-lg bg-gradient-to-br from-sky-500 to-indigo-600 text-white text-[9px] font-extrabold tracking-wider shrink-0">VISA</span>
+              <div class="flex-1 min-w-0">
+                <p class="text-sm font-bold">Visa &#8226;&#8226;&#8226;&#8226; 4582 <span class="ml-1.5 px-2 py-0.5 rounded-md bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 text-[10px] font-bold">Utama</span></p>
+                <p class="text-xs text-zinc-400 mt-0.5">Berakhir 09/27 &#183; Raka Adiwijaya</p>
+              </div>
+              <button onclick="removeCard(this)" class="p-2 rounded-lg text-zinc-400 hover:text-rose-500"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+            </div>
+            <div class="flex items-center gap-4 rounded-2xl bg-black/5 dark:bg-white/5 p-4">
+              <span class="grid place-items-center w-12 h-8 rounded-lg bg-zinc-800 text-white text-[9px] font-extrabold tracking-wider shrink-0">MC</span>
+              <div class="flex-1 min-w-0">
+                <p class="text-sm font-bold">Mastercard &#8226;&#8226;&#8226;&#8226; 1190</p>
+                <p class="text-xs text-zinc-400 mt-0.5">Berakhir 03/28</p>
+              </div>
+              <button onclick="removeCard(this)" class="p-2 rounded-lg text-zinc-400 hover:text-rose-500"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Invoices -->
+        <div class="glass-panel rounded-2xl p-6">
+          <h2 class="font-bold tracking-tight mb-5">Riwayat Tagihan</h2>
+          <div class="overflow-x-auto -mx-6 px-6">
+            <table class="w-full text-sm min-w-[540px]">
+              <thead>
+                <tr class="text-left text-xs uppercase tracking-wider text-zinc-400 border-b border-black/5 dark:border-white/10">
+                  <th class="pb-3 font-bold">Faktur</th><th class="pb-3 font-bold">Tanggal</th><th class="pb-3 font-bold">Status</th><th class="pb-3 font-bold text-right">Jumlah</th><th class="pb-3 font-bold text-right">Aksi</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-black/5 dark:divide-white/10">
+                <tr><td class="py-3.5 font-semibold">INV-2026-0087</td><td class="text-zinc-400">12 Agu 2026</td><td><span class="px-2 py-0.5 rounded-md bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 text-[10px] font-bold">LUNAS</span></td><td class="text-right font-semibold">Rp 299.000</td><td class="text-right"><button onclick="downloadInvoice()" class="px-3 py-1.5 rounded-lg bg-black/5 dark:bg-white/10 text-xs font-bold hover:bg-black/10 dark:hover:bg-white/15">Unduh</button></td></tr>
+                <tr><td class="py-3.5 font-semibold">INV-2026-0086</td><td class="text-zinc-400">12 Jul 2026</td><td><span class="px-2 py-0.5 rounded-md bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 text-[10px] font-bold">LUNAS</span></td><td class="text-right font-semibold">Rp 299.000</td><td class="text-right"><button onclick="downloadInvoice()" class="px-3 py-1.5 rounded-lg bg-black/5 dark:bg-white/10 text-xs font-bold hover:bg-black/10 dark:hover:bg-white/15">Unduh</button></td></tr>
+                <tr><td class="py-3.5 font-semibold">INV-2026-0085</td><td class="text-zinc-400">12 Jun 2026</td><td><span class="px-2 py-0.5 rounded-md bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 text-[10px] font-bold">LUNAS</span></td><td class="text-right font-semibold">Rp 299.000</td><td class="text-right"><button onclick="downloadInvoice()" class="px-3 py-1.5 rounded-lg bg-black/5 dark:bg-white/10 text-xs font-bold hover:bg-black/10 dark:hover:bg-white/15">Unduh</button></td></tr>
+                <tr><td class="py-3.5 font-semibold">INV-2026-0084</td><td class="text-zinc-400">12 Mei 2026</td><td><span class="px-2 py-0.5 rounded-md bg-rose-500/15 text-rose-500 text-[10px] font-bold">GAGAL</span></td><td class="text-right font-semibold">Rp 299.000</td><td class="text-right"><button onclick="downloadInvoice()" class="px-3 py-1.5 rounded-lg bg-black/5 dark:bg-white/10 text-xs font-bold hover:bg-black/10 dark:hover:bg-white/15">Coba Lagi</button></td></tr>
+                <tr><td class="py-3.5 font-semibold">INV-2026-0083</td><td class="text-zinc-400">12 Apr 2026</td><td><span class="px-2 py-0.5 rounded-md bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 text-[10px] font-bold">LUNAS</span></td><td class="text-right font-semibold">Rp 149.000</td><td class="text-right"><button onclick="downloadInvoice()" class="px-3 py-1.5 rounded-lg bg-black/5 dark:bg-white/10 text-xs font-bold hover:bg-black/10 dark:hover:bg-white/15">Unduh</button></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- PLAN MODAL -->
+  <div id="modal-plan" class="fixed inset-0 z-50 hidden items-center justify-center p-4">
+    <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" onclick="closeModal('modal-plan')"></div>
+    <div class="glass-panel rounded-2xl p-6 w-full max-w-sm relative z-10 anim-scale-in">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="font-bold">Konfirmasi Perubahan Paket</h2>
+        <button onclick="closeModal('modal-plan')" class="p-1.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/10"><i data-lucide="x" class="w-4 h-4"></i></button>
+      </div>
+      <p class="text-sm leading-relaxed text-zinc-500 dark:text-zinc-400" id="plan-confirm-text">Anda akan beralih ke paket baru. Perubahan prorata akan diterapkan pada tagihan berikutnya.</p>
+      <div class="mt-5 rounded-xl bg-black/5 dark:bg-white/10 p-4 flex items-center justify-between">
+        <span class="text-sm font-semibold" id="plan-confirm-name">Paket Baru</span>
+        <span class="text-sm font-extrabold" id="plan-confirm-price">Rp 599.000/bln</span>
+      </div>
+      <div class="mt-4 flex justify-end gap-2">
+        <button onclick="closeModal('modal-plan')" class="px-4 py-2 rounded-xl bg-black/5 dark:bg-white/10 text-sm font-bold">Batal</button>
+        <button onclick="confirmPlan(this)" class="px-4 py-2 rounded-xl bg-zinc-900 dark:bg-zinc-50 text-zinc-50 dark:text-zinc-900 text-sm font-bold">Konfirmasi</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- CARD MODAL -->
+  <div id="modal-card" class="fixed inset-0 z-50 hidden items-center justify-center p-4">
+    <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" onclick="closeModal('modal-card')"></div>
+    <div class="glass-panel rounded-2xl p-6 w-full max-w-md relative z-10 anim-scale-in">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="font-bold">Tambah Kartu Pembayaran</h2>
+        <button onclick="closeModal('modal-card')" class="p-1.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/10"><i data-lucide="x" class="w-4 h-4"></i></button>
+      </div>
+      <div class="space-y-4">
+        <div>
+          <label class="text-xs font-semibold text-zinc-500 dark:text-zinc-400">Nomor Kartu</label>
+          <input id="card-no" placeholder="4111 1111 1111 1111" inputmode="numeric" class="mt-1.5 w-full h-11 px-3.5 rounded-xl bg-black/5 dark:bg-white/10 border border-black/5 dark:border-white/10 text-sm font-medium outline-none focus:ring-2 ring-zinc-900/10 dark:ring-white/20">
+        </div>
+        <div>
+          <label class="text-xs font-semibold text-zinc-500 dark:text-zinc-400">Nama di Kartu</label>
+          <input id="card-name" placeholder="Raka Adiwijaya" class="mt-1.5 w-full h-11 px-3.5 rounded-xl bg-black/5 dark:bg-white/10 border border-black/5 dark:border-white/10 text-sm font-medium outline-none focus:ring-2 ring-zinc-900/10 dark:ring-white/20">
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="text-xs font-semibold text-zinc-500 dark:text-zinc-400">Masa Berlaku</label>
+            <input id="card-exp" placeholder="MM/YY" class="mt-1.5 w-full h-11 px-3.5 rounded-xl bg-black/5 dark:bg-white/10 border border-black/5 dark:border-white/10 text-sm font-medium outline-none focus:ring-2 ring-zinc-900/10 dark:ring-white/20">
+          </div>
+          <div>
+            <label class="text-xs font-semibold text-zinc-500 dark:text-zinc-400">CVV</label>
+            <input id="card-cvv" placeholder="123" inputmode="numeric" type="password" class="mt-1.5 w-full h-11 px-3.5 rounded-xl bg-black/5 dark:bg-white/10 border border-black/5 dark:border-white/10 text-sm font-medium outline-none focus:ring-2 ring-zinc-900/10 dark:ring-white/20">
+          </div>
+        </div>
+      </div>
+      <div class="mt-4 flex justify-end gap-2">
+        <button onclick="closeModal('modal-card')" class="px-4 py-2 rounded-xl bg-black/5 dark:bg-white/10 text-sm font-bold">Batal</button>
+        <button onclick="addCard(this)" class="px-4 py-2 rounded-xl bg-zinc-900 dark:bg-zinc-50 text-zinc-50 dark:text-zinc-900 text-sm font-bold">Simpan Kartu</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div id="toast" class="toast hidden-toast fixed bottom-6 left-1/2 -translate-x-1/2 z-[70] glass-panel rounded-2xl px-5 py-3.5 flex items-center gap-3 shadow-2xl">
+    <span class="grid place-items-center w-7 h-7 rounded-full bg-emerald-500/15 text-emerald-600 dark:text-emerald-400"><i data-lucide="check" class="w-4 h-4"></i></span>
+    <div><p id="toast-title" class="text-sm font-bold">Berhasil</p><p id="toast-msg" class="text-xs text-zinc-500 dark:text-zinc-400"></p></div>
+  </div>
+
+  <button onclick="toggleTheme()" class="fixed top-5 right-5 z-[60] p-2.5 rounded-full glass-panel shadow-2xl text-zinc-600 dark:text-zinc-300">
+    <i data-lucide="moon" class="w-4 h-4 hidden dark:block"></i>
+    <i data-lucide="sun" class="w-4 h-4 block dark:hidden"></i>
+  </button>
+
+  <script>
+    lucide.createIcons();
+    function toggleTheme(){const b=document.body;const h=document.documentElement;b.classList.toggle('dark');h.classList.toggle('dark');try{localStorage.setItem('uroo-theme',b.classList.contains('dark')?'dark':'light')}catch(e){};lucide.createIcons();}
+
+    const toast=document.getElementById('toast');
+    let toastTimer;
+    function showToast(title,msg){document.getElementById('toast-title').textContent=title||'Berhasil';document.getElementById('toast-msg').textContent=msg||'';toast.classList.remove('hidden-toast');toast.classList.add('anim-toast-in');clearTimeout(toastTimer);toastTimer=setTimeout(()=>{toast.classList.add('hidden-toast');toast.classList.remove('anim-toast-in')},2800);}
+    function closeModal(id){const m=document.getElementById(id);m.classList.add('hidden');m.classList.remove('flex');}
+    function openModal(id){const m=document.getElementById(id);m.classList.remove('hidden');m.classList.add('flex');}
+
+    const planMeta={basic:['Basic','Rp 149.000/bln'],pro:['Pro','Rp 299.000/bln'],biz:['Bisnis','Rp 599.000/bln']};
+    function selectPlan(btn,key){
+      document.querySelectorAll('.plan-card').forEach(c=>{c.classList.toggle('selected',c.dataset.plan===key);});
+      const isCurrent=key==='pro';
+      document.getElementById('plan-confirm-name').textContent=planMeta[key][0];
+      document.getElementById('plan-confirm-price').textContent=planMeta[key][1];
+      if(isCurrent){showToast('Paket tidak berubah','Anda sudah menggunakan paket Pro');return;}
+      document.querySelector('#modal-plan [data-confirm]')?.setAttribute('data-confirm',key);
+      sessionStorage.setItem('pending-plan',key);
+      openModal('modal-plan');
+    }
+    function confirmPlan(btn){
+      const key=sessionStorage.getItem('pending-plan')||'biz';
+      closeModal('modal-plan');
+      sessionStorage.removeItem('pending-plan');
+      showToast('Paket diperbarui','Perubahan paket akan berlaku pada tagihan berikutnya');
+      location.hash='#billing';
+    }
+    function addCard(btn){
+      const no=document.getElementById('card-no').value.trim();
+      const name=document.getElementById('card-name').value.trim();
+      const exp=document.getElementById('card-exp').value.trim();
+      if(no.replace(/\s/g,'').length<15||!name||!exp){
+        showToast('Data tidak lengkap','Periksa kembali informasi kartu');
+        return;
+      }
+      closeModal('modal-card');
+      showToast('Kartu ditambahkan','Metode pembayaran baru berhasil disimpan');
+    }
+    function removeCard(btn){
+      if(!confirm('Hapus metode pembayaran ini?'))return;
+      btn.closest('.flex').closest('div').outerHTML='';
+      showToast('Kartu dihapus','Metode pembayaran telah dihapus');
+    }
+    document.querySelectorAll('.plan-card').forEach(c=>{c.querySelector('button').addEventListener('click',e=>{e.stopPropagation();});});
+    function downloadInvoice(){showToast('Faktur diunduh','Faktur PDF telah diunduh');}
+  </script>
+<script src="../../assets/js/uroo-nav.js"></script>
+</body>
+</html>

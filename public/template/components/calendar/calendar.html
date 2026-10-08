@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="id" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Uroo UI - Kalender</title>
+  <script src="../../assets/js/tailwind.js"></script>
+  <script src="../../assets/js/lucide.js"></script>
+  <script>tailwind.config={darkMode:'class',theme:{extend:{colors:{glass:{light:'rgba(255,255,255,0.65)','light-border':'rgba(255,255,255,0.8)',dark:'rgba(18,18,20,0.65)','dark-border':'rgba(255,255,255,0.1)'}}}}}</script>
+  <link rel="stylesheet" href="../../assets/css/uroo.css">
+</head>
+<body class="min-h-screen p-6 font-sans antialiased text-zinc-800 dark:text-zinc-100" style="background:linear-gradient(135deg,#dfe3ea,#f4f4f5)">
+  <script>(function initTheme(){var saved=null;try{saved=localStorage.getItem('uroo-theme')}catch(e){};var dark=(saved==='dark')||(!saved&&window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches);var de=document.documentElement;if(dark){de.classList.add('dark');de.classList.remove('light');if(document.body){document.body.classList.add('dark');document.body.classList.remove('light');}}else{de.classList.remove('dark');de.classList.add('light');if(document.body){document.body.classList.remove('dark');document.body.classList.add('light');}}})();</script>
+
+<style>
+  body.dark{background:linear-gradient(135deg,#0a0a0c,#1a1a1e)!important}
+  body:not(.dark) .icon-sun{display:none}
+  body.dark .icon-moon{display:none}
+  .u-day{border-radius:.75rem;transition:background-color .2s ease,transform .2s ease,box-shadow .2s ease}
+  .u-day:hover{transform:translateY(-1px);background:rgba(0,0,0,.05)}
+  body.dark .u-day:hover{background:rgba(255,255,255,.08)}
+  .u-day.u-sel{background:#18181b;color:#fafafa;box-shadow:0 12px 24px -10px rgba(0,0,0,.45)}
+  body.dark .u-day.u-sel{background:#f4f4f5;color:#18181b;box-shadow:0 12px 24px -10px rgba(0,0,0,.6)}
+  .u-day:not(.u-sel).u-today{box-shadow:inset 0 0 0 1.5px rgba(0,0,0,.4)}
+  body.dark .u-day:not(.u-sel).u-today{box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.55)}
+  .u-evdot{width:5px;height:5px;border-radius:9999px}
+  .u-kbd{display:inline-flex;align-items:center;justify-content:center;min-width:1.5rem;padding:.15rem .4rem;border-radius:.5rem;font-size:.65rem;font-weight:700;line-height:1.4;color:inherit;background:rgba(0,0,0,.06);border:1px solid rgba(0,0,0,.1)}
+  body.dark .u-kbd{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.14)}
+  .u-ghost{transition:background-color .2s ease,transform .2s ease}
+  .u-ghost:hover{background:rgba(0,0,0,.06)}
+  body.dark .u-ghost:hover{background:rgba(255,255,255,.1)}
+  .u-ghost:active{transform:scale(.94)}
+</style>
+
+<button onclick="toggleTheme()" aria-label="Ganti tema" title="Ganti tema"
+  class="fixed top-6 right-6 z-50 glass-panel rounded-full p-2.5 text-zinc-600 dark:text-zinc-200 hover:scale-110 transition-transform">
+  <i data-lucide="sun" class="icon-sun w-5 h-5"></i>
+  <i data-lucide="moon" class="icon-moon w-5 h-5"></i>
+</button>
+
+<main class="relative max-w-6xl mx-auto pt-16 pb-24">
+
+  <div class="pointer-events-none absolute inset-0" aria-hidden="true">
+    <div class="absolute -top-20 -left-24 w-[28rem] h-[28rem] bg-black/5 dark:bg-white/5 blur-3xl rounded-full"></div>
+    <div class="absolute top-1/3 -right-32 w-[30rem] h-[30rem] bg-black/5 dark:bg-white/5 blur-3xl rounded-full"></div>
+    <div class="absolute bottom-0 left-1/3 w-[24rem] h-[24rem] bg-black/5 dark:bg-white/5 blur-3xl rounded-full"></div>
+  </div>
+
+  <div class="relative z-10">
+    <header class="mb-10">
+      <p class="text-[11px] font-bold uppercase tracking-[0.2em] text-zinc-400 dark:text-zinc-500">Uroo UI / Kalender</p>
+      <h1 class="mt-2 text-3xl md:text-4xl font-extrabold tracking-tight text-zinc-900 dark:text-white">Kalender Interaktif</h1>
+      <p class="mt-3 max-w-2xl text-sm leading-relaxed text-zinc-500 dark:text-zinc-400">
+        Kalender bulanan dengan navigasi antar bulan, penyorotan tanggal hari ini, pemilihan tanggal,
+        dan penanda acara pada beberapa tanggal tertentu. Semua tersimpan dalam panel kaca monokrom.
+      </p>
+    </header>
+
+    <section class="mb-12">
+      <div class="flex items-center gap-3 mb-5">
+        <span class="h-5 w-1 rounded-full bg-zinc-900 dark:bg-zinc-100"></span>
+        <h2 class="text-lg font-bold text-zinc-900 dark:text-white">Demo Kalender</h2>
+      </div>
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div data-copy class="lg:col-span-2 glass-panel rounded-3xl p-6 md:p-7">
+          <div class="flex items-center justify-between mb-6">
+            <div>
+              <p id="mTitle" class="text-xl font-extrabold tracking-tight text-zinc-900 dark:text-white">Agustus 2026</p>
+              <p class="text-xs text-zinc-400 dark:text-zinc-500 mt-0.5">Klik tanggal untuk melihat detail acara</p>
+            </div>
+            <div class="flex items-center gap-2">
+              <button onclick="goToday()" class="u-ghost hidden sm:inline-flex items-center gap-1.5 rounded-full bg-zinc-900/5 dark:bg-white/10 px-3.5 py-2 text-xs font-semibold text-zinc-700 dark:text-zinc-200">
+                <i data-lucide="calendar-days" class="w-3.5 h-3.5"></i>
+                Hari Ini
+              </button>
+              <button onclick="goPrev()" aria-label="Bulan sebelumnya" class="u-ghost inline-flex items-center justify-center rounded-full glass-subtle w-9 h-9 text-zinc-600 dark:text-zinc-300">
+                <i data-lucide="chevron-left" class="w-4.5 h-4.5"></i>
+              </button>
+              <button onclick="goNext()" aria-label="Bulan berikutnya" class="u-ghost inline-flex items-center justify-center rounded-full glass-subtle w-9 h-9 text-zinc-600 dark:text-zinc-300">
+                <i data-lucide="chevron-right" class="w-4.5 h-4.5"></i>
+              </button>
+            </div>
+          </div>
+
+          <div id="wdays" class="grid grid-cols-7 gap-1.5 mb-2"></div>
+          <div id="dayGrid" class="grid grid-cols-7 gap-1.5"></div>
+        </div>
+
+        <div data-copy class="glass-panel rounded-3xl p-6 md:p-7">
+          <p class="text-[11px] font-bold uppercase tracking-[0.2em] text-zinc-400 dark:text-zinc-500">Tanggal Terpilih</p>
+          <p id="infoDate" class="mt-2 text-lg font-extrabold tracking-tight text-zinc-900 dark:text-white">Jumat, 29 Agustus 2026</p>
+
+          <div id="infoEvents" class="mt-4 space-y-2"></div>
+
+          <div class="mt-6 pt-6 border-t border-zinc-900/10 dark:border-white/10">
+            <p class="text-xs font-semibold text-zinc-400 dark:text-zinc-500 mb-3">Legenda Kategori</p>
+            <div id="legend" class="flex flex-wrap gap-2"></div>
+          </div>
+
+          <div class="mt-6 pt-6 border-t border-zinc-900/10 dark:border-white/10">
+            <p class="text-xs font-semibold text-zinc-400 dark:text-zinc-500 mb-3">Acara Bulan Ini</p>
+            <div id="monthEvents" class="space-y-1.5"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="flex items-center gap-3 mb-5">
+        <span class="h-5 w-1 rounded-full bg-zinc-900 dark:bg-zinc-100"></span>
+        <h2 class="text-lg font-bold text-zinc-900 dark:text-white">Ringkasan Bulan</h2>
+      </div>
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <div data-copy class="glass-panel rounded-3xl p-5">
+          <div class="flex items-center gap-3">
+            <span class="glass-subtle rounded-2xl w-11 h-11 inline-flex items-center justify-center text-zinc-700 dark:text-zinc-200"><i data-lucide="sparkles" class="w-5 h-5"></i></span>
+            <div>
+              <p id="statTotal" class="text-2xl font-extrabold text-zinc-900 dark:text-white">9</p>
+              <p class="text-[11px] font-medium text-zinc-400 dark:text-zinc-500">Total Acara</p>
+            </div>
+          </div>
+        </div>
+        <div data-copy class="glass-panel rounded-3xl p-5">
+          <div class="flex items-center gap-3">
+            <span class="glass-subtle rounded-2xl w-11 h-11 inline-flex items-center justify-center text-zinc-700 dark:text-zinc-200"><i data-lucide="clock" class="w-5 h-5"></i></span>
+            <div>
+              <p id="statSisa" class="text-2xl font-extrabold text-zinc-900 dark:text-white">4</p>
+              <p class="text-[11px] font-medium text-zinc-400 dark:text-zinc-500">Acara Tersisa</p>
+            </div>
+          </div>
+        </div>
+        <div data-copy class="glass-panel rounded-3xl p-5">
+          <div class="flex items-center gap-3">
+            <span class="glass-subtle rounded-2xl w-11 h-11 inline-flex items-center justify-center text-zinc-700 dark:text-zinc-200"><i data-lucide="calendar-heart" class="w-5 h-5"></i></span>
+            <div>
+              <p id="statWknd" class="text-2xl font-extrabold text-zinc-900 dark:text-white">2</p>
+              <p class="text-[11px] font-medium text-zinc-400 dark:text-zinc-500">Akhir Pekan</p>
+            </div>
+          </div>
+        </div>
+        <div data-copy class="glass-panel rounded-3xl p-5">
+          <div class="flex items-center gap-3">
+            <span class="glass-subtle rounded-2xl w-11 h-11 inline-flex items-center justify-center text-zinc-700 dark:text-zinc-200"><i data-lucide="layers" class="w-5 h-5"></i></span>
+            <div>
+              <p id="statAktif" class="text-2xl font-extrabold text-zinc-900 dark:text-white">8</p>
+              <p class="text-[11px] font-medium text-zinc-400 dark:text-zinc-500">Hari Aktif</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+</main>
+
+<script>
+  lucide.createIcons();
+  function toggleTheme(){const h=document.documentElement,b=document.body;h.classList.toggle('dark');b.classList.toggle('dark');try{localStorage.setItem('uroo-theme',b.classList.contains('dark')?'dark':'light')}catch(e){};lucide.createIcons();}
+
+  var now = new Date();
+  var today = { y: now.getFullYear(), m: now.getMonth(), d: now.getDate() };
+  var view = { y: today.y, m: today.m };
+  var sel  = { y: today.y, m: today.m, d: today.d };
+
+  var BULAN = 'Januari Februari Maret April Mei Juni Juli Agustus September Oktober November Desember'.split(' ');
+  var HARI_S = ['Sen','Sel','Rab','Kam','Jum','Sab','Min'];
+  var HARI_P = ['Senin','Selasa','Rabu','Kamis','Jumat','Sabtu','Minggu'];
+  var CATS = [
+    { k:'desain', label:'Desain', icon:'palette',       dot:'bg-zinc-900  dark:bg-zinc-100' },
+    { k:'tim',    label:'Tim',    icon:'users',         dot:'bg-zinc-600  dark:bg-zinc-300' },
+    { k:'klien',  label:'Klien',  icon:'handshake',     dot:'bg-zinc-400  dark:bg-zinc-500' },
+    { k:'rilis',  label:'Rilis',  icon:'rocket',        dot:'bg-zinc-300  dark:bg-zinc-400' },
+    { k:'admin',  label:'Admin',  icon:'clipboard-list',dot:'bg-zinc-200  dark:bg-zinc-600' }
+  ];
+
+  function catOf(k){ return CATS.find(function(c){return c.k===k}) || CATS[0]; }
+  function daysIn(y,m){ return new Date(y,m+1,0).getDate(); }
+  function pad(n){ return String(n).padStart(2,'0'); }
+  function iso(y,m,d){ return y+'-'+pad(m+1)+'-'+pad(d); }
+  function dowMon(y,m,d){ return (new Date(y,m,d).getDay()+6)%7; }
+
+  function eventsFor(y,m){
+    var dim = daysIn(y,m);
+    var base = [
+      {d:3,  t:'Sprint planning',            c:'tim'},
+      {d:5,  t:'Review desain halaman utama',c:'desain'},
+      {d:9,  t:'Demo klien',                 c:'klien'},
+      {d:12, t:'Retrospektif tim',           c:'tim'},
+      {d:16, t:'Rilis build internal v2.4',  c:'rilis'},
+      {d:21, t:'Workshop desain bersama',    c:'desain'},
+      {d:24, t:'Meeting vendor infrastruktur',c:'klien'},
+      {d:27, t:'Penutupan laporan bulanan',  c:'admin'},
+      {d:30, t:'Roadmap kuartal berikutnya', c:'admin'}
+    ];
+    return base.filter(function(e){return e.d<=dim});
+  }
+  function eventsOn(y,m,d){ return eventsFor(y,m).filter(function(e){return e.d===d}); }
+
+  function setView(y,m){
+    if(m<0){m=11;y--} else if(m>11){m=0;y++}
+    view.y=y; view.m=m;
+  }
+  function goPrev(){ setView(view.y, view.m-1); render(); }
+  function goNext(){ setView(view.y, view.m+1); render(); }
+  function goToday(){ setView(today.y, today.m); sel.y=today.y; sel.m=today.m; sel.d=today.d; render(); }
+  function pickDate(y,m,d){ sel.y=y; sel.m=m; sel.d=d; setView(y,m); render(); }
+
+  function renderLegend(){
+    document.getElementById('legend').innerHTML = CATS.map(function(c,i){
+      return '<span class="inline-flex items-center gap-1.5 rounded-full bg-zinc-900/5 dark:bg-white/5 px-2.5 py-1 text-[11px] font-medium text-zinc-500 dark:text-zinc-400">'+
+        '<span class="w-2 h-2 rounded-full '+c.dot+'"></span>'+c.label+'</span>';
+    }).join('');
+  }
+
+  function renderDayCells(){
+    var dim = daysIn(view.y, view.m);
+    var off = dowMon(view.y, view.m, 1);
+    var prevDim = daysIn(view.y, view.m-1);
+    var nextY = view.m===11 ? view.y+1 : view.y;
+    var nextM = view.m===11 ? 0 : view.m+1;
+    var nextDim = daysIn(nextY, nextM);
+    var ev = eventsFor(view.y, view.m);
+    var total = off + dim;
+    var r = '';
+    for(var i=0;i<total;i++){
+      var idx = i-off, y, m, d, inCur, isToday, isSel, evs = [];
+      if(idx<0){ y=view.y; m=view.m-1; if(m<0){m=11;y--} d=prevDim+idx+1; inCur=false; }
+      else if(idx<dim){ y=view.y; m=view.m; d=idx+1; inCur=true; evs=ev.filter(function(e){return e.d===d}); }
+      else { y=nextY; m=nextM; d=idx-dim+1; if(d>nextDim) break; inCur=false; }
+      isToday = (d===today.d && m===today.m && y===today.y);
+      isSel   = (d===sel.d && m===sel.m && y===sel.y);
+      var cls = 'u-day relative flex flex-col items-center justify-center gap-1 h-12 md:h-14 text-sm font-medium cursor-pointer ' +
+        (inCur ? 'text-zinc-800 dark:text-zinc-100' : 'text-zinc-300 dark:text-zinc-600') +
+        (isSel ? ' u-sel font-bold' : '') +
+        (isToday && !isSel ? ' u-today font-bold' : '');
+      var numCls = 'text-[13px] leading-none ' + (isSel ? 'text-inherit' : '');
+      var dots = '<span class="flex gap-1 items-center justify-center min-h-[7px]">';
+      if(inCur && evs.length){
+        var shown = evs.slice(0,4);
+        for(var k=0;k<shown.length;k++){ dots += '<span class="u-evdot '+catOf(shown[k].c).dot+'"></span>'; }
+        if(evs.length>4){ dots += '<span class="w-auto px-0.5 text-[8px] font-bold text-zinc-400 dark:text-zinc-600 leading-none">+'+(evs.length-4)+'</span>'; }
+      }
+      if(isToday && evs.length===0){
+        dots += '<span class="u-evdot ring-1 ring-zinc-900/50 dark:ring-white/50"></span>';
+      }
+      dots += '</span>';
+      r += '<button type="button" onclick="pickDate('+y+','+m+','+d+')" aria-label="Pilih tanggal '+d+' '+BULAN[m]+' '+y+'" class="'+cls+'">'+
+        '<span class="'+numCls+'">'+d+'</span>'+dots+'</button>';
+    }
+    document.getElementById('dayGrid').innerHTML = r;
+  }
+
+  function renderInfo(){
+    var dsel = sel;
+    var label = HARI_P[dowMon(dsel.y,dsel.m,dsel.d)] + ', ' + dsel.d + ' ' + BULAN[dsel.m] + ' ' + dsel.y;
+    document.getElementById('infoDate').textContent = label;
+    var evs = eventsOn(dsel.y,dsel.m,dsel.d);
+    var box;
+    if(evs.length){
+      box = evs.map(function(e){
+        var c = catOf(e.c);
+        return '<div class="flex items-start gap-3 rounded-2xl bg-zinc-900/5 dark:bg-white/5 p-3">'+
+          '<span class="glass-subtle rounded-xl w-9 h-9 shrink-0 inline-flex items-center justify-center text-zinc-700 dark:text-zinc-200"><i data-lucide="'+c.icon+'" class="w-4 h-4"></i></span>'+
+          '<div><p class="text-sm font-semibold text-zinc-800 dark:text-zinc-100">'+e.t+'</p>'+
+          '<p class="text-[11px] text-zinc-400 dark:text-zinc-500 mt-0.5">'+c.label+'</p></div></div>';
+      }).join('');
+    } else {
+      box = '<div class="rounded-2xl border border-dashed border-zinc-300 dark:border-white/15 p-4 text-center">'+
+        '<p class="text-sm font-medium text-zinc-400 dark:text-zinc-500">Tidak ada acara pada tanggal ini</p>'+
+        '<p class="text-xs text-zinc-300 dark:text-zinc-600 mt-1">Pilih tanggal lain untuk melihat detail</p></div>';
+    }
+    document.getElementById('infoEvents').innerHTML = box;
+
+    var evM = eventsFor(view.y, view.m);
+    var evR = evM.map(function(e){
+      var c = catOf(e.c);
+      var dow = HARI_P[dowMon(view.y,view.m,e.d)].slice(0,3);
+      return '<button type="button" onclick="pickDate('+view.y+','+view.m+','+e.d+')" class="u-ghost w-full flex items-center gap-3 rounded-xl px-3 py-2 text-left">'+
+        '<span class="w-2 h-2 rounded-full shrink-0 '+c.dot+'"></span>'+
+        '<span class="flex-1 min-w-0"><span class="block text-[13px] font-medium text-zinc-700 dark:text-zinc-200 truncate">'+e.t+'</span>'+
+        '<span class="block text-[11px] text-zinc-400 dark:text-zinc-500">'+dow+', '+e.d+' '+BULAN[view.m]+'</span></span>'+
+        '<i data-lucide="chevron-right" class="w-4 h-4 text-zinc-300 dark:text-zinc-600"></i></button>';
+    }).join('');
+    document.getElementById('monthEvents').innerHTML = evR;
+
+    var sisa = evM.filter(function(e){
+      if(view.y===today.y && view.m===today.m && e.d < today.d) return false;
+      return true;
+    }).length;
+    var wknd = evM.filter(function(e){ var dow=new Date(view.y,view.m,e.d).getDay(); return dow===0||dow===6; }).length;
+    var aktif = evM.filter(function(e,i,a){ return a.findIndex(function(x){return x.d===e.d})===i; }).length;
+    document.getElementById('statTotal').textContent = evM.length;
+    document.getElementById('statSisa').textContent = sisa;
+    document.getElementById('statWknd').textContent = wknd;
+    document.getElementById('statAktif').textContent = aktif;
+    lucide.createIcons();
+  }
+
+  function render(){
+    document.getElementById('mTitle').textContent = BULAN[view.m] + ' ' + view.y;
+    document.getElementById('wdays').innerHTML = HARI_S.map(function(h){
+      return '<div class="text-center text-[11px] font-bold uppercase tracking-wider text-zinc-400 dark:text-zinc-500 py-1.5">'+h+'</div>';
+    }).join('');
+    renderDayCells();
+    renderInfo();
+  }
+
+  render();
+</script>
+<script src="../../assets/js/uroo-copy.js"></script>
+<script src="../../assets/js/uroo-nav.js"></script>
+</body>
+</html>

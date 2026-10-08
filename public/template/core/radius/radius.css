@@ -1,0 +1,23 @@
+/* ============================================================
+   UROO UI - Radius
+   Soft, glassy, rounded card radius system
+   ============================================================ */
+:root {
+  --radius-none: 0;
+  --radius-xs: 0.375rem;
+  --radius-sm: 0.625rem;
+  --radius-md: 0.875rem;
+  --radius-lg: 1.25rem;
+  --radius-xl: 1.5rem;
+  --radius-2xl: 2rem;
+  --radius-3xl: 2.5rem;
+  --radius-full: 9999px;
+}
+
+.rounded-token-xs { border-radius: var(--radius-xs); }
+.rounded-token-sm { border-radius: var(--radius-sm); }
+.rounded-token-md { border-radius: var(--radius-md); }
+.rounded-token-lg { border-radius: var(--radius-lg); }
+.rounded-token-xl { border-radius: var(--radius-xl); }
+.rounded-token-2xl { border-radius: var(--radius-2xl); }
+.rounded-token-full { border-radius: var(--radius-full); }

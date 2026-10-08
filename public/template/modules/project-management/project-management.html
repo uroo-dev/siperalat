@@ -1,0 +1,1748 @@
+<!DOCTYPE html>
+<html lang="id" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Uroo UI — Manajemen Proyek &amp; Sprint</title>
+  <script src="../../assets/js/tailwind.js"></script>
+  <script src="../../assets/js/lucide.js"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            glass: {
+              light: 'rgba(255, 255, 255, 0.55)',
+              'light-border': 'rgba(255, 255, 255, 0.8)',
+              dark: 'rgba(24, 24, 27, 0.55)',
+              'dark-border': 'rgba(255, 255, 255, 0.08)'
+            }
+          }
+        }
+      }
+    };
+  </script>
+  <link rel="stylesheet" href="../../assets/css/uroo.css">
+  <style>
+    /* Liquid Glassmorphism Core Effect */
+    .glass-panel {
+      backdrop-filter: blur(20px) saturate(180%);
+      -webkit-backdrop-filter: blur(20px) saturate(180%);
+    }
+
+    .light .glass-panel,
+    html:not(.dark) .glass-panel,
+    body:not(.dark) .glass-panel {
+      background-color: rgba(255, 255, 255, 0.55);
+      border: 1px solid rgba(255, 255, 255, 0.8);
+      box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.05),
+                  inset 0 1px 1px 0 rgba(255, 255, 255, 0.9);
+    }
+
+    .dark .glass-panel,
+    html.dark .glass-panel,
+    body.dark .glass-panel {
+      background-color: rgba(24, 24, 27, 0.55);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.5),
+                  inset 0 1px 1px 0 rgba(255, 255, 255, 0.1);
+    }
+
+    /* Smooth Transition Theme */
+    body, div, nav, button, a, input, select, textarea, section, aside, header, main, footer, span, li, table, tr, td, th {
+      transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    #sidebar { width: 16.5rem; transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), width 0.28s cubic-bezier(0.16, 1, 0.3, 1); }
+    #sidebar.collapsed { width: 4.85rem; }
+    #sidebar .nav-label { transition: opacity 0.15s ease, width 0.15s ease; }
+    #sidebar.collapsed .nav-label { opacity: 0; width: 0; overflow: hidden; white-space: nowrap; }
+    #sidebar.collapsed .nav-link { justify-content: center; padding-left: 0; padding-right: 0; }
+    #sidebar.collapsed .group-title { justify-content: center; padding-left: 0; padding-right: 0; text-align: center; }
+    #sidebar.collapsed .nav-text { display: none; }
+    #sidebar.collapsed .logo-text { display: none; }
+    @media (max-width: 1023px) {
+      #sidebar { position: fixed; top: 1rem; bottom: 1rem; left: 1rem; z-index: 50; transform: translateX(-130%); width: 17rem; }
+      #sidebar.open { transform: translateX(0); }
+    }
+
+    .u-view { display: none; opacity: 0; transform: translateY(8px); transition: opacity 0.25s ease, transform 0.25s ease; }
+    .u-view.active { display: block; opacity: 1; transform: translateY(0); }
+
+    .hover-row:hover { background-color: rgba(0, 0, 0, 0.03); }
+    .dark .hover-row:hover { background-color: rgba(255, 255, 255, 0.04); }
+
+    .kanban-col { min-width: 260px; max-width: 320px; }
+
+    /* Interactive cards */
+    .dj-card, .tm-card, .tp-card { transition: transform 0.3s cubic-bezier(0.16,1,0.3,1), box-shadow 0.3s ease; }
+    .dj-card:hover, .tm-card:hover, .tp-card:hover { transform: translateY(-3px); }
+    .kb-card { transition: transform 0.2s ease, box-shadow 0.2s ease; }
+    .kb-card:hover { transform: translateY(-2px); box-shadow: 0 8px 20px -8px rgba(0,0,0,0.25); }
+    .day-cell { transition: background-color 0.2s ease, transform 0.2s ease; cursor: pointer; }
+    .day-cell:hover { background-color: rgba(0,0,0,0.08); }
+    .dark .day-cell:hover { background-color: rgba(255,255,255,0.1); }
+
+    /* Settings appearance */
+    .appearance-card.selected { background: rgba(0,0,0,0.08); border-color: rgba(24,24,27,0.6); }
+    .dark .appearance-card.selected { background: rgba(255,255,255,0.12); border-color: rgba(255,255,255,0.5); }
+
+    /* FAQ open state */
+    .faq-item.open i[data-lucide="chevron-down"] { transform: rotate(180deg); }
+  </style>
+</head>
+<body class="bg-gray-100 dark:bg-zinc-950 text-zinc-800 dark:text-zinc-100 font-sans min-h-screen antialiased p-3 sm:p-4 lg:p-6">
+
+  <!-- Mobile Drawer Overlay -->
+  <div id="overlay" class="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm opacity-0 pointer-events-none transition-opacity duration-300 lg:hidden" onclick="closeDrawer()" aria-hidden="true"></div>
+
+  <!-- Floating Controller Bar -->
+  <div class="fixed top-4 right-6 z-50 flex items-center gap-2 p-1.5 rounded-full glass-panel shadow-2xl">
+    <button onclick="toggleTheme()" class="p-2 rounded-full hover:bg-black/5 dark:hover:bg-white/10 transition" title="Toggle Tema">
+      <i data-lucide="sun" class="w-4 h-4 hidden dark:block text-amber-400"></i>
+      <i data-lucide="moon" class="w-4 h-4 block dark:hidden text-zinc-800"></i>
+    </button>
+  </div>
+
+  <div class="max-w-[1600px] mx-auto lg:flex lg:gap-6 relative min-h-screen">
+
+    <!-- ============================ SIDEBAR ============================ -->
+    <aside id="sidebar" class="glass-panel rounded-3xl p-5 flex flex-col justify-between shrink-0 lg:sticky lg:top-6 lg:h-[calc(100vh-3rem)] z-40">
+      <div class="space-y-6">
+        <!-- Logo Brand -->
+        <div class="flex items-center gap-3 px-2">
+          <div class="w-8 h-8 rounded-xl bg-black dark:bg-white text-white dark:text-black flex items-center justify-center font-black text-lg shadow-sm"><img src="../../assets/img/uroo_ui.png" alt="Uroo UI" class="w-8 h-8 rounded-xl object-cover"></div>
+          <div class="logo-text min-w-0">
+            <div class="flex items-center gap-1.5">
+              <span class="font-bold text-lg tracking-tight text-zinc-900 dark:text-white">Uroo UI</span>
+              <span class="text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-black/5 dark:bg-white/10 text-zinc-700 dark:text-zinc-300">v1.2</span>
+            </div>
+            <p class="text-[10px] font-bold uppercase tracking-[0.16em] text-zinc-500 dark:text-zinc-400">Projects</p>
+          </div>
+          <button onclick="closeDrawer()" class="ml-auto lg:hidden p-1.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 text-zinc-600 dark:text-zinc-400">
+            <i data-lucide="x" class="w-4 h-4"></i>
+          </button>
+        </div>
+
+        <!-- Navigation Links -->
+        <nav class="space-y-1 overflow-y-auto max-h-[calc(100vh-14rem)] pr-1 sidebar-scroll" aria-label="Menu Proyek">
+          <button onclick="switchView('ringkasan')" data-nav="ringkasan" class="nav-link w-full flex items-center gap-3 px-3 py-2.5 rounded-2xl text-sm font-medium transition bg-black text-white dark:bg-white dark:text-black shadow-sm">
+            <i data-lucide="layout-dashboard" class="w-4 h-4 shrink-0"></i>
+            <span class="nav-label text-left flex-1">Ringkasan</span>
+          </button>
+          <button onclick="switchView('proyek')" data-nav="proyek" class="nav-link w-full flex items-center gap-3 px-3 py-2.5 rounded-2xl text-sm font-medium transition text-zinc-600 dark:text-zinc-400 hover:bg-black/5 dark:hover:bg-white/5 hover:text-black dark:hover:text-white">
+            <i data-lucide="folder-kanban" class="w-4 h-4 shrink-0"></i>
+            <span class="nav-label text-left flex-1">Daftar Proyek</span>
+            <span class="nav-text text-[10px] font-bold px-1.5 py-0.5 rounded-md bg-emerald-500/15 text-emerald-700 dark:text-emerald-400">8 Aktif</span>
+          </button>
+          <button onclick="switchView('kanban')" data-nav="kanban" class="nav-link w-full flex items-center gap-3 px-3 py-2.5 rounded-2xl text-sm font-medium transition text-zinc-600 dark:text-zinc-400 hover:bg-black/5 dark:hover:bg-white/5 hover:text-black dark:hover:text-white">
+            <i data-lucide="trello" class="w-4 h-4 shrink-0"></i>
+            <span class="nav-label text-left flex-1">Papan Kanban</span>
+          </button>
+          <button onclick="switchView('tim')" data-nav="tim" class="nav-link w-full flex items-center gap-3 px-3 py-2.5 rounded-2xl text-sm font-medium transition text-zinc-600 dark:text-zinc-400 hover:bg-black/5 dark:hover:bg-white/5 hover:text-black dark:hover:text-white">
+            <i data-lucide="users" class="w-4 h-4 shrink-0"></i>
+            <span class="nav-label text-left flex-1">Alokasi Tim</span>
+          </button>
+          <button onclick="switchView('kalender')" data-nav="kalender" class="nav-link w-full flex items-center gap-3 px-3 py-2.5 rounded-2xl text-sm font-medium transition text-zinc-600 dark:text-zinc-400 hover:bg-black/5 dark:hover:bg-white/5 hover:text-black dark:hover:text-white">
+            <i data-lucide="calendar" class="w-4 h-4 shrink-0"></i>
+            <span class="nav-label text-left flex-1">Milestone &amp; Kalender</span>
+          </button>
+          <button onclick="switchView('portfolio')" data-nav="portfolio" class="nav-link w-full flex items-center gap-3 px-3 py-2.5 rounded-2xl text-sm font-medium transition text-zinc-600 dark:text-zinc-400 hover:bg-black/5 dark:hover:bg-white/5 hover:text-black dark:hover:text-white">
+            <i data-lucide="briefcase" class="w-4 h-4 shrink-0"></i>
+            <span class="nav-label text-left flex-1">Portfolio Strategis</span>
+          </button>
+          <button onclick="switchView('template')" data-nav="template" class="nav-link w-full flex items-center gap-3 px-3 py-2.5 rounded-2xl text-sm font-medium transition text-zinc-600 dark:text-zinc-400 hover:bg-black/5 dark:hover:bg-white/5 hover:text-black dark:hover:text-white">
+            <i data-lucide="copy" class="w-4 h-4 shrink-0"></i>
+            <span class="nav-label text-left flex-1">Template Proyek</span>
+          </button>
+          <button onclick="switchView('anggaran')" data-nav="anggaran" class="nav-link w-full flex items-center gap-3 px-3 py-2.5 rounded-2xl text-sm font-medium transition text-zinc-600 dark:text-zinc-400 hover:bg-black/5 dark:hover:bg-white/5 hover:text-black dark:hover:text-white">
+            <i data-lucide="pie-chart" class="w-4 h-4 shrink-0"></i>
+            <span class="nav-label text-left flex-1">Anggaran &amp; Burn Rate</span>
+          </button>
+          <button onclick="switchView('pengaturan')" data-nav="pengaturan" class="nav-link w-full flex items-center gap-3 px-3 py-2.5 rounded-2xl text-sm font-medium transition text-zinc-600 dark:text-zinc-400 hover:bg-black/5 dark:hover:bg-white/5 hover:text-black dark:hover:text-white">
+            <i data-lucide="settings" class="w-4 h-4 shrink-0"></i>
+            <span class="nav-label text-left flex-1">Pengaturan</span>
+          </button>
+          <button onclick="switchView('bantuan')" data-nav="bantuan" class="nav-link w-full flex items-center gap-3 px-3 py-2.5 rounded-2xl text-sm font-medium transition text-zinc-600 dark:text-zinc-400 hover:bg-black/5 dark:hover:bg-white/5 hover:text-black dark:hover:text-white">
+            <i data-lucide="help-circle" class="w-4 h-4 shrink-0"></i>
+            <span class="nav-label text-left flex-1">Bantuan</span>
+          </button>
+        </nav>
+      </div>
+
+      <!-- Sprint Velocity Card -->
+      <div class="glass-panel p-4 rounded-2xl border border-black/10 dark:border-white/10 text-center relative overflow-hidden mt-4">
+        <div class="flex items-center gap-2.5 justify-center mb-1">
+          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+          <p class="font-bold text-xs text-zinc-900 dark:text-white">Sprint 24 Aktif</p>
+        </div>
+        <p class="text-[11px] text-zinc-500 dark:text-zinc-400">84% Story Points Selesai</p>
+      </div>
+    </aside>
+
+    <!-- ============================ MAIN CONTENT ============================ -->
+    <main class="flex-1 min-w-0 space-y-6">
+
+      <!-- TOPBAR -->
+      <header class="glass-panel rounded-3xl p-3 px-6 flex items-center justify-between sticky top-6 z-30">
+        <div class="flex items-center gap-3">
+          <button onclick="openDrawer()" class="lg:hidden p-2 -ml-2 rounded-xl hover:bg-black/5 dark:hover:bg-white/10 text-zinc-700 dark:text-zinc-300">
+            <i data-lucide="menu" class="w-5 h-5"></i>
+          </button>
+          <div class="relative w-64 sm:w-80">
+            <i data-lucide="search" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400"></i>
+            <input type="text" placeholder="Cari task, tiket sprint, nama proyek..." class="w-full bg-black/5 dark:bg-white/5 border-none rounded-2xl pl-9 pr-10 py-2 text-sm text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-black/20 dark:focus:ring-white/20">
+            <span class="hidden sm:inline-block absolute right-3 top-1/2 -translate-y-1/2 text-[10px] font-mono text-zinc-400 border border-zinc-300 dark:border-zinc-700 px-1.5 py-0.5 rounded-md">⌘K</span>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-4">
+          <button onclick="toast('Tugas sprint tersinkronisasi realtime','bell')" class="p-2 rounded-2xl hover:bg-black/5 dark:hover:bg-white/5 relative text-zinc-700 dark:text-zinc-300">
+            <i data-lucide="bell" class="w-4 h-4"></i>
+            <span class="w-1.5 h-1.5 bg-black dark:bg-white rounded-full absolute top-2 right-2"></span>
+          </button>
+          
+          <div class="h-6 w-[1px] bg-zinc-200 dark:bg-zinc-800"></div>
+
+          <div class="flex items-center gap-3 pl-1">
+            <div class="w-9 h-9 rounded-2xl bg-black dark:bg-white text-white dark:text-black font-extrabold text-xs flex items-center justify-center ring-2 ring-black/10 dark:ring-white/10">PM</div>
+            <div class="text-left hidden sm:block">
+              <p class="text-xs font-bold leading-tight text-zinc-900 dark:text-white">Pramudya Mandra</p>
+              <p class="text-[10px] text-zinc-500 dark:text-zinc-400">Principal Project Lead</p>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <!-- ==================== VIEW 1: RINGKASAN ==================== -->
+      <div id="view-ringkasan" class="u-view active space-y-6">
+        <div class="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <h1 class="text-2xl font-bold tracking-tight text-zinc-900 dark:text-white">Ringkasan Manajemen Proyek</h1>
+            <p class="text-xs text-zinc-500 dark:text-zinc-400">Status perkembangan inisiatif produk, kecepatan sprint (velocity), dan alokasi tim.</p>
+          </div>
+          <button onclick="toast('Form inisiasi proyek baru dibuka','plus')" class="px-4 py-2 rounded-2xl bg-black text-white dark:bg-white dark:text-black text-xs font-semibold flex items-center gap-2 hover:opacity-90 shadow-sm">
+            <i data-lucide="plus" class="w-3.5 h-3.5"></i> Buat Proyek Baru
+          </button>
+        </div>
+
+        <!-- 4 Stats Cards -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div class="glass-panel p-5 rounded-3xl space-y-3">
+            <div class="flex justify-between items-start">
+              <span class="text-xs font-medium text-zinc-500 dark:text-zinc-400">Proyek Aktif</span>
+              <div class="p-2 rounded-2xl bg-black/5 dark:bg-white/5 text-zinc-800 dark:text-zinc-200"><i data-lucide="folder-kanban" class="w-4 h-4"></i></div>
+            </div>
+            <p class="text-2xl font-bold tracking-tight text-zinc-900 dark:text-white">8 Inisiatif</p>
+            <p class="text-[11px] text-zinc-500 dark:text-zinc-400"><span class="text-emerald-600 dark:text-emerald-400 font-semibold">100% On-Track</span> timeline</p>
+          </div>
+
+          <div class="glass-panel p-5 rounded-3xl space-y-3">
+            <div class="flex justify-between items-start">
+              <span class="text-xs font-medium text-zinc-500 dark:text-zinc-400">Tugas Diselesaikan</span>
+              <div class="p-2 rounded-2xl bg-black/5 dark:bg-white/5 text-zinc-800 dark:text-zinc-200"><i data-lucide="check-circle" class="w-4 h-4"></i></div>
+            </div>
+            <p class="text-2xl font-bold tracking-tight text-zinc-900 dark:text-white">184 / 218</p>
+            <p class="text-[11px] text-zinc-500 dark:text-zinc-400"><span class="text-emerald-600 dark:text-emerald-400 font-semibold">84,4%</span> target sprint ini</p>
+          </div>
+
+          <div class="glass-panel p-5 rounded-3xl space-y-3">
+            <div class="flex justify-between items-start">
+              <span class="text-xs font-medium text-zinc-500 dark:text-zinc-400">Anggota Tim Terlibat</span>
+              <div class="p-2 rounded-2xl bg-black/5 dark:bg-white/5 text-zinc-800 dark:text-zinc-200"><i data-lucide="users" class="w-4 h-4"></i></div>
+            </div>
+            <p class="text-2xl font-bold tracking-tight text-zinc-900 dark:text-white">32 Personil</p>
+            <p class="text-[11px] text-zinc-500 dark:text-zinc-400">Rata-rata utilisasi 82%</p>
+          </div>
+
+          <div class="glass-panel p-5 rounded-3xl space-y-3">
+            <div class="flex justify-between items-start">
+              <span class="text-xs font-medium text-zinc-500 dark:text-zinc-400">Efisiensi Budget Proyek</span>
+              <div class="p-2 rounded-2xl bg-black/5 dark:bg-white/5 text-zinc-800 dark:text-zinc-200"><i data-lucide="pie-chart" class="w-4 h-4"></i></div>
+            </div>
+            <p class="text-2xl font-bold tracking-tight text-emerald-600 dark:text-emerald-400 font-mono">Rp 1,18 M</p>
+            <p class="text-[11px] text-zinc-500 dark:text-zinc-400"><span class="text-emerald-600 dark:text-emerald-400 font-semibold">Hemat 12%</span> dari estimasi</p>
+          </div>
+        </div>
+
+        <!-- Active Projects Table -->
+        <div class="glass-panel rounded-3xl p-6 space-y-4">
+          <div class="flex items-center justify-between">
+            <div>
+              <h3 class="font-bold text-sm text-zinc-900 dark:text-white">Proyek Strategis Berjalan</h3>
+              <p class="text-xs text-zinc-500 dark:text-zinc-400">Inisiatif dengan prioritas tingkat tinggi</p>
+            </div>
+            <button onclick="switchView('proyek')" class="text-xs font-semibold text-zinc-700 dark:text-zinc-300 hover:underline">Semua Proyek →</button>
+          </div>
+
+          <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+              <thead>
+                <tr class="border-b border-black/5 dark:border-white/5 text-[11px] font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">
+                  <th class="pb-3 text-left">Nama Proyek</th>
+                  <th class="pb-3 text-left">Progress Milestone</th>
+                  <th class="pb-3 text-left">Project Lead</th>
+                  <th class="pb-3 text-right">Deadline</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-black/5 dark:divide-white/5 font-medium">
+                <tr class="hover-row">
+                  <td class="py-3.5 font-bold text-zinc-900 dark:text-white">Redesign Design System Uroo UI v2</td>
+                  <td class="py-3.5">
+                    <div class="flex items-center gap-3">
+                      <div class="w-24 h-2 rounded-full bg-black/10 dark:bg-white/10 overflow-hidden">
+                        <div class="h-full bg-emerald-500 rounded-full" style="width: 88%;"></div>
+                      </div>
+                      <span class="text-xs font-mono font-bold text-zinc-700 dark:text-zinc-300">88%</span>
+                    </div>
+                  </td>
+                  <td class="py-3.5 text-zinc-600 dark:text-zinc-300">Pramudya Mandra</td>
+                  <td class="py-3.5 text-right font-mono text-xs text-zinc-600 dark:text-zinc-400">15 Sep 2026</td>
+                </tr>
+                <tr class="hover-row">
+                  <td class="py-3.5 font-bold text-zinc-900 dark:text-white">Migrasi Microfrontend Cloud AI</td>
+                  <td class="py-3.5">
+                    <div class="flex items-center gap-3">
+                      <div class="w-24 h-2 rounded-full bg-black/10 dark:bg-white/10 overflow-hidden">
+                        <div class="h-full bg-blue-500 rounded-full" style="width: 64%;"></div>
+                      </div>
+                      <span class="text-xs font-mono font-bold text-zinc-700 dark:text-zinc-300">64%</span>
+                    </div>
+                  </td>
+                  <td class="py-3.5 text-zinc-600 dark:text-zinc-300">Ahmad Fauzan</td>
+                  <td class="py-3.5 text-right font-mono text-xs text-zinc-600 dark:text-zinc-400">30 Okt 2026</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==================== VIEW 2: PROYEK ==================== -->
+      <div id="view-proyek" class="u-view space-y-6">
+        <div class="flex flex-wrap items-end justify-between gap-4">
+          <div>
+            <h1 class="text-2xl font-bold tracking-tight text-zinc-900 dark:text-white">Daftar Proyek</h1>
+            <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-1">Kelola seluruh inisiatif, klien, dan tenggat dalam satu pandangan.</p>
+          </div>
+          <button onclick="toast('Form inisiasi proyek baru dibuka','plus')" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-black text-white dark:bg-white dark:text-black text-xs font-semibold hover:opacity-90 shadow-sm active:scale-[0.98]">
+            <i data-lucide="plus" class="w-3.5 h-3.5"></i> Proyek Baru
+          </button>
+        </div>
+
+        <div class="glass-panel rounded-3xl p-4 flex flex-wrap items-center gap-3">
+          <div class="relative flex-1 min-w-[240px]">
+            <i data-lucide="search" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400"></i>
+            <input id="proyekSearch" oninput="filterProyek()" type="text" placeholder="Cari nama proyek, klien, atau lead..." class="w-full bg-black/5 dark:bg-white/5 rounded-2xl pl-9 pr-3 py-2.5 text-sm outline-none focus:ring-2 ring-black/10 dark:ring-white/10 text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400">
+          </div>
+          <div class="flex flex-wrap gap-2">
+            <button onclick="filterProyekStatus('semua')" data-ps="semua" class="ps-chip px-3 py-1.5 rounded-full text-[11px] font-semibold bg-black text-white dark:bg-white dark:text-black">Semua</button>
+            <button onclick="filterProyekStatus('aktif')" data-ps="aktif" class="ps-chip px-3 py-1.5 rounded-full text-[11px] font-semibold text-zinc-500 dark:text-zinc-400 hover:bg-black/5 dark:hover:bg-white/5 bg-black/5 dark:bg-white/5">Aktif</button>
+            <button onclick="filterProyekStatus('on-track')" data-ps="on-track" class="ps-chip px-3 py-1.5 rounded-full text-[11px] font-semibold text-zinc-500 dark:text-zinc-400 hover:bg-black/5 dark:hover:bg-white/5 bg-black/5 dark:bg-white/5">On Track</button>
+            <button onclick="filterProyekStatus('at-risk')" data-ps="at-risk" class="ps-chip px-3 py-1.5 rounded-full text-[11px] font-semibold text-zinc-500 dark:text-zinc-400 hover:bg-black/5 dark:hover:bg-white/5 bg-black/5 dark:bg-white/5">At Risk</button>
+            <button onclick="filterProyekStatus('selesai')" data-ps="selesai" class="ps-chip px-3 py-1.5 rounded-full text-[11px] font-semibold text-zinc-500 dark:text-zinc-400 hover:bg-black/5 dark:hover:bg-white/5 bg-black/5 dark:bg-white/5">Selesai</button>
+          </div>
+        </div>
+
+        <div id="proyekGrid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+          <article data-ps="aktif on-track" class="dj-card glass-panel rounded-3xl p-5 flex flex-col gap-4">
+            <div class="flex items-start justify-between gap-3">
+              <div class="flex items-center gap-3 min-w-0">
+                <span class="grid place-items-center w-10 h-10 rounded-2xl bg-black/5 dark:bg-white/10 text-zinc-700 dark:text-zinc-200 shrink-0"><i data-lucide="folder-kanban" class="w-4 h-4"></i></span>
+                <div class="min-w-0">
+                  <h3 class="font-bold text-sm text-zinc-900 dark:text-white truncate">Redesign Design System v2</h3>
+                  <p class="text-[11px] text-zinc-500 dark:text-zinc-400">Klien · PT Nusantara Digital</p>
+                </div>
+              </div>
+              <span class="shrink-0 px-2 py-1 rounded-full text-[10px] font-bold bg-emerald-500/15 text-emerald-700 dark:text-emerald-400">On Track</span>
+            </div>
+            <div>
+              <div class="flex items-center justify-between text-[11px] mb-1.5">
+                <span class="text-zinc-500 dark:text-zinc-400">Progress milestone</span>
+                <span class="font-mono font-bold text-zinc-800 dark:text-zinc-200">88%</span>
+              </div>
+              <div class="h-2 rounded-full bg-black/10 dark:bg-white/10 overflow-hidden">
+                <div class="h-full bg-emerald-500 rounded-full" style="width:88%"></div>
+              </div>
+            </div>
+            <div class="flex items-center justify-between pt-1 border-t border-black/5 dark:border-white/5">
+              <div class="flex items-center gap-2">
+                <span class="grid place-items-center w-6 h-6 rounded-full bg-zinc-800 dark:bg-zinc-200 text-white dark:text-zinc-900 text-[9px] font-bold">PM</span>
+                <span class="text-[11px] text-zinc-500 dark:text-zinc-400">Pramudya</span>
+              </div>
+              <span class="text-[11px] font-mono text-zinc-600 dark:text-zinc-300 flex items-center gap-1"><i data-lucide="calendar" class="w-3 h-3"></i>15 Sep 2026</span>
+            </div>
+          </article>
+
+          <article data-ps="aktif at-risk" class="dj-card glass-panel rounded-3xl p-5 flex flex-col gap-4">
+            <div class="flex items-start justify-between gap-3">
+              <div class="flex items-center gap-3 min-w-0">
+                <span class="grid place-items-center w-10 h-10 rounded-2xl bg-blue-500/10 text-blue-700 dark:text-blue-400 shrink-0"><i data-lucide="cloud" class="w-4 h-4"></i></span>
+                <div class="min-w-0">
+                  <h3 class="font-bold text-sm text-zinc-900 dark:text-white truncate">Migrasi Microfrontend Cloud AI</h3>
+                  <p class="text-[11px] text-zinc-500 dark:text-zinc-400">Klien · Bank Sejahtera</p>
+                </div>
+              </div>
+              <span class="shrink-0 px-2 py-1 rounded-full text-[10px] font-bold bg-amber-500/15 text-amber-700 dark:text-amber-400">At Risk</span>
+            </div>
+            <div>
+              <div class="flex items-center justify-between text-[11px] mb-1.5">
+                <span class="text-zinc-500 dark:text-zinc-400">Progress milestone</span>
+                <span class="font-mono font-bold text-zinc-800 dark:text-zinc-200">64%</span>
+              </div>
+              <div class="h-2 rounded-full bg-black/10 dark:bg-white/10 overflow-hidden">
+                <div class="h-full bg-blue-500 rounded-full" style="width:64%"></div>
+              </div>
+            </div>
+            <div class="flex items-center justify-between pt-1 border-t border-black/5 dark:border-white/5">
+              <div class="flex items-center gap-2">
+                <span class="grid place-items-center w-6 h-6 rounded-full bg-blue-600 dark:bg-blue-400 text-white text-[9px] font-bold">AF</span>
+                <span class="text-[11px] text-zinc-500 dark:text-zinc-400">Ahmad</span>
+              </div>
+              <span class="text-[11px] font-mono text-zinc-600 dark:text-zinc-300 flex items-center gap-1"><i data-lucide="calendar" class="w-3 h-3"></i>30 Okt 2026</span>
+            </div>
+          </article>
+
+          <article data-ps="aktif on-track" class="dj-card glass-panel rounded-3xl p-5 flex flex-col gap-4">
+            <div class="flex items-start justify-between gap-3">
+              <div class="flex items-center gap-3 min-w-0">
+                <span class="grid place-items-center w-10 h-10 rounded-2xl bg-violet-500/10 text-violet-700 dark:text-violet-400 shrink-0"><i data-lucide="smartphone" class="w-4 h-4"></i></span>
+                <div class="min-w-0">
+                  <h3 class="font-bold text-sm text-zinc-900 dark:text-white truncate">Aplikasi Mobile POS Retail</h3>
+                  <p class="text-[11px] text-zinc-500 dark:text-zinc-400">Klien · Toko Maju Jaya</p>
+                </div>
+              </div>
+              <span class="shrink-0 px-2 py-1 rounded-full text-[10px] font-bold bg-emerald-500/15 text-emerald-700 dark:text-emerald-400">On Track</span>
+            </div>
+            <div>
+              <div class="flex items-center justify-between text-[11px] mb-1.5">
+                <span class="text-zinc-500 dark:text-zinc-400">Progress milestone</span>
+                <span class="font-mono font-bold text-zinc-800 dark:text-zinc-200">72%</span>
+              </div>
+              <div class="h-2 rounded-full bg-black/10 dark:bg-white/10 overflow-hidden">
+                <div class="h-full bg-violet-500 rounded-full" style="width:72%"></div>
+              </div>
+            </div>
+            <div class="flex items-center justify-between pt-1 border-t border-black/5 dark:border-white/5">
+              <div class="flex items-center gap-2">
+                <span class="grid place-items-center w-6 h-6 rounded-full bg-rose-500 dark:bg-rose-400 text-white text-[9px] font-bold">SN</span>
+                <span class="text-[11px] text-zinc-500 dark:text-zinc-400">Sari</span>
+              </div>
+              <span class="text-[11px] font-mono text-zinc-600 dark:text-zinc-300 flex items-center gap-1"><i data-lucide="calendar" class="w-3 h-3"></i>12 Nov 2026</span>
+            </div>
+          </article>
+
+          <article data-ps="aktif at-risk" class="dj-card glass-panel rounded-3xl p-5 flex flex-col gap-4">
+            <div class="flex items-start justify-between gap-3">
+              <div class="flex items-center gap-3 min-w-0">
+                <span class="grid place-items-center w-10 h-10 rounded-2xl bg-amber-500/10 text-amber-700 dark:text-amber-400 shrink-0"><i data-lucide="globe" class="w-4 h-4"></i></span>
+                <div class="min-w-0">
+                  <h3 class="font-bold text-sm text-zinc-900 dark:text-white truncate">Rebranding Portal E-Commerce</h3>
+                  <p class="text-[11px] text-zinc-500 dark:text-zinc-400">Klien · Fajar Marketplace</p>
+                </div>
+              </div>
+              <span class="shrink-0 px-2 py-1 rounded-full text-[10px] font-bold bg-amber-500/15 text-amber-700 dark:text-amber-400">At Risk</span>
+            </div>
+            <div>
+              <div class="flex items-center justify-between text-[11px] mb-1.5">
+                <span class="text-zinc-500 dark:text-zinc-400">Progress milestone</span>
+                <span class="font-mono font-bold text-zinc-800 dark:text-zinc-200">45%</span>
+              </div>
+              <div class="h-2 rounded-full bg-black/10 dark:bg-white/10 overflow-hidden">
+                <div class="h-full bg-amber-500 rounded-full" style="width:45%"></div>
+              </div>
+            </div>
+            <div class="flex items-center justify-between pt-1 border-t border-black/5 dark:border-white/5">
+              <div class="flex items-center gap-2">
+                <span class="grid place-items-center w-6 h-6 rounded-full bg-emerald-600 dark:bg-emerald-400 text-white text-[9px] font-bold">BT</span>
+                <span class="text-[11px] text-zinc-500 dark:text-zinc-400">Bambang</span>
+              </div>
+              <span class="text-[11px] font-mono text-zinc-600 dark:text-zinc-300 flex items-center gap-1"><i data-lucide="calendar" class="w-3 h-3"></i>25 Sep 2026</span>
+            </div>
+          </article>
+
+          <article data-ps="aktif on-track" class="dj-card glass-panel rounded-3xl p-5 flex flex-col gap-4">
+            <div class="flex items-start justify-between gap-3">
+              <div class="flex items-center gap-3 min-w-0">
+                <span class="grid place-items-center w-10 h-10 rounded-2xl bg-teal-500/10 text-teal-700 dark:text-teal-400 shrink-0"><i data-lucide="cpu" class="w-4 h-4"></i></span>
+                <div class="min-w-0">
+                  <h3 class="font-bold text-sm text-zinc-900 dark:text-white truncate">Platform IoT Industri 4.0</h3>
+                  <p class="text-[11px] text-zinc-500 dark:text-zinc-400">Klien · Fabrik Jaya Teknik</p>
+                </div>
+              </div>
+              <span class="shrink-0 px-2 py-1 rounded-full text-[10px] font-bold bg-emerald-500/15 text-emerald-700 dark:text-emerald-400">On Track</span>
+            </div>
+            <div>
+              <div class="flex items-center justify-between text-[11px] mb-1.5">
+                <span class="text-zinc-500 dark:text-zinc-400">Progress milestone</span>
+                <span class="font-mono font-bold text-zinc-800 dark:text-zinc-200">93%</span>
+              </div>
+              <div class="h-2 rounded-full bg-black/10 dark:bg-white/10 overflow-hidden">
+                <div class="h-full bg-teal-500 rounded-full" style="width:93%"></div>
+              </div>
+            </div>
+            <div class="flex items-center justify-between pt-1 border-t border-black/5 dark:border-white/5">
+              <div class="flex items-center gap-2">
+                <span class="grid place-items-center w-6 h-6 rounded-full bg-teal-600 dark:bg-teal-400 text-white text-[9px] font-bold">RW</span>
+                <span class="text-[11px] text-zinc-500 dark:text-zinc-400">Rina</span>
+              </div>
+              <span class="text-[11px] font-mono text-zinc-600 dark:text-zinc-300 flex items-center gap-1"><i data-lucide="calendar" class="w-3 h-3"></i>02 Okt 2026</span>
+            </div>
+          </article>
+
+          <article data-ps="selesai on-track" class="dj-card glass-panel rounded-3xl p-5 flex flex-col gap-4">
+            <div class="flex items-start justify-between gap-3">
+              <div class="flex items-center gap-3 min-w-0">
+                <span class="grid place-items-center w-10 h-10 rounded-2xl bg-zinc-400/20 text-zinc-600 dark:text-zinc-300 shrink-0"><i data-lucide="check-check" class="w-4 h-4"></i></span>
+                <div class="min-w-0">
+                  <h3 class="font-bold text-sm text-zinc-900 dark:text-white truncate">Rollout HRIS Multibranch</h3>
+                  <p class="text-[11px] text-zinc-500 dark:text-zinc-400">Klien · Grup Sentosa</p>
+                </div>
+              </div>
+              <span class="shrink-0 px-2 py-1 rounded-full text-[10px] font-bold bg-zinc-500/15 text-zinc-600 dark:text-zinc-400">Selesai</span>
+            </div>
+            <div>
+              <div class="flex items-center justify-between text-[11px] mb-1.5">
+                <span class="text-zinc-500 dark:text-zinc-400">Progress milestone</span>
+                <span class="font-mono font-bold text-zinc-800 dark:text-zinc-200">100%</span>
+              </div>
+              <div class="h-2 rounded-full bg-black/10 dark:bg-white/10 overflow-hidden">
+                <div class="h-full bg-zinc-400 rounded-full" style="width:100%"></div>
+              </div>
+            </div>
+            <div class="flex items-center justify-between pt-1 border-t border-black/5 dark:border-white/5">
+              <div class="flex items-center gap-2">
+                <span class="grid place-items-center w-6 h-6 rounded-full bg-indigo-600 dark:bg-indigo-400 text-white text-[9px] font-bold">DK</span>
+                <span class="text-[11px] text-zinc-500 dark:text-zinc-400">Dewi</span>
+              </div>
+              <span class="text-[11px] font-mono text-zinc-600 dark:text-zinc-300 flex items-center gap-1"><i data-lucide="calendar" class="w-3 h-3"></i>01 Agu 2026</span>
+            </div>
+          </article>
+        </div>
+
+        <p id="proyekEmpty" class="hidden text-center text-sm text-zinc-500 dark:text-zinc-400 py-10">Tidak ada proyek yang cocok dengan filter saat ini.</p>
+      </div>
+
+      <!-- ==================== VIEW 3: KANBAN ==================== -->
+      <div id="view-kanban" class="u-view space-y-6">
+        <div class="flex flex-wrap items-end justify-between gap-4">
+          <div>
+            <h1 class="text-2xl font-bold tracking-tight text-zinc-900 dark:text-white">Papan Tugas Kanban</h1>
+            <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-1">Sprint 24 · tarik tugas antar kolom untuk pembaruan status.</p>
+          </div>
+          <button onclick="toast('Kolom baru ditambahkan','columns-3')" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-black text-white dark:bg-white dark:text-black text-xs font-semibold hover:opacity-90 shadow-sm active:scale-[0.98]">
+            <i data-lucide="columns-3" class="w-3.5 h-3.5"></i> Tambah Kolom
+          </button>
+        </div>
+
+        <div class="flex gap-4 overflow-x-auto pb-4 items-start">
+          <div class="kanban-col glass-panel rounded-3xl p-4 space-y-3 shrink-0">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <span class="w-2 h-2 rounded-full bg-zinc-400"></span>
+                <span class="font-bold text-xs text-zinc-900 dark:text-white">Backlog</span>
+              </div>
+              <span class="px-2 py-0.5 rounded-full bg-black/10 dark:bg-white/10 text-[10px] font-bold">4</span>
+            </div>
+            <div class="kb-card p-3 rounded-2xl bg-black/5 dark:bg-white/5 space-y-2">
+              <div class="flex items-center justify-between">
+                <span class="w-2 h-2 rounded-full bg-slate-500"></span>
+                <span class="text-[10px] font-mono text-zinc-500">Due · 05 Sep</span>
+              </div>
+              <p class="font-bold text-xs text-zinc-900 dark:text-white">Riset kompetitor fitur analytics</p>
+              <div class="flex items-center justify-between pt-1">
+                <div class="flex gap-1"><span class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-blue-500/15 text-blue-700 dark:text-blue-400">Riset</span><span class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-zinc-400/15 text-zinc-600 dark:text-zinc-400">Backlog</span></div>
+                <span class="grid place-items-center w-5 h-5 rounded-full bg-zinc-700 dark:bg-zinc-300 text-white dark:text-zinc-900 text-[8px] font-bold">AF</span>
+              </div>
+            </div>
+            <div class="kb-card p-3 rounded-2xl bg-black/5 dark:bg-white/5 space-y-2">
+              <div class="flex items-center justify-between">
+                <span class="w-2 h-2 rounded-full bg-slate-500"></span>
+                <span class="text-[10px] font-mono text-zinc-500">Due · 08 Sep</span>
+              </div>
+              <p class="font-bold text-xs text-zinc-900 dark:text-white">Definisikan skema data pelaporan</p>
+              <div class="flex items-center justify-between pt-1">
+                <div class="flex gap-1"><span class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-emerald-500/15 text-emerald-700 dark:text-emerald-400">Sprint</span><span class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-zinc-400/15 text-zinc-600 dark:text-zinc-400">Planning</span></div>
+                <span class="grid place-items-center w-5 h-5 rounded-full bg-rose-500 dark:bg-rose-400 text-white text-[8px] font-bold">SN</span>
+              </div>
+            </div>
+            <button onclick="toast('Kartu ditambahkan ke Backlog','plus')" class="w-full py-2 rounded-2xl border border-dashed border-black/15 dark:border-white/15 text-[11px] font-semibold text-zinc-500 dark:text-zinc-400 hover:bg-black/5 dark:hover:bg-white/5">
+              <i data-lucide="plus" class="w-3.5 h-3.5 inline mr-1"></i>Tambah kartu
+            </button>
+          </div>
+
+          <div class="kanban-col glass-panel rounded-3xl p-4 space-y-3 shrink-0">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <span class="w-2 h-2 rounded-full bg-blue-500"></span>
+                <span class="font-bold text-xs text-zinc-900 dark:text-white">To Do</span>
+              </div>
+              <span class="px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-700 dark:text-blue-400 text-[10px] font-bold">3</span>
+            </div>
+            <div class="kb-card p-3 rounded-2xl bg-black/5 dark:bg-white/5 space-y-2">
+              <div class="flex items-center justify-between">
+                <span class="w-2 h-2 rounded-full bg-blue-500"></span>
+                <span class="text-[10px] font-mono text-zinc-500">Due · 10 Sep</span>
+              </div>
+              <p class="font-bold text-xs text-zinc-900 dark:text-white">Unit Test E2E auth flow</p>
+              <div class="flex items-center justify-between pt-1">
+                <div class="flex gap-1"><span class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-violet-500/15 text-violet-700 dark:text-violet-400">Engineering</span></div>
+                <span class="grid place-items-center w-5 h-5 rounded-full bg-blue-600 dark:bg-blue-400 text-white text-[8px] font-bold">RW</span>
+              </div>
+            </div>
+            <div class="kb-card p-3 rounded-2xl bg-black/5 dark:bg-white/5 space-y-2">
+              <div class="flex items-center justify-between">
+                <span class="w-2 h-2 rounded-full bg-blue-500"></span>
+                <span class="text-[10px] font-mono text-zinc-500">Due · 11 Sep</span>
+              </div>
+              <p class="font-bold text-xs text-zinc-900 dark:text-white">Wireframe halaman onboarding</p>
+              <div class="flex items-center justify-between pt-1">
+                <div class="flex gap-1"><span class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-pink-500/15 text-pink-700 dark:text-pink-400">Design</span></div>
+                <span class="grid place-items-center w-5 h-5 rounded-full bg-indigo-600 dark:bg-indigo-400 text-white text-[8px] font-bold">DK</span>
+              </div>
+            </div>
+            <div class="kb-card p-3 rounded-2xl bg-black/5 dark:bg-white/5 space-y-2">
+              <div class="flex items-center justify-between">
+                <span class="w-2 h-2 rounded-full bg-blue-500"></span>
+                <span class="text-[10px] font-mono text-zinc-500">Due · 12 Sep</span>
+              </div>
+              <p class="font-bold text-xs text-zinc-900 dark:text-white">Konfigurasi CI/CD staging</p>
+              <div class="flex items-center justify-between pt-1">
+                <div class="flex gap-1"><span class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-teal-500/15 text-teal-700 dark:text-teal-400">DevOps</span></div>
+                <span class="grid place-items-center w-5 h-5 rounded-full bg-teal-600 dark:bg-teal-400 text-white text-[8px] font-bold">BT</span>
+              </div>
+            </div>
+            <button onclick="toast('Kartu ditambahkan ke To Do','plus')" class="w-full py-2 rounded-2xl border border-dashed border-black/15 dark:border-white/15 text-[11px] font-semibold text-zinc-500 dark:text-zinc-400 hover:bg-black/5 dark:hover:bg-white/5">
+              <i data-lucide="plus" class="w-3.5 h-3.5 inline mr-1"></i>Tambah kartu
+            </button>
+          </div>
+
+          <div class="kanban-col glass-panel rounded-3xl p-4 space-y-3 shrink-0">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <span class="w-2 h-2 rounded-full bg-amber-500"></span>
+                <span class="font-bold text-xs text-zinc-900 dark:text-white">In Progress</span>
+              </div>
+              <span class="px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-700 dark:text-amber-400 text-[10px] font-bold">2</span>
+            </div>
+            <div class="kb-card p-3 rounded-2xl bg-black/5 dark:bg-white/5 space-y-2 ring-1 ring-amber-500/20">
+              <div class="flex items-center justify-between">
+                <span class="w-2 h-2 rounded-full bg-amber-500"></span>
+                <span class="text-[10px] font-mono text-amber-600 dark:text-amber-400">Due · Hari ini</span>
+              </div>
+              <p class="font-bold text-xs text-zinc-900 dark:text-white">Liquid Glassmorphism Core Refactor</p>
+              <div class="flex items-center justify-between pt-1">
+                <div class="flex gap-1"><span class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-violet-500/15 text-violet-700 dark:text-violet-400">Frontend</span><span class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-amber-500/15 text-amber-700 dark:text-amber-400">Priority 1</span></div>
+                <span class="grid place-items-center w-5 h-5 rounded-full bg-zinc-800 dark:bg-zinc-200 text-white dark:text-zinc-900 text-[8px] font-bold">PM</span>
+              </div>
+            </div>
+            <div class="kb-card p-3 rounded-2xl bg-black/5 dark:bg-white/5 space-y-2">
+              <div class="flex items-center justify-between">
+                <span class="w-2 h-2 rounded-full bg-amber-500"></span>
+                <span class="text-[10px] font-mono text-zinc-500">Due · 09 Sep</span>
+              </div>
+              <p class="font-bold text-xs text-zinc-900 dark:text-white">Integrasi payment gateway</p>
+              <div class="flex items-center justify-between pt-1">
+                <div class="flex gap-1"><span class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-violet-500/15 text-violet-700 dark:text-violet-400">Backend</span></div>
+                <span class="grid place-items-center w-5 h-5 rounded-full bg-emerald-600 dark:bg-emerald-400 text-white text-[8px] font-bold">AF</span>
+              </div>
+            </div>
+            <button onclick="toast('Kartu ditambahkan ke In Progress','plus')" class="w-full py-2 rounded-2xl border border-dashed border-black/15 dark:border-white/15 text-[11px] font-semibold text-zinc-500 dark:text-zinc-400 hover:bg-black/5 dark:hover:bg-white/5">
+              <i data-lucide="plus" class="w-3.5 h-3.5 inline mr-1"></i>Tambah kartu
+            </button>
+          </div>
+
+          <div class="kanban-col glass-panel rounded-3xl p-4 space-y-3 shrink-0">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <span class="w-2 h-2 rounded-full bg-violet-500"></span>
+                <span class="font-bold text-xs text-zinc-900 dark:text-white">Review</span>
+              </div>
+              <span class="px-2 py-0.5 rounded-full bg-violet-500/20 text-violet-700 dark:text-violet-400 text-[10px] font-bold">2</span>
+            </div>
+            <div class="kb-card p-3 rounded-2xl bg-black/5 dark:bg-white/5 space-y-2">
+              <div class="flex items-center justify-between">
+                <span class="w-2 h-2 rounded-full bg-violet-500"></span>
+                <span class="text-[10px] font-mono text-zinc-500">Due · 06 Sep</span>
+              </div>
+              <p class="font-bold text-xs text-zinc-900 dark:text-white">Review PR desain component library</p>
+              <div class="flex items-center justify-between pt-1">
+                <div class="flex gap-1"><span class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-pink-500/15 text-pink-700 dark:text-pink-400">Design</span></div>
+                <span class="grid place-items-center w-5 h-5 rounded-full bg-indigo-600 dark:bg-indigo-400 text-white text-[8px] font-bold">DK</span>
+              </div>
+            </div>
+            <div class="kb-card p-3 rounded-2xl bg-black/5 dark:bg-white/5 space-y-2">
+              <div class="flex items-center justify-between">
+                <span class="w-2 h-2 rounded-full bg-violet-500"></span>
+                <span class="text-[10px] font-mono text-zinc-500">Due · 07 Sep</span>
+              </div>
+              <p class="font-bold text-xs text-zinc-900 dark:text-white">Audit keamanan endpoint API</p>
+              <div class="flex items-center justify-between pt-1">
+                <div class="flex gap-1"><span class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-teal-500/15 text-teal-700 dark:text-teal-400">QA</span></div>
+                <span class="grid place-items-center w-5 h-5 rounded-full bg-teal-600 dark:bg-teal-400 text-white text-[8px] font-bold">BT</span>
+              </div>
+            </div>
+            <button onclick="toast('Kartu ditambahkan ke Review','plus')" class="w-full py-2 rounded-2xl border border-dashed border-black/15 dark:border-white/15 text-[11px] font-semibold text-zinc-500 dark:text-zinc-400 hover:bg-black/5 dark:hover:bg-white/5">
+              <i data-lucide="plus" class="w-3.5 h-3.5 inline mr-1"></i>Tambah kartu
+            </button>
+          </div>
+
+          <div class="kanban-col glass-panel rounded-3xl p-4 space-y-3 shrink-0">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                <span class="font-bold text-xs text-zinc-900 dark:text-white">Done</span>
+              </div>
+              <span class="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 text-[10px] font-bold">5</span>
+            </div>
+            <div class="kb-card p-3 rounded-2xl bg-emerald-500/10 space-y-2">
+              <div class="flex items-center justify-between">
+                <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                <span class="text-[10px] font-mono text-emerald-600 dark:text-emerald-400">Selesai · 03 Sep</span>
+              </div>
+              <p class="font-bold text-xs text-emerald-800 dark:text-emerald-300 line-through">WCAG AA contrast audit</p>
+              <div class="flex items-center justify-between pt-1">
+                <div class="flex gap-1"><span class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-emerald-500/15 text-emerald-700 dark:text-emerald-400">QA · Verified</span></div>
+                <span class="grid place-items-center w-5 h-5 rounded-full bg-emerald-600 dark:bg-emerald-400 text-white text-[8px] font-bold">SN</span>
+              </div>
+            </div>
+            <div class="kb-card p-3 rounded-2xl bg-emerald-500/10 space-y-2">
+              <div class="flex items-center justify-between">
+                <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                <span class="text-[10px] font-mono text-emerald-600 dark:text-emerald-400">Selesai · 02 Sep</span>
+              </div>
+              <p class="font-bold text-xs text-emerald-800 dark:text-emerald-300 line-through">Setup repositori monorepo</p>
+              <div class="flex items-center justify-between pt-1">
+                <div class="flex gap-1"><span class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-violet-500/15 text-violet-700 dark:text-violet-400">DevOps</span></div>
+                <span class="grid place-items-center w-5 h-5 rounded-full bg-teal-600 dark:bg-teal-400 text-white text-[8px] font-bold">BT</span>
+              </div>
+            </div>
+            <button onclick="toast('Kartu ditambahkan ke Done','plus')" class="w-full py-2 rounded-2xl border border-dashed border-emerald-500/30 text-[11px] font-semibold text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/10">
+              <i data-lucide="plus" class="w-3.5 h-3.5 inline mr-1"></i>Tambah kartu
+            </button>
+          </div>
+
+          <button onclick="toast('Kolom baru ditambahkan','columns-3')" class="kanban-col shrink-0 rounded-3xl border-2 border-dashed border-black/15 dark:border-white/15 p-4 grid place-items-center text-zinc-500 dark:text-zinc-400 transition hover:bg-black/5 dark:hover:bg-white/5">
+            <span class="flex flex-col items-center gap-2 text-xs font-semibold"><i data-lucide="plus" class="w-5 h-5"></i> Tambah Kolom</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- ==================== VIEW 4: TIM ==================== -->
+      <div id="view-tim" class="u-view space-y-6">
+        <div class="flex flex-wrap items-end justify-between gap-4">
+          <div>
+            <h1 class="text-2xl font-bold tracking-tight text-zinc-900 dark:text-white">Alokasi &amp; Kapasitas Tim</h1>
+            <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-1">Distribusi beban kerja anggota per inisiatif aktif.</p>
+          </div>
+          <button onclick="toast('Undangan anggota baru dikirim','user-plus')" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-black text-white dark:bg-white dark:text-black text-xs font-semibold hover:opacity-90 shadow-sm active:scale-[0.98]">
+            <i data-lucide="user-plus" class="w-3.5 h-3.5"></i> Undang Anggota
+          </button>
+        </div>
+
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
+          <div class="glass-panel p-4 rounded-3xl space-y-2">
+            <span class="text-[11px] font-medium text-zinc-500 dark:text-zinc-400">Total Personil</span>
+            <p class="text-2xl font-bold tracking-tight text-zinc-900 dark:text-white">32</p>
+            <p class="text-[11px] text-emerald-600 dark:text-emerald-400 font-semibold">+3 bulan ini</p>
+          </div>
+          <div class="glass-panel p-4 rounded-3xl space-y-2">
+            <span class="text-[11px] font-medium text-zinc-500 dark:text-zinc-400">Beban Rata-rata</span>
+            <p class="text-2xl font-bold tracking-tight text-zinc-900 dark:text-white">82%</p>
+            <p class="text-[11px] text-amber-600 dark:text-amber-400 font-semibold">12 personil overload</p>
+          </div>
+          <div class="glass-panel p-4 rounded-3xl space-y-2">
+            <span class="text-[11px] font-medium text-zinc-500 dark:text-zinc-400">Kapasitas Tersedia</span>
+            <p class="text-2xl font-bold tracking-tight text-zinc-900 dark:text-white">148 jam</p>
+            <p class="text-[11px] text-zinc-500 dark:text-zinc-400">minggu ini</p>
+          </div>
+          <div class="glass-panel p-4 rounded-3xl space-y-2">
+            <span class="text-[11px] font-medium text-zinc-500 dark:text-zinc-400">Keterlibatan</span>
+            <p class="text-2xl font-bold tracking-tight text-zinc-900 dark:text-white">26 / 32</p>
+            <p class="text-[11px] text-emerald-600 dark:text-emerald-400 font-semibold">aktif bulan ini</p>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+          <div class="tm-card glass-panel rounded-3xl p-5 flex flex-col gap-4">
+            <div class="flex items-center gap-3">
+              <span class="grid place-items-center w-11 h-11 rounded-2xl bg-zinc-800 dark:bg-zinc-200 text-white dark:text-zinc-900 font-extrabold text-sm">PM</span>
+              <div class="min-w-0 flex-1">
+                <h3 class="font-bold text-sm text-zinc-900 dark:text-white">Pramudya Mandra</h3>
+                <p class="text-[11px] text-zinc-500 dark:text-zinc-400">Principal Project Lead</p>
+              </div>
+              <span class="shrink-0 px-2 py-1 rounded-full text-[10px] font-bold bg-emerald-500/15 text-emerald-700 dark:text-emerald-400">Available</span>
+            </div>
+            <div>
+              <div class="flex items-center justify-between text-[11px] mb-1.5">
+                <span class="text-zinc-500 dark:text-zinc-400">Beban kerja</span>
+                <span class="font-mono font-bold text-zinc-800 dark:text-zinc-200">78% · 5 tugas aktif</span>
+              </div>
+              <div class="h-2 rounded-full bg-black/10 dark:bg-white/10 overflow-hidden">
+                <div class="h-full bg-emerald-500 rounded-full" style="width:78%"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="tm-card glass-panel rounded-3xl p-5 flex flex-col gap-4">
+            <div class="flex items-center gap-3">
+              <span class="grid place-items-center w-11 h-11 rounded-2xl bg-blue-600 dark:bg-blue-400 text-white font-extrabold text-sm">AF</span>
+              <div class="min-w-0 flex-1">
+                <h3 class="font-bold text-sm text-zinc-900 dark:text-white">Ahmad Fauzan</h3>
+                <p class="text-[11px] text-zinc-500 dark:text-zinc-400">Backend Engineer</p>
+              </div>
+              <span class="shrink-0 px-2 py-1 rounded-full text-[10px] font-bold bg-amber-500/15 text-amber-700 dark:text-amber-400">Overload</span>
+            </div>
+            <div>
+              <div class="flex items-center justify-between text-[11px] mb-1.5">
+                <span class="text-zinc-500 dark:text-zinc-400">Beban kerja</span>
+                <span class="font-mono font-bold text-zinc-800 dark:text-zinc-200">94% · 8 tugas aktif</span>
+              </div>
+              <div class="h-2 rounded-full bg-black/10 dark:bg-white/10 overflow-hidden">
+                <div class="h-full bg-amber-500 rounded-full" style="width:94%"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="tm-card glass-panel rounded-3xl p-5 flex flex-col gap-4">
+            <div class="flex items-center gap-3">
+              <span class="grid place-items-center w-11 h-11 rounded-2xl bg-violet-600 dark:bg-violet-400 text-white font-extrabold text-sm">SN</span>
+              <div class="min-w-0 flex-1">
+                <h3 class="font-bold text-sm text-zinc-900 dark:text-white">Sari Nuraini</h3>
+                <p class="text-[11px] text-zinc-500 dark:text-zinc-400">UI/UX Designer</p>
+              </div>
+              <span class="shrink-0 px-2 py-1 rounded-full text-[10px] font-bold bg-emerald-500/15 text-emerald-700 dark:text-emerald-400">Available</span>
+            </div>
+            <div>
+              <div class="flex items-center justify-between text-[11px] mb-1.5">
+                <span class="text-zinc-500 dark:text-zinc-400">Beban kerja</span>
+                <span class="font-mono font-bold text-zinc-800 dark:text-zinc-200">66% · 4 tugas aktif</span>
+              </div>
+              <div class="h-2 rounded-full bg-black/10 dark:bg-white/10 overflow-hidden">
+                <div class="h-full bg-violet-500 rounded-full" style="width:66%"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="tm-card glass-panel rounded-3xl p-5 flex flex-col gap-4">
+            <div class="flex items-center gap-3">
+              <span class="grid place-items-center w-11 h-11 rounded-2xl bg-teal-600 dark:bg-teal-400 text-white font-extrabold text-sm">BT</span>
+              <div class="min-w-0 flex-1">
+                <h3 class="font-bold text-sm text-zinc-900 dark:text-white">Bambang Tri</h3>
+                <p class="text-[11px] text-zinc-500 dark:text-zinc-400">DevOps Engineer</p>
+              </div>
+              <span class="shrink-0 px-2 py-1 rounded-full text-[10px] font-bold bg-emerald-500/15 text-emerald-700 dark:text-emerald-400">Available</span>
+            </div>
+            <div>
+              <div class="flex items-center justify-between text-[11px] mb-1.5">
+                <span class="text-zinc-500 dark:text-zinc-400">Beban kerja</span>
+                <span class="font-mono font-bold text-zinc-800 dark:text-zinc-200">71% · 3 tugas aktif</span>
+              </div>
+              <div class="h-2 rounded-full bg-black/10 dark:bg-white/10 overflow-hidden">
+                <div class="h-full bg-teal-500 rounded-full" style="width:71%"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="tm-card glass-panel rounded-3xl p-5 flex flex-col gap-4">
+            <div class="flex items-center gap-3">
+              <span class="grid place-items-center w-11 h-11 rounded-2xl bg-rose-500 dark:bg-rose-400 text-white font-extrabold text-sm">RW</span>
+              <div class="min-w-0 flex-1">
+                <h3 class="font-bold text-sm text-zinc-900 dark:text-white">Rina Wijaya</h3>
+                <p class="text-[11px] text-zinc-500 dark:text-zinc-400">Frontend Engineer</p>
+              </div>
+              <span class="shrink-0 px-2 py-1 rounded-full text-[10px] font-bold bg-amber-500/15 text-amber-700 dark:text-amber-400">Overload</span>
+            </div>
+            <div>
+              <div class="flex items-center justify-between text-[11px] mb-1.5">
+                <span class="text-zinc-500 dark:text-zinc-400">Beban kerja</span>
+                <span class="font-mono font-bold text-zinc-800 dark:text-zinc-200">89% · 6 tugas aktif</span>
+              </div>
+              <div class="h-2 rounded-full bg-black/10 dark:bg-white/10 overflow-hidden">
+                <div class="h-full bg-rose-500 rounded-full" style="width:89%"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="tm-card glass-panel rounded-3xl p-5 flex flex-col gap-4">
+            <div class="flex items-center gap-3">
+              <span class="grid place-items-center w-11 h-11 rounded-2xl bg-indigo-600 dark:bg-indigo-400 text-white font-extrabold text-sm">DK</span>
+              <div class="min-w-0 flex-1">
+                <h3 class="font-bold text-sm text-zinc-900 dark:text-white">Dewi Kartika</h3>
+                <p class="text-[11px] text-zinc-500 dark:text-zinc-400">Data Analyst</p>
+              </div>
+              <span class="shrink-0 px-2 py-1 rounded-full text-[10px] font-bold bg-zinc-500/15 text-zinc-600 dark:text-zinc-400">On Leave</span>
+            </div>
+            <div>
+              <div class="flex items-center justify-between text-[11px] mb-1.5">
+                <span class="text-zinc-500 dark:text-zinc-400">Beban kerja</span>
+                <span class="font-mono font-bold text-zinc-800 dark:text-zinc-200">12% · 1 tugas aktif</span>
+              </div>
+              <div class="h-2 rounded-full bg-black/10 dark:bg-white/10 overflow-hidden">
+                <div class="h-full bg-zinc-400 rounded-full" style="width:12%"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="glass-panel rounded-3xl overflow-hidden">
+          <div class="flex items-center justify-between px-5 pt-5 pb-3">
+            <div>
+              <h3 class="font-bold text-sm text-zinc-900 dark:text-white">Ketersediaan Minggu Ini</h3>
+              <p class="text-xs text-zinc-500 dark:text-zinc-400">Jam yang dapat dialokasikan per anggota.</p>
+            </div>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+              <thead>
+                <tr class="border-b border-black/5 dark:border-white/5 text-[11px] font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">
+                  <th class="px-5 pb-3 text-left">Anggota</th>
+                  <th class="px-5 pb-3 text-left">Sen</th>
+                  <th class="px-5 pb-3 text-left">Sel</th>
+                  <th class="px-5 pb-3 text-left">Rab</th>
+                  <th class="px-5 pb-3 text-left">Kam</th>
+                  <th class="px-5 pb-3 text-left">Jum</th>
+                  <th class="px-5 pb-3 text-right">Total</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-black/5 dark:divide-white/5">
+                <tr class="hover-row"><td class="px-5 py-3 font-bold text-zinc-900 dark:text-white">Pramudya Mandra</td><td class="px-5 py-3">6</td><td class="px-5 py-3">6</td><td class="px-5 py-3">7</td><td class="px-5 py-3">8</td><td class="px-5 py-3">5</td><td class="px-5 py-3 text-right font-mono font-bold text-zinc-800 dark:text-zinc-200">32</td></tr>
+                <tr class="hover-row"><td class="px-5 py-3 font-bold text-zinc-900 dark:text-white">Ahmad Fauzan</td><td class="px-5 py-3">8</td><td class="px-5 py-3">8</td><td class="px-5 py-3">7</td><td class="px-5 py-3">6</td><td class="px-5 py-3">8</td><td class="px-5 py-3 text-right font-mono font-bold text-zinc-800 dark:text-zinc-200">37</td></tr>
+                <tr class="hover-row"><td class="px-5 py-3 font-bold text-zinc-900 dark:text-white">Sari Nuraini</td><td class="px-5 py-3">5</td><td class="px-5 py-3">6</td><td class="px-5 py-3">8</td><td class="px-5 py-3">8</td><td class="px-5 py-3">7</td><td class="px-5 py-3 text-right font-mono font-bold text-zinc-800 dark:text-zinc-200">34</td></tr>
+                <tr class="hover-row"><td class="px-5 py-3 font-bold text-zinc-900 dark:text-white">Dewi Kartika</td><td class="px-5 py-3 text-zinc-400">—</td><td class="px-5 py-3 text-zinc-400">—</td><td class="px-5 py-3 text-zinc-400">—</td><td class="px-5 py-3 text-zinc-400">—</td><td class="px-5 py-3 text-zinc-400">—</td><td class="px-5 py-3 text-right font-mono font-bold text-zinc-400">0</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==================== VIEW 5: KALENDER ==================== -->
+      <div id="view-kalender" class="u-view space-y-6">
+        <div class="flex flex-wrap items-end justify-between gap-4">
+          <div>
+            <h1 class="text-2xl font-bold tracking-tight text-zinc-900 dark:text-white">Milestone &amp; Kalender</h1>
+            <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-1">Jadwal rilis, deadline deliverable, dan acara penting tim.</p>
+          </div>
+          <button onclick="toast('Acara baru ditambahkan ke kalender','plus')" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-black text-white dark:bg-white dark:text-black text-xs font-semibold hover:opacity-90 shadow-sm active:scale-[0.98]">
+            <i data-lucide="plus" class="w-3.5 h-3.5"></i> Tambah Acara
+          </button>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 items-start">
+          <div class="lg:col-span-2 glass-panel rounded-3xl p-5">
+            <div class="flex items-center justify-between mb-4">
+              <h3 class="font-bold text-sm text-zinc-900 dark:text-white">Agustus 2026</h3>
+              <div class="flex items-center gap-1">
+                <button onclick="toast('Navigasi bulan kalender','chevron-left')" class="p-1.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/5 text-zinc-500"><i data-lucide="chevron-left" class="w-4 h-4"></i></button>
+                <button onclick="toast('Navigasi bulan kalender','chevron-right')" class="p-1.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/5 text-zinc-500"><i data-lucide="chevron-right" class="w-4 h-4"></i></button>
+                <button onclick="toast('Kembali ke hari ini','calendar-days')" class="ml-2 px-3 py-1.5 rounded-xl bg-black/5 dark:bg-white/5 text-[11px] font-semibold text-zinc-700 dark:text-zinc-300 hover:bg-black/10 dark:hover:bg-white/10">Hari Ini</button>
+              </div>
+            </div>
+            <div class="grid grid-cols-7 gap-1 text-center text-[10px] font-bold uppercase tracking-wider text-zinc-400 mb-1">
+              <span>Min</span><span>Sen</span><span>Sel</span><span>Rab</span><span>Kam</span><span>Jum</span><span>Sab</span>
+            </div>
+            <div class="grid grid-cols-7 gap-1">
+              <div class="day-cell rounded-xl min-h-[92px] p-1.5 bg-black/5 dark:bg-white/5 text-zinc-500 dark:text-zinc-500 text-xs"><span class="text-[10px] font-semibold">30</span></div>
+              <div class="day-cell rounded-xl min-h-[92px] p-1.5 bg-black/5 dark:bg-white/5 text-zinc-500 dark:text-zinc-500 text-xs"><span class="text-[10px] font-semibold">31</span></div>
+              <div class="day-cell rounded-xl min-h-[92px] p-1.5 bg-black/5 dark:bg-white/5 text-xs"><span class="text-[10px] font-semibold text-zinc-800 dark:text-zinc-200">1</span></div>
+              <div class="day-cell rounded-xl min-h-[92px] p-1.5 bg-black/5 dark:bg-white/5 text-xs"><span class="text-[10px] font-semibold text-zinc-800 dark:text-zinc-200">2</span></div>
+              <div class="day-cell rounded-xl min-h-[92px] p-1.5 bg-black/5 dark:bg-white/5 text-xs"><span class="text-[10px] font-semibold text-zinc-800 dark:text-zinc-200">3</span></div>
+              <div class="day-cell rounded-xl min-h-[92px] p-1.5 bg-black/5 dark:bg-white/5 text-xs"><span class="text-[10px] font-semibold text-zinc-800 dark:text-zinc-200">4</span></div>
+              <div class="day-cell rounded-xl min-h-[92px] p-1.5 bg-black/5 dark:bg-white/5 text-xs"><span class="text-[10px] font-semibold text-zinc-800 dark:text-zinc-200">5</span></div>
+              <div class="day-cell rounded-xl min-h-[92px] p-1.5 bg-black/5 dark:bg-white/5 text-xs"><span class="text-[10px] font-semibold text-zinc-800 dark:text-zinc-200">6</span></div>
+              <div class="day-cell rounded-xl min-h-[92px] p-1.5 bg-black/5 dark:bg-white/5 text-xs"><span class="text-[10px] font-semibold text-zinc-800 dark:text-zinc-200">7</span></div>
+              <div class="day-cell rounded-xl min-h-[92px] p-1.5 bg-black/5 dark:bg-white/5 text-xs"><span class="text-[10px] font-semibold text-zinc-800 dark:text-zinc-200">8</span></div>
+              <div class="day-cell rounded-xl min-h-[92px] p-1.5 bg-black/5 dark:bg-white/5 text-xs"><span class="text-[10px] font-semibold text-zinc-800 dark:text-zinc-200">9</span></div>
+              <div class="day-cell rounded-xl min-h-[92px] p-1.5 bg-black/5 dark:bg-white/5 text-xs"><span class="text-[10px] font-semibold text-zinc-800 dark:text-zinc-200">10</span></div>
+              <div class="day-cell rounded-xl min-h-[92px] p-1.5 bg-black/5 dark:bg-white/5 text-xs"><span class="text-[10px] font-semibold text-zinc-800 dark:text-zinc-200">11</span></div>
+              <div class="day-cell rounded-xl min-h-[92px] p-1.5 bg-black/5 dark:bg-white/5 text-xs"><span class="text-[10px] font-semibold text-zinc-800 dark:text-zinc-200">12</span></div>
+              <div class="day-cell rounded-xl min-h-[92px] p-1.5 bg-amber-500/10 text-xs"><span class="text-[10px] font-semibold text-amber-700 dark:text-amber-400">13</span><div class="mt-1 px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-800 dark:text-amber-300 text-[9px] font-bold truncate">Demo Klien</div></div>
+              <div class="day-cell rounded-xl min-h-[92px] p-1.5 bg-black/5 dark:bg-white/5 text-xs"><span class="text-[10px] font-semibold text-zinc-800 dark:text-zinc-200">14</span></div>
+              <div class="day-cell rounded-xl min-h-[92px] p-1.5 bg-black/5 dark:bg-white/5 text-xs"><span class="text-[10px] font-semibold text-zinc-800 dark:text-zinc-200">15</span><div class="mt-1 px-1.5 py-0.5 rounded bg-emerald-500/15 text-emerald-800 dark:text-emerald-300 text-[9px] font-bold truncate">Deadline DS v2</div></div>
+              <div class="day-cell rounded-xl min-h-[92px] p-1.5 bg-violet-500/10 text-xs"><span class="text-[10px] font-semibold text-violet-700 dark:text-violet-400">16</span><div class="mt-1 px-1.5 py-0.5 rounded bg-violet-500/20 text-violet-800 dark:text-violet-300 text-[9px] font-bold truncate">Sprint Review</div></div>
+              <div class="day-cell rounded-xl min-h-[92px] p-1.5 bg-black/5 dark:bg-white/5 text-xs"><span class="text-[10px] font-semibold text-zinc-800 dark:text-zinc-200">17</span></div>
+              <div class="day-cell rounded-xl min-h-[92px] p-1.5 bg-black/5 dark:bg-white/5 text-xs"><span class="text-[10px] font-semibold text-zinc-800 dark:text-zinc-200">18</span></div>
+              <div class="day-cell rounded-xl min-h-[92px] p-1.5 bg-black/5 dark:bg-white/5 text-xs"><span class="text-[10px] font-semibold text-zinc-800 dark:text-zinc-200">19</span></div>
+              <div class="day-cell rounded-xl min-h-[92px] p-1.5 bg-blue-500/10 text-xs"><span class="text-[10px] font-semibold text-blue-700 dark:text-blue-400">20</span><div class="mt-1 px-1.5 py-0.5 rounded bg-blue-500/20 text-blue-800 dark:text-blue-300 text-[9px] font-bold truncate">Rilis Beta</div></div>
+              <div class="day-cell rounded-xl min-h-[92px] p-1.5 bg-black/5 dark:bg-white/5 text-xs"><span class="text-[10px] font-semibold text-zinc-800 dark:text-zinc-200">21</span></div>
+              <div class="day-cell rounded-xl min-h-[92px] p-1.5 bg-black/5 dark:bg-white/5 text-xs"><span class="text-[10px] font-semibold text-zinc-800 dark:text-zinc-200">22</span></div>
+              <div class="day-cell rounded-xl min-h-[92px] p-1.5 bg-black/5 dark:bg-white/5 text-xs"><span class="text-[10px] font-semibold text-zinc-800 dark:text-zinc-200">23</span></div>
+              <div class="day-cell rounded-xl min-h-[92px] p-1.5 bg-black/5 dark:bg-white/5 text-xs"><span class="text-[10px] font-semibold text-zinc-800 dark:text-zinc-200">24</span></div>
+              <div class="day-cell rounded-xl min-h-[92px] p-1.5 bg-black/5 dark:bg-white/5 text-xs"><span class="text-[10px] font-semibold text-zinc-800 dark:text-zinc-200">25</span></div>
+              <div class="day-cell rounded-xl min-h-[92px] p-1.5 bg-black/5 dark:bg-white/5 text-xs"><span class="text-[10px] font-semibold text-zinc-800 dark:text-zinc-200">26</span></div>
+              <div class="day-cell rounded-xl min-h-[92px] p-1.5 bg-black/5 dark:bg-white/5 text-xs"><span class="text-[10px] font-semibold text-zinc-800 dark:text-zinc-200">27</span></div>
+              <div class="day-cell rounded-xl min-h-[92px] p-1.5 bg-black/5 dark:bg-white/5 text-xs"><span class="text-[10px] font-semibold text-zinc-800 dark:text-zinc-200">28</span></div>
+              <div class="day-cell rounded-xl min-h-[92px] p-1.5 bg-black/5 dark:bg-white/5 text-xs"><span class="text-[10px] font-semibold text-zinc-800 dark:text-zinc-200">29</span></div>
+              <div class="day-cell rounded-xl min-h-[92px] p-1.5 bg-black/5 dark:bg-white/5 text-xs"><span class="text-[10px] font-semibold text-zinc-800 dark:text-zinc-200">30</span></div>
+              <div class="day-cell rounded-xl min-h-[92px] p-1.5 bg-black/5 dark:bg-white/5 text-xs"><span class="text-[10px] font-semibold text-zinc-800 dark:text-zinc-200">31</span></div>
+              <div class="day-cell rounded-xl min-h-[92px] p-1.5 bg-black/5 dark:bg-white/5 text-zinc-500 dark:text-zinc-500 text-xs"><span class="text-[10px] font-semibold">1</span></div>
+            </div>
+          </div>
+
+          <div class="space-y-4">
+            <div class="glass-panel rounded-3xl p-5 space-y-3">
+              <div class="flex items-center justify-between">
+                <h3 class="font-bold text-sm text-zinc-900 dark:text-white">Acara Mendatang</h3>
+                <span class="grid place-items-center w-7 h-7 rounded-xl bg-black/5 dark:bg-white/5 text-zinc-500"><i data-lucide="calendar-clock" class="w-4 h-4"></i></span>
+              </div>
+              <div class="space-y-2.5">
+                <div class="flex items-start gap-3 p-3 rounded-2xl bg-amber-500/10">
+                  <span class="grid place-items-center w-8 h-8 rounded-xl bg-amber-500/20 text-amber-700 dark:text-amber-400 shrink-0"><i data-lucide="presentation" class="w-4 h-4"></i></span>
+                  <div class="min-w-0">
+                    <p class="font-bold text-xs text-zinc-900 dark:text-white">Demo Klien — Redesign v2</p>
+                    <p class="text-[10px] text-zinc-500 mt-0.5">13 Sep · 10:00 WIB</p>
+                  </div>
+                </div>
+                <div class="flex items-start gap-3 p-3 rounded-2xl bg-violet-500/10">
+                  <span class="grid place-items-center w-8 h-8 rounded-xl bg-violet-500/20 text-violet-700 dark:text-violet-400 shrink-0"><i data-lucide="refresh-cw" class="w-4 h-4"></i></span>
+                  <div class="min-w-0">
+                    <p class="font-bold text-xs text-zinc-900 dark:text-white">Sprint Review 24</p>
+                    <p class="text-[10px] text-zinc-500 mt-0.5">16 Sep · 14:00 WIB</p>
+                  </div>
+                </div>
+                <div class="flex items-start gap-3 p-3 rounded-2xl bg-blue-500/10">
+                  <span class="grid place-items-center w-8 h-8 rounded-xl bg-blue-500/20 text-blue-700 dark:text-blue-400 shrink-0"><i data-lucide="rocket" class="w-4 h-4"></i></span>
+                  <div class="min-w-0">
+                    <p class="font-bold text-xs text-zinc-900 dark:text-white">Rilis Beta — Platform IoT</p>
+                    <p class="text-[10px] text-zinc-500 mt-0.5">20 Sep · 09:00 WIB</p>
+                  </div>
+                </div>
+                <div class="flex items-start gap-3 p-3 rounded-2xl bg-emerald-500/10">
+                  <span class="grid place-items-center w-8 h-8 rounded-xl bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 shrink-0"><i data-lucide="flag" class="w-4 h-4"></i></span>
+                  <div class="min-w-0">
+                    <p class="font-bold text-xs text-zinc-900 dark:text-white">Milestone — Go Live Portal</p>
+                    <p class="text-[10px] text-zinc-500 mt-0.5">25 Sep · 08:30 WIB</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="glass-panel rounded-3xl p-5">
+              <h3 class="font-bold text-sm text-zinc-900 dark:text-white mb-3">Legenda</h3>
+              <div class="space-y-2">
+                <div class="flex items-center gap-2 text-xs text-zinc-600 dark:text-zinc-300"><span class="w-3 h-3 rounded-md bg-amber-500"></span> Demo / Pertemuan klien</div>
+                <div class="flex items-center gap-2 text-xs text-zinc-600 dark:text-zinc-300"><span class="w-3 h-3 rounded-md bg-emerald-500"></span> Deadline deliverable</div>
+                <div class="flex items-center gap-2 text-xs text-zinc-600 dark:text-zinc-300"><span class="w-3 h-3 rounded-md bg-violet-500"></span> Sprint / Review</div>
+                <div class="flex items-center gap-2 text-xs text-zinc-600 dark:text-zinc-300"><span class="w-3 h-3 rounded-md bg-blue-500"></span> Rilis / Milestone</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==================== VIEW 6: PORTFOLIO ==================== -->
+      <div id="view-portfolio" class="u-view space-y-6">
+        <div class="flex flex-wrap items-end justify-between gap-4">
+          <div>
+            <h1 class="text-2xl font-bold tracking-tight text-zinc-900 dark:text-white">Portfolio Strategis</h1>
+            <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-1">Kinerja portofolio proyek terhadap sasaran OKR korporat.</p>
+          </div>
+          <button onclick="toast('Laporan portofolio diunduh','download')" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-black text-white dark:bg-white dark:text-black text-xs font-semibold hover:opacity-90 shadow-sm active:scale-[0.98]">
+            <i data-lucide="download" class="w-3.5 h-3.5"></i> Ekspor
+          </button>
+        </div>
+
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
+          <div class="glass-panel p-4 rounded-3xl space-y-2">
+            <span class="text-[11px] font-medium text-zinc-500 dark:text-zinc-400">Total Portofolio</span>
+            <p class="text-2xl font-bold tracking-tight text-zinc-900 dark:text-white">24 Proyek</p>
+            <p class="text-[11px] text-emerald-600 dark:text-emerald-400 font-semibold">Rp 4,6 M nilai total</p>
+          </div>
+          <div class="glass-panel p-4 rounded-3xl space-y-2">
+            <span class="text-[11px] font-medium text-zinc-500 dark:text-zinc-400">Proyek Aktif</span>
+            <p class="text-2xl font-bold tracking-tight text-zinc-900 dark:text-white">8</p>
+            <p class="text-[11px] text-zinc-500 dark:text-zinc-400">6 on track · 2 at risk</p>
+          </div>
+          <div class="glass-panel p-4 rounded-3xl space-y-2">
+            <span class="text-[11px] font-medium text-zinc-500 dark:text-zinc-400">Utilisasi</span>
+            <p class="text-2xl font-bold tracking-tight text-zinc-900 dark:text-white">82%</p>
+            <p class="text-[11px] text-zinc-500 dark:text-zinc-400">kapasitas tim</p>
+          </div>
+          <div class="glass-panel p-4 rounded-3xl space-y-2">
+            <span class="text-[11px] font-medium text-zinc-500 dark:text-zinc-400">Margin Rata-rata</span>
+            <p class="text-2xl font-bold tracking-tight text-emerald-600 dark:text-emerald-400">27%</p>
+            <p class="text-[11px] text-zinc-500 dark:text-zinc-400">di atas target 22%</p>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-5 gap-4">
+          <div class="lg:col-span-2 glass-panel rounded-3xl p-5 space-y-4">
+            <div>
+              <h3 class="font-bold text-sm text-zinc-900 dark:text-white">Pendapatan per Proyek</h3>
+              <p class="text-xs text-zinc-500 dark:text-zinc-400">Realisasi kontrak aktif (dalam juta Rp)</p>
+            </div>
+            <div class="flex items-end gap-3 h-52 px-1">
+              <div class="flex-1 flex flex-col gap-1.5 items-center">
+                <span class="text-[9px] font-mono text-zinc-500">650</span>
+                <div class="w-full max-w-[42px] rounded-t-xl bg-emerald-500/80" style="height:78%"></div>
+                <span class="text-[9px] font-bold text-zinc-600 dark:text-zinc-300 text-center">Design<br>Sys</span>
+              </div>
+              <div class="flex-1 flex flex-col gap-1.5 items-center">
+                <span class="text-[9px] font-mono text-zinc-500">840</span>
+                <div class="w-full max-w-[42px] rounded-t-xl bg-blue-500/80" style="height:100%"></div>
+                <span class="text-[9px] font-bold text-zinc-600 dark:text-zinc-300 text-center">Cloud<br>AI</span>
+              </div>
+              <div class="flex-1 flex flex-col gap-1.5 items-center">
+                <span class="text-[9px] font-mono text-zinc-500">520</span>
+                <div class="w-full max-w-[42px] rounded-t-xl bg-violet-500/80" style="height:62%"></div>
+                <span class="text-[9px] font-bold text-zinc-600 dark:text-zinc-300 text-center">POS<br>Mobile</span>
+              </div>
+              <div class="flex-1 flex flex-col gap-1.5 items-center">
+                <span class="text-[9px] font-mono text-zinc-500">610</span>
+                <div class="w-full max-w-[42px] rounded-t-xl bg-amber-500/80" style="height:73%"></div>
+                <span class="text-[9px] font-bold text-zinc-600 dark:text-zinc-300 text-center">E-Com<br>merce</span>
+              </div>
+              <div class="flex-1 flex flex-col gap-1.5 items-center">
+                <span class="text-[9px] font-mono text-zinc-500">720</span>
+                <div class="w-full max-w-[42px] rounded-t-xl bg-teal-500/80" style="height:86%"></div>
+                <span class="text-[9px] font-bold text-zinc-600 dark:text-zinc-300 text-center">IoT<br>Ind</span>
+              </div>
+              <div class="flex-1 flex flex-col gap-1.5 items-center">
+                <span class="text-[9px] font-mono text-zinc-500">480</span>
+                <div class="w-full max-w-[42px] rounded-t-xl bg-indigo-500/80" style="height:57%"></div>
+                <span class="text-[9px] font-bold text-zinc-600 dark:text-zinc-300 text-center">HRIS<br>Rollout</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="lg:col-span-3 glass-panel rounded-3xl p-5 space-y-3">
+            <div>
+              <h3 class="font-bold text-sm text-zinc-900 dark:text-white">Ringkasan Kesehatan</h3>
+              <p class="text-xs text-zinc-500 dark:text-zinc-400">Status kesehatan portofolio keseluruhan.</p>
+            </div>
+            <div class="grid grid-cols-3 gap-3">
+              <div class="p-3 rounded-2xl bg-emerald-500/10 text-center">
+                <span class="text-xl font-bold text-emerald-700 dark:text-emerald-400">6</span>
+                <p class="text-[10px] font-semibold text-emerald-700 dark:text-emerald-400 mt-0.5">On Track</p>
+              </div>
+              <div class="p-3 rounded-2xl bg-amber-500/10 text-center">
+                <span class="text-xl font-bold text-amber-700 dark:text-amber-400">2</span>
+                <p class="text-[10px] font-semibold text-amber-700 dark:text-amber-400 mt-0.5">At Risk</p>
+              </div>
+              <div class="p-3 rounded-2xl bg-rose-500/10 text-center">
+                <span class="text-xl font-bold text-rose-700 dark:text-rose-400">0</span>
+                <p class="text-[10px] font-semibold text-rose-700 dark:text-rose-400 mt-0.5">Off Track</p>
+              </div>
+            </div>
+            <div class="overflow-x-auto">
+              <table class="w-full text-sm">
+                <thead>
+                  <tr class="border-b border-black/5 dark:border-white/5 text-[11px] font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">
+                    <th class="pb-3 text-left">Proyek</th>
+                    <th class="pb-3 text-left">Nilai Kontrak</th>
+                    <th class="pb-3 text-right">Kesehatan</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-black/5 dark:divide-white/5">
+                  <tr class="hover-row"><td class="py-3 font-bold text-zinc-900 dark:text-white">Redesign Design System v2</td><td class="py-3 font-mono text-xs text-zinc-600 dark:text-zinc-300">Rp 650 Jt</td><td class="py-3 text-right"><span class="inline-flex items-center gap-1.5 text-[11px] font-semibold text-emerald-600 dark:text-emerald-400"><span class="w-2 h-2 rounded-full bg-emerald-500"></span>On Track</span></td></tr>
+                  <tr class="hover-row"><td class="py-3 font-bold text-zinc-900 dark:text-white">Migrasi Microfrontend Cloud AI</td><td class="py-3 font-mono text-xs text-zinc-600 dark:text-zinc-300">Rp 840 Jt</td><td class="py-3 text-right"><span class="inline-flex items-center gap-1.5 text-[11px] font-semibold text-amber-600 dark:text-amber-400"><span class="w-2 h-2 rounded-full bg-amber-500"></span>At Risk</span></td></tr>
+                  <tr class="hover-row"><td class="py-3 font-bold text-zinc-900 dark:text-white">Aplikasi Mobile POS Retail</td><td class="py-3 font-mono text-xs text-zinc-600 dark:text-zinc-300">Rp 520 Jt</td><td class="py-3 text-right"><span class="inline-flex items-center gap-1.5 text-[11px] font-semibold text-emerald-600 dark:text-emerald-400"><span class="w-2 h-2 rounded-full bg-emerald-500"></span>On Track</span></td></tr>
+                  <tr class="hover-row"><td class="py-3 font-bold text-zinc-900 dark:text-white">Rebranding Portal E-Commerce</td><td class="py-3 font-mono text-xs text-zinc-600 dark:text-zinc-300">Rp 610 Jt</td><td class="py-3 text-right"><span class="inline-flex items-center gap-1.5 text-[11px] font-semibold text-amber-600 dark:text-amber-400"><span class="w-2 h-2 rounded-full bg-amber-500"></span>At Risk</span></td></tr>
+                  <tr class="hover-row"><td class="py-3 font-bold text-zinc-900 dark:text-white">Platform IoT Industri 4.0</td><td class="py-3 font-mono text-xs text-zinc-600 dark:text-zinc-300">Rp 720 Jt</td><td class="py-3 text-right"><span class="inline-flex items-center gap-1.5 text-[11px] font-semibold text-emerald-600 dark:text-emerald-400"><span class="w-2 h-2 rounded-full bg-emerald-500"></span>On Track</span></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==================== VIEW 7: TEMPLATE ==================== -->
+      <div id="view-template" class="u-view space-y-6">
+        <div class="flex flex-wrap items-end justify-between gap-4">
+          <div>
+            <h1 class="text-2xl font-bold tracking-tight text-zinc-900 dark:text-white">Template Proyek</h1>
+            <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-1">Mulai proyek dari kerangka kerja yang sudah disiapkan.</p>
+          </div>
+          <button onclick="toast('Kategori template difilter','layout-grid')" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-black text-white dark:bg-white dark:text-black text-xs font-semibold hover:opacity-90 shadow-sm active:scale-[0.98]">
+            <i data-lucide="layout-grid" class="w-3.5 h-3.5"></i> Kelola Kategori
+          </button>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+          <div class="tp-card glass-panel rounded-3xl p-5 flex flex-col gap-4">
+            <div class="flex items-start justify-between gap-3">
+              <span class="grid place-items-center w-11 h-11 rounded-2xl bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 font-bold text-lg">A</span>
+              <button onclick="toast('Template Agile Sprint disematkan','pin')" class="p-1.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/5 text-zinc-400"><i data-lucide="pin" class="w-4 h-4"></i></button>
+            </div>
+            <div class="flex-1">
+              <h3 class="font-bold text-sm text-zinc-900 dark:text-white">Agile Sprint</h3>
+              <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-1">Kerangka sprint Scrum lengkap dengan backlog, ceremony, dan burndown.</p>
+            </div>
+            <div class="flex items-center justify-between pt-3 border-t border-black/5 dark:border-white/5">
+              <span class="text-[11px] font-monotext-zinc-500 dark:text-zinc-400">12 tahapan · 3 peran</span>
+              <button onclick="toast('Template Agile Sprint diterapkan','play')" class="px-3 py-1.5 rounded-xl bg-black text-white dark:bg-white dark:text-black text-[11px] font-semibold hover:opacity-90 active:scale-[0.98]">Gunakan</button>
+            </div>
+          </div>
+
+          <div class="tp-card glass-panel rounded-3xl p-5 flex flex-col gap-4">
+            <div class="flex items-start justify-between gap-3">
+              <span class="grid place-items-center w-11 h-11 rounded-2xl bg-blue-500/15 text-blue-600 dark:text-blue-400 font-bold text-lg">W</span>
+              <button onclick="toast('Template Waterfall disematkan','pin')" class="p-1.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/5 text-zinc-400"><i data-lucide="pin" class="w-4 h-4"></i></button>
+            </div>
+            <div class="flex-1">
+              <h3 class="font-bold text-sm text-zinc-900 dark:text-white">Waterfall</h3>
+              <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-1">Alur fase berurutan untuk deliverable terdokumentasi rapat.</p>
+            </div>
+            <div class="flex items-center justify-between pt-3 border-t border-black/5 dark:border-white/5">
+              <span class="text-[11px] text-zinc-500 dark:text-zinc-400">7 tahapan · 5 peran</span>
+              <button onclick="toast('Template Waterfall diterapkan','play')" class="px-3 py-1.5 rounded-xl bg-black text-white dark:bg-white dark:text-black text-[11px] font-semibold hover:opacity-90 active:scale-[0.98]">Gunakan</button>
+            </div>
+          </div>
+
+          <div class="tp-card glass-panel rounded-3xl p-5 flex flex-col gap-4">
+            <div class="flex items-start justify-between gap-3">
+              <span class="grid place-items-center w-11 h-11 rounded-2xl bg-violet-500/15 text-violet-600 dark:text-violet-400 font-bold text-lg">W</span>
+              <button onclick="toast('Template Website Launch disematkan','pin')" class="p-1.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/5 text-zinc-400"><i data-lucide="pin" class="w-4 h-4"></i></button>
+            </div>
+            <div class="flex-1">
+              <h3 class="font-bold text-sm text-zinc-900 dark:text-white">Website Launch</h3>
+              <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-1">Pipeline desain, pengembangan, konten, dan go-live situs web.</p>
+            </div>
+            <div class="flex items-center justify-between pt-3 border-t border-black/5 dark:border-white/5">
+              <span class="text-[11px] text-zinc-500 dark:text-zinc-400">10 tahapan · 4 peran</span>
+              <button onclick="toast('Template Website Launch diterapkan','play')" class="px-3 py-1.5 rounded-xl bg-black text-white dark:bg-white dark:text-black text-[11px] font-semibold hover:opacity-90 active:scale-[0.98]">Gunakan</button>
+            </div>
+          </div>
+
+          <div class="tp-card glass-panel rounded-3xl p-5 flex flex-col gap-4">
+            <div class="flex items-start justify-between gap-3">
+              <span class="grid place-items-center w-11 h-11 rounded-2xl bg-amber-500/15 text-amber-600 dark:text-amber-400 font-bold text-lg">C</span>
+              <button onclick="toast('Template Campaign disematkan','pin')" class="p-1.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/5 text-zinc-400"><i data-lucide="pin" class="w-4 h-4"></i></button>
+            </div>
+            <div class="flex-1">
+              <h3 class="font-bold text-sm text-zinc-900 dark:text-white">Campaign</h3>
+              <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-1">Perencanaan kampanye pemasaran terukur dari konsep hingga evaluasi.</p>
+            </div>
+            <div class="flex items-center justify-between pt-3 border-t border-black/5 dark:border-white/5">
+              <span class="text-[11px] text-zinc-500 dark:text-zinc-400">9 tahapan · 3 peran</span>
+              <button onclick="toast('Template Campaign diterapkan','play')" class="px-3 py-1.5 rounded-xl bg-black text-white dark:bg-white dark:text-black text-[11px] font-semibold hover:opacity-90 active:scale-[0.98]">Gunakan</button>
+            </div>
+          </div>
+
+          <div class="tp-card glass-panel rounded-3xl p-5 flex flex-col gap-4">
+            <div class="flex items-start justify-between gap-3">
+              <span class="grid place-items-center w-11 h-11 rounded-2xl bg-teal-500/15 text-teal-600 dark:text-teal-400 font-bold text-lg">M</span>
+              <button onclick="toast('Template Mobile App disematkan','pin')" class="p-1.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/5 text-zinc-400"><i data-lucide="pin" class="w-4 h-4"></i></button>
+            </div>
+            <div class="flex-1">
+              <h3 class="font-bold text-sm text-zinc-900 dark:text-white">Mobile App</h3>
+              <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-1">Rilis aplikasi iOS &amp; Android dengan fase beta dan store review.</p>
+            </div>
+            <div class="flex items-center justify-between pt-3 border-t border-black/5 dark:border-white/5">
+              <span class="text-[11px] text-zinc-500 dark:text-zinc-400">11 tahapan · 4 peran</span>
+              <button onclick="toast('Template Mobile App diterapkan','play')" class="px-3 py-1.5 rounded-xl bg-black text-white dark:bg-white dark:text-black text-[11px] font-semibold hover:opacity-90 active:scale-[0.98]">Gunakan</button>
+            </div>
+          </div>
+
+          <div class="tp-card rounded-3xl border-2 border-dashed border-black/15 dark:border-white/15 p-5 flex flex-col items-center justify-center gap-3 text-center min-h-[220px]">
+            <span class="grid place-items-center w-12 h-12 rounded-2xl bg-black/5 dark:bg-white/5 text-zinc-500"><i data-lucide="plus" class="w-5 h-5"></i></span>
+            <div>
+              <p class="font-bold text-sm text-zinc-900 dark:text-white">Buat Template</p>
+              <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-1">Perancah alur kerja khusus tim Anda.</p>
+            </div>
+            <button onclick="toast('Form pembuatan template dibuka','file-plus')" class="px-4 py-2 rounded-xl border border-black/15 dark:border-white/15 text-[11px] font-semibold text-zinc-700 dark:text-zinc-300 hover:bg-black/5 dark:hover:bg-white/5 active:scale-[0.98]">Mulai Sendiri</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==================== VIEW 8: ANGGARAN ==================== -->
+      <div id="view-anggaran" class="u-view space-y-6">
+        <div class="flex flex-wrap items-end justify-between gap-4">
+          <div>
+            <h1 class="text-2xl font-bold tracking-tight text-zinc-900 dark:text-white">Anggaran &amp; Burn Rate</h1>
+            <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-1">Pelacakan belanja per kategori terhadap alokasi anggaran.</p>
+          </div>
+          <button onclick="toast('Laporan anggaran diunduh','download')" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-black text-white dark:bg-white dark:text-black text-xs font-semibold hover:opacity-90 shadow-sm active:scale-[0.98]">
+            <i data-lucide="download" class="w-3.5 h-3.5"></i> Ekspor
+          </button>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div class="glass-panel p-5 rounded-3xl space-y-2">
+            <span class="text-[11px] font-medium text-zinc-500 dark:text-zinc-400">Total Anggaran</span>
+            <p class="text-2xl font-bold tracking-tight text-zinc-900 dark:text-white font-mono">Rp 1,34 M</p>
+            <p class="text-[11px] text-zinc-500 dark:text-zinc-400">seluruh kategori Q3</p>
+          </div>
+          <div class="glass-panel p-5 rounded-3xl space-y-2">
+            <span class="text-[11px] font-medium text-zinc-500 dark:text-zinc-400">Terpakai</span>
+            <p class="text-2xl font-bold tracking-tight text-amber-600 dark:text-amber-400 font-mono">Rp 1,18 M</p>
+            <p class="text-[11px] text-zinc-500 dark:text-zinc-400">88% dari plafon</p>
+          </div>
+          <div class="glass-panel p-5 rounded-3xl space-y-2">
+            <span class="text-[11px] font-medium text-zinc-500 dark:text-zinc-400">Sisa</span>
+            <p class="text-2xl font-bold tracking-tight text-emerald-600 dark:text-emerald-400 font-mono">Rp 160 Jt</p>
+            <p class="text-[11px] text-zinc-500 dark:text-zinc-400">12% tersisa</p>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 items-start">
+          <div class="lg:col-span-2 glass-panel rounded-3xl p-5 space-y-4">
+            <div>
+              <h3 class="font-bold text-sm text-zinc-900 dark:text-white">Item Baris Anggaran</h3>
+              <p class="text-xs text-zinc-500 dark:text-zinc-400">Alokasi vs realisasi per kategori biaya.</p>
+            </div>
+            <div class="overflow-x-auto">
+              <table class="w-full text-sm">
+                <thead>
+                  <tr class="border-b border-black/5 dark:border-white/5 text-[11px] font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">
+                    <th class="pb-3 text-left">Kategori</th>
+                    <th class="pb-3 text-right">Dialokasikan</th>
+                    <th class="pb-3 text-right">Terpakai</th>
+                    <th class="pb-3 text-right">Sisa</th>
+                    <th class="pb-3 text-left w-40">Progres</th>
+                    <th class="pb-3 text-right">Status</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-black/5 dark:divide-white/5">
+                  <tr class="hover-row">
+                    <td class="py-3.5 font-bold text-zinc-900 dark:text-white">Pengembangan Software</td>
+                    <td class="py-3.5 font-mono text-xs">Rp 560 Jt</td>
+                    <td class="py-3.5 font-mono text-xs">Rp 480 Jt</td>
+                    <td class="py-3.5 font-mono text-xs text-emerald-600 dark:text-emerald-400">Rp 80 Jt</td>
+                    <td class="py-3.5"><div class="h-2 w-32 rounded-full bg-black/10 dark:bg-white/10 overflow-hidden"><div class="h-full bg-emerald-500 rounded-full" style="width:86%"></div></div></td>
+                    <td class="py-3.5 text-right"><span class="text-[10px] font-bold px-2 py-1 rounded-full bg-emerald-500/15 text-emerald-700 dark:text-emerald-400">On Track</span></td>
+                  </tr>
+                  <tr class="hover-row">
+                    <td class="py-3.5 font-bold text-zinc-900 dark:text-white">Infrastruktur Cloud</td>
+                    <td class="py-3.5 font-mono text-xs">Rp 320 Jt</td>
+                    <td class="py-3.5 font-mono text-xs">Rp 310 Jt</td>
+                    <td class="py-3.5 font-mono text-xs text-amber-600 dark:text-amber-400">Rp 10 Jt</td>
+                    <td class="py-3.5"><div class="h-2 w-32 rounded-full bg-black/10 dark:bg-white/10 overflow-hidden"><div class="h-full bg-amber-500 rounded-full" style="width:97%"></div></div></td>
+                    <td class="py-3.5 text-right"><span class="text-[10px] font-bold px-2 py-1 rounded-full bg-amber-500/15 text-amber-700 dark:text-amber-400">Hampir Terpakai</span></td>
+                  </tr>
+                  <tr class="hover-row">
+                    <td class="py-3.5 font-bold text-zinc-900 dark:text-white">Sumber Daya Manusia</td>
+                    <td class="py-3.5 font-mono text-xs">Rp 240 Jt</td>
+                    <td class="py-3.5 font-mono text-xs">Rp 225 Jt</td>
+                    <td class="py-3.5 font-mono text-xs text-emerald-600 dark:text-emerald-400">Rp 15 Jt</td>
+                    <td class="py-3.5"><div class="h-2 w-32 rounded-full bg-black/10 dark:bg-white/10 overflow-hidden"><div class="h-full bg-emerald-500 rounded-full" style="width:94%"></div></div></td>
+                    <td class="py-3.5 text-right"><span class="text-[10px] font-bold px-2 py-1 rounded-full bg-emerald-500/15 text-emerald-700 dark:text-emerald-400">On Track</span></td>
+                  </tr>
+                  <tr class="hover-row">
+                    <td class="py-3.5 font-bold text-zinc-900 dark:text-white">Lisensi &amp; Tools</td>
+                    <td class="py-3.5 font-mono text-xs">Rp 120 Jt</td>
+                    <td class="py-3.5 font-mono text-xs">Rp 96 Jt</td>
+                    <td class="py-3.5 font-mono text-xs text-emerald-600 dark:text-emerald-400">Rp 24 Jt</td>
+                    <td class="py-3.5"><div class="h-2 w-32 rounded-full bg-black/10 dark:bg-white/10 overflow-hidden"><div class="h-full bg-emerald-500 rounded-full" style="width:80%"></div></div></td>
+                    <td class="py-3.5 text-right"><span class="text-[10px] font-bold px-2 py-1 rounded-full bg-emerald-500/15 text-emerald-700 dark:text-emerald-400">On Track</span></td>
+                  </tr>
+                  <tr class="hover-row">
+                    <td class="py-3.5 font-bold text-zinc-900 dark:text-white">Operasional &amp; Acara</td>
+                    <td class="py-3.5 font-mono text-xs">Rp 100 Jt</td>
+                    <td class="py-3.5 font-mono text-xs">Rp 108 Jt</td>
+                    <td class="py-3.5 font-mono text-xs text-rose-600 dark:text-rose-400">−Rp 8 Jt</td>
+                    <td class="py-3.5"><div class="h-2 w-32 rounded-full bg-black/10 dark:bg-white/10 overflow-hidden"><div class="h-full bg-rose-500 rounded-full" style="width:108%"></div></div></td>
+                    <td class="py-3.5 text-right"><span class="text-[10px] font-bold px-2 py-1 rounded-full bg-rose-500/15 text-rose-700 dark:text-rose-400">Over Budget</span></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="glass-panel rounded-3xl p-5 space-y-4">
+            <div>
+              <h3 class="font-bold text-sm text-zinc-900 dark:text-white">Belanja per Kategori</h3>
+              <p class="text-xs text-zinc-500 dark:text-zinc-400">Proporsi realisasi kuartal berjalan.</p>
+            </div>
+            <div class="flex items-center justify-center">
+              <svg viewBox="0 0 42 42" class="w-44 h-44 -rotate-90">
+                <circle cx="21" cy="21" r="15.9" fill="none" stroke-width="5.5" stroke="rgba(0,0,0,0.08)" class="dark:stroke-white/10"/>
+                <circle cx="21" cy="21" r="15.9" fill="none" stroke-width="5.5" stroke-linecap="round" stroke="#10b981" stroke-dasharray="43 100" stroke-dashoffset="0"/>
+                <circle cx="21" cy="21" r="15.9" fill="none" stroke-width="5.5" stroke-linecap="round" stroke="#3b82f6" stroke-dasharray="27 100" stroke-dashoffset="-43"/>
+                <circle cx="21" cy="21" r="15.9" fill="none" stroke-width="5.5" stroke-linecap="round" stroke="#a855f7" stroke-dasharray="20 100" stroke-dashoffset="-70"/>
+                <circle cx="21" cy="21" r="15.9" fill="none" stroke-width="5.5" stroke-linecap="round" stroke="#f59e0b" stroke-dasharray="18 100" stroke-dashoffset="-90"/>
+              </svg>
+            </div>
+            <div class="space-y-2">
+              <div class="flex items-center justify-between text-[11px]"><span class="flex items-center gap-2 text-zinc-600 dark:text-zinc-300"><span class="w-2.5 h-2.5 rounded-sm bg-emerald-500"></span>Pengembangan</span><span class="font-mono font-bold">41%</span></div>
+              <div class="flex items-center justify-between text-[11px]"><span class="flex items-center gap-2 text-zinc-600 dark:text-zinc-300"><span class="w-2.5 h-2.5 rounded-sm bg-blue-500"></span>Infrastruktur</span><span class="font-mono font-bold">26%</span></div>
+              <div class="flex items-center justify-between text-[11px]"><span class="flex items-center gap-2 text-zinc-600 dark:text-zinc-300"><span class="w-2.5 h-2.5 rounded-sm bg-violet-500"></span>SDM</span><span class="font-mono font-bold">19%</span></div>
+              <div class="flex items-center justify-between text-[11px]"><span class="flex items-center gap-2 text-zinc-600 dark:text-zinc-300"><span class="w-2.5 h-2.5 rounded-sm bg-amber-500"></span>Lainnya</span><span class="font-mono font-bold">14%</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==================== VIEW 9: PENGATURAN ==================== -->
+      <div id="view-pengaturan" class="u-view space-y-6">
+        <div class="flex flex-wrap items-end justify-between gap-4">
+          <div>
+            <h1 class="text-2xl font-bold tracking-tight text-zinc-900 dark:text-white">Pengaturan Manajemen Proyek</h1>
+            <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-1">Konfigurasi workspace dan preferensi proyek.</p>
+          </div>
+        </div>
+
+        <div class="flex flex-col lg:flex-row gap-4">
+          <aside class="lg:w-60 shrink-0">
+            <div class="glass-panel rounded-3xl p-3 lg:sticky lg:top-24">
+              <nav class="space-y-1">
+                <button onclick="setSettingsTab('umum')" data-set="umum" class="set-tab w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-bold bg-black text-white dark:bg-white dark:text-black shadow-sm"><i data-lucide="sliders-horizontal" class="w-[18px] h-[18px]"></i> Umum</button>
+                <button onclick="setSettingsTab('penagihan')" data-set="penagihan" class="set-tab w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-bold text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-50 hover:bg-black/5 dark:hover:bg-white/10"><i data-lucide="credit-card" class="w-[18px] h-[18px]"></i> Penagihan</button>
+                <button onclick="setSettingsTab('notifikasi')" data-set="notifikasi" class="set-tab w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-bold text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-50 hover:bg-black/5 dark:hover:bg-white/10"><i data-lucide="bell" class="w-[18px] h-[18px]"></i> Notifikasi</button>
+                <button onclick="setSettingsTab('tim')" data-set="tim" class="set-tab w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-bold text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-50 hover:bg-black/5 dark:hover:bg-white/10"><i data-lucide="users" class="w-[18px] h-[18px]"></i> Tim</button>
+              </nav>
+              <div class="mt-3 pt-3 border-t border-black/5 dark:border-white/10">
+                <button onclick="toast('Menuju profil pengguna','user')" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-bold text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-50 hover:bg-black/5 dark:hover:bg-white/10"><i data-lucide="user" class="w-[18px] h-[18px]"></i> Profil Saya</button>
+              </div>
+            </div>
+          </aside>
+
+          <main class="flex-1 min-w-0 space-y-4">
+            <div class="set-panel glass-panel rounded-3xl p-6" data-panel="umum">
+              <h2 class="font-bold tracking-tight">Workspace</h2>
+              <p class="text-sm text-zinc-500 dark:text-zinc-400 mt-1">Nama workspace tampil di seluruh produk dan email.</p>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-5">
+                <div>
+                  <label class="text-xs font-semibold text-zinc-500 dark:text-zinc-400">Nama Workspace</label>
+                  <input id="ws-name" value="PT Nusantara Digital Kreatif" class="mt-1.5 w-full h-11 px-3.5 rounded-xl bg-black/5 dark:bg-white/10 border border-black/5 dark:border-white/10 text-sm font-medium outline-none focus:ring-2 ring-zinc-900/10 dark:ring-white/20">
+                </div>
+                <div>
+                  <label class="text-xs font-semibold text-zinc-500 dark:text-zinc-400">Subdomain</label>
+                  <div class="mt-1.5 flex items-center h-11 rounded-xl bg-black/5 dark:bg-white/10 border border-black/5 dark:border-white/10 overflow-hidden focus-within:ring-2 ring-zinc-900/10 dark:ring-white/20">
+                    <span class="px-3.5 text-sm text-zinc-400 font-medium">https://</span>
+                    <input id="ws-sub" value="nusantara" class="flex-1 min-w-0 bg-transparent text-sm font-medium outline-none pr-1"> <span class="pr-3.5 text-sm text-zinc-400 font-medium">.uroo.dev</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="set-panel glass-panel rounded-3xl p-6" data-panel="umum">
+              <h2 class="font-bold tracking-tight">Lokalisasi</h2>
+              <p class="text-sm text-zinc-500 dark:text-zinc-400 mt-1">Bahasa dan zona waktu untuk seluruh anggota workspace.</p>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-5">
+                <div>
+                  <label class="text-xs font-semibold text-zinc-500 dark:text-zinc-400" for="lang">Bahasa Antarmuka</label>
+                  <select id="lang" class="mt-1.5 w-full h-11 px-3.5 rounded-xl bg-black/5 dark:bg-white/10 border border-black/5 dark:border-white/10 text-sm font-medium outline-none focus:ring-2 ring-zinc-900/10 dark:ring-white/20 appearance-none">
+                    <option value="id" selected>Bahasa Indonesia</option>
+                    <option value="en">English</option>
+                    <option value="ja">日本語</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="text-xs font-semibold text-zinc-500 dark:text-zinc-400" for="tz">Zona Waktu</label>
+                  <select id="tz" class="mt-1.5 w-full h-11 px-3.5 rounded-xl bg-black/5 dark:bg-white/10 border border-black/5 dark:border-white/10 text-sm font-medium outline-none focus:ring-2 ring-zinc-900/10 dark:ring-white/20 appearance-none">
+                    <option value="wib" selected>Asia/Jakarta (WIB) - UTC+7</option>
+                    <option value="wita">Asia/Makassar (WITA) - UTC+8</option>
+                    <option value="wit">Asia/Jayapura (WIT) - UTC+9</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="text-xs font-semibold text-zinc-500 dark:text-zinc-400">Format Tanggal</label>
+                  <select class="mt-1.5 w-full h-11 px-3.5 rounded-xl bg-black/5 dark:bg-white/10 border border-black/5 dark:border-white/10 text-sm font-medium outline-none focus:ring-2 ring-zinc-900/10 dark:ring-white/20 appearance-none">
+                    <option selected>DD/MM/YYYY</option>
+                    <option>MM/DD/YYYY</option>
+                    <option>YYYY-MM-DD</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="text-xs font-semibold text-zinc-500 dark:text-zinc-400">Mata Uang</label>
+                  <select class="mt-1.5 w-full h-11 px-3.5 rounded-xl bg-black/5 dark:bg-white/10 border border-black/5 dark:border-white/10 text-sm font-medium outline-none focus:ring-2 ring-zinc-900/10 dark:ring-white/20 appearance-none">
+                    <option selected>IDR - Rupiah Indonesia (Rp)</option>
+                    <option>USD - US Dollar ($)</option>
+                    <option>SGD - Dolar Singapura (S$)</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <div class="set-panel glass-panel rounded-3xl p-6" data-panel="umum">
+              <h2 class="font-bold tracking-tight">Tampilan</h2>
+              <p class="text-sm text-zinc-500 dark:text-zinc-400 mt-1">Pilih tema default dan kepadatan antarmuka.</p>
+              <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-5">
+                <button class="appearance-card selected rounded-2xl border-2 border-transparent p-4 text-left transition-colors cursor-pointer bg-black/5 dark:bg-white/10" data-appearance="light">
+                  <span class="flex items-center justify-between">
+                    <span class="grid place-items-center w-11 h-11 rounded-xl bg-white text-zinc-900 shadow"><i data-lucide="sun" class="w-5 h-5"></i></span>
+                    <span class="w-5 h-5 rounded-full border-2 grid place-items-center appearance-check"><span class="w-2.5 h-2.5 rounded-full bg-zinc-900 dark:bg-zinc-50"></span></span>
+                  </span>
+                  <p class="mt-3 font-bold text-sm">Terang</p>
+                  <p class="text-xs text-zinc-400 mt-0.5">Antarmuka cerah dan bersih</p>
+                </button>
+                <button class="appearance-card rounded-2xl border-2 border-transparent p-4 text-left transition-colors cursor-pointer bg-black/5 dark:bg-white/10" data-appearance="dark">
+                  <span class="flex items-center justify-between">
+                    <span class="grid place-items-center w-11 h-11 rounded-xl bg-zinc-900 text-white shadow"><i data-lucide="moon" class="w-5 h-5"></i></span>
+                    <span class="w-5 h-5 rounded-full border-2 grid place-items-center appearance-check"><span class="w-2.5 h-2.5 rounded-full bg-zinc-900 dark:bg-zinc-50"></span></span>
+                  </span>
+                  <p class="mt-3 font-bold text-sm">Gelap</p>
+                  <p class="text-xs text-zinc-400 mt-0.5">Kontras tinggi, hemat daya</p>
+                </button>
+                <button class="appearance-card rounded-2xl border-2 border-transparent p-4 text-left transition-colors cursor-pointer bg-black/5 dark:bg-white/10" data-appearance="system">
+                  <span class="flex items-center justify-between">
+                    <span class="grid place-items-center w-11 h-11 rounded-xl bg-gradient-to-br from-zinc-100 to-zinc-700 text-zinc-900 shadow"><i data-lucide="monitor" class="w-5 h-5"></i></span>
+                    <span class="w-5 h-5 rounded-full border-2 grid place-items-center appearance-check"><span class="w-2.5 h-2.5 rounded-full bg-transparent"></span></span>
+                  </span>
+                  <p class="mt-3 font-bold text-sm">Sistem</p>
+                  <p class="text-xs text-zinc-400 mt-0.5">Ikuti pengaturan perangkat</p>
+                </button>
+              </div>
+            </div>
+
+            <div class="flex justify-end">
+              <button onclick="saveGeneral()" class="inline-flex items-center gap-2 px-6 py-3 rounded-2xl bg-zinc-900 dark:bg-zinc-50 text-zinc-50 dark:text-zinc-900 text-sm font-bold hover:opacity-90 shadow-lg active:scale-[0.98]">
+                <i data-lucide="save" class="w-4 h-4"></i> Simpan Perubahan
+              </button>
+            </div>
+          </main>
+        </div>
+      </div>
+
+      <!-- ==================== VIEW 10: BANTUAN ==================== -->
+      <div id="view-bantuan" class="u-view space-y-6">
+        <div class="flex flex-wrap items-end justify-between gap-4">
+          <div>
+            <h1 class="text-2xl font-bold tracking-tight text-zinc-900 dark:text-white">Pusat Bantuan</h1>
+            <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-1">Temukan jawaban dan hubungi tim dukungan kami.</p>
+          </div>
+        </div>
+
+        <div class="glass-panel rounded-3xl p-1.5 flex items-center max-w-2xl mx-auto">
+          <i data-lucide="search" class="w-5 h-5 mx-3 text-zinc-400 shrink-0"></i>
+          <input oninput="filterFaq(this.value)" type="text" placeholder="Cari panduan, mis. 'estimasi story point'..." class="w-full bg-transparent py-3 text-sm outline-none text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400">
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 items-start">
+          <div class="lg:col-span-2 space-y-4">
+            <h3 class="font-bold text-sm text-zinc-900 dark:text-white">Pertanyaan Umum</h3>
+            <div class="space-y-2.5">
+              <div class="faq-item glass-panel rounded-3xl group">
+                <button onclick="toggleFaq(this)" class="w-full flex items-center justify-between gap-3 p-5 text-left">
+                  <span class="font-bold text-sm text-zinc-900 dark:text-white">Bagaimana cara mengestimasi story points?</span>
+                  <i data-lucide="chevron-down" class="w-4 h-4 text-zinc-400 shrink-0 transition-transform duration-300 group-open:rotate-180"></i>
+                </button>
+                <div class="faq-body hidden px-5 pb-5 text-sm text-zinc-500 dark:text-zinc-400 leading-relaxed">Gunakan seri Fibonacci (1, 2, 3, 5, 8, 13) dan kalibrasi bersama tim saat perencanaan sprint. Bandingkan dengan kompleksitas tugas yang sudah selesai sebelumnya untuk konsistensi.</div>
+              </div>
+              <div class="faq-item glass-panel rounded-3xl group">
+                <button onclick="toggleFaq(this)" class="w-full flex items-center justify-between gap-3 p-5 text-left">
+                  <span class="font-bold text-sm text-zinc-900 dark:text-white">Bagaimana menandai proyek sebagai "At Risk"?</span>
+                  <i data-lucide="chevron-down" class="w-4 h-4 text-zinc-400 shrink-0 transition-transform duration-300 group-open:rotate-180"></i>
+                </button>
+                <div class="faq-body hidden px-5 pb-5 text-sm text-zinc-500 dark:text-zinc-400 leading-relaxed">Buka daftar proyek, pilih proyek yang relevan, lalu ubah statusnya. Sistem akan menampilkan peringatan otomatis di ringkasan dan memberi tahu project lead terkait.</div>
+              </div>
+              <div class="faq-item glass-panel rounded-3xl group">
+                <button onclick="toggleFaq(this)" class="w-full flex items-center justify-between gap-3 p-5 text-left">
+                  <span class="font-bold text-sm text-zinc-900 dark:text-white">Cara mengelola burn rate anggaran?</span>
+                  <i data-lucide="chevron-down" class="w-4 h-4 text-zinc-400 shrink-0 transition-transform duration-300 group-open:rotate-180"></i>
+                </button>
+                <div class="faq-body hidden px-5 pb-5 text-sm text-zinc-500 dark:text-zinc-400 leading-relaxed">Pantau halaman Anggaran &amp; Burn Rate. Tetapkan alokasi per kategori, dan aktifkan notifikasi agar Anda diingatkan saat belanja melampaui ambang tertentu.</div>
+              </div>
+              <div class="faq-item glass-panel rounded-3xl group">
+                <button onclick="toggleFaq(this)" class="w-full flex items-center justify-between gap-3 p-5 text-left">
+                  <span class="font-bold text-sm text-zinc-900 dark:text-white">Bagaimana mengundang anggota ke workspace?</span>
+                  <i data-lucide="chevron-down" class="w-4 h-4 text-zinc-400 shrink-0 transition-transform duration-300 group-open:rotate-180"></i>
+                </button>
+                <div class="faq-body hidden px-5 pb-5 text-sm text-zinc-500 dark:text-zinc-400 leading-relaxed">Buka halaman Alokasi Tim lalu klik "Undang Anggota". Masukkan email dan tetapkan peran; tautan undangan akan dikirim langsung ke email mereka.</div>
+              </div>
+              <div class="faq-item glass-panel rounded-3xl group">
+                <button onclick="toggleFaq(this)" class="w-full flex items-center justify-between gap-3 p-5 text-left">
+                  <span class="font-bold text-sm text-zinc-900 dark:text-white">Dapatkah saya membuat template proyek kustom?</span>
+                  <i data-lucide="chevron-down" class="w-4 h-4 text-zinc-400 shrink-0 transition-transform duration-300 group-open:rotate-180"></i>
+                </button>
+                <div class="faq-body hidden px-5 pb-5 text-sm text-zinc-500 dark:text-zinc-400 leading-relaxed">Tentu. Buka halaman Template Proyek lalu klik "Buat Template". Tentukan tahapan, peran, dan tugas default agar bisa digunakan berulang kali.</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="space-y-4">
+            <div class="glass-panel rounded-3xl p-5 space-y-3">
+              <h3 class="font-bold text-sm text-zinc-900 dark:text-white">Hubungi Dukungan</h3>
+              <p class="text-xs text-zinc-500 dark:text-zinc-400">Kami siap membantu Anda.</p>
+              <button onclick="toast('Chat dukungan dibuka','message-circle')" class="w-full flex items-center gap-3 p-3 rounded-2xl bg-emerald-500/10 hover:bg-emerald-500/15 text-left">
+                <span class="grid place-items-center w-9 h-9 rounded-xl bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 shrink-0"><i data-lucide="message-circle" class="w-4 h-4"></i></span>
+                <div><p class="font-bold text-xs text-zinc-900 dark:text-white">Chat Langsung</p><p class="text-[10px] text-zinc-500">Balas dalam ±2 menit</p></div>
+              </button>
+              <button onclick="toast('Form email dukungan dibuka','mail')" class="w-full flex items-center gap-3 p-3 rounded-2xl bg-blue-500/10 hover:bg-blue-500/15 text-left">
+                <span class="grid place-items-center w-9 h-9 rounded-xl bg-blue-500/20 text-blue-600 dark:text-blue-400 shrink-0"><i data-lucide="mail" class="w-4 h-4"></i></span>
+                <div><p class="font-bold text-xs text-zinc-900 dark:text-white">Email Tim</p><p class="text-[10px] text-zinc-500">support@uroo.dev</p></div>
+              </button>
+            </div>
+
+            <div class="glass-panel rounded-3xl p-5">
+              <h3 class="font-bold text-sm text-zinc-900 dark:text-white mb-3">Pintasan Cepat</h3>
+              <div class="flex flex-wrap gap-2">
+                <button onclick="toast('Membuka panduan onboarding','book-open')" class="px-3 py-1.5 rounded-full bg-black/5 dark:bg-white/5 text-[11px] font-semibold text-zinc-700 dark:text-zinc-300 hover:bg-black/10 dark:hover:bg-white/10">Panduan Onboarding</button>
+                <button onclick="toast('Membuka pintasan keyboard','keyboard')" class="px-3 py-1.5 rounded-full bg-black/5 dark:bg-white/5 text-[11px] font-semibold text-zinc-700 dark:text-zinc-300 hover:bg-black/10 dark:hover:bg-white/10">Pintasan Keyboard</button>
+                <button onclick="toast('Membuka catatan rilis','rocket')" class="px-3 py-1.5 rounded-full bg-black/5 dark:bg-white/5 text-[11px] font-semibold text-zinc-700 dark:text-zinc-300 hover:bg-black/10 dark:hover:bg-white/10">Catatan Rilis</button>
+                <button onclick="toast('Membuka status layanan','activity')" class="px-3 py-1.5 rounded-full bg-black/5 dark:bg-white/5 text-[11px] font-semibold text-zinc-700 dark:text-zinc-300 hover:bg-black/10 dark:hover:bg-white/10">Status Layanan</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <!-- ==================== JAVASCRIPT CORE ==================== -->
+  <script>
+    (function initTheme() {
+      const saved = localStorage.getItem('uroo-theme');
+      if (saved === 'dark' || (!saved && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+        document.documentElement.classList.add('dark');
+        document.documentElement.classList.remove('light');
+        document.body.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+        document.documentElement.classList.add('light');
+        document.body.classList.remove('dark');
+      }
+    })();
+
+    function toggleTheme() {
+      const isDark = document.documentElement.classList.toggle('dark');
+      document.body.classList.toggle('dark', isDark);
+      if (!isDark) {
+        document.documentElement.classList.add('light');
+        document.body.classList.add('light');
+      } else {
+        document.documentElement.classList.remove('light');
+        document.body.classList.remove('light');
+      }
+      try { localStorage.setItem('uroo-theme', isDark ? 'dark' : 'light'); } catch (e) {}
+      lucide.createIcons();
+    }
+
+    const sidebar = document.getElementById('sidebar');
+    function openDrawer() {
+      sidebar.classList.add('open');
+      document.getElementById('overlay').classList.remove('opacity-0', 'pointer-events-none');
+    }
+    function closeDrawer() {
+      sidebar.classList.remove('open');
+      document.getElementById('overlay').classList.add('opacity-0', 'pointer-events-none');
+    }
+
+    function toast(msg, type) {
+      const t = document.createElement('div');
+      t.className = 'fixed bottom-5 right-5 z-[90] glass-panel rounded-2xl px-4 py-3 text-sm font-semibold shadow-2xl anim-toast-in flex items-center gap-2.5 pointer-events-none max-w-sm text-zinc-900 dark:text-zinc-100';
+      t.innerHTML = '<i data-lucide="' + (type || 'check-circle') + '" class="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0"></i><span>' + msg + '</span>';
+      document.body.appendChild(t);
+      lucide.createIcons();
+      setTimeout(() => {
+        t.style.opacity = '0';
+        setTimeout(() => t.remove(), 300);
+      }, 2400);
+    }
+
+    const VIEWS = ['ringkasan', 'proyek', 'kanban', 'tim', 'kalender', 'portfolio', 'template', 'anggaran', 'pengaturan', 'bantuan'];
+
+    function switchView(viewId, updateHash = true) {
+      if (!VIEWS.includes(viewId)) viewId = 'ringkasan';
+
+      document.querySelectorAll('.u-view').forEach(el => el.classList.remove('active'));
+      const target = document.getElementById('view-' + viewId);
+      if (target) target.classList.add('active');
+
+      document.querySelectorAll('.nav-link').forEach(btn => {
+        const nav = btn.getAttribute('data-nav');
+        if (nav === viewId) {
+          btn.className = 'nav-link w-full flex items-center gap-3 px-3 py-2.5 rounded-2xl text-sm font-medium transition bg-black text-white dark:bg-white dark:text-black shadow-sm';
+        } else {
+          btn.className = 'nav-link w-full flex items-center gap-3 px-3 py-2.5 rounded-2xl text-sm font-medium transition text-zinc-600 dark:text-zinc-400 hover:bg-black/5 dark:hover:bg-white/5 hover:text-black dark:hover:text-white';
+        }
+      });
+
+      if (updateHash && window.location.hash !== '#' + viewId) {
+        window.location.hash = viewId;
+      }
+
+      closeDrawer();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      lucide.createIcons();
+    }
+
+    window.addEventListener('hashchange', () => {
+      const hash = window.location.hash.replace('#', '');
+      if (hash && VIEWS.includes(hash)) switchView(hash, false);
+    });
+
+    document.addEventListener('DOMContentLoaded', () => {
+      lucide.createIcons();
+      const initialHash = window.location.hash.replace('#', '');
+      if (initialHash && VIEWS.includes(initialHash)) switchView(initialHash, false);
+      else switchView('ringkasan', false);
+      renderAppearance();
+      bindAppearanceCards();
+    });
+
+    /* ==================== VIEW: PROYEK ==================== */
+    let proyekStatusFilter = 'semua';
+    function filterProyek() {
+      const q = (document.getElementById('proyekSearch').value || '').toLowerCase();
+      let visible = 0;
+      document.querySelectorAll('#proyekGrid .dj-card').forEach(card => {
+        const name = card.querySelector('h3').textContent.toLowerCase();
+        const matchQ = name.includes(q);
+        const matchS = proyekStatusFilter === 'semua' || card.getAttribute('data-ps').split(' ').includes(proyekStatusFilter);
+        const show = matchQ && matchS;
+        card.style.display = show ? '' : 'none';
+        if (show) visible++;
+        card.classList.toggle('anim-scale-in', show);
+      });
+      document.getElementById('proyekEmpty').classList.toggle('hidden', visible !== 0);
+    }
+    function filterProyekStatus(status) {
+      proyekStatusFilter = status;
+      document.querySelectorAll('.ps-chip').forEach(chip => {
+        const active = chip.getAttribute('data-ps') === status;
+        chip.className = 'ps-chip px-3 py-1.5 rounded-full text-[11px] font-semibold transition ' + (active
+          ? 'bg-black text-white dark:bg-white dark:text-black'
+          : 'text-zinc-500 dark:text-zinc-400 hover:bg-black/5 dark:hover:bg-white/5 bg-black/5 dark:bg-white/5');
+      });
+      filterProyek();
+    }
+
+    /* ==================== VIEW: PENGATURAN ==================== */
+    let selectedAppearance = 'light';
+    function renderAppearance() {
+      document.querySelectorAll('.appearance-card').forEach(card => {
+        const on = card.dataset.appearance === selectedAppearance;
+        card.classList.toggle('selected', on);
+      });
+    }
+    function bindAppearanceCards() {
+      document.querySelectorAll('.appearance-card').forEach(card => {
+        card.addEventListener('click', () => {
+          selectedAppearance = card.dataset.appearance;
+          renderAppearance();
+        });
+      });
+      document.querySelectorAll('.appearance-card[data-appearance]').forEach(card => {
+        if (card.dataset.appearance === selectedAppearance) card.classList.add('selected');
+      });
+    }
+    function setSettingsTab(tab) {
+      document.querySelectorAll('.set-tab').forEach(btn => {
+        const active = btn.getAttribute('data-set') === tab;
+        btn.className = 'set-tab w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-bold transition ' + (active
+          ? 'bg-black text-white dark:bg-white dark:text-black shadow-sm'
+          : 'text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-50 hover:bg-black/5 dark:hover:bg-white/10');
+      });
+      lucide.createIcons();
+    }
+    function saveGeneral() {
+      const ws = document.getElementById('ws-name').value.trim();
+      if (!ws) { toast('Nama workspace tidak boleh kosong', 'alert-triangle'); return; }
+      const lang = document.getElementById('lang').value;
+      const tz = document.getElementById('tz').value;
+      toast('Pengaturan umum berhasil disimpan', 'check');
+    }
+
+    /* ==================== VIEW: BANTUAN ==================== */
+    function toggleFaq(btn) {
+      const item = btn.closest('.faq-item');
+      const body = item.querySelector('.faq-body');
+      const isOpen = item.classList.toggle('open');
+      body.classList.toggle('hidden', !isOpen);
+      lucide.createIcons();
+    }
+    function filterFaq(query) {
+      const q = (query || '').toLowerCase();
+      document.querySelectorAll('.faq-item').forEach(item => {
+        const match = item.querySelector('span').textContent.toLowerCase().includes(q);
+        item.style.display = match ? '' : 'none';
+      });
+    }
+  </script>
+<script src="../../assets/js/uroo-nav.js"></script>
+</body>
+</html>

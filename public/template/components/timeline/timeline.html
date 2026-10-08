@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="id" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Uroo UI - Timeline</title>
+  <script src="../../assets/js/tailwind.js"></script>
+  <script src="../../assets/js/lucide.js"></script>
+  <script>tailwind.config={darkMode:'class',theme:{extend:{colors:{glass:{light:'rgba(255,255,255,0.65)','light-border':'rgba(255,255,255,0.8)',dark:'rgba(18,18,20,0.65)','dark-border':'rgba(255,255,255,0.1)'}}}}}</script>
+  <link rel="stylesheet" href="../../assets/css/uroo.css">
+  <style>
+    .u-bg{position:fixed;inset:0;z-index:-10;transition:opacity .35s ease}
+    .u-bg-light{background:linear-gradient(135deg,#dfe3ea,#f4f4f5)}
+    .u-bg-dark{background:linear-gradient(135deg,#0a0a0b,#1a1a1e);opacity:0}
+    body.dark .u-bg-light{opacity:0}
+    body.dark .u-bg-dark{opacity:1}
+    .u-glow{position:fixed;border-radius:9999px;filter:blur(90px);z-index:-9;pointer-events:none;transition:background-color .35s ease;background:rgba(0,0,0,0.06)}
+    body.dark .u-glow{background:rgba(255,255,255,0.05)}
+    .u-glow-1{width:420px;height:420px;top:-140px;left:-140px}
+    .u-glow-2{width:520px;height:520px;bottom:-200px;right:-140px}
+    .u-glow-3{width:300px;height:300px;top:42%;left:58%}
+
+    .u-tl{position:relative;}
+    .u-tl-item{position:relative;padding:0 0 1.875rem 2.75rem;}
+    .u-tl-item::before{content:"";position:absolute;left:0.75rem;top:2rem;bottom:0.25rem;width:1px;background:linear-gradient(180deg,rgba(24,24,27,0.2),rgba(24,24,27,0.03));}
+    .dark .u-tl-item::before{background:linear-gradient(180deg,rgba(255,255,255,0.25),rgba(255,255,255,0.05));}
+    .u-tl-item:last-child::before{display:none;}
+    .u-tl-dot{position:absolute;left:0;top:0.25rem;width:1.5rem;height:1.5rem;border-radius:9999px;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,0.9);border:1px solid rgba(24,24,27,0.16);box-shadow:0 6px 16px -8px rgba(0,0,0,0.4);}
+    .dark .u-tl-dot{background:rgba(24,24,27,0.95);border-color:rgba(255,255,255,0.2);box-shadow:0 6px 16px -8px rgba(0,0,0,0.7);}
+    .u-tl-dot .lucide{width:0.75rem;height:0.75rem;color:#3f3f46;}
+    .dark .u-tl-dot .lucide{color:#d4d4d8;}
+    .u-tl-dot.is-active{background:#18181b;border-color:#18181b;}
+    .u-tl-dot.is-active .lucide{color:#fafafa;}
+    .dark .u-tl-dot.is-active{background:#fafafa;border-color:#fafafa;}
+    .dark .u-tl-dot.is-active .lucide{color:#18181b;}
+    .u-tl-dot--plain{width:0.75rem;height:0.75rem;top:0.45rem;left:0.375rem;background:#18181b;border:2px solid #f4f4f5;box-shadow:0 0 0 2px rgba(24,24,27,0.2);}
+    .dark .u-tl-dot--plain{background:#fafafa;border:2px solid #18181b;box-shadow:0 0 0 2px rgba(255,255,255,0.22);}
+
+    .u-tl-time{display:inline-block;font-size:0.6875rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:rgba(24,24,27,0.55);border:1px solid rgba(24,24,27,0.14);background:rgba(255,255,255,0.65);border-radius:0.5rem;padding:0.1875rem 0.5rem;margin-bottom:0.375rem;}
+    .dark .u-tl-time{color:rgba(255,255,255,0.7);border-color:rgba(255,255,255,0.14);background:rgba(255,255,255,0.06);}
+
+    .u-tl-card{border-radius:0.875rem;border:1px solid rgba(24,24,27,0.1);background:rgba(255,255,255,0.55);padding:0.875rem 1rem;transition:opacity .25s ease,transform .25s ease;}
+    .dark .u-tl-card{border-color:rgba(255,255,255,0.1);background:rgba(255,255,255,0.04);}
+    .u-tl-item.hidden-item{display:none;}
+    .u-tl-item.anim-in{animation:u-fade-in .25s ease-out;}
+
+    .tl-chip{display:inline-flex;align-items:center;gap:0.375rem;padding:0.4375rem 0.875rem;border-radius:9999px;font-size:0.75rem;font-weight:600;color:rgba(24,24,27,0.6);border:1px solid rgba(24,24,27,0.14);background:rgba(255,255,255,0.6);cursor:pointer;transition:all .2s ease;}
+    .dark .tl-chip{color:rgba(255,255,255,0.65);border-color:rgba(255,255,255,0.14);background:rgba(255,255,255,0.05);}
+    .tl-chip:hover{border-color:rgba(24,24,27,0.4);}
+    .dark .tl-chip:hover{border-color:rgba(255,255,255,0.4);}
+    .tl-chip.is-active{background:#18181b;color:#fafafa;border-color:#18181b;}
+    .dark .tl-chip.is-active{background:#fafafa;color:#18181b;border-color:#fafafa;}
+
+    .tl-empty{display:none;margin-top:0.5rem;padding:1.5rem;text-align:center;border:1px dashed rgba(24,24,27,0.2);border-radius:0.875rem;color:rgba(24,24,27,0.5);font-size:0.8125rem;}
+    .dark .tl-empty{border-color:rgba(255,255,255,0.2);color:rgba(255,255,255,0.45);}
+    .tl-empty.show{display:block;}
+
+    .u-tl-alt{position:relative;}
+    .u-tl-alt::before{content:"";position:absolute;top:0;bottom:0;left:0.375rem;width:1px;background:rgba(24,24,27,0.16);}
+    .dark .u-tl-alt::before{background:rgba(255,255,255,0.18);}
+    .u-tl-alt-item{position:relative;padding:0 0 2rem 1.625rem;}
+    .u-tl-alt-dot{position:absolute;left:0.0625rem;top:0.375rem;width:0.75rem;height:0.75rem;border-radius:9999px;background:#18181b;box-shadow:0 0 0 3px #f4f4f5, 0 2px 6px rgba(0,0,0,0.3);}
+    .dark .u-tl-alt-dot{background:#fafafa;box-shadow:0 0 0 3px #18181b, 0 2px 6px rgba(0,0,0,0.6);}
+    .u-tl-alt-card{border-radius:0.875rem;border:1px solid rgba(24,24,27,0.1);background:rgba(255,255,255,0.55);padding:0.875rem 1rem;}
+    .dark .u-tl-alt-card{border-color:rgba(255,255,255,0.1);background:rgba(255,255,255,0.04);}
+    @media(min-width:768px){
+      .u-tl-alt::before{left:50%;}
+      .u-tl-alt-item{width:50%;padding:0 2.5rem 2.75rem 0;text-align:right;}
+      .u-tl-alt-item:nth-child(even){margin-left:50%;padding:0 0 2.75rem 2.5rem;text-align:left;}
+      .u-tl-alt-dot{left:auto;right:-0.375rem;}
+      .u-tl-alt-item:nth-child(even) .u-tl-alt-dot{right:auto;left:-0.375rem;}
+    }
+
+    .u-tl-h{display:flex;gap:1rem;overflow-x:auto;padding:0.75rem 0 1rem;}
+    .u-tl-h-item{position:relative;flex:1 0 10rem;min-width:0;}
+    .u-tl-h-item::before{content:"";position:absolute;left:0;right:0;top:0.75rem;height:1px;background:rgba(24,24,27,0.16);}
+    .dark .u-tl-h-item::before{background:rgba(255,255,255,0.18);}
+    .u-tl-h-dot{position:absolute;left:0;top:0.375rem;width:0.75rem;height:0.75rem;border-radius:9999px;background:#18181b;box-shadow:0 0 0 3px #f4f4f5;}
+    .dark .u-tl-h-dot{background:#fafafa;box-shadow:0 0 0 3px #18181b;}
+    .u-tl-h-item.is-active .u-tl-h-dot{background:#dc2626;box-shadow:0 0 0 3px rgba(220,38,38,0.22);}
+    .u-tl-h-card{margin-top:1.625rem;border-radius:0.75rem;border:1px solid rgba(24,24,27,0.1);background:rgba(255,255,255,0.55);padding:0.75rem;}
+    .dark .u-tl-h-card{border-color:rgba(255,255,255,0.1);background:rgba(255,255,255,0.04);}
+
+    .u-st{display:inline-flex;align-items:center;gap:0.3125rem;border-radius:9999px;padding:0.1875rem 0.5625rem;font-size:0.6875rem;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;}
+    .u-st .lucide{width:0.625rem;height:0.625rem;}
+    .u-st--done{color:#15803d;background:rgba(22,163,74,0.12);border:1px solid rgba(22,163,74,0.28);}
+    .dark .u-st--done{color:#4ade80;background:rgba(34,197,94,0.12);border-color:rgba(34,197,94,0.3);}
+    .u-st--run{color:#3f3f46;background:rgba(24,24,27,0.08);border:1px solid rgba(24,24,27,0.22);}
+    .dark .u-st--run{color:#e4e4e7;background:rgba(255,255,255,0.08);border-color:rgba(255,255,255,0.24);}
+    .u-st--wait{color:#b45309;background:rgba(217,119,6,0.12);border:1px solid rgba(217,119,6,0.3);}
+    .dark .u-st--wait{color:#fbbf24;background:rgba(251,191,36,0.12);border-color:rgba(251,191,36,0.32);}
+    .u-st--cancel{color:#b91c1c;background:rgba(220,38,38,0.1);border:1px solid rgba(220,38,38,0.26);}
+    .dark .u-st--cancel{color:#f87171;background:rgba(248,113,113,0.12);border-color:rgba(248,113,113,0.3);}
+
+    .tx-title{font-size:0.8125rem;font-weight:600;line-height:1.45;}
+    .tx-sub{font-size:0.75rem;line-height:1.5;color:rgba(24,24,27,0.55);}
+    .dark .tx-sub{color:rgba(255,255,255,0.5);}
+    .tx-meta{display:flex;align-items:center;gap:0.375rem;font-size:0.6875rem;color:rgba(24,24,27,0.45);}
+    .dark .tx-meta{color:rgba(255,255,255,0.45);}
+    .tx-meta .lucide{width:0.75rem;height:0.75rem;}
+  </style>
+</head>
+<body class="min-h-screen p-6 font-sans antialiased text-zinc-800 dark:text-zinc-100">
+  <script>(function initTheme(){var saved=null;try{saved=localStorage.getItem('uroo-theme')}catch(e){};var dark=(saved==='dark')||(!saved&&window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches);var de=document.documentElement;if(dark){de.classList.add('dark');de.classList.remove('light');if(document.body){document.body.classList.add('dark');document.body.classList.remove('light');}}else{de.classList.remove('dark');de.classList.add('light');if(document.body){document.body.classList.remove('dark');document.body.classList.add('light');}}})();</script>
+  <div class="u-bg u-bg-light" aria-hidden="true"></div>
+  <div class="u-bg u-bg-dark" aria-hidden="true"></div>
+  <div class="u-glow u-glow-1" aria-hidden="true"></div>
+  <div class="u-glow u-glow-2" aria-hidden="true"></div>
+  <div class="u-glow u-glow-3" aria-hidden="true"></div>
+
+  <div class="relative mx-auto max-w-6xl">
+    <header class="relative mb-10">
+      <p class="text-xs font-semibold uppercase tracking-[0.25em] text-zinc-500 dark:text-zinc-500">Uroo UI - Komponen</p>
+      <h1 class="mt-2 text-3xl font-bold tracking-tight md:text-4xl">Timeline</h1>
+      <p class="mt-3 max-w-2xl text-sm leading-relaxed text-zinc-500 dark:text-zinc-400">Tampilkan urutan peristiwa secara vertikal, horizontal, maupun berselang-seling dengan titik, ikon, waktu, dan filter interaktif.</p>
+    </header>
+
+    <main class="relative grid gap-6 md:grid-cols-2">
+
+      <section data-copy class="glass-panel rounded-2xl p-6 md:p-8">
+        <p class="text-xs font-semibold uppercase tracking-[0.2em] text-zinc-500 dark:text-zinc-500">Variasi - Vertikal dengan titik</p>
+        <div class="mt-5 u-tl">
+          <div class="u-tl-item">
+            <span class="u-tl-dot is-active"><i data-lucide="circle"></i></span>
+            <p class="tx-title">Briefing peluncuran produk</p>
+            <p class="tx-sub mt-0.5">Definisi ruang lingkup, target pasar, serta draf kerangka waktu bulan pertama.</p>
+            <p class="tx-meta mt-1.5"><i data-lucide="calendar"></i>12 Agu 2026 · 09.00 WIB</p>
+          </div>
+          <div class="u-tl-item">
+            <span class="u-tl-dot"><i data-lucide="circle"></i></span>
+            <p class="tx-title">Peninjauan desain antarmuka</p>
+            <p class="tx-sub mt-0.5">Papan wireframe diserahkan untuk validasi tim produk sebelum fase pengembangan.</p>
+            <p class="tx-meta mt-1.5"><i data-lucide="calendar"></i>15 Agu 2026</p>
+          </div>
+          <div class="u-tl-item">
+            <span class="u-tl-dot"><i data-lucide="circle"></i></span>
+            <p class="tx-title">Sprint pertama dimulai</p>
+            <p class="tx-sub mt-0.5">Pengembangan modul inti berjalan dua minggu dengan backlog tersaring.</p>
+            <p class="tx-meta mt-1.5"><i data-lucide="calendar"></i>19 Agu 2026</p>
+          </div>
+          <div class="u-tl-item">
+            <span class="u-tl-dot"><i data-lucide="circle"></i></span>
+            <p class="tx-title">Rilis versi beta</p>
+            <p class="tx-sub mt-0.5">Undangan uji coba dikirim ke 120 pengguna awal pada akhir sprint kedua.</p>
+            <p class="tx-meta mt-1.5"><i data-lucide="calendar"></i>2 Sep 2026</p>
+          </div>
+        </div>
+      </section>
+
+      <section data-copy class="glass-panel rounded-2xl p-6 md:p-8">
+        <p class="text-xs font-semibold uppercase tracking-[0.2em] text-zinc-500 dark:text-zinc-500">Variasi - Dengan waktu</p>
+        <div class="mt-5 u-tl">
+          <div class="u-tl-item">
+            <span class="u-tl-dot--plain u-tl-dot"></span>
+            <span class="u-tl-time">08.00 · Hari ini</span>
+            <p class="tx-title">Sinkron data penjualan harian</p>
+            <p class="tx-sub mt-0.5">Pembaruan rekap transaksi dari 3 cabang selesai tanpa kendala.</p>
+          </div>
+          <div class="u-tl-item">
+            <span class="u-tl-dot--plain u-tl-dot"></span>
+            <span class="u-tl-time">09.30 · Hari ini</span>
+            <p class="tx-title">Rapat sprint mingguan</p>
+            <p class="tx-sub mt-0.5">Pembagian tugas dan penyesuaian prioritas backlog sprint ke-7.</p>
+          </div>
+          <div class="u-tl-item">
+            <span class="u-tl-dot--plain u-tl-dot"></span>
+            <span class="u-tl-time">11.00 · Hari ini</span>
+            <p class="tx-title">Ulasan permintaan penarikan</p>
+            <p class="tx-sub mt-0.5">Dua permintaan penarikan branch py/checkout disetujui dan digabung.</p>
+          </div>
+          <div class="u-tl-item">
+            <span class="u-tl-dot--plain u-tl-dot"></span>
+            <span class="u-tl-time">14.15 · Hari ini</span>
+            <p class="tx-title">Demo internal ke pemangku kepentingan</p>
+            <p class="tx-sub mt-0.5">Penayangan alur pembayaran terbaru kepada pemimpin program.</p>
+          </div>
+        </div>
+      </section>
+
+      <section data-copy class="glass-panel rounded-2xl p-6 md:p-8 md:col-span-2">
+        <p class="text-xs font-semibold uppercase tracking-[0.2em] text-zinc-500 dark:text-zinc-500">Interaktif - Dengan ikon dan filter status</p>
+        <div class="mt-5 flex flex-wrap gap-2" id="tlChips">
+          <button type="button" class="tl-chip is-active" data-f="all"><i data-lucide="layout-list" class="h-3.5 w-3.5"></i>Semua</button>
+          <button type="button" class="tl-chip" data-f="pengajuan"><i data-lucide="file-text" class="h-3.5 w-3.5"></i>Pengajuan</button>
+          <button type="button" class="tl-chip" data-f="persetujuan"><i data-lucide="badge-check" class="h-3.5 w-3.5"></i>Persetujuan</button>
+          <button type="button" class="tl-chip" data-f="pembayaran"><i data-lucide="banknote" class="h-3.5 w-3.5"></i>Pembayaran</button>
+          <button type="button" class="tl-chip" data-f="pengerjaan"><i data-lucide="wrench" class="h-3.5 w-3.5"></i>Pengerjaan</button>
+          <button type="button" class="tl-chip" data-f="dokumen"><i data-lucide="file-check" class="h-3.5 w-3.5"></i>Dokumen</button>
+        </div>
+        <div class="mt-6 u-tl" id="tlFilterList">
+          <div class="u-tl-item" data-cat="pengajuan">
+            <span class="u-tl-dot"><i data-lucide="file-text"></i></span>
+            <div class="u-tl-card">
+              <p class="tx-title">Pengajuan proposal "Uroo Pay"</p>
+              <p class="tx-sub mt-0.5">Dokumen proposal dan anggaran dikirim ke tim produk untuk direview.</p>
+              <p class="tx-meta mt-1.5"><i data-lucide="calendar"></i>10 Agu 2026</p>
+            </div>
+          </div>
+          <div class="u-tl-item" data-cat="persetujuan">
+            <span class="u-tl-dot is-active"><i data-lucide="badge-check"></i></span>
+            <div class="u-tl-card">
+              <p class="tx-title">Anggaran marketing disetujui</p>
+              <p class="tx-sub mt-0.5">Manajer menyetujui alokasi 180 juta rupiah untuk kampanye Q3.</p>
+              <p class="tx-meta mt-1.5"><i data-lucide="calendar"></i>12 Agu 2026</p>
+            </div>
+          </div>
+          <div class="u-tl-item" data-cat="pembayaran">
+            <span class="u-tl-dot"><i data-lucide="banknote"></i></span>
+            <div class="u-tl-card">
+              <p class="tx-title">Pembayaran termin pertama vendor</p>
+              <p class="tx-sub mt-0.5">Dana termin 1 (50%) ditransfer ke rekening vendor integrasi.</p>
+              <p class="tx-meta mt-1.5"><i data-lucide="calendar"></i>16 Agu 2026</p>
+            </div>
+          </div>
+          <div class="u-tl-item" data-cat="pengerjaan">
+            <span class="u-tl-dot"><i data-lucide="wrench"></i></span>
+            <div class="u-tl-card">
+              <p class="tx-title">Integrasi API pembayaran dimulai</p>
+              <p class="tx-sub mt-0.5">Tim backend menyambungkan gerbang pembayaran ke lingkungan uji.</p>
+              <p class="tx-meta mt-1.5"><i data-lucide="calendar"></i>22 Agu 2026</p>
+            </div>
+          </div>
+          <div class="u-tl-item" data-cat="dokumen">
+            <span class="u-tl-dot"><i data-lucide="file-check"></i></span>
+            <div class="u-tl-card">
+              <p class="tx-title">Laporan evaluasi awal dikirim</p>
+              <p class="tx-sub mt-0.5">Ringkasan kemajuan, risiko, dan rekomendasi periode dua minggu.</p>
+              <p class="tx-meta mt-1.5"><i data-lucide="calendar"></i>29 Agu 2026</p>
+            </div>
+          </div>
+        </div>
+        <div id="tlEmpty" class="tl-empty">Tidak ada aktivitas pada kategori yang dipilih.</div>
+      </section>
+
+      <section data-copy class="glass-panel rounded-2xl p-6 md:p-8 md:col-span-2">
+        <p class="text-xs font-semibold uppercase tracking-[0.2em] text-zinc-500 dark:text-zinc-500">Variasi - Sisi berselang-seling</p>
+        <div class="mt-8 u-tl-alt">
+          <div class="u-tl-alt-item">
+            <span class="u-tl-alt-dot"></span>
+            <div class="u-tl-alt-card">
+              <p class="tx-meta"><i data-lucide="rocket"></i>2022</p>
+              <p class="tx-title mt-1">Uroo Studio berdiri</p>
+              <p class="tx-sub mt-1">Berawal dari tiga orang dengan produk pertama manajemen tugas untuk UMKM.</p>
+            </div>
+          </div>
+          <div class="u-tl-alt-item">
+            <span class="u-tl-alt-dot"></span>
+            <div class="u-tl-alt-card">
+              <p class="tx-meta"><i data-lucide="handshake"></i>2023</p>
+              <p class="tx-title mt-1">Pendanaan awal dan tim inti</p>
+              <p class="tx-sub mt-1">Pendanaan 2 miliar rupiah dan kedatangan lima anggota baru lintas fungsi.</p>
+            </div>
+          </div>
+          <div class="u-tl-alt-item">
+            <span class="u-tl-alt-dot"></span>
+            <div class="u-tl-alt-card">
+              <p class="tx-meta"><i data-lucide="users"></i>2024</p>
+              <p class="tx-title mt-1">Sepuluh ribu pengguna aktif</p>
+              <p class="tx-sub mt-1">Tonggak adopsi tercatat bertepatan dengan rilis aplikasi seluler.</p>
+            </div>
+          </div>
+          <div class="u-tl-alt-item">
+            <span class="u-tl-alt-dot"></span>
+            <div class="u-tl-alt-card">
+              <p class="tx-meta"><i data-lucide="globe"></i>2025</p>
+              <p class="tx-title mt-1">Ekspansi ke kawasan ASEAN</p>
+              <p class="tx-sub mt-1">Lokalisasi bahasa memasuki pasar Thailand, Vietnam, dan Filipina.</p>
+            </div>
+          </div>
+          <div class="u-tl-alt-item">
+            <span class="u-tl-alt-dot"></span>
+            <div class="u-tl-alt-card">
+              <p class="tx-meta"><i data-lucide="layers"></i>2026</p>
+              <p class="tx-title mt-1">Desain sistem Uroo UI dirilis</p>
+              <p class="tx-sub mt-1">Rilis sumber terbuka sebagai fondasi visual untuk ekosistem produk.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section data-copy class="glass-panel rounded-2xl p-6 md:p-8">
+        <p class="text-xs font-semibold uppercase tracking-[0.2em] text-zinc-500 dark:text-zinc-500">Variasi - Horizontal</p>
+        <div class="mt-5 u-tl-h">
+          <div class="u-tl-h-item">
+            <span class="u-tl-h-dot"></span>
+            <div class="u-tl-h-card">
+              <p class="tx-meta">Sen</p>
+              <p class="tx-title mt-0.5">Kick-off sprint</p>
+              <p class="tx-sub mt-0.5">Sinkronisasi tujuan dan backlog</p>
+            </div>
+          </div>
+          <div class="u-tl-h-item">
+            <span class="u-tl-h-dot"></span>
+            <div class="u-tl-h-card">
+              <p class="tx-meta">Rab</p>
+              <p class="tx-title mt-0.5">Uji pengguna</p>
+              <p class="tx-sub mt-0.5">Sesi wawancara 8 pengguna awal</p>
+            </div>
+          </div>
+          <div class="u-tl-h-item is-active">
+            <span class="u-tl-h-dot"></span>
+            <div class="u-tl-h-card">
+              <p class="tx-meta">Kam</p>
+              <p class="tx-title mt-0.5">Demo internal</p>
+              <p class="tx-sub mt-0.5">Presentasi progres ke stakeholder</p>
+            </div>
+          </div>
+          <div class="u-tl-h-item">
+            <span class="u-tl-h-dot"></span>
+            <div class="u-tl-h-card">
+              <p class="tx-meta">Jum</p>
+              <p class="tx-title mt-0.5">Perbaikan bug</p>
+              <p class="tx-sub mt-0.5">Kerjakan umpan balik uji pengguna</p>
+            </div>
+          </div>
+          <div class="u-tl-h-item">
+            <span class="u-tl-h-dot"></span>
+            <div class="u-tl-h-card">
+              <p class="tx-meta">Min</p>
+              <p class="tx-title mt-0.5">Rilis potongan</p>
+              <p class="tx-sub mt-0.5">Penyerahan versi internal v2.4</p>
+            </div>
+          </div>
+        </div>
+        <p class="mt-2 text-xs text-zinc-500 dark:text-zinc-500">Gulir mendatar pada layar sempit. Titik merah menandai fase aktif.</p>
+      </section>
+
+      <section data-copy class="glass-panel rounded-2xl p-6 md:p-8">
+        <p class="text-xs font-semibold uppercase tracking-[0.2em] text-zinc-500 dark:text-zinc-500">Variasi - Dengan status</p>
+        <div class="mt-5 u-tl">
+          <div class="u-tl-item">
+            <span class="u-tl-dot is-active"><i data-lucide="server"></i></span>
+            <div class="u-tl-card">
+              <div class="flex flex-wrap items-center justify-between gap-2">
+                <p class="tx-title">Migrasi server produksi</p>
+                <span class="u-st u-st--done"><i data-lucide="check"></i>Selesai</span>
+              </div>
+              <p class="tx-sub mt-0.5">Pemindahan beban ke wilayah baru selesai 2 hari lebih cepat.</p>
+            </div>
+          </div>
+          <div class="u-tl-item">
+            <span class="u-tl-dot is-active"><i data-lucide="shield-check"></i></span>
+            <div class="u-tl-card">
+              <div class="flex flex-wrap items-center justify-between gap-2">
+                <p class="tx-title">Audit keamanan berkala</p>
+                <span class="u-st u-st--run"><i data-lucide="loader-circle"></i>Berjalan</span>
+              </div>
+              <p class="tx-sub mt-0.5">Pemindaian kerentanan sedang berlangsung di lingkungan uji.</p>
+            </div>
+          </div>
+          <div class="u-tl-item">
+            <span class="u-tl-dot is-active"><i data-lucide="gauge"></i></span>
+            <div class="u-tl-card">
+              <div class="flex flex-wrap items-center justify-between gap-2">
+                <p class="tx-title">Pengujian beban pengguna</p>
+                <span class="u-st u-st--wait"><i data-lucide="clock"></i>Tertunda</span>
+              </div>
+              <p class="tx-sub mt-0.5">Menunggu konfirmasi jadwal infrastruktur dari tim operasi.</p>
+            </div>
+          </div>
+          <div class="u-tl-item">
+            <span class="u-tl-dot"><i data-lucide="map-pin"></i></span>
+            <div class="u-tl-card">
+              <div class="flex flex-wrap items-center justify-between gap-2">
+                <p class="tx-title">Rencana peluncuran wilayah baru</p>
+                <span class="u-st u-st--cancel"><i data-lucide="x"></i>Dibatalkan</span>
+              </div>
+              <p class="tx-sub mt-0.5">Ditunda karena penyelarasan regulasi pembayaran regional.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="relative mt-12 flex items-center justify-between border-t border-zinc-400/30 py-6 text-xs text-zinc-500 dark:border-white/10 dark:text-zinc-500">
+      <span>Uroo UI - Glassmorphism monokrom</span>
+      <span id="year"></span>
+    </footer>
+  </div>
+
+  <button onclick="toggleTheme()" class="glass-panel fixed right-4 top-4 z-50 inline-flex items-center justify-center rounded-full p-2.5" aria-label="Ganti tema">
+    <i data-lucide="sun" class="h-5 w-5 text-zinc-700 dark:hidden"></i>
+    <i data-lucide="moon" class="hidden h-5 w-5 text-zinc-200 dark:block"></i>
+  </button>
+
+  <script>
+    lucide.createIcons();
+    function toggleTheme(){const h=document.documentElement,b=document.body;h.classList.toggle('dark');b.classList.toggle('dark');try{localStorage.setItem('uroo-theme',b.classList.contains('dark')?'dark':'light')}catch(e){};lucide.createIcons();}
+    (function(){if(document.documentElement.classList.contains('dark')){document.body.classList.add('dark');}else{document.body.classList.remove('dark');}})();
+    document.getElementById('year').textContent = 'Uroo Dev - ' + new Date().getFullYear();
+
+    function filterTL(f){
+      document.querySelectorAll('#tlChips .tl-chip').forEach(function(b){
+        b.classList.toggle('is-active', b.dataset.f === (f || 'all'));
+      });
+      var any = 0;
+      document.querySelectorAll('#tlFilterList .u-tl-item').forEach(function(it){
+        var show = (f === 'all') || (it.dataset.cat === f);
+        it.classList.toggle('hidden-item', !show);
+        it.classList.toggle('anim-in', show);
+        if(show){ any++; }
+      });
+      document.getElementById('tlEmpty').classList.toggle('show', any === 0);
+    }
+    document.querySelectorAll('#tlChips .tl-chip').forEach(function(chip){
+      chip.addEventListener('click', function(){ filterTL(chip.dataset.f); });
+    });
+  </script>
+<script src="../../assets/js/uroo-copy.js"></script>
+<script src="../../assets/js/uroo-nav.js"></script>
+</body>
+</html>

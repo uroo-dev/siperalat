@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="id" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Uroo UI - Blank Canvas</title>
+  <script src="../../assets/js/tailwind.js"></script>
+  <script src="../../assets/js/lucide.js"></script>
+  <script>tailwind.config={darkMode:'class',theme:{extend:{colors:{glass:{light:'rgba(255,255,255,0.65)','light-border':'rgba(255,255,255,0.8)',dark:'rgba(18,18,20,0.65)','dark-border':'rgba(255,255,255,0.1)'}}}}}</script>
+  <link rel="stylesheet" href="../../assets/css/uroo.css">
+  <style>
+    .u-bg{position:fixed;inset:0;z-index:-10;transition:opacity .35s ease}
+    .u-bg-light{background:linear-gradient(135deg,#dfe3ea,#f4f4f5)}
+    .u-bg-dark{background:linear-gradient(135deg,#0a0a0b,#1a1a1e);opacity:0}
+    body.dark .u-bg-light{opacity:0}
+    body.dark .u-bg-dark{opacity:1}
+    .u-glow{position:fixed;border-radius:9999px;filter:blur(90px);z-index:-9;pointer-events:none;background:rgba(0,0,0,0.06);transition:background-color .35s ease}
+    body.dark .u-glow{background:rgba(255,255,255,0.05)}
+    .u-glow-1{width:420px;height:420px;top:-140px;left:-140px}
+    .u-glow-2{width:520px;height:520px;bottom:-200px;right:-140px}
+    .u-glow-3{width:300px;height:300px;top:42%;left:58%}
+  </style>
+</head>
+<body class="min-h-screen font-sans antialiased text-zinc-800 dark:text-zinc-100">
+  <script>(function initTheme(){var saved=null;try{saved=localStorage.getItem('uroo-theme')}catch(e){};var dark=(saved==='dark')||(!saved&&window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches);var de=document.documentElement;if(dark){de.classList.add('dark');de.classList.remove('light');if(document.body){document.body.classList.add('dark');document.body.classList.remove('light');}}else{de.classList.remove('dark');de.classList.add('light');if(document.body){document.body.classList.remove('dark');document.body.classList.add('light');}}})();</script>
+
+  <div class="u-bg u-bg-light"></div>
+  <div class="u-bg u-bg-dark"></div>
+  <div class="u-glow u-glow-1"></div>
+  <div class="u-glow u-glow-2"></div>
+  <div class="u-glow u-glow-3"></div>
+
+  <button onclick="toggleTheme()" class="glass-panel fixed right-4 top-4 z-50 inline-flex items-center justify-center rounded-full p-2.5" aria-label="Ganti tema">
+    <i data-lucide="sun" class="h-5 w-5 text-zinc-700 dark:hidden"></i>
+    <i data-lucide="moon" class="hidden h-5 w-5 text-zinc-200 dark:block"></i>
+  </button>
+
+  <main class="relative mx-auto flex min-h-screen max-w-3xl flex-col px-6 py-12">
+    <header class="mb-10 flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
+      <div>
+        <p class="text-xs font-semibold uppercase tracking-[0.25em] text-zinc-500 dark:text-zinc-500">Blank Canvas</p>
+        <h1 class="mt-2 text-2xl font-bold tracking-tight text-zinc-900 dark:text-zinc-50">Mulai dengan template</h1>
+        <p class="mt-2 max-w-md text-sm leading-relaxed text-zinc-500 dark:text-zinc-400">
+          Halaman kosong dan siap diisi. Mulai dari komponen, tata letak, atau gaya
+          yang Anda butuhkan untuk proyek berikutnya.
+        </p>
+      </div>
+      <button onclick="saveTemplate()" class="inline-flex shrink-0 items-center gap-2 rounded-xl bg-zinc-900 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-zinc-700 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-white">
+        <i data-lucide="download" class="h-4 w-4"></i>Simpan template
+      </button>
+    </header>
+
+    <section class="glass-panel flex min-h-[22rem] flex-col items-center justify-center rounded-3xl border-2 border-dashed border-zinc-300/80 bg-white/30 px-6 py-14 text-center dark:border-zinc-700 dark:bg-zinc-900/30">
+      <div class="mb-5 flex h-16 w-16 items-center justify-center rounded-2xl border border-zinc-300/80 bg-white/70 dark:border-white/10 dark:bg-zinc-800/70">
+        <i data-lucide="layout-dashboard" class="h-7 w-7 text-zinc-400 dark:text-zinc-500"></i>
+      </div>
+      <h2 class="text-base font-semibold text-zinc-700 dark:text-zinc-200">Area konten masih kosong</h2>
+      <p class="mt-1.5 max-w-sm text-sm leading-relaxed text-zinc-500 dark:text-zinc-400">
+        Seret komponen dari panel kiri ke sini, atau gunakan chip aksi cepat di bawah
+        untuk memulai dengan satu klik.
+      </p>
+    </section>
+
+    <div class="mt-6 flex flex-wrap items-center justify-center gap-2">
+      <button onclick="addQuick('Header + Hero')" class="glass-panel inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-sm font-medium text-zinc-700 transition-colors hover:bg-white/70 dark:text-zinc-200 dark:hover:bg-white/5">
+        <i data-lucide="heading-1" class="h-4 w-4 text-zinc-500 dark:text-zinc-400"></i>Header + Hero
+      </button>
+      <button onclick="addQuick('Grid Kartu')" class="glass-panel inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-sm font-medium text-zinc-700 transition-colors hover:bg-white/70 dark:text-zinc-200 dark:hover:bg-white/5">
+        <i data-lucide="layout-grid" class="h-4 w-4 text-zinc-500 dark:text-zinc-400"></i>Grid Kartu
+      </button>
+      <button onclick="addQuick('Tabel Data')" class="glass-panel inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-sm font-medium text-zinc-700 transition-colors hover:bg-white/70 dark:text-zinc-200 dark:hover:bg-white/5">
+        <i data-lucide="table" class="h-4 w-4 text-zinc-500 dark:text-zinc-400"></i>Tabel Data
+      </button>
+      <button onclick="addQuick('Formulir')" class="glass-panel inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-sm font-medium text-zinc-700 transition-colors hover:bg-white/70 dark:text-zinc-200 dark:hover:bg-white/5">
+        <i data-lucide="form-input" class="h-4 w-4 text-zinc-500 dark:text-zinc-400"></i>Formulir
+      </button>
+      <button onclick="addQuick('Statistik')" class="glass-panel inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-sm font-medium text-zinc-700 transition-colors hover:bg-white/70 dark:text-zinc-200 dark:hover:bg-white/5">
+        <i data-lucide="bar-chart-3" class="h-4 w-4 text-zinc-500 dark:text-zinc-400"></i>Statistik
+      </button>
+      <button onclick="addQuick('Timeline')" class="glass-panel inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-sm font-medium text-zinc-700 transition-colors hover:bg-white/70 dark:text-zinc-200 dark:hover:bg-white/5">
+        <i data-lucide="git-commit-horizontal" class="h-4 w-4 text-zinc-500 dark:text-zinc-400"></i>Timeline
+      </button>
+      <button onclick="addQuick('Galeri')" class="glass-panel inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-sm font-medium text-zinc-700 transition-colors hover:bg-white/70 dark:text-zinc-200 dark:hover:bg-white/5">
+        <i data-lucide="images" class="h-4 w-4 text-zinc-500 dark:text-zinc-400"></i>Galeri
+      </button>
+    </div>
+
+    <div class="mt-10 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-zinc-300/70 bg-white/40 px-5 py-4 text-sm text-zinc-500 dark:border-white/10 dark:bg-zinc-900/40 dark:text-zinc-400">
+      <span class="inline-flex items-center gap-2">
+        <i data-lucide="info" class="h-4 w-4 text-zinc-400 dark:text-zinc-500"></i>
+        Template kosong Uroo UI v1.0
+      </span>
+      <span class="inline-flex items-center gap-2">
+        <i data-lucide="check-circle-2" class="h-4 w-4 text-zinc-400 dark:text-zinc-500"></i>
+        Siap dipakai di semua halaman
+      </span>
+    </div>
+
+    <footer class="relative mt-8 flex items-center justify-between border-t border-zinc-400/30 py-5 text-xs text-zinc-500 dark:border-white/10 dark:text-zinc-500">
+      <span>Uroo UI - Blank Canvas</span>
+      <span id="year"></span>
+    </footer>
+  </main>
+
+  <script>
+    lucide.createIcons();
+    function toggleTheme(){const h=document.documentElement,b=document.body;h.classList.toggle('dark');b.classList.toggle('dark');try{localStorage.setItem('uroo-theme',h.classList.contains('dark')?'dark':'light')}catch(e){};lucide.createIcons();}
+    document.getElementById('year').textContent = 'Uroo Dev - ' + new Date().getFullYear();
+
+    function addQuick(block){
+      showToast('Memuat blok \u201C' + block + '\u201D ke area kosong...');
+    }
+    function saveTemplate(){
+      showToast('Template kosong disimpan sebagai draf proyek.');
+    }
+    function showToast(msg){
+      const t=document.createElement('div');
+      t.className='glass-panel anim-toast-in fixed bottom-6 left-1/2 z-[80] -translate-x-1/2 rounded-xl px-4 py-3 text-sm font-medium text-zinc-800 dark:text-zinc-100';
+      t.textContent=msg;
+      document.body.appendChild(t);
+      setTimeout(()=>{t.style.transition='all .3s';t.style.opacity='0';t.style.transform='translate(-50%,8px)';setTimeout(()=>t.remove(),320);},2400);
+    }
+  </script>
+<script src="../../assets/js/uroo-nav.js"></script>
+</body>
+</html>

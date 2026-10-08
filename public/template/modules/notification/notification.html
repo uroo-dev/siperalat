@@ -1,0 +1,1892 @@
+<!DOCTYPE html>
+<html lang="id" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Uroo UI — Notifikasi &amp; Pusat Pesan</title>
+  <script src="../../assets/js/tailwind.js"></script>
+  <script src="../../assets/js/lucide.js"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            glass: {
+              light: 'rgba(255, 255, 255, 0.55)',
+              'light-border': 'rgba(255, 255, 255, 0.8)',
+              dark: 'rgba(24, 24, 27, 0.55)',
+              'dark-border': 'rgba(255, 255, 255, 0.08)'
+            }
+          }
+        }
+      }
+    };
+  </script>
+  <link rel="stylesheet" href="../../assets/css/uroo.css">
+  <style>
+    /* Liquid Glassmorphism Core Effect */
+    .glass-panel {
+      backdrop-filter: blur(20px) saturate(180%);
+      -webkit-backdrop-filter: blur(20px) saturate(180%);
+    }
+
+    .light .glass-panel,
+    html:not(.dark) .glass-panel,
+    body:not(.dark) .glass-panel {
+      background-color: rgba(255, 255, 255, 0.55);
+      border: 1px solid rgba(255, 255, 255, 0.8);
+      box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.05),
+                  inset 0 1px 1px 0 rgba(255, 255, 255, 0.9);
+    }
+
+    .dark .glass-panel,
+    html.dark .glass-panel,
+    body.dark .glass-panel {
+      background-color: rgba(24, 24, 27, 0.55);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.5),
+                  inset 0 1px 1px 0 rgba(255, 255, 255, 0.1);
+    }
+
+    /* Smooth Transition Theme */
+    body, div, nav, button, a, input, select, textarea, section, aside, header, main, footer, span, li, table, tr, td, th {
+      transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    #sidebar { width: 16.5rem; transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), width 0.28s cubic-bezier(0.16, 1, 0.3, 1); }
+    #sidebar.collapsed { width: 4.85rem; }
+    #sidebar .nav-label { transition: opacity 0.15s ease, width 0.15s ease; }
+    #sidebar.collapsed .nav-label { opacity: 0; width: 0; overflow: hidden; white-space: nowrap; }
+    #sidebar.collapsed .nav-link { justify-content: center; padding-left: 0; padding-right: 0; }
+    #sidebar.collapsed .group-title { justify-content: center; padding-left: 0; padding-right: 0; text-align: center; }
+    #sidebar.collapsed .nav-text { display: none; }
+    #sidebar.collapsed .logo-text { display: none; }
+    @media (max-width: 1023px) {
+      #sidebar { position: fixed; top: 1rem; bottom: 1rem; left: 1rem; z-index: 50; transform: translateX(-130%); width: 17rem; }
+      #sidebar.open { transform: translateX(0); }
+    }
+
+    .u-view { display: none; opacity: 0; transform: translateY(8px); transition: opacity 0.25s ease, transform 0.25s ease; }
+    .u-view.active { display: block; opacity: 1; transform: translateY(0); }
+
+    .hover-row:hover { background-color: rgba(0, 0, 0, 0.03); }
+    .dark .hover-row:hover { background-color: rgba(255, 255, 255, 0.04); }
+  </style>
+</head>
+<body class="bg-gray-100 dark:bg-zinc-950 text-zinc-800 dark:text-zinc-100 font-sans min-h-screen antialiased p-3 sm:p-4 lg:p-6">
+
+  <!-- Mobile Drawer Overlay -->
+  <div id="overlay" class="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm opacity-0 pointer-events-none transition-opacity duration-300 lg:hidden" onclick="closeDrawer()" aria-hidden="true"></div>
+
+  <!-- Floating Controller Bar -->
+  <div class="fixed top-4 right-6 z-50 flex items-center gap-2 p-1.5 rounded-full glass-panel shadow-2xl">
+    <button onclick="toggleTheme()" class="p-2 rounded-full hover:bg-black/5 dark:hover:bg-white/10 transition" title="Toggle Tema">
+      <i data-lucide="sun" class="w-4 h-4 hidden dark:block text-amber-400"></i>
+      <i data-lucide="moon" class="w-4 h-4 block dark:hidden text-zinc-800"></i>
+    </button>
+  </div>
+
+  <div class="max-w-[1600px] mx-auto lg:flex lg:gap-6 relative min-h-screen">
+
+    <!-- ============================ SIDEBAR ============================ -->
+    <aside id="sidebar" class="glass-panel rounded-3xl p-5 flex flex-col justify-between shrink-0 lg:sticky lg:top-6 lg:h-[calc(100vh-3rem)] z-40">
+      <div class="space-y-6">
+        <!-- Logo Brand -->
+        <div class="flex items-center gap-3 px-2">
+          <div class="w-8 h-8 rounded-xl bg-black dark:bg-white text-white dark:text-black flex items-center justify-center font-black text-lg shadow-sm"><img src="../../assets/img/uroo_ui.png" alt="Uroo UI" class="w-8 h-8 rounded-xl object-cover"></div>
+          <div class="logo-text min-w-0">
+            <div class="flex items-center gap-1.5">
+              <span class="font-bold text-lg tracking-tight text-zinc-900 dark:text-white">Uroo UI</span>
+              <span class="text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-black/5 dark:bg-white/10 text-zinc-700 dark:text-zinc-300">v1.2</span>
+            </div>
+            <p class="text-[10px] font-bold uppercase tracking-[0.16em] text-zinc-500 dark:text-zinc-400">Notifications</p>
+          </div>
+          <button onclick="closeDrawer()" class="ml-auto lg:hidden p-1.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 text-zinc-600 dark:text-zinc-400">
+            <i data-lucide="x" class="w-4 h-4"></i>
+          </button>
+        </div>
+
+        <!-- Navigation Links -->
+        <nav class="space-y-1 overflow-y-auto max-h-[calc(100vh-14rem)] pr-1 sidebar-scroll" aria-label="Menu Notifikasi">
+          <button onclick="switchView('semua')" data-nav="semua" class="nav-link w-full flex items-center gap-3 px-3 py-2.5 rounded-2xl text-sm font-medium transition bg-black text-white dark:bg-white dark:text-black shadow-sm">
+            <i data-lucide="bell" class="w-4 h-4 shrink-0"></i>
+            <span class="nav-label text-left flex-1">Semua Notifikasi</span>
+          </button>
+          <button onclick="switchView('inbox')" data-nav="inbox" class="nav-link w-full flex items-center gap-3 px-3 py-2.5 rounded-2xl text-sm font-medium transition text-zinc-600 dark:text-zinc-400 hover:bg-black/5 dark:hover:bg-white/5 hover:text-black dark:hover:text-white">
+            <i data-lucide="inbox" class="w-4 h-4 shrink-0"></i>
+            <span class="nav-label text-left flex-1">Kotak Masuk (Inbox)</span>
+            <span class="nav-text text-[10px] font-bold px-1.5 py-0.5 rounded-md bg-blue-500/15 text-blue-700 dark:text-blue-400">4 Baru</span>
+          </button>
+          <button onclick="switchView('penting')" data-nav="penting" class="nav-link w-full flex items-center gap-3 px-3 py-2.5 rounded-2xl text-sm font-medium transition text-zinc-600 dark:text-zinc-400 hover:bg-black/5 dark:hover:bg-white/5 hover:text-black dark:hover:text-white">
+            <i data-lucide="alert-circle" class="w-4 h-4 shrink-0"></i>
+            <span class="nav-label text-left flex-1">Penting &amp; Darurat</span>
+          </button>
+          <button onclick="switchView('arsip')" data-nav="arsip" class="nav-link w-full flex items-center gap-3 px-3 py-2.5 rounded-2xl text-sm font-medium transition text-zinc-600 dark:text-zinc-400 hover:bg-black/5 dark:hover:bg-white/5 hover:text-black dark:hover:text-white">
+            <i data-lucide="archive" class="w-4 h-4 shrink-0"></i>
+            <span class="nav-label text-left flex-1">Arsip Pesan</span>
+          </button>
+          <button onclick="switchView('preferensi')" data-nav="preferensi" class="nav-link w-full flex items-center gap-3 px-3 py-2.5 rounded-2xl text-sm font-medium transition text-zinc-600 dark:text-zinc-400 hover:bg-black/5 dark:hover:bg-white/5 hover:text-black dark:hover:text-white">
+            <i data-lucide="sliders" class="w-4 h-4 shrink-0"></i>
+            <span class="nav-label text-left flex-1">Preferensi Saluran</span>
+          </button>
+          <button onclick="switchView('saluran')" data-nav="saluran" class="nav-link w-full flex items-center gap-3 px-3 py-2.5 rounded-2xl text-sm font-medium transition text-zinc-600 dark:text-zinc-400 hover:bg-black/5 dark:hover:bg-white/5 hover:text-black dark:hover:text-white">
+            <i data-lucide="radio" class="w-4 h-4 shrink-0"></i>
+            <span class="nav-label text-left flex-1">Integrasi Webhook</span>
+          </button>
+          <button onclick="switchView('grup')" data-nav="grup" class="nav-link w-full flex items-center gap-3 px-3 py-2.5 rounded-2xl text-sm font-medium transition text-zinc-600 dark:text-zinc-400 hover:bg-black/5 dark:hover:bg-white/5 hover:text-black dark:hover:text-white">
+            <i data-lucide="users" class="w-4 h-4 shrink-0"></i>
+            <span class="nav-label text-left flex-1">Grup Penerima</span>
+          </button>
+          <button onclick="switchView('pengaturan')" data-nav="pengaturan" class="nav-link w-full flex items-center gap-3 px-3 py-2.5 rounded-2xl text-sm font-medium transition text-zinc-600 dark:text-zinc-400 hover:bg-black/5 dark:hover:bg-white/5 hover:text-black dark:hover:text-white">
+            <i data-lucide="settings" class="w-4 h-4 shrink-0"></i>
+            <span class="nav-label text-left flex-1">Pengaturan</span>
+          </button>
+          <button onclick="switchView('bantuan')" data-nav="bantuan" class="nav-link w-full flex items-center gap-3 px-3 py-2.5 rounded-2xl text-sm font-medium transition text-zinc-600 dark:text-zinc-400 hover:bg-black/5 dark:hover:bg-white/5 hover:text-black dark:hover:text-white">
+            <i data-lucide="help-circle" class="w-4 h-4 shrink-0"></i>
+            <span class="nav-label text-left flex-1">Bantuan</span>
+          </button>
+        </nav>
+      </div>
+
+      <!-- Channel Status Card -->
+      <div class="glass-panel p-4 rounded-2xl border border-black/10 dark:border-white/10 text-center relative overflow-hidden mt-4">
+        <div class="flex items-center gap-2.5 justify-center mb-1">
+          <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+          <p class="font-bold text-xs text-zinc-900 dark:text-white">Server Push Gateway</p>
+        </div>
+        <p class="text-[11px] text-zinc-500 dark:text-zinc-400">99.98% Delivered (SLA Normal)</p>
+      </div>
+    </aside>
+
+    <!-- ============================ MAIN CONTENT ============================ -->
+    <main class="flex-1 min-w-0 space-y-6">
+
+      <!-- TOPBAR -->
+      <header class="glass-panel rounded-3xl p-3 px-6 flex items-center justify-between sticky top-6 z-30">
+        <div class="flex items-center gap-3">
+          <button onclick="openDrawer()" class="lg:hidden p-2 -ml-2 rounded-xl hover:bg-black/5 dark:hover:bg-white/10 text-zinc-700 dark:text-zinc-300">
+            <i data-lucide="menu" class="w-5 h-5"></i>
+          </button>
+          <div class="relative w-64 sm:w-80">
+            <i data-lucide="search" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400"></i>
+            <input type="text" placeholder="Cari notifikasi, log sistem, peringatan..." class="w-full bg-black/5 dark:bg-white/5 border-none rounded-2xl pl-9 pr-10 py-2 text-sm text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-black/20 dark:focus:ring-white/20">
+            <span class="hidden sm:inline-block absolute right-3 top-1/2 -translate-y-1/2 text-[10px] font-mono text-zinc-400 border border-zinc-300 dark:border-zinc-700 px-1.5 py-0.5 rounded-md">⌘K</span>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-4">
+          <button onclick="toast('Semua notifikasi ditandai telah dibaca','check-check')" class="px-3 py-1.5 rounded-xl bg-black/5 dark:bg-white/5 text-xs font-semibold text-zinc-700 dark:text-zinc-300 hover:bg-black/10 dark:hover:bg-white/10">
+            Tandai Dibaca
+          </button>
+          
+          <div class="h-6 w-[1px] bg-zinc-200 dark:bg-zinc-800"></div>
+
+          <div class="flex items-center gap-3 pl-1">
+            <div class="w-9 h-9 rounded-2xl bg-black dark:bg-white text-white dark:text-black font-extrabold text-xs flex items-center justify-center ring-2 ring-black/10 dark:ring-white/10">NO</div>
+            <div class="text-left hidden sm:block">
+              <p class="text-xs font-bold leading-tight text-zinc-900 dark:text-white">Admin Operasional</p>
+              <p class="text-[10px] text-zinc-500 dark:text-zinc-400">System Dispatcher</p>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <!-- ==================== VIEW 1: SEMUA NOTIFIKASI ==================== -->
+      <div id="view-semua" class="u-view active space-y-6">
+        <div class="flex flex-wrap items-end justify-between gap-3">
+          <div>
+            <h1 class="text-2xl font-bold tracking-tight text-zinc-900 dark:text-white">Pusat Pesan &amp; Notifikasi</h1>
+            <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-1">Pemberitahuan real-time dari sistem transaksi, stok gudang, dan tugas kolaboratif.</p>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="glass-panel px-3 py-2 rounded-2xl text-xs font-semibold flex items-center gap-2 text-zinc-700 dark:text-zinc-300 border border-black/5 dark:border-white/10">
+              <i data-lucide="inbox" class="w-3.5 h-3.5 text-blue-600 dark:text-blue-400"></i>
+              <span id="semua-unread-badge">6 belum dibaca</span>
+            </span>
+            <button onclick="markAllRead()" class="bg-black dark:bg-white text-white dark:text-black px-4 py-2 rounded-2xl text-xs font-bold flex items-center gap-2 hover:opacity-90 active:scale-[0.98] transition">
+              <i data-lucide="check-check" class="w-3.5 h-3.5"></i> Tandai Semua Dibaca
+            </button>
+          </div>
+        </div>
+
+        <!-- Toolbar: filter chips + live marker -->
+        <div class="glass-panel rounded-3xl p-2 flex flex-wrap items-center gap-2">
+          <div class="flex items-center gap-1">
+            <button onclick="setFeedFilter('semua', this)" class="feed-chip px-3.5 py-2 rounded-xl text-xs font-bold transition bg-black text-white dark:bg-white dark:text-black">Semua</button>
+            <button onclick="setFeedFilter('belum', this)" class="feed-chip px-3.5 py-2 rounded-xl text-xs font-bold transition text-zinc-600 dark:text-zinc-400 hover:bg-black/5 dark:hover:bg-white/5 hover:text-black dark:hover:text-white">Belum Dibaca</button>
+          </div>
+          <div class="ml-auto flex items-center gap-2 pl-2 pr-1">
+            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+            <span class="text-[10px] font-mono uppercase tracking-[0.14em] text-zinc-400">Feed langsung · 24 jam</span>
+          </div>
+        </div>
+
+        <!-- 4 Stat Cells -->
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          <div class="glass-panel p-5 rounded-3xl space-y-3">
+            <div class="flex justify-between items-start">
+              <span class="text-xs font-medium text-zinc-500 dark:text-zinc-400">Belum Dibaca</span>
+              <div class="p-2 rounded-2xl bg-blue-500/15 text-blue-700 dark:text-blue-400"><i data-lucide="inbox" class="w-4 h-4"></i></div>
+            </div>
+            <p class="text-2xl font-bold tracking-tight text-zinc-900 dark:text-white"><span id="semua-stat-unread">6</span> Pesan</p>
+            <p class="text-[11px] text-zinc-500 dark:text-zinc-400">Memerlukan atensi Anda</p>
+          </div>
+
+          <div class="glass-panel p-5 rounded-3xl space-y-3">
+            <div class="flex justify-between items-start">
+              <span class="text-xs font-medium text-zinc-500 dark:text-zinc-400">Peringatan Penting</span>
+              <div class="p-2 rounded-2xl bg-amber-500/15 text-amber-700 dark:text-amber-400"><i data-lucide="alert-triangle" class="w-4 h-4"></i></div>
+            </div>
+            <p class="text-2xl font-bold tracking-tight text-amber-600 dark:text-amber-400 font-mono">1 Item</p>
+            <p class="text-[11px] text-zinc-500 dark:text-zinc-400">Stok minimum tercapai</p>
+          </div>
+
+          <div class="glass-panel p-5 rounded-3xl space-y-3">
+            <div class="flex justify-between items-start">
+              <span class="text-xs font-medium text-zinc-500 dark:text-zinc-400">Saluran Aktif</span>
+              <div class="p-2 rounded-2xl bg-emerald-500/15 text-emerald-700 dark:text-emerald-400"><i data-lucide="radio" class="w-4 h-4"></i></div>
+            </div>
+            <p class="text-2xl font-bold tracking-tight text-zinc-900 dark:text-white">5 Saluran</p>
+            <p class="text-[11px] text-zinc-500 dark:text-zinc-400">Email, WA, Webhook, Push</p>
+          </div>
+
+          <div class="glass-panel p-5 rounded-3xl space-y-3">
+            <div class="flex justify-between items-start">
+              <span class="text-xs font-medium text-zinc-500 dark:text-zinc-400">Total Terkirim Bulan Ini</span>
+              <div class="p-2 rounded-2xl bg-black/5 dark:bg-white/5 text-zinc-800 dark:text-zinc-200"><i data-lucide="send" class="w-4 h-4"></i></div>
+            </div>
+            <p class="text-2xl font-bold tracking-tight text-zinc-900 dark:text-white">28.450</p>
+            <p class="text-[11px] text-zinc-500 dark:text-zinc-400"><span class="text-emerald-600 dark:text-emerald-400 font-semibold">99,9%</span> delivery success rate</p>
+          </div>
+        </div>
+
+        <!-- Notification Feed, grouped by date -->
+        <div class="glass-panel rounded-3xl p-4 sm:p-6">
+          <div class="flex items-center justify-between mb-4 px-1">
+            <h3 class="font-bold text-sm text-zinc-900 dark:text-white">Aliran Notifikasi</h3>
+            <span class="text-[10px] font-mono uppercase tracking-[0.14em] text-zinc-400">Dikelompokkan per tanggal</span>
+          </div>
+
+          <div class="space-y-5">
+            <!-- Hari Ini -->
+            <section class="space-y-1.5">
+              <p class="px-1 pb-1 text-[10px] font-bold uppercase tracking-[0.14em] text-zinc-400">Hari Ini</p>
+              <div class="feed-row group p-3.5 rounded-2xl bg-black/5 dark:bg-white/5 flex items-start gap-3.5 hover-row" data-unread="1">
+                <div class="p-2.5 rounded-2xl bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 mt-0.5 shrink-0"><i data-lucide="shopping-bag" class="w-4 h-4"></i></div>
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-center gap-2 flex-wrap">
+                    <span class="text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-md bg-emerald-500/15 text-emerald-700 dark:text-emerald-400">Transaksi</span>
+                    <p class="font-bold text-xs text-zinc-900 dark:text-white">Pesanan Baru #ORD-9821 Berhasil Dibayar</p>
+                  </div>
+                  <p class="text-xs text-zinc-600 dark:text-zinc-300 mt-0.5">Nabila Putri telah menyelesaikan pembayaran via QRIS sebesar Rp 485.000.</p>
+                  <div class="flex items-center gap-1.5 mt-1.5">
+                    <span class="w-1.5 h-1.5 rounded-full bg-sky-500 feed-dot"></span>
+                    <span class="text-[10px] text-zinc-500">2 menit lalu</span>
+                  </div>
+                </div>
+                <div class="flex flex-col sm:flex-row items-end sm:items-center gap-1 shrink-0 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity feed-actions">
+                  <button onclick="markRowRead(this)" class="p-1.5 rounded-lg hover:bg-black/10 dark:hover:bg-white/10 transition" title="Tandai dibaca"><i data-lucide="check" class="w-3.5 h-3.5"></i></button>
+                  <button onclick="archiveRow(this)" class="p-1.5 rounded-lg hover:bg-black/10 dark:hover:bg-white/10 transition" title="Arsipkan"><i data-lucide="archive" class="w-3.5 h-3.5"></i></button>
+                </div>
+              </div>
+
+              <div class="feed-row group p-3.5 rounded-2xl bg-black/5 dark:bg-white/5 flex items-start gap-3.5 hover-row" data-unread="1">
+                <div class="p-2.5 rounded-2xl bg-blue-500/15 text-blue-700 dark:text-blue-400 mt-0.5 shrink-0"><i data-lucide="user-plus" class="w-4 h-4"></i></div>
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-center gap-2 flex-wrap">
+                    <span class="text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-md bg-blue-500/15 text-blue-700 dark:text-blue-400">Kelola</span>
+                    <p class="font-bold text-xs text-zinc-900 dark:text-white">Prospek Enterprise Baru Ditugaskan</p>
+                  </div>
+                  <p class="text-xs text-zinc-600 dark:text-zinc-300 mt-0.5">Lead PT Nusantara Medika Raya (Rp 750 Jt) otomatis dialokasikan ke Rizky Maulana.</p>
+                  <div class="flex items-center gap-1.5 mt-1.5">
+                    <span class="w-1.5 h-1.5 rounded-full bg-sky-500 feed-dot"></span>
+                    <span class="text-[10px] text-zinc-500">18 menit lalu</span>
+                  </div>
+                </div>
+                <div class="flex flex-col sm:flex-row items-end sm:items-center gap-1 shrink-0 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity feed-actions">
+                  <button onclick="markRowRead(this)" class="p-1.5 rounded-lg hover:bg-black/10 dark:hover:bg-white/10 transition" title="Tandai dibaca"><i data-lucide="check" class="w-3.5 h-3.5"></i></button>
+                  <button onclick="archiveRow(this)" class="p-1.5 rounded-lg hover:bg-black/10 dark:hover:bg-white/10 transition" title="Arsipkan"><i data-lucide="archive" class="w-3.5 h-3.5"></i></button>
+                </div>
+              </div>
+
+              <div class="feed-row group p-3.5 rounded-2xl bg-black/5 dark:bg-white/5 flex items-start gap-3.5 hover-row" data-unread="1">
+                <div class="p-2.5 rounded-2xl bg-amber-500/15 text-amber-700 dark:text-amber-400 mt-0.5 shrink-0"><i data-lucide="alert-triangle" class="w-4 h-4"></i></div>
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-center gap-2 flex-wrap">
+                    <span class="text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-md bg-amber-500/15 text-amber-700 dark:text-amber-400">Persediaan</span>
+                    <p class="font-bold text-xs text-zinc-900 dark:text-white">Peringatan: Stok SKU-PWR-104 Menipis</p>
+                  </div>
+                  <p class="text-xs text-zinc-600 dark:text-zinc-300 mt-0.5">Sisa fisik produk 'Wireless Charger 65W' tersisa 12 unit di Gudang Sentral Jakarta.</p>
+                  <div class="flex items-center gap-1.5 mt-1.5">
+                    <span class="w-1.5 h-1.5 rounded-full bg-sky-500 feed-dot"></span>
+                    <span class="text-[10px] text-zinc-500">1 jam lalu</span>
+                  </div>
+                </div>
+                <div class="flex flex-col sm:flex-row items-end sm:items-center gap-1 shrink-0 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity feed-actions">
+                  <button onclick="markRowRead(this)" class="p-1.5 rounded-lg hover:bg-black/10 dark:hover:bg-white/10 transition" title="Tandai dibaca"><i data-lucide="check" class="w-3.5 h-3.5"></i></button>
+                  <button onclick="archiveRow(this)" class="p-1.5 rounded-lg hover:bg-black/10 dark:hover:bg-white/10 transition" title="Arsipkan"><i data-lucide="archive" class="w-3.5 h-3.5"></i></button>
+                </div>
+              </div>
+
+              <div class="feed-row group p-3.5 rounded-2xl bg-black/5 dark:bg-white/5 flex items-start gap-3.5 hover-row" data-unread="1">
+                <div class="p-2.5 rounded-2xl bg-rose-500/15 text-rose-700 dark:text-rose-400 mt-0.5 shrink-0"><i data-lucide="server" class="w-4 h-4"></i></div>
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-center gap-2 flex-wrap">
+                    <span class="text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-md bg-rose-500/15 text-rose-700 dark:text-rose-400">Infrastruktur</span>
+                    <p class="font-bold text-xs text-zinc-900 dark:text-white">502 Timeout pada Gateway Pembayaran</p>
+                  </div>
+                  <p class="text-xs text-zinc-600 dark:text-zinc-300 mt-0.5">Failover otomatis aktif; lalu lintas kembali stabil dalam 94 detik.</p>
+                  <div class="flex items-center gap-1.5 mt-1.5">
+                    <span class="w-1.5 h-1.5 rounded-full bg-sky-500 feed-dot"></span>
+                    <span class="text-[10px] text-zinc-500">3 jam lalu</span>
+                  </div>
+                </div>
+                <div class="flex flex-col sm:flex-row items-end sm:items-center gap-1 shrink-0 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity feed-actions">
+                  <button onclick="markRowRead(this)" class="p-1.5 rounded-lg hover:bg-black/10 dark:hover:bg-white/10 transition" title="Tandai dibaca"><i data-lucide="check" class="w-3.5 h-3.5"></i></button>
+                  <button onclick="archiveRow(this)" class="p-1.5 rounded-lg hover:bg-black/10 dark:hover:bg-white/10 transition" title="Arsipkan"><i data-lucide="archive" class="w-3.5 h-3.5"></i></button>
+                </div>
+              </div>
+            </section>
+
+            <!-- Kemarin -->
+            <section class="space-y-1.5">
+              <p class="px-1 pb-1 text-[10px] font-bold uppercase tracking-[0.14em] text-zinc-400">Kemarin</p>
+              <div class="feed-row group p-3.5 rounded-2xl bg-black/5 dark:bg-white/5 flex items-start gap-3.5 hover-row" data-unread="1">
+                <div class="p-2.5 rounded-2xl bg-violet-500/15 text-violet-700 dark:text-violet-400 mt-0.5 shrink-0"><i data-lucide="calendar" class="w-4 h-4"></i></div>
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-center gap-2 flex-wrap">
+                    <span class="text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-md bg-violet-500/15 text-violet-700 dark:text-violet-400">Kepegawaian</span>
+                    <p class="font-bold text-xs text-zinc-900 dark:text-white">Persetujuan Cuti Karyawan Q3</p>
+                  </div>
+                  <p class="text-xs text-zinc-600 dark:text-zinc-300 mt-0.5">Cuti Ridho Pratama (5 hari kerja) telah disetujui oleh atasan langsung.</p>
+                  <div class="flex items-center gap-1.5 mt-1.5">
+                    <span class="w-1.5 h-1.5 rounded-full bg-sky-500 feed-dot"></span>
+                    <span class="text-[10px] text-zinc-500">Kemarin 14:02</span>
+                  </div>
+                </div>
+                <div class="flex flex-col sm:flex-row items-end sm:items-center gap-1 shrink-0 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity feed-actions">
+                  <button onclick="markRowRead(this)" class="p-1.5 rounded-lg hover:bg-black/10 dark:hover:bg-white/10 transition" title="Tandai dibaca"><i data-lucide="check" class="w-3.5 h-3.5"></i></button>
+                  <button onclick="archiveRow(this)" class="p-1.5 rounded-lg hover:bg-black/10 dark:hover:bg-white/10 transition" title="Arsipkan"><i data-lucide="archive" class="w-3.5 h-3.5"></i></button>
+                </div>
+              </div>
+
+              <div class="feed-row group p-3.5 rounded-2xl bg-black/5 dark:bg-white/5 flex items-start gap-3.5 hover-row" data-unread="1">
+                <div class="p-2.5 rounded-2xl bg-cyan-500/15 text-cyan-700 dark:text-cyan-400 mt-0.5 shrink-0"><i data-lucide="database" class="w-4 h-4"></i></div>
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-center gap-2 flex-wrap">
+                    <span class="text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-md bg-cyan-500/15 text-cyan-700 dark:text-cyan-400">Sistem</span>
+                    <p class="font-bold text-xs text-zinc-900 dark:text-white">Backup Database Selesai</p>
+                  </div>
+                  <p class="text-xs text-zinc-600 dark:text-zinc-300 mt-0.5">Snapshot mesin produksi 2,4 TB tersimpan aman di region Jakarta-1.</p>
+                  <div class="flex items-center gap-1.5 mt-1.5">
+                    <span class="w-1.5 h-1.5 rounded-full bg-sky-500 feed-dot"></span>
+                    <span class="text-[10px] text-zinc-500">Kemarin 20:47</span>
+                  </div>
+                </div>
+                <div class="flex flex-col sm:flex-row items-end sm:items-center gap-1 shrink-0 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity feed-actions">
+                  <button onclick="markRowRead(this)" class="p-1.5 rounded-lg hover:bg-black/10 dark:hover:bg-white/10 transition" title="Tandai dibaca"><i data-lucide="check" class="w-3.5 h-3.5"></i></button>
+                  <button onclick="archiveRow(this)" class="p-1.5 rounded-lg hover:bg-black/10 dark:hover:bg-white/10 transition" title="Arsipkan"><i data-lucide="archive" class="w-3.5 h-3.5"></i></button>
+                </div>
+              </div>
+            </section>
+
+            <!-- Lebih Awal -->
+            <section class="space-y-1.5">
+              <p class="px-1 pb-1 text-[10px] font-bold uppercase tracking-[0.14em] text-zinc-400">Lebih Awal</p>
+              <div class="feed-row group p-3.5 rounded-2xl bg-black/5 dark:bg-white/5 flex items-start gap-3.5 hover-row" data-unread="0">
+                <div class="p-2.5 rounded-2xl bg-teal-500/15 text-teal-700 dark:text-teal-400 mt-0.5 shrink-0"><i data-lucide="megaphone" class="w-4 h-4"></i></div>
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-center gap-2 flex-wrap">
+                    <span class="text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-md bg-teal-500/15 text-teal-700 dark:text-teal-400">Marketing</span>
+                    <p class="font-bold text-xs text-zinc-900 dark:text-white">Laporan Kampanye: 42 Lead Baru</p>
+                  </div>
+                  <p class="text-xs text-zinc-600 dark:text-zinc-300 mt-0.5">CTR rata-rata 3,8% sepanjang dua hari penayangan ke segmen pelanggan aktif.</p>
+                  <div class="flex items-center gap-1.5 mt-1.5">
+                    <span class="w-1.5 h-1.5 rounded-full bg-zinc-300 dark:bg-zinc-600 feed-dot opacity-0"></span>
+                    <span class="text-[10px] text-zinc-500">2 hari lalu</span>
+                  </div>
+                </div>
+                <div class="flex flex-col sm:flex-row items-end sm:items-center gap-1 shrink-0 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity feed-actions">
+                  <button onclick="archiveRow(this)" class="p-1.5 rounded-lg hover:bg-black/10 dark:hover:bg-white/10 transition" title="Arsipkan"><i data-lucide="archive" class="w-3.5 h-3.5"></i></button>
+                </div>
+              </div>
+
+              <div class="feed-row group p-3.5 rounded-2xl bg-black/5 dark:bg-white/5 flex items-start gap-3.5 hover-row" data-unread="0">
+                <div class="p-2.5 rounded-2xl bg-black/5 dark:bg-white/10 text-zinc-600 dark:text-zinc-300 mt-0.5 shrink-0"><i data-lucide="trending-up" class="w-4 h-4"></i></div>
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-center gap-2 flex-wrap">
+                    <span class="text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-md bg-black/5 dark:bg-white/10 text-zinc-600 dark:text-zinc-300">Kemitraan</span>
+                    <p class="font-bold text-xs text-zinc-900 dark:text-white">Pembaruan SLA Mitra Platform</p>
+                  </div>
+                  <p class="text-xs text-zinc-600 dark:text-zinc-300 mt-0.5">Ambang eskalasi 99,9% uptime terpenuhi untuk seluruh mitra distribusi.</p>
+                  <div class="flex items-center gap-1.5 mt-1.5">
+                    <span class="w-1.5 h-1.5 rounded-full bg-zinc-300 dark:bg-zinc-600 feed-dot opacity-0"></span>
+                    <span class="text-[10px] text-zinc-500">5 hari lalu</span>
+                  </div>
+                </div>
+                <div class="flex flex-col sm:flex-row items-end sm:items-center gap-1 shrink-0 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity feed-actions">
+                  <button onclick="archiveRow(this)" class="p-1.5 rounded-lg hover:bg-black/10 dark:hover:bg-white/10 transition" title="Arsipkan"><i data-lucide="archive" class="w-3.5 h-3.5"></i></button>
+                </div>
+              </div>
+            </section>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==================== VIEW 2: INBOX ==================== -->
+      <div id="view-inbox" class="u-view space-y-6">
+        <div class="flex flex-wrap items-end justify-between gap-3">
+          <div>
+            <h1 class="text-2xl font-bold tracking-tight text-zinc-900 dark:text-white">Kotak Masuk (Inbox)</h1>
+            <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-1">Pesan internal dari supervisor sistem, keuangan, dan antrean persetujuan.</p>
+          </div>
+          <button onclick="toast('Kotak masuk disinkronkan','refresh-cw')" class="glass-panel px-4 py-2 rounded-2xl text-xs font-semibold flex items-center gap-2 text-zinc-700 dark:text-zinc-300 border border-black/5 dark:border-white/10">
+            <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i> Sinkronkan
+          </button>
+        </div>
+
+        <!-- Sub-nav pills -->
+        <div class="flex items-center gap-1.5 flex-wrap">
+          <button onclick="setInboxFilter('semua', this)" class="inbox-chip px-4 py-2 rounded-full text-xs font-bold transition bg-black text-white dark:bg-white dark:text-black">Semua</button>
+          <button onclick="setInboxFilter('belas', this)" class="inbox-chip px-4 py-2 rounded-full text-xs font-bold transition text-zinc-600 dark:text-zinc-400 hover:bg-black/5 dark:hover:bg-white/5 hover:text-black dark:hover:text-white">Belum Dibaca</button>
+          <button onclick="setInboxFilter('berkas', this)" class="inbox-chip px-4 py-2 rounded-full text-xs font-bold transition text-zinc-600 dark:text-zinc-400 hover:bg-black/5 dark:hover:bg-white/5 hover:text-black dark:hover:text-white">Berkas</button>
+        </div>
+
+        <!-- 2-col split: list + reading pane -->
+        <div class="grid grid-cols-1 lg:grid-cols-[minmax(0,400px)_1fr] gap-4 items-start">
+          <div class="glass-panel rounded-3xl p-3">
+            <div class="flex items-center justify-between px-3 pt-2 pb-3">
+              <p class="text-[10px] font-bold uppercase tracking-[0.14em] text-zinc-400">Daftar Pesan</p>
+              <span id="inbox-count" class="text-[10px] font-mono px-1.5 py-0.5 rounded-md bg-sky-500/15 text-sky-700 dark:text-sky-400">0</span>
+            </div>
+            <div id="inbox-list" class="space-y-1.5"></div>
+          </div>
+
+          <div id="inbox-pane" class="glass-panel rounded-3xl p-6 min-h-[420px]">
+            <p class="text-xs text-zinc-500 dark:text-zinc-400">Pilih pesan untuk melihat isi lengkap.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==================== VIEW 3: PENTING ==================== -->
+      <div id="view-penting" class="u-view space-y-6">
+        <div class="flex flex-wrap items-end justify-between gap-3">
+          <div>
+            <h1 class="text-2xl font-bold tracking-tight text-zinc-900 dark:text-white">Peringatan Kritis &amp; Darurat</h1>
+            <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-1">Sinyal prioritas yang butuh tindakan: kegagalan pembayaran, SLA timeout, dan insiden server.</p>
+          </div>
+          <span class="glass-panel px-3 py-2 rounded-2xl text-xs font-semibold flex items-center gap-2 text-amber-700 dark:text-amber-400 border border-black/5 dark:border-white/10">
+            <span class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span> 3 aktif dipantau
+          </span>
+        </div>
+
+        <!-- Pinned priority cards -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+          <article class="glass-panel rounded-3xl p-5 relative overflow-hidden flex flex-col">
+            <span class="absolute inset-x-0 top-0 h-1.5 bg-gradient-to-r from-transparent via-amber-500 to-transparent"></span>
+            <div class="flex items-start justify-between gap-3">
+              <div class="p-2.5 rounded-2xl bg-amber-500/15 text-amber-700 dark:text-amber-400 shrink-0"><i data-lucide="alert-triangle" class="w-5 h-5"></i></div>
+              <span class="text-[9px] font-black uppercase tracking-widest px-2 py-1 rounded-md bg-amber-500/15 text-amber-700 dark:text-amber-400">Darurat</span>
+            </div>
+            <h3 class="font-bold text-sm tracking-tight text-zinc-900 dark:text-white mt-4">Gangguan Gateway Pembayaran</h3>
+            <p class="text-xs text-zinc-600 dark:text-zinc-300 leading-relaxed mt-1.5">Rasio kegagalan transaksi QRIS naik di atas 4%. Antrean retry sedang menumpuk di region Jakarta-1.</p>
+            <div class="flex items-center gap-1.5 mt-3 text-[10px] text-zinc-500">
+              <i data-lucide="clock" class="w-3 h-3"></i> Sejak 08:12 WIB · Ditandai oleh Admin Operasional
+            </div>
+            <div class="flex items-center justify-between mt-4 pt-4 border-t border-black/5 dark:border-white/10 mt-auto">
+              <span class="text-[10px] font-semibold text-amber-600 dark:text-amber-400 flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span> Belum ditangani</span>
+              <button onclick="toast('Lacak insiden di dashboard observabilitas','radar')" class="px-3.5 py-2 rounded-xl bg-amber-500/15 text-amber-700 dark:text-amber-400 text-xs font-bold hover:bg-amber-500/25 transition active:scale-[0.98]">Lacak Progres</button>
+            </div>
+          </article>
+
+          <article class="glass-panel rounded-3xl p-5 relative overflow-hidden flex flex-col">
+            <span class="absolute inset-x-0 top-0 h-1.5 bg-gradient-to-r from-transparent via-rose-500 to-transparent"></span>
+            <div class="flex items-start justify-between gap-3">
+              <div class="p-2.5 rounded-2xl bg-rose-500/15 text-rose-700 dark:text-rose-400 shrink-0"><i data-lucide="server-crash" class="w-5 h-5"></i></div>
+              <span class="text-[9px] font-black uppercase tracking-widest px-2 py-1 rounded-md bg-rose-500/15 text-rose-700 dark:text-rose-400">Kritis</span>
+            </div>
+            <h3 class="font-bold text-sm tracking-tight text-zinc-900 dark:text-white mt-4">Kegagalan Retry Transaksi #TX-77120</h3>
+            <p class="text-xs text-zinc-600 dark:text-zinc-300 leading-relaxed mt-1.5">Retry ke-7 gagal pada provider mitra. Dana Rp 12.600.000 tertahan dalam status pending sejak 07:05.</p>
+            <div class="flex items-center gap-1.5 mt-3 text-[10px] text-zinc-500">
+              <i data-lucide="clock" class="w-3 h-3"></i> Sejak 07:05 WIB · Ditandai oleh Finance Approvers
+            </div>
+            <div class="flex items-center justify-between mt-4 pt-4 border-t border-black/5 dark:border-white/10 mt-auto">
+              <span class="text-[10px] font-semibold text-rose-600 dark:text-rose-400 flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse"></span> Perlu eskalasi</span>
+              <button onclick="toast('Eskalasi manual dikirim ke tim keuangan','send')" class="px-3.5 py-2 rounded-xl bg-rose-500/15 text-rose-700 dark:text-rose-400 text-xs font-bold hover:bg-rose-500/25 transition active:scale-[0.98]">Eskalasi</button>
+            </div>
+          </article>
+
+          <article class="glass-panel rounded-3xl p-5 relative overflow-hidden flex flex-col">
+            <span class="absolute inset-x-0 top-0 h-1.5 bg-gradient-to-r from-transparent via-sky-500 to-transparent"></span>
+            <div class="flex items-start justify-between gap-3">
+              <div class="p-2.5 rounded-2xl bg-sky-500/15 text-sky-700 dark:text-sky-400 shrink-0"><i data-lucide="info" class="w-5 h-5"></i></div>
+              <span class="text-[9px] font-black uppercase tracking-widest px-2 py-1 rounded-md bg-sky-500/15 text-sky-700 dark:text-sky-400">Pengumuman</span>
+            </div>
+            <h3 class="font-bold text-sm tracking-tight text-zinc-900 dark:text-white mt-4">Pemeliharaan Terjadwal Minggu Depan</h3>
+            <p class="text-xs text-zinc-600 dark:text-zinc-300 leading-relaxed mt-1.5">Upgrade database dilakukan Sabtu 05:00–07:00 WIB. Estimasi downtime operasional 15 menit.</p>
+            <div class="flex items-center gap-1.5 mt-3 text-[10px] text-zinc-500">
+              <i data-lucide="clock" class="w-3 h-3"></i> Diumumkan 1 hari lalu · Ditandai oleh Tim Platform
+            </div>
+            <div class="flex items-center justify-between mt-4 pt-4 border-t border-black/5 dark:border-white/10 mt-auto">
+              <span class="text-[10px] font-semibold text-emerald-600 dark:text-emerald-400 flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Terjadwal</span>
+              <button onclick="toast('Detail jendela pemeliharaan dibuka','calendar')" class="px-3.5 py-2 rounded-xl bg-black/5 dark:bg-white/10 text-zinc-700 dark:text-zinc-200 text-xs font-bold hover:bg-black/10 dark:hover:bg-white/15 transition active:scale-[0.98]">Lihat Detail</button>
+            </div>
+          </article>
+        </div>
+
+        <!-- Ditandai penting list -->
+        <div class="glass-panel rounded-3xl p-4 sm:p-6">
+          <div class="flex items-center justify-between mb-3 px-1">
+            <h3 class="font-bold text-sm text-zinc-900 dark:text-white">Ditandai Penting</h3>
+            <span class="text-[10px] font-mono text-zinc-400">4 item tersemat</span>
+          </div>
+          <div class="space-y-1.5">
+            <div class="pin-row group p-3.5 rounded-2xl bg-black/5 dark:bg-white/5 flex items-center gap-3.5 hover-row">
+              <div class="p-2.5 rounded-2xl bg-amber-500/15 text-amber-700 dark:text-amber-400 shrink-0"><i data-lucide="pin" class="w-4 h-4"></i></div>
+              <div class="flex-1 min-w-0">
+                <p class="font-bold text-xs text-zinc-900 dark:text-white">Peringatan SLA Gateway Naik >120ms</p>
+                <p class="text-[11px] text-zinc-500 mt-0.5">Infrastruktur · 12 Agu 2026 · 3 gangguan tercatat</p>
+              </div>
+              <button onclick="unpinItem(this)" class="p-1.5 rounded-lg hover:bg-black/10 dark:hover:bg-white/10 transition shrink-0" title="Lepas dari penting"><i data-lucide="bookmark-minus" class="w-3.5 h-3.5 text-zinc-400"></i></button>
+            </div>
+
+            <div class="pin-row group p-3.5 rounded-2xl bg-black/5 dark:bg-white/5 flex items-center gap-3.5 hover-row">
+              <div class="p-2.5 rounded-2xl bg-sky-500/15 text-sky-700 dark:text-sky-400 shrink-0"><i data-lucide="pin" class="w-4 h-4"></i></div>
+              <div class="flex-1 min-w-0">
+                <p class="font-bold text-xs text-zinc-900 dark:text-white">Perubahan Kebijakan Retensi Data</p>
+                <p class="text-[11px] text-zinc-500 mt-0.5">Kepatuhan · 9 Agu 2026 · Berlaku per 1 Okt</p>
+              </div>
+              <button onclick="unpinItem(this)" class="p-1.5 rounded-lg hover:bg-black/10 dark:hover:bg-white/10 transition shrink-0" title="Lepas dari penting"><i data-lucide="bookmark-minus" class="w-3.5 h-3.5 text-zinc-400"></i></button>
+            </div>
+
+            <div class="pin-row group p-3.5 rounded-2xl bg-black/5 dark:bg-white/5 flex items-center gap-3.5 hover-row">
+              <div class="p-2.5 rounded-2xl bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 shrink-0"><i data-lucide="pin" class="w-4 h-4"></i></div>
+              <div class="flex-1 min-w-0">
+                <p class="font-bold text-xs text-zinc-900 dark:text-white">Failover Server Basis Data Usai</p>
+                <p class="text-[11px] text-zinc-500 mt-0.5">Infrastruktur · 5 Agu 2026 · RTO tercapai 94 dtk</p>
+              </div>
+              <button onclick="unpinItem(this)" class="p-1.5 rounded-lg hover:bg-black/10 dark:hover:bg-white/10 transition shrink-0" title="Lepas dari penting"><i data-lucide="bookmark-minus" class="w-3.5 h-3.5 text-zinc-400"></i></button>
+            </div>
+
+            <div class="pin-row group p-3.5 rounded-2xl bg-black/5 dark:bg-white/5 flex items-center gap-3.5 hover-row">
+              <div class="p-2.5 rounded-2xl bg-rose-500/15 text-rose-700 dark:text-rose-400 shrink-0"><i data-lucide="pin" class="w-4 h-4"></i></div>
+              <div class="flex-1 min-w-0">
+                <p class="font-bold text-xs text-zinc-900 dark:text-white">Penyesuaian Tarif Pajak Transaksi</p>
+                <p class="text-[11px] text-zinc-500 mt-0.5">Keuangan · 2 Agu 2026 · Perlu tinjauan akhir</p>
+              </div>
+              <button onclick="unpinItem(this)" class="p-1.5 rounded-lg hover:bg-black/10 dark:hover:bg-white/10 transition shrink-0" title="Lepas dari penting"><i data-lucide="bookmark-minus" class="w-3.5 h-3.5 text-zinc-400"></i></button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==================== VIEW 4: ARSIP ==================== -->
+      <div id="view-arsip" class="u-view space-y-6">
+        <div class="flex flex-wrap items-end justify-between gap-3">
+          <div>
+            <h1 class="text-2xl font-bold tracking-tight text-zinc-900 dark:text-white">Arsip Pesan Lampau</h1>
+            <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-1">Riwayat pemberitahuan yang sudah diselesaikan dalam 90 hari terakhir.</p>
+          </div>
+          <span id="arsip-count" class="glass-panel px-3 py-2 rounded-2xl text-xs font-semibold flex items-center gap-2 text-zinc-700 dark:text-zinc-300 border border-black/5 dark:border-white/10">
+            <i data-lucide="archive" class="w-3.5 h-3.5"></i> 6 arsip tersimpan
+          </span>
+        </div>
+
+        <!-- Empty-ish state note -->
+        <div class="glass-panel rounded-3xl p-4 flex items-start gap-3 border border-dashed border-black/10 dark:border-white/15">
+          <div class="p-2 rounded-xl bg-black/5 dark:bg-white/5 text-zinc-500 dark:text-zinc-400 shrink-0"><i data-lucide="info" class="w-4 h-4"></i></div>
+          <p class="text-xs text-zinc-600 dark:text-zinc-300 leading-relaxed">Arsip dibuat otomatis setiap notifikasi ditandai selesai. Item lebih dari 90 hari akan dihapus permanen kecuali dikembalikan atau disematkan.</p>
+        </div>
+
+        <!-- Filter controls -->
+        <div class="glass-panel rounded-3xl p-2 flex flex-wrap items-center gap-2">
+          <div class="relative flex-1 min-w-[220px]">
+            <i data-lucide="search" class="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-400"></i>
+            <input type="text" placeholder="Cari di arsip..." class="w-full bg-black/5 dark:bg-white/5 border-none rounded-xl pl-10 pr-4 py-2.5 text-xs text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-black/20 dark:focus:ring-white/20">
+          </div>
+          <select onchange="filterArchive(this)" class="bg-black/5 dark:bg-white/5 border-none rounded-xl px-4 py-2.5 text-xs font-semibold text-zinc-700 dark:text-zinc-300 focus:outline-none focus:ring-2 focus:ring-black/20 dark:focus:ring-white/20">
+            <option value="all">Semua bulan</option>
+            <option value="2026-08">Agustus 2026</option>
+            <option value="2026-07">Juli 2026</option>
+            <option value="2026-06">Juni 2026</option>
+          </select>
+        </div>
+
+        <!-- Archived list -->
+        <div class="glass-panel rounded-3xl p-4 sm:p-6">
+          <div class="flex items-center justify-between mb-3 px-1">
+            <h3 class="font-bold text-sm text-zinc-900 dark:text-white">Produk Selesai</h3>
+            <span class="text-[10px] font-mono uppercase tracking-[0.14em] text-zinc-400">Hanya-baca</span>
+          </div>
+          <div class="space-y-1.5">
+            <div class="arc-row group p-3.5 rounded-2xl bg-black/5 dark:bg-white/5 flex items-center gap-3.5 opacity-55 hover:opacity-90 hover-row transition-opacity" data-month="2026-08">
+              <div class="p-2.5 rounded-2xl bg-black/5 dark:bg-white/10 text-zinc-500 dark:text-zinc-400 shrink-0"><i data-lucide="package-check" class="w-4 h-4"></i></div>
+              <div class="flex-1 min-w-0">
+                <p class="font-bold text-xs text-zinc-700 dark:text-zinc-300">Stok Terisi Ulang — SKU-PWR-104</p>
+                <p class="text-[11px] text-zinc-500 dark:text-zinc-400 mt-0.5">Persediaan · 28 Agu 2026 · Selesai di Gudang Sentral</p>
+              </div>
+              <button onclick="restoreArchive(this)" class="px-3 py-1.5 rounded-xl bg-black/5 dark:bg-white/10 text-[11px] font-bold text-zinc-600 dark:text-zinc-300 hover:bg-black/10 dark:hover:bg-white/15 transition opacity-100 sm:opacity-0 sm:group-hover:opacity-100 flex items-center gap-1.5 shrink-0"><i data-lucide="rotate-ccw" class="w-3 h-3"></i> Kembalikan</button>
+            </div>
+
+            <div class="arc-row group p-3.5 rounded-2xl bg-black/5 dark:bg-white/5 flex items-center gap-3.5 opacity-55 hover:opacity-90 hover-row transition-opacity" data-month="2026-08">
+              <div class="p-2.5 rounded-2xl bg-black/5 dark:bg-white/10 text-zinc-500 dark:text-zinc-400 shrink-0"><i data-lucide="shopping-bag" class="w-4 h-4"></i></div>
+              <div class="flex-1 min-w-0">
+                <p class="font-bold text-xs text-zinc-700 dark:text-zinc-300">Pembayaran #ORD-9798 Dikonfirmasi</p>
+                <p class="text-[11px] text-zinc-500 dark:text-zinc-400 mt-0.5">Transaksi · 26 Agu 2026 · Rp 1.250.000 via transfer bank</p>
+              </div>
+              <button onclick="restoreArchive(this)" class="px-3 py-1.5 rounded-xl bg-black/5 dark:bg-white/10 text-[11px] font-bold text-zinc-600 dark:text-zinc-300 hover:bg-black/10 dark:hover:bg-white/15 transition opacity-100 sm:opacity-0 sm:group-hover:opacity-100 flex items-center gap-1.5 shrink-0"><i data-lucide="rotate-ccw" class="w-3 h-3"></i> Kembalikan</button>
+            </div>
+
+            <div class="arc-row group p-3.5 rounded-2xl bg-black/5 dark:bg-white/5 flex items-center gap-3.5 opacity-55 hover:opacity-90 hover-row transition-opacity" data-month="2026-07">
+              <div class="p-2.5 rounded-2xl bg-black/5 dark:bg-white/10 text-zinc-500 dark:text-zinc-400 shrink-0"><i data-lucide="shield-check" class="w-4 h-4"></i></div>
+              <div class="flex-1 min-w-0">
+                <p class="font-bold text-xs text-zinc-700 dark:text-zinc-300">Sertifikat TLS Diperbarui Otomatis</p>
+                <p class="text-[11px] text-zinc-500 dark:text-zinc-400 mt-0.5">Keamanan · 21 Jul 2026 · Berlaku 90 hari</p>
+              </div>
+              <button onclick="restoreArchive(this)" class="px-3 py-1.5 rounded-xl bg-black/5 dark:bg-white/10 text-[11px] font-bold text-zinc-600 dark:text-zinc-300 hover:bg-black/10 dark:hover:bg-white/15 transition opacity-100 sm:opacity-0 sm:group-hover:opacity-100 flex items-center gap-1.5 shrink-0"><i data-lucide="rotate-ccw" class="w-3 h-3"></i> Kembalikan</button>
+            </div>
+
+            <div class="arc-row group p-3.5 rounded-2xl bg-black/5 dark:bg-white/5 flex items-center gap-3.5 opacity-55 hover:opacity-90 hover-row transition-opacity" data-month="2026-07">
+              <div class="p-2.5 rounded-2xl bg-black/5 dark:bg-white/10 text-zinc-500 dark:text-zinc-400 shrink-0"><i data-lucide="file-text" class="w-4 h-4"></i></div>
+              <div class="flex-1 min-w-0">
+                <p class="font-bold text-xs text-zinc-700 dark:text-zinc-300">Ekspor Laporan Penjualan Siap Diunduh</p>
+                <p class="text-[11px] text-zinc-500 dark:text-zinc-400 mt-0.5">Sistem · 14 Jul 2026 · Format XLSX, 8,4 MB</p>
+              </div>
+              <button onclick="restoreArchive(this)" class="px-3 py-1.5 rounded-xl bg-black/5 dark:bg-white/10 text-[11px] font-bold text-zinc-600 dark:text-zinc-300 hover:bg-black/10 dark:hover:bg-white/15 transition opacity-100 sm:opacity-0 sm:group-hover:opacity-100 flex items-center gap-1.5 shrink-0"><i data-lucide="rotate-ccw" class="w-3 h-3"></i> Kembalikan</button>
+            </div>
+
+            <div class="arc-row group p-3.5 rounded-2xl bg-black/5 dark:bg-white/5 flex items-center gap-3.5 opacity-55 hover:opacity-90 hover-row transition-opacity" data-month="2026-06">
+              <div class="p-2.5 rounded-2xl bg-black/5 dark:bg-white/10 text-zinc-500 dark:text-zinc-400 shrink-0"><i data-lucide="truck" class="w-4 h-4"></i></div>
+              <div class="flex-1 min-w-0">
+                <p class="font-bold text-xs text-zinc-700 dark:text-zinc-300">Perubahan Tarif Ongkir Wilayah Luar Jawa</p>
+                <p class="text-[11px] text-zinc-500 dark:text-zinc-400 mt-0.5">Operasional · 30 Jun 2026 · Disetujui &amp; aktif</p>
+              </div>
+              <button onclick="restoreArchive(this)" class="px-3 py-1.5 rounded-xl bg-black/5 dark:bg-white/10 text-[11px] font-bold text-zinc-600 dark:text-zinc-300 hover:bg-black/10 dark:hover:bg-white/15 transition opacity-100 sm:opacity-0 sm:group-hover:opacity-100 flex items-center gap-1.5 shrink-0"><i data-lucide="rotate-ccw" class="w-3 h-3"></i> Kembalikan</button>
+            </div>
+
+            <div class="arc-row group p-3.5 rounded-2xl bg-black/5 dark:bg-white/5 flex items-center gap-3.5 opacity-55 hover:opacity-90 hover-row transition-opacity" data-month="2026-06">
+              <div class="p-2.5 rounded-2xl bg-black/5 dark:bg-white/10 text-zinc-500 dark:text-zinc-400 shrink-0"><i data-lucide="megaphone" class="w-4 h-4"></i></div>
+              <div class="flex-1 min-w-0">
+                <p class="font-bold text-xs text-zinc-700 dark:text-zinc-300">Kampanye Promo Juni Selesai</p>
+                <p class="text-[11px] text-zinc-500 dark:text-zinc-400 mt-0.5">Marketing · 18 Jun 2026 · 68 transaksi terdorong</p>
+              </div>
+              <button onclick="restoreArchive(this)" class="px-3 py-1.5 rounded-xl bg-black/5 dark:bg-white/10 text-[11px] font-bold text-zinc-600 dark:text-zinc-300 hover:bg-black/10 dark:hover:bg-white/15 transition opacity-100 sm:opacity-0 sm:group-hover:opacity-100 flex items-center gap-1.5 shrink-0"><i data-lucide="rotate-ccw" class="w-3 h-3"></i> Kembalikan</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==================== VIEW 5: PREFERENSI ==================== -->
+      <div id="view-preferensi" class="u-view space-y-6">
+        <div class="flex flex-wrap items-end justify-between gap-3">
+          <div>
+            <h1 class="text-2xl font-bold tracking-tight text-zinc-900 dark:text-white">Preferensi Notifikasi Akun</h1>
+            <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-1">Atur di saluran mana dan seberapa sering Anda ingin diberi tahu per jenis kejadian.</p>
+          </div>
+          <button onclick="savePrefs()" class="bg-black dark:bg-white text-white dark:text-black px-5 py-2.5 rounded-2xl text-xs font-bold flex items-center gap-2 hover:opacity-90 active:scale-[0.98] transition">
+            <i data-lucide="save" class="w-3.5 h-3.5"></i> Simpan Preferensi
+          </button>
+        </div>
+
+        <!-- Select all -->
+        <div class="glass-panel rounded-3xl p-4 flex items-center gap-3">
+          <div class="flex-1 min-w-0">
+            <p class="text-xs font-bold text-zinc-900 dark:text-white">Aktifkan/Nonaktifkan Semua</p>
+            <p class="text-[11px] text-zinc-500 dark:text-zinc-400 mt-0.5">Satu sentuhan untuk menerapkan ke seluruh saluran dan kategori.</p>
+          </div>
+          <button onclick="toggleAllPrefs(this)" data-on="0" aria-pressed="false" class="pref-switch relative w-11 h-6 rounded-full bg-zinc-300 dark:bg-zinc-700 transition-colors shrink-0">
+            <span class="pref-knob absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white dark:bg-zinc-900 shadow-md" style="transition:transform 0.2s cubic-bezier(0.16,1,0.3,1); transform:translateX(0px)"></span>
+          </button>
+        </div>
+
+        <!-- Category cards -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          <div class="glass-panel rounded-3xl p-5">
+            <div class="flex items-center gap-3 pb-3 mb-1 border-b border-black/5 dark:border-white/10">
+              <div class="p-2.5 rounded-2xl bg-sky-500/15 text-sky-700 dark:text-sky-400"><i data-lucide="bell-ring" class="w-4 h-4"></i></div>
+              <div class="flex-1">
+                <h3 class="font-bold text-sm text-zinc-900 dark:text-white">Push Notification</h3>
+                <p class="text-[11px] text-zinc-500 mt-0.5">Notifikasi instan di aplikasi &amp; perangkat</p>
+              </div>
+              <span class="text-[10px] font-mono text-zinc-400">2 ON</span>
+            </div>
+            <div class="divide-y divide-black/5 dark:divide-white/10">
+              <div class="py-3 flex items-center gap-3">
+                <div class="flex-1 min-w-0">
+                  <p class="text-xs font-bold text-zinc-900 dark:text-white">Transaksi berhasil</p>
+                  <p class="text-[11px] text-zinc-500 dark:text-zinc-400 mt-0.5">Banner instan setiap pembayaran sukses</p>
+                </div>
+                <button onclick="togglePref(this)" data-on="1" aria-pressed="true" class="pref-switch relative w-11 h-6 rounded-full bg-black dark:bg-white transition-colors shrink-0">
+                  <span class="pref-knob absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white dark:bg-zinc-900 shadow-md" style="transition:transform 0.2s cubic-bezier(0.16,1,0.3,1); transform:translateX(20px)"></span>
+                </button>
+              </div>
+              <div class="py-3 flex items-center gap-3">
+                <div class="flex-1 min-w-0">
+                  <p class="text-xs font-bold text-zinc-900 dark:text-white">Peringatan stok menipis</p>
+                  <p class="text-[11px] text-zinc-500 dark:text-zinc-400 mt-0.5">Alert ambang minimum persediaan gudang</p>
+                </div>
+                <button onclick="togglePref(this)" data-on="1" aria-pressed="true" class="pref-switch relative w-11 h-6 rounded-full bg-black dark:bg-white transition-colors shrink-0">
+                  <span class="pref-knob absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white dark:bg-zinc-900 shadow-md" style="transition:transform 0.2s cubic-bezier(0.16,1,0.3,1); transform:translateX(20px)"></span>
+                </button>
+              </div>
+              <div class="py-3 flex items-center gap-3">
+                <div class="flex-1 min-w-0">
+                  <p class="text-xs font-bold text-zinc-900 dark:text-white">Ringkasan harian</p>
+                  <p class="text-[11px] text-zinc-500 dark:text-zinc-400 mt-0.5">Komparasi aktivitas sekali sehari pukul 18:00</p>
+                </div>
+                <button onclick="togglePref(this)" data-on="0" aria-pressed="false" class="pref-switch relative w-11 h-6 rounded-full bg-zinc-300 dark:bg-zinc-700 transition-colors shrink-0">
+                  <span class="pref-knob absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white dark:bg-zinc-900 shadow-md" style="transition:transform 0.2s cubic-bezier(0.16,1,0.3,1); transform:translateX(0px)"></span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="glass-panel rounded-3xl p-5">
+            <div class="flex items-center gap-3 pb-3 mb-1 border-b border-black/5 dark:border-white/10">
+              <div class="p-2.5 rounded-2xl bg-violet-500/15 text-violet-700 dark:text-violet-400"><i data-lucide="mail" class="w-4 h-4"></i></div>
+              <div class="flex-1">
+                <h3 class="font-bold text-sm text-zinc-900 dark:text-white">Email</h3>
+                <p class="text-[11px] text-zinc-500 mt-0.5">Surat elektronik ke alamat utama workspace</p>
+              </div>
+              <span class="text-[10px] font-mono text-zinc-400">1 ON</span>
+            </div>
+            <div class="divide-y divide-black/5 dark:divide-white/10">
+              <div class="py-3 flex items-center gap-3">
+                <div class="flex-1 min-w-0">
+                  <p class="text-xs font-bold text-zinc-900 dark:text-white">Faktur &amp; pembayaran</p>
+                  <p class="text-[11px] text-zinc-500 dark:text-zinc-400 mt-0.5">Dokumen tagihan dan bukti transaksi resmi</p>
+                </div>
+                <button onclick="togglePref(this)" data-on="1" aria-pressed="true" class="pref-switch relative w-11 h-6 rounded-full bg-black dark:bg-white transition-colors shrink-0">
+                  <span class="pref-knob absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white dark:bg-zinc-900 shadow-md" style="transition:transform 0.2s cubic-bezier(0.16,1,0.3,1); transform:translateX(20px)"></span>
+                </button>
+              </div>
+              <div class="py-3 flex items-center gap-3">
+                <div class="flex-1 min-w-0">
+                  <p class="text-xs font-bold text-zinc-900 dark:text-white">Digest mingguan</p>
+                  <p class="text-[11px] text-zinc-500 dark:text-zinc-400 mt-0.5">Rangkuman aktivitas Setiap Senin, 07:00 WIB</p>
+                </div>
+                <button onclick="togglePref(this)" data-on="0" aria-pressed="false" class="pref-switch relative w-11 h-6 rounded-full bg-zinc-300 dark:bg-zinc-700 transition-colors shrink-0">
+                  <span class="pref-knob absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white dark:bg-zinc-900 shadow-md" style="transition:transform 0.2s cubic-bezier(0.16,1,0.3,1); transform:translateX(0px)"></span>
+                </button>
+              </div>
+              <div class="py-3 flex items-center gap-3">
+                <div class="flex-1 min-w-0">
+                  <p class="text-xs font-bold text-zinc-900 dark:text-white">Laporan bulanan</p>
+                  <p class="text-[11px] text-zinc-500 dark:text-zinc-400 mt-0.5">Rekap performa &amp; keuangan akhir bulan</p>
+                </div>
+                <button onclick="togglePref(this)" data-on="0" aria-pressed="false" class="pref-switch relative w-11 h-6 rounded-full bg-zinc-300 dark:bg-zinc-700 transition-colors shrink-0">
+                  <span class="pref-knob absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white dark:bg-zinc-900 shadow-md" style="transition:transform 0.2s cubic-bezier(0.16,1,0.3,1); transform:translateX(0px)"></span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="glass-panel rounded-3xl p-5">
+            <div class="flex items-center gap-3 pb-3 mb-1 border-b border-black/5 dark:border-white/10">
+              <div class="p-2.5 rounded-2xl bg-emerald-500/15 text-emerald-700 dark:text-emerald-400"><i data-lucide="message-circle" class="w-4 h-4"></i></div>
+              <div class="flex-1">
+                <h3 class="font-bold text-sm text-zinc-900 dark:text-white">SMS / WhatsApp</h3>
+                <p class="text-[11px] text-zinc-500 mt-0.5">Pesan teks &amp; WhatsApp Business terverifikasi</p>
+              </div>
+              <span class="text-[10px] font-mono text-zinc-400">1 ON</span>
+            </div>
+            <div class="divide-y divide-black/5 dark:divide-white/10">
+              <div class="py-3 flex items-center gap-3">
+                <div class="flex-1 min-w-0">
+                  <p class="text-xs font-bold text-zinc-900 dark:text-white">OTP &amp; keamanan</p>
+                  <p class="text-[11px] text-zinc-500 dark:text-zinc-400 mt-0.5">Kode login dan verifikasi akun sensitif</p>
+                </div>
+                <button onclick="togglePref(this)" data-on="1" aria-pressed="true" class="pref-switch relative w-11 h-6 rounded-full bg-black dark:bg-white transition-colors shrink-0">
+                  <span class="pref-knob absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white dark:bg-zinc-900 shadow-md" style="transition:transform 0.2s cubic-bezier(0.16,1,0.3,1); transform:translateX(20px)"></span>
+                </button>
+              </div>
+              <div class="py-3 flex items-center gap-3">
+                <div class="flex-1 min-w-0">
+                  <p class="text-xs font-bold text-zinc-900 dark:text-white">Status pengiriman</p>
+                  <p class="text-[11px] text-zinc-500 dark:text-zinc-400 mt-0.5">Pemberitahuan paket terkirim &amp; sampai</p>
+                </div>
+                <button onclick="togglePref(this)" data-on="0" aria-pressed="false" class="pref-switch relative w-11 h-6 rounded-full bg-zinc-300 dark:bg-zinc-700 transition-colors shrink-0">
+                  <span class="pref-knob absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white dark:bg-zinc-900 shadow-md" style="transition:transform 0.2s cubic-bezier(0.16,1,0.3,1); transform:translateX(0px)"></span>
+                </button>
+              </div>
+              <div class="py-3 flex items-center gap-3">
+                <div class="flex-1 min-w-0">
+                  <p class="text-xs font-bold text-zinc-900 dark:text-white">Promo &amp; penawaran</p>
+                  <p class="text-[11px] text-zinc-500 dark:text-zinc-400 mt-0.5">Kampanye musiman ke segmen pelanggan</p>
+                </div>
+                <button onclick="togglePref(this)" data-on="0" aria-pressed="false" class="pref-switch relative w-11 h-6 rounded-full bg-zinc-300 dark:bg-zinc-700 transition-colors shrink-0">
+                  <span class="pref-knob absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white dark:bg-zinc-900 shadow-md" style="transition:transform 0.2s cubic-bezier(0.16,1,0.3,1); transform:translateX(0px)"></span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="glass-panel rounded-3xl p-5">
+            <div class="flex items-center gap-3 pb-3 mb-1 border-b border-black/5 dark:border-white/10">
+              <div class="p-2.5 rounded-2xl bg-amber-500/15 text-amber-700 dark:text-amber-400"><i data-lucide="smartphone" class="w-4 h-4"></i></div>
+              <div class="flex-1">
+                <h3 class="font-bold text-sm text-zinc-900 dark:text-white">In-App</h3>
+                <p class="text-[11px] text-zinc-500 mt-0.5">Panels dan lencana di dalam antarmuka</p>
+              </div>
+              <span class="text-[10px] font-mono text-zinc-400">2 ON</span>
+            </div>
+            <div class="divide-y divide-black/5 dark:divide-white/10">
+              <div class="py-3 flex items-center gap-3">
+                <div class="flex-1 min-w-0">
+                  <p class="text-xs font-bold text-zinc-900 dark:text-white">Semua notifikasi</p>
+                  <p class="text-[11px] text-zinc-500 dark:text-zinc-400 mt-0.5">Seluruh feed tampil di bilah notifikasi aplikasi</p>
+                </div>
+                <button onclick="togglePref(this)" data-on="1" aria-pressed="true" class="pref-switch relative w-11 h-6 rounded-full bg-black dark:bg-white transition-colors shrink-0">
+                  <span class="pref-knob absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white dark:bg-zinc-900 shadow-md" style="transition:transform 0.2s cubic-bezier(0.16,1,0.3,1); transform:translateX(20px)"></span>
+                </button>
+              </div>
+              <div class="py-3 flex items-center gap-3">
+                <div class="flex-1 min-w-0">
+                  <p class="text-xs font-bold text-zinc-900 dark:text-white">Ping tugas</p>
+                  <p class="text-[11px] text-zinc-500 dark:text-zinc-400 mt-0.5">Reminder kolaborasi saat Anda ditugaskan</p>
+                </div>
+                <button onclick="togglePref(this)" data-on="1" aria-pressed="true" class="pref-switch relative w-11 h-6 rounded-full bg-black dark:bg-white transition-colors shrink-0">
+                  <span class="pref-knob absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white dark:bg-zinc-900 shadow-md" style="transition:transform 0.2s cubic-bezier(0.16,1,0.3,1); transform:translateX(20px)"></span>
+                </button>
+              </div>
+              <div class="py-3 flex items-center gap-3">
+                <div class="flex-1 min-w-0">
+                  <p class="text-xs font-bold text-zinc-900 dark:text-white">Pembaruan produk</p>
+                  <p class="text-[11px] text-zinc-500 dark:text-zinc-400 mt-0.5">Announcement fitur baru dan perubahan UI</p>
+                </div>
+                <button onclick="togglePref(this)" data-on="0" aria-pressed="false" class="pref-switch relative w-11 h-6 rounded-full bg-zinc-300 dark:bg-zinc-700 transition-colors shrink-0">
+                  <span class="pref-knob absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white dark:bg-zinc-900 shadow-md" style="transition:transform 0.2s cubic-bezier(0.16,1,0.3,1); transform:translateX(0px)"></span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==================== VIEW 6: SALURAN ==================== -->
+      <div id="view-saluran" class="u-view space-y-6">
+        <div class="flex flex-wrap items-end justify-between gap-3">
+          <div>
+            <h1 class="text-2xl font-bold tracking-tight text-zinc-900 dark:text-white">Saluran &amp; Integrasi Gateway</h1>
+            <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-1">Kelola konektor push, email, WhatsApp, in-app, dan endpoint webhook.</p>
+          </div>
+          <button onclick="toast('Pendaftaran saluran baru dibuka','plus')" class="glass-panel px-4 py-2 rounded-2xl text-xs font-semibold flex items-center gap-2 text-zinc-700 dark:text-zinc-300 border border-black/5 dark:border-white/10">
+            <i data-lucide="plus" class="w-3.5 h-3.5"></i> Tambah Saluran
+          </button>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <article class="glass-panel rounded-3xl p-5 space-y-4">
+            <div class="flex items-start justify-between gap-3">
+              <div class="flex items-center gap-3 min-w-0">
+                <div class="p-2.5 rounded-2xl bg-sky-500/15 text-sky-700 dark:text-sky-400 shrink-0"><i data-lucide="bell-ring" class="w-4 h-4"></i></div>
+                <div class="min-w-0">
+                  <p class="font-bold text-sm text-zinc-900 dark:text-white">Push Notification</p>
+                  <p class="text-[11px] text-zinc-500 mt-0.5">Perangkat mobile &amp; desktop</p>
+                </div>
+              </div>
+              <button onclick="toggleChannel(this,'Push Notification')" data-on="1" aria-pressed="true" class="pref-switch relative w-11 h-6 rounded-full bg-black dark:bg-white transition-colors shrink-0">
+                <span class="pref-knob absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white dark:bg-zinc-900 shadow-md" style="transition:transform 0.2s cubic-bezier(0.16,1,0.3,1); transform:translateX(20px)"></span>
+              </button>
+            </div>
+            <div>
+              <div class="flex justify-between text-[11px]">
+                <span class="text-zinc-400 font-medium">Pemakaian bulan ini</span>
+                <span class="font-mono text-zinc-700 dark:text-zinc-300">47.320 / 60.000</span>
+              </div>
+              <div class="h-2 rounded-full bg-black/10 dark:bg-white/10 mt-2 overflow-hidden">
+                <div class="h-full rounded-full bg-sky-500/80" style="width:79%"></div>
+              </div>
+            </div>
+            <div class="flex items-center justify-between pt-1">
+              <div>
+                <p class="text-[11px] font-medium text-zinc-500">Delivered</p>
+                <p class="text-sm font-bold font-mono text-emerald-600 dark:text-emerald-400">99,2%</p>
+              </div>
+              <button onclick="testChannel('Push Notification')" class="px-3.5 py-2 rounded-xl bg-black/5 dark:bg-white/10 text-xs font-bold text-zinc-700 dark:text-zinc-200 hover:bg-black/10 dark:hover:bg-white/15 transition active:scale-[0.98] flex items-center gap-1.5"><i data-lucide="send" class="w-3 h-3"></i> Tes Kirim</button>
+            </div>
+          </article>
+
+          <article class="glass-panel rounded-3xl p-5 space-y-4">
+            <div class="flex items-start justify-between gap-3">
+              <div class="flex items-center gap-3 min-w-0">
+                <div class="p-2.5 rounded-2xl bg-violet-500/15 text-violet-700 dark:text-violet-400 shrink-0"><i data-lucide="mail" class="w-4 h-4"></i></div>
+                <div class="min-w-0">
+                  <p class="font-bold text-sm text-zinc-900 dark:text-white">Email</p>
+                  <p class="text-[11px] text-zinc-500 mt-0.5">SMTP utama · mail.uroo.id · 587 TLS</p>
+                </div>
+              </div>
+              <button onclick="toggleChannel(this,'Email')" data-on="1" aria-pressed="true" class="pref-switch relative w-11 h-6 rounded-full bg-black dark:bg-white transition-colors shrink-0">
+                <span class="pref-knob absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white dark:bg-zinc-900 shadow-md" style="transition:transform 0.2s cubic-bezier(0.16,1,0.3,1); transform:translateX(20px)"></span>
+              </button>
+            </div>
+            <div>
+              <div class="flex justify-between text-[11px]">
+                <span class="text-zinc-400 font-medium">Pemakaian bulan ini</span>
+                <span class="font-mono text-zinc-700 dark:text-zinc-300">12.812 / 24.000</span>
+              </div>
+              <div class="h-2 rounded-full bg-black/10 dark:bg-white/10 mt-2 overflow-hidden">
+                <div class="h-full rounded-full bg-violet-500/80" style="width:53%"></div>
+              </div>
+            </div>
+            <div class="flex items-center justify-between pt-1">
+              <div>
+                <p class="text-[11px] font-medium text-zinc-500">Delivered</p>
+                <p class="text-sm font-bold font-mono text-emerald-600 dark:text-emerald-400">98,7%</p>
+              </div>
+              <button onclick="testChannel('Email')" class="px-3.5 py-2 rounded-xl bg-black/5 dark:bg-white/10 text-xs font-bold text-zinc-700 dark:text-zinc-200 hover:bg-black/10 dark:hover:bg-white/15 transition active:scale-[0.98] flex items-center gap-1.5"><i data-lucide="send" class="w-3 h-3"></i> Tes Kirim</button>
+            </div>
+          </article>
+
+          <article class="glass-panel rounded-3xl p-5 space-y-4">
+            <div class="flex items-start justify-between gap-3">
+              <div class="flex items-center gap-3 min-w-0">
+                <div class="p-2.5 rounded-2xl bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 shrink-0"><i data-lucide="message-circle" class="w-4 h-4"></i></div>
+                <div class="min-w-0">
+                  <p class="font-bold text-sm text-zinc-900 dark:text-white">SMS / WhatsApp</p>
+                  <p class="text-[11px] text-zinc-500 mt-0.5">Gateway SMS + WhatsApp Business</p>
+                </div>
+              </div>
+              <button onclick="toggleChannel(this,'SMS / WhatsApp')" data-on="0" aria-pressed="false" class="pref-switch relative w-11 h-6 rounded-full bg-zinc-300 dark:bg-zinc-700 transition-colors shrink-0">
+                <span class="pref-knob absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white dark:bg-zinc-900 shadow-md" style="transition:transform 0.2s cubic-bezier(0.16,1,0.3,1); transform:translateX(0px)"></span>
+              </button>
+            </div>
+            <div>
+              <div class="flex justify-between text-[11px]">
+                <span class="text-zinc-400 font-medium">Pemakaian bulan ini</span>
+                <span class="font-mono text-zinc-700 dark:text-zinc-300">5.480 / 15.000</span>
+              </div>
+              <div class="h-2 rounded-full bg-black/10 dark:bg-white/10 mt-2 overflow-hidden">
+                <div class="h-full rounded-full bg-emerald-500/80" style="width:37%"></div>
+              </div>
+            </div>
+            <div class="flex items-center justify-between pt-1">
+              <div>
+                <p class="text-[11px] font-medium text-zinc-500">Delivered</p>
+                <p class="text-sm font-bold font-mono text-emerald-600 dark:text-emerald-400">96,4%</p>
+              </div>
+              <button onclick="testChannel('SMS / WhatsApp')" class="px-3.5 py-2 rounded-xl bg-black/5 dark:bg-white/10 text-xs font-bold text-zinc-700 dark:text-zinc-200 hover:bg-black/10 dark:hover:bg-white/15 transition active:scale-[0.98] flex items-center gap-1.5"><i data-lucide="send" class="w-3 h-3"></i> Tes Kirim</button>
+            </div>
+          </article>
+
+          <article class="glass-panel rounded-3xl p-5 space-y-4">
+            <div class="flex items-start justify-between gap-3">
+              <div class="flex items-center gap-3 min-w-0">
+                <div class="p-2.5 rounded-2xl bg-amber-500/15 text-amber-700 dark:text-amber-400 shrink-0"><i data-lucide="smartphone" class="w-4 h-4"></i></div>
+                <div class="min-w-0">
+                  <p class="font-bold text-sm text-zinc-900 dark:text-white">In-App</p>
+                  <p class="text-[11px] text-zinc-500 mt-0.5">Pusat notifikasi di dalam aplikasi</p>
+                </div>
+              </div>
+              <button onclick="toggleChannel(this,'In-App')" data-on="1" aria-pressed="true" class="pref-switch relative w-11 h-6 rounded-full bg-black dark:bg-white transition-colors shrink-0">
+                <span class="pref-knob absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white dark:bg-zinc-900 shadow-md" style="transition:transform 0.2s cubic-bezier(0.16,1,0.3,1); transform:translateX(20px)"></span>
+              </button>
+            </div>
+            <div>
+              <div class="flex justify-between text-[11px]">
+                <span class="text-zinc-400 font-medium">Pemakaian bulan ini</span>
+                <span class="font-mono text-zinc-700 dark:text-zinc-300">9.912 / 14.000</span>
+              </div>
+              <div class="h-2 rounded-full bg-black/10 dark:bg-white/10 mt-2 overflow-hidden">
+                <div class="h-full rounded-full bg-amber-500/80" style="width:71%"></div>
+              </div>
+            </div>
+            <div class="flex items-center justify-between pt-1">
+              <div>
+                <p class="text-[11px] font-medium text-zinc-500">Delivered</p>
+                <p class="text-sm font-bold font-mono text-emerald-600 dark:text-emerald-400">99,8%</p>
+              </div>
+              <button onclick="testChannel('In-App')" class="px-3.5 py-2 rounded-xl bg-black/5 dark:bg-white/10 text-xs font-bold text-zinc-700 dark:text-zinc-200 hover:bg-black/10 dark:hover:bg-white/15 transition active:scale-[0.98] flex items-center gap-1.5"><i data-lucide="send" class="w-3 h-3"></i> Tes Kirim</button>
+            </div>
+          </article>
+
+          <article class="glass-panel rounded-3xl p-5 space-y-4 md:col-span-2">
+            <div class="flex flex-wrap items-start justify-between gap-3">
+              <div class="flex items-center gap-3 min-w-0">
+                <div class="p-2.5 rounded-2xl bg-rose-500/15 text-rose-700 dark:text-rose-400 shrink-0"><i data-lucide="webhook" class="w-4 h-4"></i></div>
+                <div class="min-w-0">
+                  <p class="font-bold text-sm text-zinc-900 dark:text-white">Webhook</p>
+                  <p class="text-[11px] text-zinc-500 mt-0.5">Postback ekspor ke sistem eksternal via HTTP</p>
+                </div>
+              </div>
+              <div class="flex items-center gap-3">
+                <span class="text-[10px] font-semibold text-emerald-600 dark:text-emerald-400 flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> Terhubung</span>
+                <button onclick="toggleChannel(this,'Webhook')" data-on="1" aria-pressed="true" class="pref-switch relative w-11 h-6 rounded-full bg-black dark:bg-white transition-colors shrink-0">
+                  <span class="pref-knob absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white dark:bg-zinc-900 shadow-md" style="transition:transform 0.2s cubic-bezier(0.16,1,0.3,1); transform:translateX(20px)"></span>
+                </button>
+              </div>
+            </div>
+            <div class="flex flex-wrap items-center gap-2">
+              <code class="flex-1 min-w-[220px] text-[11px] font-mono bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/10 rounded-xl px-3.5 py-2.5 text-zinc-600 dark:text-zinc-300 truncate">https://api.uroo.id/v1/hooks/nusantara-a7f2</code>
+              <button onclick="copyEndpoint(this)" class="px-3.5 py-2.5 rounded-xl bg-black/5 dark:bg-white/10 text-xs font-bold text-zinc-700 dark:text-zinc-200 hover:bg-black/10 dark:hover:bg-white/15 transition flex items-center gap-1.5"><i data-lucide="copy" class="w-3 h-3"></i> Salin URL</button>
+            </div>
+            <div class="flex flex-wrap items-center gap-6 pt-1">
+              <div class="flex-1 min-w-[200px]">
+                <div class="flex justify-between text-[11px]">
+                  <span class="text-zinc-400 font-medium">Event bulan ini</span>
+                  <span class="font-mono text-zinc-700 dark:text-zinc-300">1,82 M / 3,00 M</span>
+                </div>
+                <div class="h-2 rounded-full bg-black/10 dark:bg-white/10 mt-2 overflow-hidden">
+                  <div class="h-full rounded-full bg-rose-500/80" style="width:61%"></div>
+                </div>
+              </div>
+              <div>
+                <p class="text-[11px] font-medium text-zinc-500">Latensi p95</p>
+                <p class="text-sm font-bold font-mono text-emerald-600 dark:text-emerald-400">184 ms</p>
+              </div>
+              <button onclick="testChannel('Webhook')" class="px-3.5 py-2 rounded-xl bg-black/5 dark:bg-white/10 text-xs font-bold text-zinc-700 dark:text-zinc-200 hover:bg-black/10 dark:hover:bg-white/15 transition active:scale-[0.98] flex items-center gap-1.5"><i data-lucide="send" class="w-3 h-3"></i> Tes Kirim</button>
+            </div>
+          </article>
+        </div>
+      </div>
+
+      <!-- ==================== VIEW 7: GRUP ==================== -->
+      <div id="view-grup" class="u-view space-y-6">
+        <div class="flex flex-wrap items-end justify-between gap-3">
+          <div>
+            <h1 class="text-2xl font-bold tracking-tight text-zinc-900 dark:text-white">Grup &amp; Segmen Penerima</h1>
+            <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-1">Kategori audiens untuk broadcast: sistem, penagihan, marketing, keamanan, dan HR.</p>
+          </div>
+          <button onclick="toast('Pembuatan grup baru dibuka','users')" class="glass-panel px-4 py-2 rounded-2xl text-xs font-semibold flex items-center gap-2 text-zinc-700 dark:text-zinc-300 border border-black/5 dark:border-white/10">
+            <i data-lucide="plus" class="w-3.5 h-3.5"></i> Grup Baru
+          </button>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+          <article class="glass-panel rounded-3xl p-5 space-y-3">
+            <div class="flex items-start justify-between gap-3">
+              <div class="flex items-center gap-3 min-w-0">
+                <div class="p-2.5 rounded-2xl bg-zinc-800 dark:bg-zinc-200 text-white dark:text-zinc-900 shrink-0"><i data-lucide="server" class="w-4 h-4"></i></div>
+                <div class="min-w-0">
+                  <p class="font-bold text-sm text-zinc-900 dark:text-white">Sistem</p>
+                  <p class="text-[11px] text-zinc-500 mt-0.5">Infra, deployment &amp; otomasi</p>
+                </div>
+              </div>
+              <button onclick="toggleGroup(this,'Sistem')" data-on="1" aria-pressed="true" class="pref-switch relative w-11 h-6 rounded-full bg-black dark:bg-white transition-colors shrink-0">
+                <span class="pref-knob absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white dark:bg-zinc-900 shadow-md" style="transition:transform 0.2s cubic-bezier(0.16,1,0.3,1); transform:translateX(20px)"></span>
+              </button>
+            </div>
+            <div class="flex items-center">
+              <div class="flex -space-x-2">
+                <span class="w-7 h-7 rounded-full bg-blue-500/20 text-blue-700 dark:text-blue-400 grid place-items-center text-[9px] font-black ring-2 ring-white dark:ring-zinc-900">RH</span>
+                <span class="w-7 h-7 rounded-full bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 grid place-items-center text-[9px] font-black ring-2 ring-white dark:ring-zinc-900">SR</span>
+                <span class="w-7 h-7 rounded-full bg-amber-500/20 text-amber-700 dark:text-amber-400 grid place-items-center text-[9px] font-black ring-2 ring-white dark:ring-zinc-900">DP</span>
+                <span class="w-7 h-7 rounded-full bg-black/10 dark:bg-white/10 text-zinc-600 dark:text-zinc-300 grid place-items-center text-[9px] font-black ring-2 ring-white dark:ring-zinc-900">+9</span>
+              </div>
+              <span class="ml-3 text-[11px] font-medium text-zinc-500">12 anggota</span>
+            </div>
+            <div class="rounded-2xl bg-black/5 dark:bg-white/5 p-3 space-y-2">
+              <p class="text-[9px] font-bold uppercase tracking-[0.14em] text-zinc-400">Notifikasi terbaru</p>
+              <div class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-amber-500 shrink-0"></span><p class="text-[11px] text-zinc-600 dark:text-zinc-300 truncate">CPU spike di region JKT-1</p><span class="ml-auto text-[10px] text-zinc-400 shrink-0">12m</span></div>
+              <div class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0"></span><p class="text-[11px] text-zinc-600 dark:text-zinc-300 truncate">Deploy staging berhasil</p><span class="ml-auto text-[10px] text-zinc-400 shrink-0">2j</span></div>
+              <div class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-sky-500 shrink-0"></span><p class="text-[11px] text-zinc-600 dark:text-zinc-300 truncate">Sertifikat TLS diperbarui</p><span class="ml-auto text-[10px] text-zinc-400 shrink-0">1h</span></div>
+            </div>
+            <button onclick="toast('Kelola anggota grup Sistem','users')" class="w-full py-2 rounded-xl bg-black/5 dark:bg-white/10 text-[11px] font-bold text-zinc-700 dark:text-zinc-200 hover:bg-black/10 dark:hover:bg-white/15 transition">Kelola Grup</button>
+          </article>
+
+          <article class="glass-panel rounded-3xl p-5 space-y-3">
+            <div class="flex items-start justify-between gap-3">
+              <div class="flex items-center gap-3 min-w-0">
+                <div class="p-2.5 rounded-2xl bg-violet-500/15 text-violet-700 dark:text-violet-400 shrink-0"><i data-lucide="credit-card" class="w-4 h-4"></i></div>
+                <div class="min-w-0">
+                  <p class="font-bold text-sm text-zinc-900 dark:text-white">Penagihan</p>
+                  <p class="text-[11px] text-zinc-500 mt-0.5">Finance approvers &amp; penagihan</p>
+                </div>
+              </div>
+              <button onclick="toggleGroup(this,'Penagihan')" data-on="1" aria-pressed="true" class="pref-switch relative w-11 h-6 rounded-full bg-black dark:bg-white transition-colors shrink-0">
+                <span class="pref-knob absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white dark:bg-zinc-900 shadow-md" style="transition:transform 0.2s cubic-bezier(0.16,1,0.3,1); transform:translateX(20px)"></span>
+              </button>
+            </div>
+            <div class="flex items-center">
+              <div class="flex -space-x-2">
+                <span class="w-7 h-7 rounded-full bg-rose-500/20 text-rose-700 dark:text-rose-400 grid place-items-center text-[9px] font-black ring-2 ring-white dark:ring-zinc-900">SW</span>
+                <span class="w-7 h-7 rounded-full bg-violet-500/20 text-violet-700 dark:text-violet-400 grid place-items-center text-[9px] font-black ring-2 ring-white dark:ring-zinc-900">FB</span>
+                <span class="w-7 h-7 rounded-full bg-black/10 dark:bg-white/10 text-zinc-600 dark:text-zinc-300 grid place-items-center text-[9px] font-black ring-2 ring-white dark:ring-zinc-900">+1</span>
+              </div>
+              <span class="ml-3 text-[11px] font-medium text-zinc-500">3 anggota</span>
+            </div>
+            <div class="rounded-2xl bg-black/5 dark:bg-white/5 p-3 space-y-2">
+              <p class="text-[9px] font-bold uppercase tracking-[0.14em] text-zinc-400">Notifikasi terbaru</p>
+              <div class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-violet-500 shrink-0"></span><p class="text-[11px] text-zinc-600 dark:text-zinc-300 truncate">Faktur #INV-2231 disetujui</p><span class="ml-auto text-[10px] text-zinc-400 shrink-0">3j</span></div>
+              <div class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-amber-500 shrink-0"></span><p class="text-[11px] text-zinc-600 dark:text-zinc-300 truncate">Jatuh tempo pada Jumat</p><span class="ml-auto text-[10px] text-zinc-400 shrink-0">1h</span></div>
+            </div>
+            <button onclick="toast('Kelola anggota grup Penagihan','users')" class="w-full py-2 rounded-xl bg-black/5 dark:bg-white/10 text-[11px] font-bold text-zinc-700 dark:text-zinc-200 hover:bg-black/10 dark:hover:bg-white/15 transition">Kelola Grup</button>
+          </article>
+
+          <article class="glass-panel rounded-3xl p-5 space-y-3">
+            <div class="flex items-start justify-between gap-3">
+              <div class="flex items-center gap-3 min-w-0">
+                <div class="p-2.5 rounded-2xl bg-amber-500/15 text-amber-700 dark:text-amber-400 shrink-0"><i data-lucide="megaphone" class="w-4 h-4"></i></div>
+                <div class="min-w-0">
+                  <p class="font-bold text-sm text-zinc-900 dark:text-white">Marketing</p>
+                  <p class="text-[11px] text-zinc-500 mt-0.5">Kampanye &amp; lead nurturing</p>
+                </div>
+              </div>
+              <button onclick="toggleGroup(this,'Marketing')" data-on="0" aria-pressed="false" class="pref-switch relative w-11 h-6 rounded-full bg-zinc-300 dark:bg-zinc-700 transition-colors shrink-0">
+                <span class="pref-knob absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white dark:bg-zinc-900 shadow-md" style="transition:transform 0.2s cubic-bezier(0.16,1,0.3,1); transform:translateX(0px)"></span>
+              </button>
+            </div>
+            <div class="flex items-center">
+              <div class="flex -space-x-2">
+                <span class="w-7 h-7 rounded-full bg-teal-500/20 text-teal-700 dark:text-teal-400 grid place-items-center text-[9px] font-black ring-2 ring-white dark:ring-zinc-900">NP</span>
+                <span class="w-7 h-7 rounded-full bg-amber-500/20 text-amber-700 dark:text-amber-400 grid place-items-center text-[9px] font-black ring-2 ring-white dark:ring-zinc-900">DK</span>
+                <span class="w-7 h-7 rounded-full bg-sky-500/20 text-sky-700 dark:text-sky-400 grid place-items-center text-[9px] font-black ring-2 ring-white dark:ring-zinc-900">AL</span>
+                <span class="w-7 h-7 rounded-full bg-black/10 dark:bg-white/10 text-zinc-600 dark:text-zinc-300 grid place-items-center text-[9px] font-black ring-2 ring-white dark:ring-zinc-900">+5</span>
+              </div>
+              <span class="ml-3 text-[11px] font-medium text-zinc-500">8 anggota</span>
+            </div>
+            <div class="rounded-2xl bg-black/5 dark:bg-white/5 p-3 space-y-2">
+              <p class="text-[9px] font-bold uppercase tracking-[0.14em] text-zinc-400">Notifikasi terbaru</p>
+              <div class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-teal-500 shrink-0"></span><p class="text-[11px] text-zinc-600 dark:text-zinc-300 truncate">Kampanye 27/08 selesai</p><span class="ml-auto text-[10px] text-zinc-400 shrink-0">1h</span></div>
+              <div class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-sky-500 shrink-0"></span><p class="text-[11px] text-zinc-600 dark:text-zinc-300 truncate">42 lead baru masuk</p><span class="ml-auto text-[10px] text-zinc-400 shrink-0">4h</span></div>
+            </div>
+            <button onclick="toast('Kelola anggota grup Marketing','users')" class="w-full py-2 rounded-xl bg-black/5 dark:bg-white/10 text-[11px] font-bold text-zinc-700 dark:text-zinc-200 hover:bg-black/10 dark:hover:bg-white/15 transition">Kelola Grup</button>
+          </article>
+
+          <article class="glass-panel rounded-3xl p-5 space-y-3">
+            <div class="flex items-start justify-between gap-3">
+              <div class="flex items-center gap-3 min-w-0">
+                <div class="p-2.5 rounded-2xl bg-rose-500/15 text-rose-700 dark:text-rose-400 shrink-0"><i data-lucide="shield" class="w-4 h-4"></i></div>
+                <div class="min-w-0">
+                  <p class="font-bold text-sm text-zinc-900 dark:text-white">Keamanan</p>
+                  <p class="text-[11px] text-zinc-500 mt-0.5">Event login &amp; kebijakan akses</p>
+                </div>
+              </div>
+              <button onclick="toggleGroup(this,'Keamanan')" data-on="1" aria-pressed="true" class="pref-switch relative w-11 h-6 rounded-full bg-black dark:bg-white transition-colors shrink-0">
+                <span class="pref-knob absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white dark:bg-zinc-900 shadow-md" style="transition:transform 0.2s cubic-bezier(0.16,1,0.3,1); transform:translateX(20px)"></span>
+              </button>
+            </div>
+            <div class="flex items-center">
+              <div class="flex -space-x-2">
+                <span class="w-7 h-7 rounded-full bg-rose-500/20 text-rose-700 dark:text-rose-400 grid place-items-center text-[9px] font-black ring-2 ring-white dark:ring-zinc-900">AO</span>
+                <span class="w-7 h-7 rounded-full bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 grid place-items-center text-[9px] font-black ring-2 ring-white dark:ring-zinc-900">WA</span>
+                <span class="w-7 h-7 rounded-full bg-blue-500/20 text-blue-700 dark:text-blue-400 grid place-items-center text-[9px] font-black ring-2 ring-white dark:ring-zinc-900">TF</span>
+                <span class="w-7 h-7 rounded-full bg-black/10 dark:bg-white/10 text-zinc-600 dark:text-zinc-300 grid place-items-center text-[9px] font-black ring-2 ring-white dark:ring-zinc-900">+2</span>
+              </div>
+              <span class="ml-3 text-[11px] font-medium text-zinc-500">5 anggota</span>
+            </div>
+            <div class="rounded-2xl bg-black/5 dark:bg-white/5 p-3 space-y-2">
+              <p class="text-[9px] font-bold uppercase tracking-[0.14em] text-zinc-400">Notifikasi terbaru</p>
+              <div class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-rose-500 shrink-0"></span><p class="text-[11px] text-zinc-600 dark:text-zinc-300 truncate">Login baru terdeteksi</p><span class="ml-auto text-[10px] text-zinc-400 shrink-0">8m</span></div>
+              <div class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0"></span><p class="text-[11px] text-zinc-600 dark:text-zinc-300 truncate">2FA diaktifkan oleh 2 user</p><span class="ml-auto text-[10px] text-zinc-400 shrink-0">2j</span></div>
+            </div>
+            <button onclick="toast('Kelola anggota grup Keamanan','users')" class="w-full py-2 rounded-xl bg-black/5 dark:bg-white/10 text-[11px] font-bold text-zinc-700 dark:text-zinc-200 hover:bg-black/10 dark:hover:bg-white/15 transition">Kelola Grup</button>
+          </article>
+
+          <article class="glass-panel rounded-3xl p-5 space-y-3">
+            <div class="flex items-start justify-between gap-3">
+              <div class="flex items-center gap-3 min-w-0">
+                <div class="p-2.5 rounded-2xl bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 shrink-0"><i data-lucide="users" class="w-4 h-4"></i></div>
+                <div class="min-w-0">
+                  <p class="font-bold text-sm text-zinc-900 dark:text-white">HR &amp; People Ops</p>
+                  <p class="text-[11px] text-zinc-500 mt-0.5">Kepegawaian, cuti &amp; onboarding</p>
+                </div>
+              </div>
+              <button onclick="toggleGroup(this,'HR & People Ops')" data-on="1" aria-pressed="true" class="pref-switch relative w-11 h-6 rounded-full bg-black dark:bg-white transition-colors shrink-0">
+                <span class="pref-knob absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white dark:bg-zinc-900 shadow-md" style="transition:transform 0.2s cubic-bezier(0.16,1,0.3,1); transform:translateX(20px)"></span>
+              </button>
+            </div>
+            <div class="flex items-center">
+              <div class="flex -space-x-2">
+                <span class="w-7 h-7 rounded-full bg-violet-500/20 text-violet-700 dark:text-violet-400 grid place-items-center text-[9px] font-black ring-2 ring-white dark:ring-zinc-900">HC</span>
+                <span class="w-7 h-7 rounded-full bg-teal-500/20 text-teal-700 dark:text-teal-400 grid place-items-center text-[9px] font-black ring-2 ring-white dark:ring-zinc-900">NP</span>
+                <span class="w-7 h-7 rounded-full bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 grid place-items-center text-[9px] font-black ring-2 ring-white dark:ring-zinc-900">RK</span>
+                <span class="w-7 h-7 rounded-full bg-black/10 dark:bg-white/10 text-zinc-600 dark:text-zinc-300 grid place-items-center text-[9px] font-black ring-2 ring-white dark:ring-zinc-900">+11</span>
+              </div>
+              <span class="ml-3 text-[11px] font-medium text-zinc-500">14 anggota</span>
+            </div>
+            <div class="rounded-2xl bg-black/5 dark:bg-white/5 p-3 space-y-2">
+              <p class="text-[9px] font-bold uppercase tracking-[0.14em] text-zinc-400">Notifikasi terbaru</p>
+              <div class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-violet-500 shrink-0"></span><p class="text-[11px] text-zinc-600 dark:text-zinc-300 truncate">Cuti Q3 diajukan</p><span class="ml-auto text-[10px] text-zinc-400 shrink-0">5j</span></div>
+              <div class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-sky-500 shrink-0"></span><p class="text-[11px] text-zinc-600 dark:text-zinc-300 truncate">Onboarding batch 12 tuntas</p><span class="ml-auto text-[10px] text-zinc-400 shrink-0">1h</span></div>
+            </div>
+            <button onclick="toast('Kelola anggota grup HR & People Ops','users')" class="w-full py-2 rounded-xl bg-black/5 dark:bg-white/10 text-[11px] font-bold text-zinc-700 dark:text-zinc-200 hover:bg-black/10 dark:hover:bg-white/15 transition">Kelola Grup</button>
+          </article>
+        </div>
+      </div>
+
+      <!-- ==================== VIEW 8: PENGATURAN ==================== -->
+      <div id="view-pengaturan" class="u-view space-y-6">
+        <div class="flex flex-wrap items-end justify-between gap-3">
+          <div>
+            <h1 class="text-2xl font-bold tracking-tight text-zinc-900 dark:text-white">Pengaturan Notifikasi Sistem</h1>
+            <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-1">Identitas pengirim, lokalisasi pesan, dan tema antarmuka pusat notifikasi.</p>
+          </div>
+          <button onclick="saveGeneral()" class="bg-black dark:bg-white text-white dark:text-black px-5 py-2.5 rounded-2xl text-xs font-bold flex items-center gap-2 hover:opacity-90 active:scale-[0.98] transition">
+            <i data-lucide="save" class="w-3.5 h-3.5"></i> Simpan Perubahan
+          </button>
+        </div>
+
+        <!-- Settings sub-nav -->
+        <div class="flex items-center gap-1.5 flex-wrap">
+          <button onclick="setSettingsNav(this)" class="set-chip px-4 py-2 rounded-full text-xs font-bold transition bg-black text-white dark:bg-white dark:text-black" data-on>Umum</button>
+          <button onclick="setSettingsNav(this)" class="set-chip px-4 py-2 rounded-full text-xs font-bold transition text-zinc-600 dark:text-zinc-400 hover:bg-black/5 dark:hover:bg-white/5 hover:text-black dark:hover:text-white">Penagihan</button>
+          <button onclick="setSettingsNav(this)" class="set-chip px-4 py-2 rounded-full text-xs font-bold transition text-zinc-600 dark:text-zinc-400 hover:bg-black/5 dark:hover:bg-white/5 hover:text-black dark:hover:text-white">Notifikasi</button>
+          <button onclick="setSettingsNav(this)" class="set-chip px-4 py-2 rounded-full text-xs font-bold transition text-zinc-600 dark:text-zinc-400 hover:bg-black/5 dark:hover:bg-white/5 hover:text-black dark:hover:text-white">Tim</button>
+        </div>
+
+        <!-- Sender identity card -->
+        <div class="glass-panel rounded-3xl p-6">
+          <div class="flex items-center gap-3">
+            <div class="p-2.5 rounded-2xl bg-sky-500/15 text-sky-700 dark:text-sky-400 shrink-0"><i data-lucide="mail" class="w-4 h-4"></i></div>
+            <div>
+              <h2 class="font-bold text-sm tracking-tight text-zinc-900 dark:text-white">Identitas &amp; Kanal Pengirim</h2>
+              <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">Tampil sebagai pengirim di seluruh email dan SMS otomatis.</p>
+            </div>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-5">
+            <div>
+              <label class="text-xs font-semibold text-zinc-500 dark:text-zinc-400" for="smtp-name">Nama Pengirim</label>
+              <input id="smtp-name" value="Admin Uroo" class="mt-1.5 w-full h-11 px-3.5 rounded-xl bg-black/5 dark:bg-white/10 border border-black/5 dark:border-white/10 text-sm font-medium outline-none focus:ring-2 ring-black/20 dark:ring-white/20">
+            </div>
+            <div>
+              <label class="text-xs font-semibold text-zinc-500 dark:text-zinc-400" for="smtp-from">Alamat Pengirim</label>
+              <input id="smtp-from" value="no-reply@uroo.id" class="mt-1.5 w-full h-11 px-3.5 rounded-xl bg-black/5 dark:bg-white/10 border border-black/5 dark:border-white/10 text-sm font-medium outline-none focus:ring-2 ring-black/20 dark:ring-white/20">
+            </div>
+            <div>
+              <label class="text-xs font-semibold text-zinc-500 dark:text-zinc-400" for="smtp-host">SMTP Host</label>
+              <input id="smtp-host" value="mail.uroo.id" class="mt-1.5 w-full h-11 px-3.5 rounded-xl bg-black/5 dark:bg-white/10 border border-black/5 dark:border-white/10 text-sm font-medium outline-none focus:ring-2 ring-black/20 dark:ring-white/20">
+            </div>
+            <div>
+              <label class="text-xs font-semibold text-zinc-500 dark:text-zinc-400" for="smtp-port">Port &amp; Enkripsi</label>
+              <select id="smtp-port" class="mt-1.5 w-full h-11 px-3.5 rounded-xl bg-black/5 dark:bg-white/10 border border-black/5 dark:border-white/10 text-sm font-medium outline-none focus:ring-2 ring-black/20 dark:ring-white/20 appearance-none">
+                <option selected>587 TLS</option>
+                <option>465 SSL</option>
+                <option>25 Plaintext</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Lokalisasi card -->
+        <div class="glass-panel rounded-3xl p-6">
+          <div class="flex items-center gap-3">
+            <div class="p-2.5 rounded-2xl bg-violet-500/15 text-violet-700 dark:text-violet-400 shrink-0"><i data-lucide="globe" class="w-4 h-4"></i></div>
+            <div>
+              <h2 class="font-bold text-sm tracking-tight text-zinc-900 dark:text-white">Lokalisasi &amp; Waktu Penyampaian</h2>
+              <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">Zona waktu default dan format tampilan untuk seluruh timestamp.</p>
+            </div>
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-5">
+            <div>
+              <label class="text-xs font-semibold text-zinc-500 dark:text-zinc-400" for="lang">Bahasa Antarmuka</label>
+              <select id="lang" class="mt-1.5 w-full h-11 px-3.5 rounded-xl bg-black/5 dark:bg-white/10 border border-black/5 dark:border-white/10 text-sm font-medium outline-none focus:ring-2 ring-black/20 dark:ring-white/20 appearance-none">
+                <option value="id" selected>Bahasa Indonesia</option>
+                <option value="en">English</option>
+                <option value="ja">日本語</option>
+              </select>
+            </div>
+            <div>
+              <label class="text-xs font-semibold text-zinc-500 dark:text-zinc-400" for="tz">Zona Waktu</label>
+              <select id="tz" class="mt-1.5 w-full h-11 px-3.5 rounded-xl bg-black/5 dark:bg-white/10 border border-black/5 dark:border-white/10 text-sm font-medium outline-none focus:ring-2 ring-black/20 dark:ring-white/20 appearance-none">
+                <option value="wib" selected>Asia/Jakarta (WIB) - UTC+7</option>
+                <option value="wita">Asia/Makassar (WITA) - UTC+8</option>
+                <option value="wit">Asia/Jayapura (WIT) - UTC+9</option>
+                <option value="singapore">Asia/Singapore - UTC+8</option>
+              </select>
+            </div>
+            <div>
+              <label class="text-xs font-semibold text-zinc-500 dark:text-zinc-400">Format Tanggal</label>
+              <select class="mt-1.5 w-full h-11 px-3.5 rounded-xl bg-black/5 dark:bg-white/10 border border-black/5 dark:border-white/10 text-sm font-medium outline-none focus:ring-2 ring-black/20 dark:ring-white/20 appearance-none">
+                <option selected>DD/MM/YYYY</option>
+                <option>MM/DD/YYYY</option>
+                <option>YYYY-MM-DD</option>
+              </select>
+            </div>
+            <div>
+              <label class="text-xs font-semibold text-zinc-500 dark:text-zinc-400">Mata Uang</label>
+              <select class="mt-1.5 w-full h-11 px-3.5 rounded-xl bg-black/5 dark:bg-white/10 border border-black/5 dark:border-white/10 text-sm font-medium outline-none focus:ring-2 ring-black/20 dark:ring-white/20 appearance-none">
+                <option selected>IDR - Rupiah Indonesia (Rp)</option>
+                <option>USD - US Dollar ($)</option>
+                <option>SGD - Dolar Singapura (S$)</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tampilan card (appearance tiles) -->
+        <div class="glass-panel rounded-3xl p-6">
+          <div class="flex items-center gap-3">
+            <div class="p-2.5 rounded-2xl bg-amber-500/15 text-amber-700 dark:text-amber-400 shrink-0"><i data-lucide="palette" class="w-4 h-4"></i></div>
+            <div>
+              <h2 class="font-bold text-sm tracking-tight text-zinc-900 dark:text-white">Tampilan Default</h2>
+              <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">Tema yang digunakan untuk antarmuka pusat notifikasi ini.</p>
+            </div>
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-5">
+            <button onclick="selectAppearance(this,'light')" class="appearance-card selected rounded-2xl border-2 border-transparent p-4 text-left transition-colors cursor-pointer bg-black/5 dark:bg-white/10" data-appearance="light">
+              <span class="flex items-center justify-between">
+                <span class="grid place-items-center w-11 h-11 rounded-xl bg-white text-zinc-900 shadow"><i data-lucide="sun" class="w-5 h-5"></i></span>
+                <span class="w-5 h-5 rounded-full border-2 grid place-items-center appearance-check"><span class="w-2.5 h-2.5 rounded-full bg-zinc-900 dark:bg-zinc-50"></span></span>
+              </span>
+              <p class="mt-3 font-bold text-sm">Terang</p>
+              <p class="text-xs text-zinc-400 mt-0.5">Antarmuka cerah dan bersih</p>
+            </button>
+            <button onclick="selectAppearance(this,'dark')" class="appearance-card rounded-2xl border-2 border-transparent p-4 text-left transition-colors cursor-pointer bg-black/5 dark:bg-white/10" data-appearance="dark">
+              <span class="flex items-center justify-between">
+                <span class="grid place-items-center w-11 h-11 rounded-xl bg-zinc-900 text-white shadow"><i data-lucide="moon" class="w-5 h-5"></i></span>
+                <span class="w-5 h-5 rounded-full border-2 grid place-items-center appearance-check"><span class="w-2.5 h-2.5 rounded-full bg-transparent"></span></span>
+              </span>
+              <p class="mt-3 font-bold text-sm">Gelap</p>
+              <p class="text-xs text-zinc-400 mt-0.5">Kontras tinggi, hemat daya</p>
+            </button>
+            <button onclick="selectAppearance(this,'system')" class="appearance-card rounded-2xl border-2 border-transparent p-4 text-left transition-colors cursor-pointer bg-black/5 dark:bg-white/10" data-appearance="system">
+              <span class="flex items-center justify-between">
+                <span class="grid place-items-center w-11 h-11 rounded-xl bg-gradient-to-br from-zinc-100 to-zinc-700 text-zinc-900 shadow"><i data-lucide="monitor" class="w-5 h-5"></i></span>
+                <span class="w-5 h-5 rounded-full border-2 grid place-items-center appearance-check"><span class="w-2.5 h-2.5 rounded-full bg-transparent"></span></span>
+              </span>
+              <p class="mt-3 font-bold text-sm">Sistem</p>
+              <p class="text-xs text-zinc-400 mt-0.5">Ikuti pengaturan perangkat</p>
+            </button>
+          </div>
+        </div>
+
+        <!-- SMTP status strip -->
+        <div class="glass-panel rounded-3xl p-4 flex items-center gap-3">
+          <div class="p-2 rounded-xl bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 shrink-0"><i data-lucide="activity" class="w-4 h-4"></i></div>
+          <div class="flex-1 min-w-0">
+            <p class="text-xs font-bold text-zinc-900 dark:text-white">Gateway SMTP responsif · 128 ms</p>
+            <p class="text-[11px] text-zinc-500 dark:text-zinc-400 mt-0.5">Pengiriman email otomatis berjalan normal sejak 24 jam terakhir.</p>
+          </div>
+          <button onclick="testSmtp()" class="px-3.5 py-2 rounded-xl bg-black/5 dark:bg-white/10 text-xs font-bold text-zinc-700 dark:text-zinc-200 hover:bg-black/10 dark:hover:bg-white/15 transition flex items-center gap-1.5 shrink-0"><i data-lucide="plug-zap" class="w-3 h-3"></i> Uji Koneksi</button>
+        </div>
+      </div>
+
+      <!-- ==================== VIEW 9: BANTUAN ==================== -->
+      <div id="view-bantuan" class="u-view space-y-6">
+        <div class="flex flex-wrap items-end justify-between gap-3">
+          <div>
+            <h1 class="text-2xl font-bold tracking-tight text-zinc-900 dark:text-white">Pusat Bantuan &amp; Dokumentasi</h1>
+            <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-1">Selesaikan kendala integrasi, baca referensi API, atau hubungi dukungan tim Uroo.</p>
+          </div>
+          <button onclick="toast('Tiket dukungan dibuka di tab baru','life-buoy')" class="glass-panel px-4 py-2 rounded-2xl text-xs font-semibold flex items-center gap-2 text-zinc-700 dark:text-zinc-300 border border-black/5 dark:border-white/10">
+            <i data-lucide="life-buoy" class="w-3.5 h-3.5"></i> Hubungi Dukungan
+          </button>
+        </div>
+
+        <!-- Doc status cards -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+          <div class="glass-panel rounded-3xl p-5">
+            <div class="p-2.5 rounded-2xl bg-sky-500/15 text-sky-700 dark:text-sky-400 w-fit"><i data-lucide="book-open" class="w-4 h-4"></i></div>
+            <h3 class="font-bold text-sm text-zinc-900 dark:text-white mt-4">Referensi REST API</h3>
+            <p class="text-xs text-zinc-600 dark:text-zinc-300 mt-1">Payload webhook, kode kesalahan, dan skema event untuk integrasi kustom.</p>
+            <span class="inline-flex items-center gap-1.5 mt-3 text-[10px] font-semibold text-zinc-400"><i data-lucide="file-code" class="w-3 h-3"></i> v2 · 3 endpoint</span>
+          </div>
+          <div class="glass-panel rounded-3xl p-5">
+            <div class="p-2.5 rounded-2xl bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 w-fit"><i data-lucide="activity" class="w-4 h-4"></i></div>
+            <h3 class="font-bold text-sm text-zinc-900 dark:text-white mt-4">Status Layanan Gateway</h3>
+            <p class="text-xs text-zinc-600 dark:text-zinc-300 mt-1">Push, Email, dan Webhook dalam kondisi normal dengan kesehatan real-time.</p>
+            <div class="flex items-end gap-1 mt-3 h-8">
+              <span class="flex-1 rounded-sm bg-emerald-500/50 min-h-[30%]"></span>
+              <span class="flex-1 rounded-sm bg-emerald-500/70 min-h-[45%]"></span>
+              <span class="flex-1 rounded-sm bg-emerald-500/90 min-h-[70%]"></span>
+              <span class="flex-1 rounded-sm bg-emerald-500 min-h-[85%]"></span>
+              <span class="flex-1 rounded-sm bg-amber-500 min-h-[60%]"></span>
+              <span class="flex-1 rounded-sm bg-emerald-500 min-h-[95%]"></span>
+              <span class="flex-1 rounded-sm bg-emerald-500 min-h-[80%]"></span>
+            </div>
+          </div>
+          <div class="glass-panel rounded-3xl p-5">
+            <div class="p-2.5 rounded-2xl bg-amber-500/15 text-amber-700 dark:text-amber-400 w-fit"><i data-lucide="headset" class="w-4 h-4"></i></div>
+            <h3 class="font-bold text-sm text-zinc-900 dark:text-white mt-4">Dukungan 24/7</h3>
+            <p class="text-xs text-zinc-600 dark:text-zinc-300 mt-1">Tim engineer on-call dengan target respons pertama di bawah 15 menit.</p>
+            <span class="inline-flex items-center gap-1.5 mt-3 text-[10px] font-semibold text-emerald-600 dark:text-emerald-400"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> 2 agen online sekarang</span>
+          </div>
+        </div>
+
+        <!-- Search -->
+        <div class="glass-panel rounded-3xl p-2 relative">
+          <i data-lucide="search" class="w-4 h-4 absolute left-6 top-1/2 -translate-y-1/2 text-zinc-400"></i>
+          <input type="text" placeholder="Cari: webhook, kode error, arsip, retensi..." oninput="filterFaq(this)" class="w-full bg-transparent border-none rounded-2xl pl-12 pr-4 py-3 text-sm text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-black/20 dark:focus:ring-white/20">
+        </div>
+
+        <!-- FAQ groups -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 items-start">
+          <div class="glass-panel rounded-3xl p-3 space-y-1">
+            <p class="px-3 pt-2 pb-1 text-[10px] font-bold uppercase tracking-[0.14em] text-zinc-400">Pertanyaan Umum</p>
+            <div class="faq-item rounded-2xl border border-black/5 dark:border-white/10 bg-black/5 dark:bg-white/5 p-4">
+              <button onclick="toggleFaq(this)" class="w-full flex items-center justify-between gap-3 text-left">
+                <span class="text-xs font-bold text-zinc-900 dark:text-white">Bagaimana cara menandai notifikasi sebagai dibaca?</span>
+                <i data-lucide="chevron-right" class="faq-chev w-4 h-4 text-zinc-400 shrink-0 transition-transform"></i>
+              </button>
+              <div class="faq-body hidden mt-3">
+                <p class="text-xs text-zinc-600 dark:text-zinc-300 leading-relaxed">Klik ikon tanda centang pada baris notifikasi, atau gunakan tombol "Tandai Semua Dibaca" pada panel Semua Notifikasi untuk membersihkan seluruh antrean sekaligus.</p>
+              </div>
+            </div>
+            <div class="faq-item rounded-2xl border border-black/5 dark:border-white/10 bg-black/5 dark:bg-white/5 p-4">
+              <button onclick="toggleFaq(this)" class="w-full flex items-center justify-between gap-3 text-left">
+                <span class="text-xs font-bold text-zinc-900 dark:text-white">Berapa lama notifikasi disimpan di arsip?</span>
+                <i data-lucide="chevron-right" class="faq-chev w-4 h-4 text-zinc-400 shrink-0 transition-transform"></i>
+              </button>
+              <div class="faq-body hidden mt-3">
+                <p class="text-xs text-zinc-600 dark:text-zinc-300 leading-relaxed">Item disimpan 90 hari sejak ditandai selesai. Notifikasi yang disematkan di panel Penting dikecualikan dari pembersihan otomatis.</p>
+              </div>
+            </div>
+            <div class="faq-item rounded-2xl border border-black/5 dark:border-white/10 bg-black/5 dark:bg-white/5 p-4">
+              <button onclick="toggleFaq(this)" class="w-full flex items-center justify-between gap-3 text-left">
+                <span class="text-xs font-bold text-zinc-900 dark:text-white">Mengapa saya tidak menerima notifikasi push lagi?</span>
+                <i data-lucide="chevron-right" class="faq-chev w-4 h-4 text-zinc-400 shrink-0 transition-transform"></i>
+              </button>
+              <div class="faq-body hidden mt-3">
+                <p class="text-xs text-zinc-600 dark:text-zinc-300 leading-relaxed">Periksa preferensi saluran di panel Preferensi, izin sistem operasi perangkat, dan status saluran Push pada panel Saluran &amp; Integrasi.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="glass-panel rounded-3xl p-3 space-y-1">
+            <p class="px-3 pt-2 pb-1 text-[10px] font-bold uppercase tracking-[0.14em] text-zinc-400">Saluran &amp; Integrasi</p>
+            <div class="faq-item rounded-2xl border border-black/5 dark:border-white/10 bg-black/5 dark:bg-white/5 p-4">
+              <button onclick="toggleFaq(this)" class="w-full flex items-center justify-between gap-3 text-left">
+                <span class="text-xs font-bold text-zinc-900 dark:text-white">Bagaimana cara menghubungkan webhook eksternal?</span>
+                <i data-lucide="chevron-right" class="faq-chev w-4 h-4 text-zinc-400 shrink-0 transition-transform"></i>
+              </button>
+              <div class="faq-body hidden mt-3">
+                <p class="text-xs text-zinc-600 dark:text-zinc-300 leading-relaxed">Buka panel Saluran &amp; Integrasi, tempel URL endpoint Anda pada kartu Webhook, lalu tekan "Tes Kirim" untuk memverifikasi tanda tangan HMAC pengiriman.</p>
+              </div>
+            </div>
+            <div class="faq-item rounded-2xl border border-black/5 dark:border-white/10 bg-black/5 dark:bg-white/5 p-4">
+              <button onclick="toggleFaq(this)" class="w-full flex items-center justify-between gap-3 text-left">
+                <span class="text-xs font-bold text-zinc-900 dark:text-white">Apa bedanya saluran Push dan SMS / WhatsApp?</span>
+                <i data-lucide="chevron-right" class="faq-chev w-4 h-4 text-zinc-400 shrink-0 transition-transform"></i>
+              </button>
+              <div class="faq-body hidden mt-3">
+                <p class="text-xs text-zinc-600 dark:text-zinc-300 leading-relaxed">Push mengirim banner instan ke aplikasi dan browser; SMS / WhatsApp menyentuh pengguna tanpa koneksi data. Push gratis dan tak terbatas, saluran SMS dipatok kuota bulanan.</p>
+              </div>
+            </div>
+            <div class="faq-item rounded-2xl border border-black/5 dark:border-white/10 bg-black/5 dark:bg-white/5 p-4">
+              <button onclick="toggleFaq(this)" class="w-full flex items-center justify-between gap-3 text-left">
+                <span class="text-xs font-bold text-zinc-900 dark:text-white">Pengiriman gagal — bagaimana membaca kode 42855?</span>
+                <i data-lucide="chevron-right" class="faq-chev w-4 h-4 text-zinc-400 shrink-0 transition-transform"></i>
+              </button>
+              <div class="faq-body hidden mt-3">
+                <p class="text-xs text-zinc-600 dark:text-zinc-300 leading-relaxed">Kode 42855 berarti provider gateway menolak payload karena format number tidak sesuai E.164. Gunakan kode negara tanpa '+' (mis. 62812xxxx) lalu ulangi pengiriman.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="glass-panel rounded-3xl p-3 space-y-1 lg:col-span-2">
+            <p class="px-3 pt-2 pb-1 text-[10px] font-bold uppercase tracking-[0.14em] text-zinc-400">Keamanan &amp; Privasi</p>
+            <div class="faq-item rounded-2xl border border-black/5 dark:border-white/10 bg-black/5 dark:bg-white/5 p-4">
+              <button onclick="toggleFaq(this)" class="w-full flex items-center justify-between gap-3 text-left">
+                <span class="text-xs font-bold text-zinc-900 dark:text-white">Siapa yang dapat melihat arsip dan pesan penting?</span>
+                <i data-lucide="chevron-right" class="faq-chev w-4 h-4 text-zinc-400 shrink-0 transition-transform"></i>
+              </button>
+              <div class="faq-body hidden mt-3">
+                <p class="text-xs text-zinc-600 dark:text-zinc-300 leading-relaxed">Pusat notifikasi bersifat per-akun. Admin dengan peran Dispatcher dapat melihat warn variasi saluran, namun isi pesan pribadi tetap terpisah berdasarkan izin grup.</p>
+              </div>
+            </div>
+            <div class="faq-item rounded-2xl border border-black/5 dark:border-white/10 bg-black/5 dark:bg-white/5 p-4">
+              <button onclick="toggleFaq(this)" class="w-full flex items-center justify-between gap-3 text-left">
+                <span class="text-xs font-bold text-zinc-900 dark:text-white">Apakah pesan penting tersinkron lintas perangkat?</span>
+                <i data-lucide="chevron-right" class="faq-chev w-4 h-4 text-zinc-400 shrink-0 transition-transform"></i>
+              </button>
+              <div class="faq-body hidden mt-3">
+                <p class="text-xs text-zinc-600 dark:text-zinc-300 leading-relaxed">Ya. Status dibaca, penyematan, dan arsip disinkronkan real-time melalui push gateway, sehingga apa yang ditangani di mobile langsung tercermin di web.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <!-- ==================== JAVASCRIPT CORE ==================== -->
+  <script>
+    (function initTheme() {
+      const saved = localStorage.getItem('uroo-theme');
+      if (saved === 'dark' || (!saved && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+        document.documentElement.classList.add('dark');
+        document.documentElement.classList.remove('light');
+        document.body.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+        document.documentElement.classList.add('light');
+        document.body.classList.remove('dark');
+      }
+    })();
+
+    function toggleTheme() {
+      const isDark = document.documentElement.classList.toggle('dark');
+      document.body.classList.toggle('dark', isDark);
+      if (!isDark) {
+        document.documentElement.classList.add('light');
+        document.body.classList.add('light');
+      } else {
+        document.documentElement.classList.remove('light');
+        document.body.classList.remove('light');
+      }
+      try { localStorage.setItem('uroo-theme', isDark ? 'dark' : 'light'); } catch (e) {}
+      lucide.createIcons();
+    }
+
+    const sidebar = document.getElementById('sidebar');
+    function openDrawer() {
+      sidebar.classList.add('open');
+      document.getElementById('overlay').classList.remove('opacity-0', 'pointer-events-none');
+    }
+    function closeDrawer() {
+      sidebar.classList.remove('open');
+      document.getElementById('overlay').classList.add('opacity-0', 'pointer-events-none');
+    }
+
+    function toast(msg, type) {
+      const t = document.createElement('div');
+      t.className = 'fixed bottom-5 right-5 z-[90] glass-panel rounded-2xl px-4 py-3 text-sm font-semibold shadow-2xl anim-toast-in flex items-center gap-2.5 pointer-events-none max-w-sm text-zinc-900 dark:text-zinc-100';
+      t.innerHTML = '<i data-lucide="' + (type || 'check-circle') + '" class="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0"></i><span>' + msg + '</span>';
+      document.body.appendChild(t);
+      lucide.createIcons();
+      setTimeout(() => {
+        t.style.opacity = '0';
+        setTimeout(() => t.remove(), 300);
+      }, 2400);
+    }
+
+    const VIEWS = ['semua', 'inbox', 'penting', 'arsip', 'preferensi', 'saluran', 'grup', 'pengaturan', 'bantuan'];
+
+    function switchView(viewId, updateHash = true) {
+      if (!VIEWS.includes(viewId)) viewId = 'semua';
+
+      document.querySelectorAll('.u-view').forEach(el => el.classList.remove('active'));
+      const target = document.getElementById('view-' + viewId);
+      if (target) target.classList.add('active');
+
+      document.querySelectorAll('.nav-link').forEach(btn => {
+        const nav = btn.getAttribute('data-nav');
+        if (nav === viewId) {
+          btn.className = 'nav-link w-full flex items-center gap-3 px-3 py-2.5 rounded-2xl text-sm font-medium transition bg-black text-white dark:bg-white dark:text-black shadow-sm';
+        } else {
+          btn.className = 'nav-link w-full flex items-center gap-3 px-3 py-2.5 rounded-2xl text-sm font-medium transition text-zinc-600 dark:text-zinc-400 hover:bg-black/5 dark:hover:bg-white/5 hover:text-black dark:hover:text-white';
+        }
+      });
+
+      if (updateHash && window.location.hash !== '#' + viewId) {
+        window.location.hash = viewId;
+      }
+
+      closeDrawer();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      lucide.createIcons();
+    }
+
+    window.addEventListener('hashchange', () => {
+      const hash = window.location.hash.replace('#', '');
+      if (hash && VIEWS.includes(hash)) switchView(hash, false);
+    });
+
+    // ==================== VIEW: SEMUA (feed) ====================
+    function refreshUnreadBadge() {
+      const n = document.querySelectorAll('#view-semua .feed-row[data-unread="1"]').length;
+      const b = document.getElementById('semua-unread-badge');
+      const s = document.getElementById('semua-stat-unread');
+      if (b) b.textContent = n + ' belum dibaca';
+      if (s) s.textContent = n;
+    }
+    function markRowRead(btn) {
+      const row = btn.closest('.feed-row');
+      if (!row) return;
+      row.dataset.unread = '0';
+      const dot = row.querySelector('.feed-dot');
+      if (dot) { dot.classList.remove('bg-sky-500'); dot.classList.add('bg-zinc-300', 'dark:bg-zinc-600', 'opacity-0'); }
+      btn.remove();
+      refreshUnreadBadge();
+    }
+    function archiveRow(btn) {
+      const row = btn.closest('.feed-row');
+      if (!row) return;
+      row.style.opacity = '0';
+      row.style.transition = 'opacity 0.3s';
+      setTimeout(() => { row.remove(); refreshUnreadBadge(); }, 250);
+      toast('Notifikasi diarsipkan', 'archive');
+    }
+    function markAllRead() {
+      document.querySelectorAll('#view-semua .feed-row[data-unread="1"]').forEach(row => {
+        row.dataset.unread = '0';
+        const dot = row.querySelector('.feed-dot');
+        if (dot) { dot.classList.remove('bg-sky-500'); dot.classList.add('bg-zinc-300', 'dark:bg-zinc-600', 'opacity-0'); }
+        const rm = row.querySelector('.feed-actions button[title="Tandai dibaca"]');
+        if (rm) rm.remove();
+      });
+      refreshUnreadBadge();
+      toast('Semua notifikasi ditandai telah dibaca', 'check-check');
+    }
+    function setFeedFilter(filter, btn) {
+      document.querySelectorAll('#view-semua .feed-chip').forEach(chip => {
+        chip.className = 'feed-chip px-3.5 py-2 rounded-xl text-xs font-bold transition text-zinc-600 dark:text-zinc-400 hover:bg-black/5 dark:hover:bg-white/5 hover:text-black dark:hover:text-white';
+      });
+      btn.className = 'feed-chip px-3.5 py-2 rounded-xl text-xs font-bold transition bg-black text-white dark:bg-white dark:text-black';
+      document.querySelectorAll('#view-semua .feed-row').forEach(row => {
+        const show = filter === 'semua' || (filter === 'belum' && row.dataset.unread === '1');
+        row.style.display = show ? '' : 'none';
+      });
+    }
+
+    // ==================== VIEW: INBOX ====================
+    const INBOX_MESSAGES = [
+      { id: 1, unread: 1, cat: 'Keuangan', sender: 'Dina Kusuma', role: 'Finance Approver', initials: 'DK', tile: 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-400', subject: 'Persetujuan Faktur #INV-2291 (Rp 12,4 Jt)', snippet: 'Menunggu tanda tangan digital sebelum jatuh tempo Jumat pukul 17:00.', time: '09:41', when: 'Baru saja', hasFile: true, body: 'Halo Admin,\n\nFaktur #INV-2291 senilai Rp 12.400.000 dari PT Sumber Elektronik menunggu persetujuan Anda. Silakan tinjau rincian PO yang tertaut sebelum menyetujui. Berkas PDF faktur dan surat jalan telah dilampirkan.\n\nJatuh tempo: Jumat, 16:59 WIB.\n\nTerima kasih,\nDina Kusuma — Finance Approver' },
+      { id: 2, unread: 1, cat: 'Sistem', sender: 'Gateway Monitor', role: 'Otomasi Infra', initials: 'GM', tile: 'bg-sky-500/15 text-sky-700 dark:text-sky-400', subject: 'Insiden 502 Otomatis Pulih — JKT-1', snippet: 'Laten gagal turun ke 0; failover menyelesaikan 42 transaksi antrean.', time: '08:52', when: '2 jam lalu', hasFile: false, body: 'Pemberitahuan otomatis.\n\nInsiden 502 pada gateway pembayaran region JKT-1 telah pulih otomatis dalam 94 detik. Total 42 transaksi yang tertahan telah diproses ulang tanpa intervensi manual.\n\nTidak ada aksi yang diperlukan.' },
+      { id: 3, unread: 1, cat: 'Kepegawaian', sender: 'Nadia Putri', role: 'People Ops', initials: 'NP', tile: 'bg-violet-500/15 text-violet-700 dark:text-violet-400', subject: 'Cuti Tahunan Telah Disetujui', snippet: 'Cuti 5 hari kerja disetujui oleh atasan langsung untuk periode Q3.', time: 'Kemarin', when: 'Kemarin', hasFile: false, body: 'Halo,\n\nPermohonan cuti tahunan Anda periode Q3 telah disetujui. Pastikan serah terima tugas dengan tim penjaga sebelum hari H.\n\nSalam,\nNadia Putri' },
+      { id: 4, unread: 1, cat: 'Keamanan', sender: 'Security Desk', role: 'SOC Monitor', initials: 'SD', tile: 'bg-rose-500/15 text-rose-700 dark:text-rose-400', subject: 'Login Baru Terdeteksi — Perangkat Tidak Dikenal', snippet: 'Chrome 127 · Jakarta · IP tidak dikenal. Verifikasi identitas diminta.', time: 'Kemarin', when: 'Kemarin', hasFile: false, body: 'Halo,\n\nLogin terdeteksi dari perangkat yang tidak dikenali: Chrome 127, lokasi Jakarta, alamat IP tidak dikenal dalam 30 hari terakhir.\n\nJika ini Anda, abaikan pesan ini. Jika tidak, segera reset kata sandi dan aktifkan 2FA.\n\nTautan verifikasi berlaku 72 jam.' },
+      { id: 5, unread: 0, cat: 'Operasional', sender: 'Ridho Pratama', role: 'Warehouse Lead', initials: 'RP', tile: 'bg-amber-500/15 text-amber-700 dark:text-amber-400', subject: 'Batch INV-87 Selesai Dipindai', snippet: '128 SKU dipindai dan diverifikasi oleh tim gudang sore kemarin.', time: 'Selasa', when: '3 hari lalu', hasFile: false, body: 'Halo Admin,\n\nBatch penerimaan INV-87 selesai dipindai: 128 SKU sudah masuk sistem dan cocok dengan manifes. Tidak ada selisih.\n\nSalam,\nRidho Pratama' },
+      { id: 6, unread: 0, cat: 'Penjualan', sender: 'Tim Sales', role: 'B2B Pipeline', initials: 'TS', tile: 'bg-cyan-500/15 text-cyan-700 dark:text-cyan-400', subject: 'Prospek Enterprise Baru — PT Nusantara Medika', snippet: 'Nilai kontrak potensial Rp 750 Jt. Lead dialokasikan ke Rizky.', time: 'Senin', when: '4 hari lalu', hasFile: false, body: 'Halo,\n\nProspek enterprise baru masuk: PT Nusantara Medika Raya, nilai kontrak potensial Rp 750 juta. Prospek telah dialokasikan ke Rizky Maulana untuk pengelolaan awal.\n\nPerlu asistensi tim produk sebelum presentasi final.' },
+      { id: 7, unread: 0, cat: 'Marketing', sender: 'Tim Marketing', role: 'Kampanye', initials: 'TM', tile: 'bg-teal-500/15 text-teal-700 dark:text-teal-400', subject: 'Digest Kampanye Juni Terbit', snippet: 'Laporan CTR 3,8% & 68 transaksi terdorong. Lampiran PDF lengkap.', time: '2 hari lalu', when: '2 hari lalu', hasFile: true, body: 'Halo,\n\nDigest kampanye Juni telah terbit. Rangkuman: CTR 3,8%, 68 transaksi terdorong, dan 42 lead baru terkumpul. Lampiran PDF berisi breakdown per kanal terlampir.' },
+      { id: 8, unread: 0, cat: 'Teknologi', sender: 'SRE Team', role: 'Site Reliability', initials: 'SR', tile: 'bg-zinc-500/15 text-zinc-600 dark:text-zinc-300', subject: 'Rilis node-editor v14.2 ke Staging', snippet: 'Deployment berhasil; metrik p95 turun ke 96 ms pada canary.', time: 'Minggu', when: '6 hari lalu', hasFile: false, body: 'Halo,\n\nv14.2 dari node-editor sukses dideploy ke staging. Hasil canary: p95 latency turun ke 96 ms, error rate 0,02%.\n\nCherry-pick ke produksi menunggu jendela pemeliharaan mendatang.' }
+    ];
+    let INBOX_ACTIVE = null;
+    let INBOX_FILTER = 'semua';
+
+    function inboxRowHTML(m) {
+      return '<button onclick="openInboxMessage(' + m.id + ')" class="w-full text-left p-3 rounded-2xl transition ' +
+        (INBOX_ACTIVE === m.id ? 'bg-black/5 dark:bg-white/10' : 'hover:bg-black/5 dark:hover:bg-white/5') +
+        ' flex items-start gap-3">' +
+        '<span class="w-9 h-9 rounded-2xl ' + m.tile + ' grid place-items-center text-[10px] font-black shrink-0">' + m.initials + '</span>' +
+        '<span class="flex-1 min-w-0">' +
+        '<span class="flex items-center gap-1.5">' +
+        '<span class="font-bold text-xs ' + (m.unread ? 'text-zinc-900 dark:text-white' : 'text-zinc-600 dark:text-zinc-300') + ' truncate">' + m.sender + '</span>' +
+        (m.unread ? '<span class="w-1.5 h-1.5 rounded-full bg-sky-500 shrink-0"></span>' : '') +
+        '<span class="ml-auto shrink-0 text-[10px] text-zinc-400">' + m.time + '</span>' +
+        '</span>' +
+        '<span class="block text-xs font-bold text-zinc-800 dark:text-zinc-200 truncate mt-0.5">' + m.subject + '</span>' +
+        '<span class="block text-[11px] text-zinc-500 dark:text-zinc-400 truncate mt-0.5">' + m.snippet + '</span>' +
+        '</span>' +
+        '</button>';
+    }
+
+    function inboxPaneHTML(m) {
+      return '<div class="flex items-start gap-3">' +
+        '<span class="w-11 h-11 rounded-2xl ' + m.tile + ' grid place-items-center text-xs font-black shrink-0">' + m.initials + '</span>' +
+        '<div class="min-w-0">' +
+        '<p class="font-bold text-sm text-zinc-900 dark:text-white">' + m.sender + '</p>' +
+        '<p class="text-xs text-zinc-500 dark:text-zinc-400">' + m.role + ' · ' + m.when + '</p>' +
+        '</div>' +
+        '</div>' +
+        '<h3 class="font-bold text-lg tracking-tight text-zinc-900 dark:text-white mt-5">' + m.subject + '</h3>' +
+        '<div class="flex items-center gap-2 mt-2 flex-wrap">' +
+        '<span class="text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-md ' + (m.cat === 'Keuangan' ? 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-400' : m.cat === 'Keamanan' ? 'bg-rose-500/15 text-rose-700 dark:text-rose-400' : 'bg-sky-500/15 text-sky-700 dark:text-sky-400') + '">' + m.cat + '</span>' +
+        (m.hasFile ? '<span class="text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-md bg-black/5 dark:bg-white/10 text-zinc-500">1 Berkas</span>' : '') +
+        '</div>' +
+        '<p class="text-xs text-zinc-600 dark:text-zinc-300 leading-relaxed mt-4">' + m.body + '</p>' +
+        '<div class="flex items-center gap-2 mt-6 pt-4 border-t border-black/5 dark:border-white/10 flex-wrap">' +
+        '<button onclick="replyInboxMessage()" class="px-3.5 py-2 rounded-xl bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 text-xs font-bold hover:bg-emerald-500/25 transition active:scale-[0.98] flex items-center gap-1.5"><i data-lucide="reply" class="w-3 h-3"></i> Balas</button>' +
+        '<button onclick="markInboxActiveRead()" class="px-3.5 py-2 rounded-xl bg-black/5 dark:bg-white/10 text-xs font-bold text-zinc-700 dark:text-zinc-200 hover:bg-black/10 dark:hover:bg-white/15 transition flex items-center gap-1.5"><i data-lucide="check-check" class="w-3 h-3"></i> Tandai Dibaca</button>' +
+        '<button onclick="archiveInboxActive()" class="px-3.5 py-2 rounded-xl bg-black/5 dark:bg-white/10 text-xs font-bold text-zinc-600 dark:text-zinc-300 hover:bg-black/10 dark:hover:bg-white/15 transition flex items-center gap-1.5"><i data-lucide="archive" class="w-3 h-3"></i> Arsipkan</button>' +
+        '</div>';
+    }
+
+    function refreshInboxBadge() {
+      const n = INBOX_MESSAGES.filter(m => m.unread === 1).length;
+      const el = document.getElementById('inbox-count');
+      if (el) el.textContent = n;
+    }
+
+    function renderInboxList() {
+      const list = document.getElementById('inbox-list');
+      if (!list) return;
+      const rows = INBOX_MESSAGES.filter(m =>
+        INBOX_FILTER === 'semua' ? true :
+        INBOX_FILTER === 'belas' ? m.unread === 1 : m.hasFile === true
+      );
+      list.innerHTML = rows.map(inboxRowHTML).join('');
+      refreshInboxBadge();
+      lucide.createIcons();
+    }
+
+    function renderPane(next) {
+      const pane = document.getElementById('inbox-pane');
+      if (!pane) return;
+      pane.innerHTML = next ? inboxPaneHTML(next) : '<div class="flex flex-col items-center justify-center min-h-[360px] text-center gap-3"><div class="p-3 rounded-2xl bg-black/5 dark:bg-white/5 text-zinc-400"><i data-lucide="inbox" class="w-5 h-5"></i></div><p class="text-xs text-zinc-500 dark:text-zinc-400">Kotak masuk kosong.</p></div>';
+      lucide.createIcons();
+    }
+
+    function openInboxMessage(id) {
+      const m = INBOX_MESSAGES.find(x => x.id === id);
+      if (!m) return;
+      INBOX_ACTIVE = id;
+      if (m.unread === 1) m.unread = 0;
+      renderInboxList();
+      renderPane(m);
+    }
+
+    function renderInbox() {
+      renderInboxList();
+      if (INBOX_MESSAGES.length) openInboxMessage(INBOX_MESSAGES[0].id);
+    }
+
+    function setInboxFilter(filter, btn) {
+      INBOX_FILTER = filter;
+      document.querySelectorAll('#view-inbox .inbox-chip').forEach(chip => {
+        chip.className = 'inbox-chip px-4 py-2 rounded-full text-xs font-bold transition text-zinc-600 dark:text-zinc-400 hover:bg-black/5 dark:hover:bg-white/5 hover:text-black dark:hover:text-white';
+      });
+      btn.className = 'inbox-chip px-4 py-2 rounded-full text-xs font-bold transition bg-black text-white dark:bg-white dark:text-black';
+      renderInboxList();
+    }
+
+    function replyInboxMessage() {
+      const m = INBOX_MESSAGES.find(x => x.id === INBOX_ACTIVE);
+      toast('Balasan terkirim ke ' + (m ? m.sender : 'pengirim'), 'send');
+    }
+    function markInboxActiveRead() {
+      const m = INBOX_MESSAGES.find(x => x.id === INBOX_ACTIVE);
+      if (m && m.unread) { m.unread = 0; refreshInboxBadge(); renderInboxList(); }
+      toast('Pesan ditandai telah dibaca', 'check-check');
+    }
+    function archiveInboxActive() {
+      const i = INBOX_MESSAGES.findIndex(x => x.id === INBOX_ACTIVE);
+      if (i > -1) INBOX_MESSAGES.splice(i, 1);
+      const next = INBOX_MESSAGES[0] || null;
+      INBOX_ACTIVE = next ? next.id : null;
+      renderInboxList();
+      renderPane(next);
+      toast('Pesan dipindahkan ke arsip', 'archive');
+    }
+
+    // ==================== VIEW: PENTING ====================
+    function unpinItem(btn) {
+      const row = btn.closest('.pin-row');
+      if (!row) return;
+      row.style.opacity = '0';
+      row.style.transition = 'opacity 0.3s';
+      setTimeout(() => row.remove(), 250);
+      toast('Dilepas dari daftar penting', 'bookmark-minus');
+    }
+
+    // ==================== VIEW: ARSIP ====================
+    function filterArchive(sel) {
+      const v = sel.value;
+      document.querySelectorAll('#view-arsip .arc-row').forEach(row => {
+        row.style.display = (v === 'all' || row.dataset.month === v) ? '' : 'none';
+      });
+    }
+    function restoreArchive(btn) {
+      const row = btn.closest('.arc-row');
+      if (!row) return;
+      row.remove();
+      const n = document.querySelectorAll('#view-arsip .arc-row').length;
+      const badge = document.getElementById('arsip-count');
+      if (badge) {
+        badge.innerHTML = '<i data-lucide="archive" class="w-3.5 h-3.5"></i> ' + n + ' arsip tersimpan';
+        lucide.createIcons();
+      }
+      toast('Dikembalikan ke aliran notifikasi', 'rotate-ccw');
+    }
+
+    // ==================== VIEW: PREFERENSI ====================
+    function setSwitch(btn, on) {
+      btn.setAttribute('data-on', on ? '1' : '0');
+      btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+      btn.classList.toggle('bg-black', on);
+      btn.classList.toggle('dark:bg-white', on);
+      btn.classList.toggle('bg-zinc-300', !on);
+      btn.classList.toggle('dark:bg-zinc-700', !on);
+      const knob = btn.querySelector('.pref-knob');
+      if (knob) knob.style.transform = on ? 'translateX(20px)' : 'translateX(0px)';
+    }
+    function togglePref(btn) {
+      setSwitch(btn, btn.dataset.on !== '1');
+    }
+    function toggleAllPrefs(btn) {
+      const on = btn.dataset.on !== '1';
+      document.querySelectorAll('#view-preferensi .pref-switch').forEach(sw => {
+        if (sw !== btn) setSwitch(sw, on);
+      });
+      setSwitch(btn, on);
+      toast('Semua preferensi ' + (on ? 'diaktifkan' : 'dinonaktifkan'), 'sliders');
+    }
+    function savePrefs() {
+      toast('Preferensi notifikasi disimpan', 'save');
+    }
+
+    // ==================== VIEW: SALURAN ====================
+    function toggleChannel(btn, name) {
+      setSwitch(btn, btn.dataset.on !== '1');
+      toast('Saluran ' + name + ' ' + (btn.dataset.on === '1' ? 'diaktifkan' : 'dinonaktifkan'), 'radio');
+    }
+    function testChannel(name) {
+      toast('Pesan uji terkirim via ' + name + ' (200 OK)', 'send');
+    }
+    function copyEndpoint(btn) {
+      const code = btn.closest('article').querySelector('code');
+      const url = code ? code.textContent.trim() : '';
+      const ta = document.createElement('textarea');
+      ta.value = url;
+      ta.style.position = 'fixed';
+      ta.style.opacity = '0';
+      document.body.appendChild(ta);
+      ta.select();
+      try { document.execCommand('copy'); toast('URL webhook disalin ke clipboard', 'copy'); }
+      catch (e) { toast('Gagal menyalin otomatis', 'copy'); }
+      ta.remove();
+    }
+
+    // ==================== VIEW: GRUP ====================
+    function toggleGroup(btn, name) {
+      setSwitch(btn, btn.dataset.on !== '1');
+      toast('Grup ' + name + ' ' + (btn.dataset.on === '1' ? 'diaktifkan' : 'dinonaktifkan'), 'users');
+    }
+
+    // ==================== VIEW: PENGATURAN ====================
+    let selectedAppearance = 'light';
+    function selectAppearance(el, mode) {
+      selectedAppearance = mode;
+      renderAppearance();
+    }
+    function renderAppearance() {
+      const dark = document.body.classList.contains('dark');
+      document.querySelectorAll('.appearance-card').forEach(card => {
+        const on = card.dataset.appearance === selectedAppearance;
+        card.classList.toggle('selected', on);
+        const check = card.querySelector('.appearance-check span');
+        if (check) check.style.background = on ? (selectedAppearance === 'dark' ? '#fafafa' : '#18181b') : 'transparent';
+        card.style.borderColor = on ? (dark ? 'rgba(255,255,255,0.45)' : 'rgba(24,24,27,0.55)') : 'transparent';
+      });
+    }
+    function setSettingsNav(btn) {
+      document.querySelectorAll('#view-pengaturan .set-chip').forEach(chip => {
+        chip.className = 'set-chip px-4 py-2 rounded-full text-xs font-bold transition text-zinc-600 dark:text-zinc-400 hover:bg-black/5 dark:hover:bg-white/5 hover:text-black dark:hover:text-white';
+      });
+      btn.className = 'set-chip px-4 py-2 rounded-full text-xs font-bold transition bg-black text-white dark:bg-white dark:text-black';
+      toast('Modul pengaturan lain berada di modul terpisah', 'settings');
+    }
+    function testSmtp() {
+      toast('Koneksi SMTP OK · 128 ms latency', 'plug-zap');
+    }
+    function saveGeneral() {
+      const name = document.getElementById('smtp-name').value.trim();
+      const from = document.getElementById('smtp-from').value.trim();
+      if (!name || !from) { toast('Nama dan alamat pengirim wajib diisi', 'alert-triangle'); return; }
+      toast('Pengaturan notifikasi disimpan', 'save');
+    }
+
+    // ==================== VIEW: BANTUAN ====================
+    function toggleFaq(btn) {
+      const card = btn.closest('.faq-item');
+      const body = card.querySelector('.faq-body');
+      const chev = card.querySelector('.faq-chev');
+      const isOpen = !body.classList.contains('hidden');
+      body.classList.toggle('hidden', isOpen);
+      if (chev) chev.style.transform = isOpen ? 'rotate(0deg)' : 'rotate(90deg)';
+    }
+    function filterFaq(input) {
+      const q = input.value.trim().toLowerCase();
+      document.querySelectorAll('#view-bantuan .faq-item').forEach(item => {
+        const match = !q || item.textContent.toLowerCase().includes(q);
+        item.style.display = match ? '' : 'none';
+      });
+    }
+
+    // ==================== INIT ====================
+    renderInbox();
+    renderAppearance();
+    refreshUnreadBadge();
+
+    document.addEventListener('DOMContentLoaded', () => {
+      lucide.createIcons();
+      const initialHash = window.location.hash.replace('#', '');
+      if (initialHash && VIEWS.includes(initialHash)) switchView(initialHash, false);
+      else switchView('semua', false);
+    });
+  </script>
+<script src="../../assets/js/uroo-nav.js"></script>
+</body>
+</html>

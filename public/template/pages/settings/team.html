@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="id" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Uroo UI - Tim</title>
+  <script src="../../assets/js/tailwind.js"></script>
+  <script src="../../assets/js/lucide.js"></script>
+  <script>tailwind.config={darkMode:'class',theme:{extend:{colors:{glass:{light:'rgba(255,255,255,0.65)','light-border':'rgba(255,255,255,0.8)',dark:'rgba(18,18,20,0.65)','dark-border':'rgba(255,255,255,0.1)'}}}}}</script>
+  <link rel="stylesheet" href="../../assets/css/uroo.css">
+  <style>
+    .u-bg{position:fixed;inset:0;z-index:-10;transition:opacity .35s ease}
+    .u-bg-light{background:linear-gradient(135deg,#dfe3ea,#f4f4f5)}
+    .u-bg-dark{background:linear-gradient(135deg,#0a0a0b,#1a1a1e);opacity:0}
+    body.dark .u-bg-light{opacity:0}
+    body.dark .u-bg-dark{opacity:1}
+    .u-glow{position:fixed;border-radius:9999px;filter:blur(90px);z-index:-9;pointer-events:none;background:rgba(0,0,0,0.06);transition:background-color .35s ease}
+    body.dark .u-glow{background:rgba(255,255,255,0.05)}
+    .u-glow-1{width:420px;height:420px;top:-140px;left:-140px}
+    .u-glow-2{width:520px;height:520px;bottom:-200px;right:-140px}
+    .u-glow-3{width:300px;height:300px;top:42%;left:58%}
+
+    #toast{transition:opacity .3s ease,transform .3s ease}
+    #toast.hidden-toast{opacity:0;transform:translateY(20px) scale(.96);pointer-events:none}
+    .member-row{transition:opacity .3s ease,transform .3s ease}
+    .member-row.removing{opacity:0;transform:translateX(20px)}
+    select.role{appearance:none;-webkit-appearance:none}
+  </style>
+</head>
+<body class="min-h-screen font-sans antialiased text-zinc-800 dark:text-zinc-100">
+  <script>(function initTheme(){var saved=null;try{saved=localStorage.getItem('uroo-theme')}catch(e){};var dark=(saved==='dark')||(!saved&&window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches);var de=document.documentElement;if(dark){de.classList.add('dark');de.classList.remove('light');if(document.body){document.body.classList.add('dark');document.body.classList.remove('light');}}else{de.classList.remove('dark');de.classList.add('light');if(document.body){document.body.classList.remove('dark');document.body.classList.add('light');}}})();</script>
+
+  <div class="u-bg u-bg-light" aria-hidden="true"></div>
+  <div class="u-bg u-bg-dark" aria-hidden="true"></div>
+  <div class="u-glow u-glow-1" aria-hidden="true"></div>
+  <div class="u-glow u-glow-2" aria-hidden="true"></div>
+  <div class="u-glow u-glow-3" aria-hidden="true"></div>
+
+  <div class="max-w-6xl mx-auto px-4 py-6 md:py-10">
+    <!-- TOPBAR -->
+    <header class="glass-panel rounded-2xl px-4 py-3 flex items-center gap-3 sticky top-4 z-30 mb-6">
+      <div class="flex items-center gap-2.5 min-w-0">
+        <img src="../../assets/img/uroo_ui.png" alt="Uroo UI" class="w-9 h-9 rounded-xl object-cover shadow-lg shrink-0">
+        <div class="min-w-0">
+          <p class="font-extrabold text-[15px] leading-none tracking-tight">Uroo UI</p>
+          <p class="mt-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-zinc-400 dark:text-zinc-500">Tim</p>
+        </div>
+      </div>
+      <div class="ml-auto flex items-center gap-1.5">
+        <button onclick="openModal('modal-invite')" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-zinc-900 dark:bg-zinc-50 text-zinc-50 dark:text-zinc-900 text-sm font-bold hover:opacity-90 shadow-lg"><i data-lucide="user-plus" class="w-4 h-4"></i> Undang Anggota</button>
+      </div>
+    </header>
+
+    <div class="flex flex-col lg:flex-row gap-6">
+      <!-- SIDEBAR -->
+      <aside class="lg:w-60 shrink-0">
+        <div class="glass-panel rounded-2xl p-3 lg:sticky lg:top-24">
+          <p class="px-3 py-2 text-[10px] font-bold uppercase tracking-[0.18em] text-zinc-400 dark:text-zinc-500">Pengaturan</p>
+          <nav class="space-y-1">
+            <a href="general.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-bold text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-50 hover:bg-black/5 dark:hover:bg-white/10"><i data-lucide="sliders-horizontal" class="w-[18px] h-[18px]"></i> Umum</a>
+            <a href="billing.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-bold text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-50 hover:bg-black/5 dark:hover:bg-white/10"><i data-lucide="credit-card" class="w-[18px] h-[18px]"></i> Penagihan</a>
+            <a href="notifications.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-bold text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-50 hover:bg-black/5 dark:hover:bg-white/10"><i data-lucide="bell" class="w-[18px] h-[18px]"></i> Notifikasi</a>
+            <a href="team.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-bold bg-zinc-900 text-zinc-50 dark:bg-zinc-50 dark:text-zinc-900 shadow-lg"><i data-lucide="users" class="w-[18px] h-[18px]"></i> Tim</a>
+          </nav>
+        </div>
+      </aside>
+
+      <!-- CONTENT -->
+      <main class="flex-1 min-w-0 space-y-4">
+        <!-- Members -->
+        <div class="glass-panel rounded-2xl p-6">
+          <div class="flex items-center justify-between mb-5">
+            <div><h2 class="font-bold tracking-tight">Anggota Tim <span id="member-count" class="text-sm font-semibold text-zinc-400">(5)</span></h2><p class="text-sm text-zinc-500 dark:text-zinc-400 mt-1">Kelola anggota dan peran mereka di workspace.</p></div>
+            <button onclick="openModal('modal-invite')" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-black/5 dark:bg-white/10 text-sm font-bold hover:bg-black/10 dark:hover:bg-white/15"><i data-lucide="user-plus" class="w-4 h-4"></i> Undang</button>
+          </div>
+          <div id="member-list" class="space-y-3">
+            <div class="member-row flex items-center gap-4 rounded-2xl bg-black/5 dark:bg-white/5 p-4">
+              <span class="grid place-items-center w-11 h-11 rounded-full bg-gradient-to-br from-zinc-500 to-zinc-800 dark:from-zinc-300 dark:to-zinc-600 text-white dark:text-zinc-900 text-xs font-bold shrink-0">RA</span>
+              <div class="flex-1 min-w-0">
+                <p class="text-sm font-bold flex items-center gap-1.5">Raka Adiwijaya <span class="grid place-items-center w-4 h-4 rounded-full bg-emerald-500/15 text-emerald-600 dark:text-emerald-400"><i data-lucide="badge-check" class="w-3 h-3"></i></span></p>
+                <p class="text-xs text-zinc-400 mt-0.5">raka.adiwijaya@uroo.dev</p>
+              </div>
+              <span class="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 text-[10px] font-bold"><i data-lucide="circle-dot" class="w-2 h-2"></i> Aktif</span>
+              <select class="role mt-0 w-32 px-2.5 py-2 rounded-xl bg-black/5 dark:bg-white/10 text-xs font-bold outline-none"><option>Pemilik</option></select>
+              <button onclick="removeMember(this)" class="p-2 rounded-lg text-zinc-400 hover:text-rose-500"><i data-lucide="user-x" class="w-4 h-4"></i></button>
+            </div>
+            <div class="member-row flex items-center gap-4 rounded-2xl bg-black/5 dark:bg-white/5 p-4">
+              <span class="grid place-items-center w-11 h-11 rounded-full bg-gradient-to-br from-sky-500 to-indigo-700 text-white text-xs font-bold shrink-0">SM</span>
+              <div class="flex-1 min-w-0">
+                <p class="text-sm font-bold">Sari Maharani</p>
+                <p class="text-xs text-zinc-400 mt-0.5">sari.maharani@uroo.dev</p>
+              </div>
+              <span class="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 text-[10px] font-bold"><i data-lucide="circle-dot" class="w-2 h-2"></i> Aktif</span>
+              <select class="role mt-0 w-32 px-2.5 py-2 rounded-xl bg-black/5 dark:bg-white/10 text-xs font-bold outline-none"><option>Admin</option><option>Anggota</option></select>
+              <button onclick="removeMember(this)" class="p-2 rounded-lg text-zinc-400 hover:text-rose-500"><i data-lucide="user-x" class="w-4 h-4"></i></button>
+            </div>
+            <div class="member-row flex items-center gap-4 rounded-2xl bg-black/5 dark:bg-white/5 p-4">
+              <span class="grid place-items-center w-11 h-11 rounded-full bg-gradient-to-br from-emerald-500 to-teal-700 text-white text-xs font-bold shrink-0">BP</span>
+              <div class="flex-1 min-w-0">
+                <p class="text-sm font-bold">Bagas Prasetyo</p>
+                <p class="text-xs text-zinc-400 mt-0.5">bagas.prasetyo@uroo.dev</p>
+              </div>
+              <span class="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-amber-500/15 text-amber-600 dark:text-amber-400 text-[10px] font-bold"><i data-lucide="circle" class="w-2 h-2"></i> Menunggu</span>
+              <select class="role mt-0 w-32 px-2.5 py-2 rounded-xl bg-black/5 dark:bg-white/10 text-xs font-bold outline-none"><option>Anggota</option><option>Admin</option></select>
+              <button onclick="removeMember(this)" class="p-2 rounded-lg text-zinc-400 hover:text-rose-500"><i data-lucide="user-x" class="w-4 h-4"></i></button>
+            </div>
+            <div class="member-row flex items-center gap-4 rounded-2xl bg-black/5 dark:bg-white/5 p-4">
+              <span class="grid place-items-center w-11 h-11 rounded-full bg-gradient-to-br from-violet-500 to-purple-700 text-white text-xs font-bold shrink-0">DN</span>
+              <div class="flex-1 min-w-0">
+                <p class="text-sm font-bold">Dimas Nugroho</p>
+                <p class="text-xs text-zinc-400 mt-0.5">dimas.nugroho@uroo.dev</p>
+              </div>
+              <span class="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 text-[10px] font-bold"><i data-lucide="circle-dot" class="w-2 h-2"></i> Aktif</span>
+              <select class="role mt-0 w-32 px-2.5 py-2 rounded-xl bg-black/5 dark:bg-white/10 text-xs font-bold outline-none"><option>Anggota</option><option>Admin</option></select>
+              <button onclick="removeMember(this)" class="p-2 rounded-lg text-zinc-400 hover:text-rose-500"><i data-lucide="user-x" class="w-4 h-4"></i></button>
+            </div>
+            <div class="member-row flex items-center gap-4 rounded-2xl bg-black/5 dark:bg-white/5 p-4">
+              <span class="grid place-items-center w-11 h-11 rounded-full bg-gradient-to-br from-rose-500 to-orange-600 text-white text-xs font-bold shrink-0">WW</span>
+              <div class="flex-1 min-w-0">
+                <p class="text-sm font-bold">Wulan Wiranti</p>
+                <p class="text-xs text-zinc-400 mt-0.5">wulan.wiranti@uroo.dev</p>
+              </div>
+              <span class="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-rose-500/15 text-rose-500 text-[10px] font-bold"><i data-lucide="circle" class="w-2 h-2"></i> Tidak Aktif</span>
+              <select class="role mt-0 w-32 px-2.5 py-2 rounded-xl bg-black/5 dark:bg-white/10 text-xs font-bold outline-none"><option>Anggota</option><option>Admin</option></select>
+              <button onclick="removeMember(this)" class="p-2 rounded-lg text-zinc-400 hover:text-rose-500"><i data-lucide="user-x" class="w-4 h-4"></i></button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Roles explanation -->
+        <div class="glass-panel rounded-2xl p-6">
+          <h2 class="font-bold tracking-tight mb-5">Peran &amp; Izin</h2>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div class="rounded-2xl bg-black/5 dark:bg-white/5 p-5">
+              <span class="grid place-items-center w-10 h-10 rounded-xl bg-zinc-900 dark:bg-zinc-50 text-zinc-50 dark:text-zinc-900 shadow"><i data-lucide="user" class="w-5 h-5"></i></span>
+              <p class="mt-3 font-bold">Pemilik</p>
+              <p class="text-xs text-zinc-400 mt-1 leading-relaxed">Akses penuh seluruh workspace, termasuk penagihan, penghapusan data, dan manajemen peran. Hanya pemilik yang dapat mengubah paket.</p>
+            </div>
+            <div class="rounded-2xl bg-black/5 dark:bg-white/5 p-5">
+              <span class="grid place-items-center w-10 h-10 rounded-xl bg-sky-500/15 text-sky-600 dark:text-sky-400"><i data-lucide="shield" class="w-5 h-5"></i></span>
+              <p class="mt-3 font-bold">Admin</p>
+              <p class="text-xs text-zinc-400 mt-1 leading-relaxed">Mengelola anggota, proyek, dan pengaturan umum. Dapat mengundang anggota baru tetapi tidak dapat mengubah penagihan atau menghapus workspace.</p>
+            </div>
+            <div class="rounded-2xl bg-black/5 dark:bg-white/5 p-5">
+              <span class="grid place-items-center w-10 h-10 rounded-xl bg-zinc-500/15 text-zinc-600 dark:text-zinc-300"><i data-lucide="user-check" class="w-5 h-5"></i></span>
+              <p class="mt-3 font-bold">Anggota</p>
+              <p class="text-xs text-zinc-400 mt-1 leading-relaxed">Akses kolaborasi pada proyek yang diberikan. Tidak dapat melihat data penagihan atau mengelola pengaturan workspace.</p>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- INVITE MODAL -->
+  <div id="modal-invite" class="fixed inset-0 z-50 hidden items-center justify-center p-4">
+    <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" onclick="closeModal('modal-invite')"></div>
+    <div class="glass-panel rounded-2xl p-6 w-full max-w-md relative z-10 anim-scale-in">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="font-bold">Undang Anggota</h2>
+        <button onclick="closeModal('modal-invite')" class="p-1.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/10"><i data-lucide="x" class="w-4 h-4"></i></button>
+      </div>
+      <div class="flex items-center gap-2 rounded-xl bg-black/5 dark:bg-white/10 px-3.5 mb-4">
+        <i data-lucide="mail" class="w-4 h-4 text-zinc-400 shrink-0"></i>
+        <input id="invite-email" type="email" placeholder="nama@perusahaan.co.id" class="w-full h-11 bg-transparent text-sm font-medium outline-none">
+      </div>
+      <div>
+        <label class="text-xs font-semibold text-zinc-500 dark:text-zinc-400">Pilih Peran</label>
+        <div class="grid grid-cols-3 gap-2 mt-2">
+          <label class="role-opt rounded-xl border-2 border-transparent bg-black/5 dark:bg-white/10 p-3 text-center cursor-pointer">
+            <input type="radio" name="invite-role" value="Anggota" checked class="hidden">
+            <i data-lucide="user-check" class="w-4 h-4 mx-auto"></i>
+            <p class="mt-1 text-xs font-bold">Anggota</p>
+          </label>
+          <label class="role-opt rounded-xl border-2 border-transparent bg-black/5 dark:bg-white/10 p-3 text-center cursor-pointer">
+            <input type="radio" name="invite-role" value="Admin" class="hidden">
+            <i data-lucide="shield" class="w-4 h-4 mx-auto"></i>
+            <p class="mt-1 text-xs font-bold">Admin</p>
+          </label>
+          <label class="role-opt rounded-xl border-2 border-transparent bg-black/5 dark:bg-white/10 p-3 text-center cursor-pointer">
+            <input type="radio" name="invite-role" value="Auditor" class="hidden">
+            <i data-lucide="eye" class="w-4 h-4 mx-auto"></i>
+            <p class="mt-1 text-xs font-bold">Auditor</p>
+          </label>
+        </div>
+      </div>
+      <p id="invite-error" class="hidden mt-3 text-xs font-semibold text-rose-500">Masukkan alamat email yang valid.</p>
+      <div class="mt-5 flex justify-end gap-2">
+        <button onclick="closeModal('modal-invite')" class="px-4 py-2 rounded-xl bg-black/5 dark:bg-white/10 text-sm font-bold">Batal</button>
+        <button onclick="inviteMember()" class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-zinc-900 dark:bg-zinc-50 text-zinc-50 dark:text-zinc-900 text-sm font-bold"><i data-lucide="send" class="w-4 h-4"></i> Kirim Undangan</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div id="toast" class="toast hidden-toast fixed bottom-6 left-1/2 -translate-x-1/2 z-[70] glass-panel rounded-2xl px-5 py-3.5 flex items-center gap-3 shadow-2xl">
+    <span class="grid place-items-center w-7 h-7 rounded-full bg-emerald-500/15 text-emerald-600 dark:text-emerald-400"><i data-lucide="check" class="w-4 h-4"></i></span>
+    <div><p id="toast-title" class="text-sm font-bold">Berhasil</p><p id="toast-msg" class="text-xs text-zinc-500 dark:text-zinc-400"></p></div>
+  </div>
+
+  <button onclick="toggleTheme()" class="fixed top-5 right-5 z-[60] p-2.5 rounded-full glass-panel shadow-2xl text-zinc-600 dark:text-zinc-300">
+    <i data-lucide="moon" class="w-4 h-4 hidden dark:block"></i>
+    <i data-lucide="sun" class="w-4 h-4 block dark:hidden"></i>
+  </button>
+
+  <script>
+    lucide.createIcons();
+    function toggleTheme(){const b=document.body;const h=document.documentElement;b.classList.toggle('dark');h.classList.toggle('dark');try{localStorage.setItem('uroo-theme',b.classList.contains('dark')?'dark':'light')}catch(e){};lucide.createIcons();}
+
+    const toast=document.getElementById('toast');
+    let toastTimer;
+    function showToast(title,msg){document.getElementById('toast-title').textContent=title||'Berhasil';document.getElementById('toast-msg').textContent=msg||'';toast.classList.remove('hidden-toast');toast.classList.add('anim-toast-in');clearTimeout(toastTimer);toastTimer=setTimeout(()=>{toast.classList.add('hidden-toast');toast.classList.remove('anim-toast-in')},2800);}
+    function closeModal(id){const m=document.getElementById(id);m.classList.add('hidden');m.classList.remove('flex');}
+    function openModal(id){const m=document.getElementById(id);m.classList.remove('hidden');m.classList.add('flex');}
+    function updateCount(){
+      const c=document.getElementById('member-list').querySelectorAll('.member-row').length;
+      document.getElementById('member-count').textContent='('+c+')';
+    }
+
+    document.querySelectorAll('.role-opt').forEach(opt=>{
+      opt.addEventListener('click',()=>{
+        document.querySelectorAll('.role-opt').forEach(o=>o.classList.remove('selected'));
+        opt.classList.add('selected');
+      });
+    });
+
+    function inviteMember(){
+      const email=document.getElementById('invite-email').value.trim();
+      const role=document.querySelector('input[name="invite-role"]:checked').value;
+      const err=document.getElementById('invite-error');
+      if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){err.classList.remove('hidden');return;}
+      err.classList.add('hidden');
+      const initials=email.slice(0,2).toUpperCase();
+      const name=email.split('@')[0];
+      const list=document.getElementById('member-list');
+      const row=document.createElement('div');
+      row.className='member-row flex items-center gap-4 rounded-2xl bg-black/5 dark:bg-white/5 p-4 anim-slide-up';
+      row.innerHTML='<span class="grid place-items-center w-11 h-11 rounded-full bg-gradient-to-br from-zinc-400 to-zinc-700 text-white text-xs font-bold shrink-0">'+initials+'</span><div class="flex-1 min-w-0"><p class="text-sm font-bold">'+name+'</p><p class="text-xs text-zinc-400 mt-0.5">'+email+'</p></div><span class="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-amber-500/15 text-amber-600 dark:text-amber-400 text-[10px] font-bold"><i data-lucide="circle" class="w-2 h-2"></i> Menunggu</span><select class="role mt-0 w-32 px-2.5 py-2 rounded-xl bg-black/5 dark:bg-white/10 text-xs font-bold outline-none"><option>'+(role==='Auditor'?'Auditor':role)+'</option><option>Anggota</option><option>Admin</option></select><button onclick="removeMember(this)" class="p-2 rounded-lg text-zinc-400 hover:text-rose-500"><i data-lucide="user-x" class="w-4 h-4"></i></button>';
+      list.appendChild(row);
+      closeModal('modal-invite');
+      document.getElementById('invite-email').value='';
+      updateCount();
+      lucide.createIcons();
+      showToast('Undangan terkirim','Undangan dikirim ke '+email);
+    }
+
+    function removeMember(btn){
+      const row=btn.closest('.member-row');
+      const name=row.querySelector('.text-sm.font-bold').textContent.trim();
+      if(!confirm('Hapus '+name+' dari tim?'))return;
+      row.classList.add('removing');
+      setTimeout(()=>{row.remove();updateCount();showToast('Anggota dihapus',name+' telah dihapus dari tim');},300);
+    }
+
+    updateCount();
+  </script>
+<script src="../../assets/js/uroo-nav.js"></script>
+</body>
+</html>

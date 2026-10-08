@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="id" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Uroo UI - Ecommerce Storefront</title>
+  <script src="../assets/js/tailwind.js"></script>
+  <script src="../assets/js/lucide.js"></script>
+  <script>tailwind.config={darkMode:'class',theme:{extend:{colors:{glass:{light:'rgba(255,255,255,0.65)','light-border':'rgba(255,255,255,0.8)',dark:'rgba(18,18,20,0.65)','dark-border':'rgba(255,255,255,0.1)'}}}}}</script>
+  <link rel="stylesheet" href="../assets/css/uroo.css">
+  <style>
+    .u-bg{position:fixed;inset:0;z-index:-10;transition:opacity .35s ease}
+    .u-bg-light{background:linear-gradient(135deg,#dfe3ea,#f4f4f5)}
+    .u-bg-dark{background:linear-gradient(135deg,#0a0a0b,#1a1a1e);opacity:0}
+    body.dark .u-bg-light{opacity:0}
+    body.dark .u-bg-dark{opacity:1}
+    .u-glow{position:fixed;border-radius:9999px;filter:blur(90px);z-index:-9;pointer-events:none;background:rgba(0,0,0,0.06);transition:background-color .35s ease}
+    body.dark .u-glow{background:rgba(255,255,255,0.05)}
+    .u-glow-1{width:420px;height:420px;top:-140px;left:-140px}
+    .u-glow-2{width:520px;height:520px;bottom:-200px;right:-140px}
+    .u-glow-3{width:300px;height:300px;top:42%;left:58%}
+
+    #cartDrawer{transform:translateX(100%);transition:transform .35s cubic-bezier(.16,1,.3,1)}
+    #cartDrawer.open{transform:translateX(0)}
+
+    .product-img{background:linear-gradient(135deg,rgba(24,24,27,.04),rgba(24,24,27,.10));transition:opacity .3s ease}
+    body.dark .product-img{background:linear-gradient(135deg,rgba(255,255,255,.04),rgba(255,255,255,.10))}
+
+    .chip-btn{transition:all .2s ease}
+    .qty-btn{transition:all .15s ease}
+    .qty-btn:active{transform:scale(.9)}
+  </style>
+</head>
+<body class="min-h-screen font-sans antialiased text-zinc-800 dark:text-zinc-100">
+  <script>(function initTheme(){var saved=null;try{saved=localStorage.getItem('uroo-theme')}catch(e){};var dark=(saved==='dark')||(!saved&&window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches);var de=document.documentElement;if(dark){de.classList.add('dark');de.classList.remove('light');if(document.body){document.body.classList.add('dark');document.body.classList.remove('light');}}else{de.classList.remove('dark');de.classList.add('light');if(document.body){document.body.classList.remove('dark');document.body.classList.add('light');}}})();</script>
+
+  <div class="u-bg u-bg-light" aria-hidden="true"></div>
+  <div class="u-bg u-bg-dark" aria-hidden="true"></div>
+  <div class="u-glow u-glow-1" aria-hidden="true"></div>
+  <div class="u-glow u-glow-2" aria-hidden="true"></div>
+  <div class="u-glow u-glow-3" aria-hidden="true"></div>
+
+  <!-- OVERLAY -->
+  <div id="overlay" class="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm opacity-0 pointer-events-none transition-opacity duration-300" style="z-index:44"></div>
+
+  <!-- ==================== NAVBAR ==================== -->
+  <header class="sticky top-0 z-30 px-4 pt-4">
+    <nav class="glass-panel rounded-2xl px-4 h-16 flex items-center gap-3 max-w-7xl mx-auto">
+      <a href="#" class="flex items-center gap-2.5 shrink-0">
+        <span class="grid place-items-center w-9 h-9 rounded-xl bg-zinc-900 dark:bg-zinc-50 text-zinc-50 dark:text-zinc-900 shadow-lg"><i data-lucide="bag" class="w-5 h-5"></i></span>
+        <span class="hidden sm:block text-lg font-extrabold tracking-tight">UrooMart</span>
+      </a>
+      <div class="hidden md:flex flex-1 max-w-md items-center gap-2.5 px-3.5 h-10 rounded-xl bg-black/5 dark:bg-white/10 focus-within:ring-2 ring-zinc-900/10 dark:ring-white/20">
+        <i data-lucide="search" class="w-4 h-4 text-zinc-400 shrink-0"></i>
+        <input type="text" placeholder="Cari produk, merek, kategori..." class="w-full bg-transparent text-sm outline-none placeholder:text-zinc-400">
+        <button onclick="spawnToast('Fitur pencarian sedang dipersiapkan.')" class="grid place-items-center w-7 h-7 rounded-lg bg-zinc-900 dark:bg-zinc-50 text-zinc-50 dark:text-zinc-900"><i data-lucide="arrow-right" class="w-3.5 h-3.5"></i></button>
+      </div>
+      <div class="ml-auto flex items-center gap-1.5">
+        <button class="hidden md:grid place-items-center w-10 h-10 rounded-xl hover:bg-black/5 dark:hover:bg-white/10 text-zinc-500 dark:text-zinc-400" onclick="spawnToast('Buka menu akun.')"><i data-lucide="user" class="w-5 h-5"></i></button>
+        <button onclick="openCart()" class="relative grid place-items-center w-10 h-10 rounded-xl hover:bg-black/5 dark:hover:bg-white/10 text-zinc-500 dark:text-zinc-400" aria-label="Buka keranjang">
+          <i data-lucide="shopping-bag" class="w-5 h-5"></i>
+          <span id="cartBadge" class="absolute -top-1 -right-1 min-w-[20px] h-5 px-1.5 grid place-items-center rounded-full bg-zinc-900 dark:bg-zinc-50 text-zinc-50 dark:text-zinc-900 text-[11px] font-bold ring-2 ring-white dark:ring-zinc-900" style="display:none">0</span>
+        </button>
+        <div class="hidden sm:flex items-center gap-1 text-xs font-semibold text-zinc-500 dark:text-zinc-400">
+          <span class="text-[11px]">Kota</span>
+          <span class="font-bold text-zinc-800 dark:text-zinc-100">Jakarta Pusat</span>
+          <i data-lucide="chevron-down" class="w-3.5 h-3.5"></i>
+        </div>
+      </div>
+    </nav>
+  </header>
+
+  <main class="max-w-7xl mx-auto px-4 py-8">
+    <!-- ==================== HERO ==================== -->
+    <section class="glass-panel rounded-3xl overflow-hidden mb-8 relative">
+      <div class="absolute inset-0 bg-gradient-to-br from-zinc-900 via-zinc-700 to-zinc-500"></div>
+      <div class="absolute inset-0 opacity-40 mix-blend-overlay" style="background:radial-gradient(circle at 80% 20%,rgba(255,255,255,.5),transparent 40%)"></div>
+      <div class="relative p-8 sm:p-12 md:p-16 max-w-2xl">
+        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/15 text-white text-xs font-bold backdrop-blur-sm ring-1 ring-white/30"><i data-lucide="zap" class="w-3.5 h-3.5"></i> Promo Akhir Bulan</span>
+        <h1 class="mt-5 text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight text-white leading-tight">Diskon hingga 40% untuk gadget favoritmu</h1>
+        <p class="mt-4 text-white/80 text-sm sm:text-base max-w-md">Elektronik, aksesori, dan kebutuhan digital berkualitas. Gratis ongkir se-Indonesia untuk pembelian di atas Rp 100.000.</p>
+        <div class="mt-7 flex flex-wrap items-center gap-3">
+          <button onclick="openCart()" class="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-white text-zinc-900 text-sm font-bold hover:scale-105 transition-transform shadow-xl"><i data-lucide="sparkles" class="w-4 h-4"></i> Belanja Sekarang</button>
+          <button onclick="spawnToast('Kupon diskon UROO40 telah disalin ke papan klip.')" class="inline-flex items-center gap-2 px-5 py-3 rounded-full bg-white/15 text-white text-sm font-bold ring-1 ring-white/30 hover:bg-white/25 transition-colors"><i data-lucide="copy" class="w-4 h-4"></i> Pakai Kode UROO40</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== CATEGORY CHIPS ==================== -->
+    <section class="mb-8">
+      <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
+        <h2 class="text-xl font-bold tracking-tight">Jelajahi Kategori</h2>
+        <div class="flex items-center gap-2 text-xs font-semibold text-zinc-500 dark:text-zinc-400">
+          <button onclick="spawnToast('Penyortiran diaktifkan: Terlaris.')" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/10"><i data-lucide="arrow-up-down" class="w-3.5 h-3.5"></i> Terlaris</button>
+        </div>
+      </div>
+      <div class="flex flex-wrap gap-2" id="chipRow">
+        <button data-cat="all" onclick="filterCat(this,'all')" class="chip-btn px-4 py-2 rounded-full bg-zinc-900 text-zinc-50 dark:bg-zinc-50 dark:text-zinc-900 text-sm font-bold shadow-md">Semua</button>
+        <button data-cat="elektronik" onclick="filterCat(this,'elektronik')" class="chip-btn px-4 py-2 rounded-full glass-panel text-zinc-500 dark:text-zinc-400 text-sm font-semibold hover:scale-105">Elektronik</button>
+        <button data-cat="audio" onclick="filterCat(this,'audio')" class="chip-btn px-4 py-2 rounded-full glass-panel text-zinc-500 dark:text-zinc-400 text-sm font-semibold hover:scale-105">Audio</button>
+        <button data-cat="fashion" onclick="filterCat(this,'fashion')" class="chip-btn px-4 py-2 rounded-full glass-panel text-zinc-500 dark:text-zinc-400 text-sm font-semibold hover:scale-105">Fashion</button>
+        <button data-cat="aksesori" onclick="filterCat(this,'aksesori')" class="chip-btn px-4 py-2 rounded-full glass-panel text-zinc-500 dark:text-zinc-400 text-sm font-semibold hover:scale-105">Aksesori</button>
+      </div>
+    </section>
+
+    <!-- ==================== PRODUCT GRID ==================== -->
+    <section>
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="text-xl font-bold tracking-tight">Produk Pilihan</h2>
+        <span id="productCount" class="text-xs font-semibold text-zinc-400"></span>
+      </div>
+      <div id="productGrid" class="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4"></div>
+    </section>
+  </main>
+
+  <!-- ==================== CART DRAWER ==================== -->
+  <div id="overlayForCart" class="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm opacity-0 pointer-events-none transition-opacity duration-300" style="z-index:44" onclick="closeCart()"></div>
+  <aside id="cartDrawer" class="fixed top-0 right-0 bottom-0 z-50 w-full max-w-md glass-panel rounded-l-3xl flex flex-col">
+    <div class="flex items-center justify-between px-6 h-20 border-b border-black/5 dark:border-white/10 shrink-0">
+      <div class="flex items-center gap-3">
+        <span class="grid place-items-center w-10 h-10 rounded-xl bg-zinc-900 dark:bg-zinc-50 text-zinc-50 dark:text-zinc-900"><i data-lucide="shopping-bag" class="w-5 h-5"></i></span>
+        <div>
+          <h2 class="font-bold tracking-tight leading-none">Keranjang Belanja</h2>
+          <p id="cartLine1" class="text-xs text-zinc-500 dark:text-zinc-400 mt-1">0 barang di keranjang</p>
+        </div>
+      </div>
+      <button onclick="closeCart()" class="p-2 rounded-xl hover:bg-black/5 dark:hover:bg-white/10 text-zinc-500 dark:text-zinc-400"><i data-lucide="x" class="w-5 h-5"></i></button>
+    </div>
+
+    <div id="cartEmpty" class="flex-1 flex flex-col items-center justify-center text-center px-8">
+      <span class="grid place-items-center w-20 h-20 rounded-3xl bg-black/5 dark:bg-white/5 mb-4"><i data-lucide="package-open" class="w-9 h-9 text-zinc-400"></i></span>
+      <p class="font-bold text-lg">Keranjang masih kosong</p>
+      <p class="text-sm text-zinc-500 dark:text-zinc-400 mt-1">Yuk tambahkan beberapa produk favoritmu.</p>
+      <button onclick="closeCart()" class="mt-5 inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-zinc-900 dark:bg-zinc-50 text-zinc-50 dark:text-zinc-900 text-sm font-bold hover:opacity-90">Mulai Belanja</button>
+    </div>
+
+    <div id="cartItems" class="flex-1 overflow-y-auto px-6 py-4 space-y-3"></div>
+
+    <div id="cartFooter" class="border-t border-black/5 dark:border-white/10 p-6 shrink-0" style="display:none">
+      <div class="flex items-center gap-2.5 mb-4 text-sm">
+        <i data-lucide="truck" class="w-4 h-4 text-emerald-500"></i>
+        <span class="text-zinc-600 dark:text-zinc-300">Gratis ongkir untuk pesanan di atas <b id="freeShipHint">Rp 100.000</b></span>
+      </div>
+      <div class="flex items-center justify-between mb-5">
+        <span class="text-sm font-semibold text-zinc-500 dark:text-zinc-400">Total</span>
+        <span id="cartTotal" class="text-2xl font-extrabold tracking-tight">Rp 0</span>
+      </div>
+      <button onclick="checkout()" class="w-full inline-flex items-center justify-center gap-2 bg-zinc-900 dark:bg-zinc-50 text-zinc-50 dark:text-zinc-900 rounded-2xl px-5 py-3.5 text-sm font-bold hover:opacity-90 shadow-lg">
+        <i data-lucide="credit-card" class="w-4 h-4"></i> Checkout Sekarang
+      </button>
+    </div>
+  </aside>
+
+  <button onclick="toggleTheme()" aria-label="Ganti tema" title="Ganti tema" class="fixed top-5 right-5 z-[60] p-2.5 rounded-full glass-panel shadow-2xl text-zinc-600 dark:text-zinc-300">
+    <i data-lucide="moon" class="w-4 h-4 hidden dark:block"></i>
+    <i data-lucide="sun" class="w-4 h-4 block dark:hidden"></i>
+  </button>
+
+  <div id="toastWrap" class="fixed bottom-6 left-1/2 -translate-x-1/2 z-[70] pointer-events-none"></div>
+
+  <script>
+    lucide.createIcons();
+    function toggleTheme(){const b=document.body;const h=document.documentElement;h.classList.toggle('dark');b.classList.toggle('dark');try{localStorage.setItem('uroo-theme',b.classList.contains('dark')?'dark':'light')}catch(e){};lucide.createIcons();}
+
+    function spawnToast(msg){
+      var t=document.createElement('div');
+      t.className='glass-panel rounded-full px-5 py-3 flex items-center gap-2.5 text-sm font-semibold anim-toast-in pointer-events-auto shadow-2xl mb-2';
+      t.innerHTML='<i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-500"></i><span>'+msg+'</span>';
+      document.getElementById('toastWrap').appendChild(t);
+      lucide.createIcons();
+      setTimeout(function(){t.style.cssText+=';opacity:0;transition:opacity .4s ease;transform:translateY(8px)'},2600);
+      setTimeout(function(){t.remove()},3100);
+    }
+
+    /* ---- PRODUCTS ---- */
+    var products=[
+      {id:1,cat:'elektronik',name:'Smartwatch Fit Pro',price:1499000,old:1870000,rating:4.8,left:'Stok 24'},
+      {id:2,cat:'elektronik',name:'Robot Vacuum S9',price:2399000,old:3000000,rating:4.7,left:'Stok 12'},
+      {id:3,cat:'audio',name:'TWS Pro ANC',price:899000,old:1200000,rating:4.9,left:'Stok 46'},
+      {id:4,cat:'audio',name:'Headphone Studio Max',price:1799000,old:2100000,rating:4.6,left:'Stok 18'},
+      {id:5,cat:'fashion',name:'Jaket Oversize Denim',price:349000,old:450000,rating:4.5,left:'Stok 63'},
+      {id:6,cat:'fashion',name:'Sepatu Sneakers Urban',price:789000,old:990000,rating:4.7,left:'Stok 31'},
+      {id:7,cat:'aksesori',name:'Powerbank 20K Magnetic',price:549000,old:650000,rating:4.8,left:'Stok 72'},
+      {id:8,cat:'aksesori',name:'Charger GaN 65W',price:429000,old:520000,rating:4.9,left:'Stok 55'}
+    ];
+    var cart={};
+    var grid=document.getElementById('productGrid');
+    var currentCat='all';
+    var countEl=document.getElementById('productCount');
+
+    function fmt(n){return 'Rp '+n.toLocaleString('id-ID')}
+
+    function initials(name){
+      return name.split(' ').slice(0,2).map(function(w){return w[0]}).join('').toUpperCase();
+    }
+
+    function renderProducts(){
+      var list=products.filter(function(p){return currentCat==='all'||p.cat===currentCat});
+      countEl.textContent=list.length+' produk';
+      grid.innerHTML=list.map(function(p){
+        return '<article class="glass-panel rounded-2xl p-4 flex flex-col anim-fade-in" data-cat="'+p.cat+'">'+
+          '<div class="product-img grid place-items-center h-36 rounded-xl mb-4 relative overflow-hidden">'+
+            '<span class="grid place-items-center w-16 h-16 rounded-2xl bg-white/40 dark:bg-white/10 text-zinc-800 dark:text-zinc-100 font-extrabold text-xl shadow-inner"><i data-lucide="'+iconFor(p.cat)+'" class="w-7 h-7"></i></span>'+
+            '<span class="absolute top-2 left-2 px-2 py-0.5 rounded-md bg-rose-500 text-white text-[10px] font-bold">-'+Math.round((1-p.price/p.old)*100)+'%</span>'+
+          '</div>'+
+          '<div class="flex items-center gap-1 text-xs font-semibold text-amber-500 mb-1.5"><i data-lucide="star" class="w-3.5 h-3.5 fill-current"></i><span>'+p.rating+'</span><span class="text-zinc-400 font-normal">· '+p.left+'</span></div>'+
+          '<h3 class="font-bold text-sm leading-snug mb-1">'+p.name+'</h3>'+
+          '<p class="text-xs text-zinc-400 mb-3">'+cap(p.cat)+'</p>'+
+          '<div class="mt-auto"><div class="flex items-baseline gap-2 mb-3"><span class="text-lg font-extrabold tracking-tight">'+fmt(p.price)+'</span><span class="text-xs text-zinc-400 line-through">'+fmt(p.old)+'</span></div>'+
+          '<button onclick="addToCart('+p.id+')" class="w-full inline-flex items-center justify-center gap-2 bg-zinc-900 dark:bg-zinc-50 text-zinc-50 dark:text-zinc-900 rounded-xl px-4 py-2.5 text-sm font-bold hover:opacity-90 transition-opacity"><i data-lucide="plus" class="w-4 h-4"></i> Tambah</button></div>'+
+        '</article>';
+      }).join('');
+      lucide.createIcons();
+    }
+
+    function iconFor(cat){
+      if(cat==='elektronik')return 'watch';
+      if(cat==='audio')return 'headphones';
+      if(cat==='fashion')return 'shirt';
+      return 'battery-charging';
+    }
+    function cap(s){return s.charAt(0).toUpperCase()+s.slice(1)}
+
+    function filterCat(btn,cat){
+      currentCat=cat;
+      document.querySelectorAll('#chipRow .chip-btn').forEach(function(b){
+        b.classList.remove('bg-zinc-900','dark:bg-zinc-50','text-zinc-50','dark:text-zinc-900');
+        b.classList.add('text-zinc-500','dark:text-zinc-400');
+      });
+      btn.classList.add('bg-zinc-900','dark:bg-zinc-50','text-zinc-50','dark:text-zinc-900');
+      btn.classList.remove('text-zinc-500','dark:text-zinc-400');
+      renderProducts();
+    }
+
+    /* ---- CART ---- */
+    function cartCount(){return Object.keys(cart).reduce(function(s,i){return s+cart[i].qty},0)}
+    function cartSubtotal(){return Object.keys(cart).reduce(function(s,i){return s+cart[i].price*cart[i].qty},0)}
+
+    function addToCart(id){
+      var p=products.find(function(x){return x.id===id});
+      cart[id]=cart[id]?{...cart[id],qty:cart[id].qty+1}:{...p,qty:1};
+      updateBadge();
+      renderCart();
+      spawnToast(p.name+' ditambahkan ke keranjang.');
+      openCart();
+    }
+    function changeQty(id,delta){
+      cart[id].qty+=delta;
+      if(cart[id].qty<=0)delete cart[id];
+      updateBadge();
+      renderCart();
+    }
+    function removeItem(id){
+      delete cart[id];
+      updateBadge();
+      renderCart();
+      spawnToast('Produk dihapus dari keranjang.');
+    }
+    function clearCart(){
+      cart={};
+      updateBadge();
+      renderCart();
+    }
+
+    function fmtRup(n){return 'Rp '+n.toLocaleString('id-ID')}
+
+    function updateBadge(){
+      var n=cartCount();
+      var b=document.getElementById('cartBadge');
+      b.textContent=n;
+      b.style.display=n>0?'grid':'none';
+    }
+
+    function renderCart(){
+      var line1=document.getElementById('cartLine1');
+      var empty=document.getElementById('cartEmpty');
+      var items=document.getElementById('cartItems');
+      var footer=document.getElementById('cartFooter');
+      var n=cartCount();
+      line1.textContent=n+' barang di keranjang';
+      if(cartCount()===0){
+        empty.style.display='flex';
+        items.style.display='none';
+        footer.style.display='none';
+        line1.textContent='0 barang di keranjang';
+        return;
+      }
+      empty.style.display='none';
+      items.style.display='block';
+      footer.style.display='block';
+      items.innerHTML=Object.keys(cart).map(function(id){
+        var it=cart[id];
+        var p=it;
+        return '<div class="glass-panel rounded-2xl p-3 flex gap-3 anim-fade-in">'+
+          '<div class="product-img grid place-items-center w-14 h-14 rounded-xl shrink-0"><span class="grid place-items-center w-8 h-8 rounded-lg bg-white/50 dark:bg-white/10 text-zinc-800 dark:text-zinc-100 text-[10px] font-extrabold">'+initials(p.name)+'</span></div>'+
+          '<div class="flex-1 min-w-0">'+
+            '<div class="flex items-start justify-between gap-2">'+
+              '<div class="min-w-0"><p class="font-bold text-sm leading-snug truncate">'+p.name+'</p><p class="text-xs text-zinc-400 mt-0.5">'+fmtRup(p.price)+'</p></div>'+
+              '<button onclick="removeItem('+id+')" class="p-1 -m-1 text-zinc-400 hover:text-rose-500 transition-colors" aria-label="Hapus"><i data-lucide="trash-2" class="w-4 h-4"></i></button>'+
+            '</div>'+
+            '<div class="mt-2 flex items-center justify-between">'+
+              '<div class="inline-flex items-center gap-1 rounded-xl bg-black/5 dark:bg-white/10 p-1">'+
+                '<button onclick="changeQty('+id+',-1)" class="qty-btn grid place-items-center w-7 h-7 rounded-lg text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-50" aria-label="Kurangi"><i data-lucide="minus" class="w-3.5 h-3.5"></i></button>'+
+                '<span class="w-7 text-center text-sm font-bold">'+it.qty+'</span>'+
+                '<button onclick="changeQty('+id+',1)" class="qty-btn grid place-items-center w-7 h-7 rounded-lg text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-50" aria-label="Tambah"><i data-lucide="plus" class="w-3.5 h-3.5"></i></button>'+
+              '</div>'+
+              '<span class="text-sm font-extrabold">'+fmtRup(p.price*it.qty)+'</span>'+
+            '</div>'+
+          '</div>'+
+        '</div>';
+      }).join('');
+      updateTotal();
+      lucide.createIcons();
+    }
+
+    function updateTotal(){
+      var total=cartSubtotal();
+      document.getElementById('cartTotal').textContent=fmtRup(total);
+      document.getElementById('freeShipHint').textContent=fmtRup(Math.max(0,100000-total));
+    }
+
+    function openCart(){
+      document.getElementById('cartDrawer').classList.add('open');
+      document.getElementById('overlayForCart').classList.remove('opacity-0','pointer-events-none');
+    }
+    function closeCart(){
+      document.getElementById('cartDrawer').classList.remove('open');
+      document.getElementById('overlayForCart').classList.add('opacity-0','pointer-events-none');
+    }
+
+    function checkout(){
+      if(cartCount()===0){spawnToast('Keranjang masih kosong.');return;}
+      spawnToast('Checkout berhasil! Pesanan sedang diproses. Terima kasih berbelanja di UrooMart.');
+      clearCart();
+      closeCart();
+    }
+
+    /* ---- INIT ---- */
+    renderProducts();
+    updateBadge();
+    renderCart();
+  </script>
+<script src="../assets/js/uroo-nav.js"></script>
+</body>
+</html>

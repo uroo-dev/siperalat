@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="id" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Uroo UI - Tabs</title>
+  <script src="../../assets/js/tailwind.js"></script>
+  <script src="../../assets/js/lucide.js"></script>
+  <script>tailwind.config={darkMode:'class',theme:{extend:{colors:{glass:{light:'rgba(255,255,255,0.65)','light-border':'rgba(255,255,255,0.8)',dark:'rgba(18,18,20,0.65)','dark-border':'rgba(255,255,255,0.1)'}}}}}</script>
+  <link rel="stylesheet" href="../../assets/css/uroo.css">
+  <style>
+    .u-bg{position:fixed;inset:0;z-index:-10;transition:opacity .35s ease}
+    .u-bg-light{background:linear-gradient(135deg,#dfe3ea,#f4f4f5)}
+    .u-bg-dark{background:linear-gradient(135deg,#0a0a0b,#1a1a1e);opacity:0}
+    body.dark .u-bg-light{opacity:0}
+    body.dark .u-bg-dark{opacity:1}
+    .u-glow{position:fixed;border-radius:9999px;filter:blur(90px);z-index:-9;pointer-events:none;transition:background-color .35s ease;background:rgba(0,0,0,0.06)}
+    body.dark .u-glow{background:rgba(255,255,255,0.05)}
+    .u-glow-1{width:420px;height:420px;top:-140px;left:-140px}
+    .u-glow-2{width:520px;height:520px;bottom:-200px;right:-140px}
+    .u-glow-3{width:300px;height:300px;top:42%;left:58%}
+
+    /* ---- Tabs primitives ---- */
+    .u-tabs{display:flex;flex-wrap:wrap;gap:2px;background:rgba(0,0,0,.05);border:1px solid rgba(0,0,0,.06);border-radius:1rem;padding:.3rem}
+    body.dark .u-tabs{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08)}
+    .u-tab{flex:none;display:inline-flex;align-items:center;gap:.45rem;padding:.55rem 1rem;border-radius:.75rem;font-size:.85rem;font-weight:600;color:#71717a;cursor:pointer;transition:all .2s ease;white-space:nowrap}
+    body.dark .u-tab{color:#a1a1aa}
+    .u-tab:hover:not(.active):not(:disabled){color:#18181b;background:rgba(0,0,0,.04)}
+    body.dark .u-tab:hover:not(.active):not(:disabled){color:#f4f4f5;background:rgba(255,255,255,.06)}
+    .u-tab.active{color:#fff;background:#18181b;box-shadow:0 8px 20px -10px rgba(0,0,0,.45)}
+    body.dark .u-tab.active{color:#18181b;background:#fafafa;box-shadow:0 8px 20px -10px rgba(0,0,0,.6)}
+    .u-tab:disabled{opacity:.4;cursor:not-allowed}
+
+    .u-tabs-underline{border-radius:0;background:none;border:none;border-bottom:1px solid rgba(0,0,0,.08);padding-bottom:0}
+    body.dark .u-tabs-underline{border-bottom-color:rgba(255,255,255,.1)}
+    .u-tabs-underline .u-tab{border-radius:0;background:none;border-bottom:2px solid transparent;padding-bottom:.7rem;padding-top:.55rem}
+    .u-tabs-underline .u-tab.active{color:#18181b;background:none;box-shadow:none;border-bottom-color:#18181b}
+    body.dark .u-tabs-underline .u-tab.active{color:#fafafa;background:none;border-bottom-color:#fafafa}
+
+    .u-tab-panel{display:none;animation:u-fade-in .25s ease}
+    .u-tab-panel.active{display:block}
+  </style>
+</head>
+<body class="min-h-screen p-6 font-sans antialiased text-zinc-800 dark:text-zinc-100">
+  <script>(function initTheme(){var saved=null;try{saved=localStorage.getItem('uroo-theme')}catch(e){};var dark=(saved==='dark')||(!saved&&window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches);var de=document.documentElement;if(dark){de.classList.add('dark');de.classList.remove('light');if(document.body){document.body.classList.add('dark');document.body.classList.remove('light');}}else{de.classList.remove('dark');de.classList.add('light');if(document.body){document.body.classList.remove('dark');document.body.classList.add('light');}}})();</script>
+  <div class="u-bg u-bg-light" aria-hidden="true"></div>
+  <div class="u-bg u-bg-dark" aria-hidden="true"></div>
+  <div class="u-glow u-glow-1" aria-hidden="true"></div>
+  <div class="u-glow u-glow-2" aria-hidden="true"></div>
+  <div class="u-glow u-glow-3" aria-hidden="true"></div>
+
+  <main class="relative z-10 mx-auto max-w-4xl">
+
+    <header class="mb-10">
+      <div class="flex items-center gap-4">
+        <div class="glass-panel rounded-2xl p-3 shadow-2xl">
+          <i data-lucide="layout-grid" class="w-6 h-6"></i>
+        </div>
+        <div>
+          <p class="text-[11px] font-bold uppercase tracking-[0.2em] text-zinc-400 dark:text-zinc-500">Uroo UI - Komponen Navigasi</p>
+          <h1 class="text-2xl md:text-4xl font-bold tracking-tight">Tabs</h1>
+        </div>
+      </div>
+      <p class="mt-4 max-w-2xl text-sm leading-relaxed text-zinc-500 dark:text-zinc-400">
+        Organisasi konten dalam beberapa panel. Mendukung gaya garis bawah, pil,
+        dengan ikon, tab nonaktif, badge hitungan, serta perpindahan konten yang interaktif.
+      </p>
+    </header>
+
+    <div class="grid gap-8">
+
+      <section data-copy class="glass-panel rounded-2xl shadow-2xl p-6 md:p-8 anim-fade-in">
+        <header class="mb-6 flex flex-wrap items-end justify-between gap-3">
+          <div>
+            <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-zinc-400 dark:text-zinc-500">Demo 01 - Garis Bawah</p>
+            <h2 class="mt-1 text-lg font-bold tracking-tight">Gaya Garis Bawah</h2>
+          </div>
+          <p class="text-xs text-zinc-500 dark:text-zinc-400">Indikator aktif berupa garis</p>
+        </header>
+        <div class="u-tabs u-tabs-underline">
+          <button class="u-tab active" data-tab="u1">Ringkasan</button>
+          <button class="u-tab" data-tab="u2">Laporan</button>
+          <button class="u-tab" data-tab="u3">Pengaturan</button>
+        </div>
+        <div class="mt-5 min-h-24">
+          <div class="u-tab-panel active" id="u1"><p class="text-sm text-zinc-600 dark:text-zinc-300">Ringkasan akun Anda: saldo Rp 4.200.000 dengan 5 transaksi aktif pekan ini.</p></div>
+          <div class="u-tab-panel" id="u2"><p class="text-sm text-zinc-600 dark:text-zinc-300">Laporan bulanan sedang disusun. Unduh berkas pada akhir bulan.</p></div>
+          <div class="u-tab-panel" id="u3"><p class="text-sm text-zinc-600 dark:text-zinc-300">Kelola preferensi, keamanan, dan notifikasi di halaman pengaturan.</p></div>
+        </div>
+      </section>
+
+      <section data-copy class="glass-panel rounded-2xl shadow-2xl p-6 md:p-8 anim-fade-in">
+        <header class="mb-6 flex flex-wrap items-end justify-between gap-3">
+          <div>
+            <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-zinc-400 dark:text-zinc-500">Demo 02 - Pil</p>
+            <h2 class="mt-1 text-lg font-bold tracking-tight">Gaya Pil</h2>
+          </div>
+          <p class="text-xs text-zinc-500 dark:text-zinc-400">Wadah dengan latar lembut</p>
+        </header>
+        <div class="u-tabs">
+          <button class="u-tab active" data-tab="p1">Semua Pesanan</button>
+          <button class="u-tab" data-tab="p2">Proses</button>
+          <button class="u-tab" data-tab="p3">Selesai</button>
+        </div>
+        <div class="mt-5 min-h-24">
+          <div class="u-tab-panel active" id="p1"><p class="text-sm text-zinc-600 dark:text-zinc-300">Menampilkan seluruh pesanan termasuk yang sedang diproses dan yang selesai.</p></div>
+          <div class="u-tab-panel" id="p2"><p class="text-sm text-zinc-600 dark:text-zinc-300">3 pesanan sedang dikemas dan menunggu kurir diambil.</p></div>
+          <div class="u-tab-panel" id="p3"><p class="text-sm text-zinc-600 dark:text-zinc-300">12 pesanan telah sampai ke alamat tujuan pekan ini.</p></div>
+        </div>
+      </section>
+
+      <section data-copy class="glass-panel rounded-2xl shadow-2xl p-6 md:p-8 anim-fade-in">
+        <header class="mb-6 flex flex-wrap items-end justify-between gap-3">
+          <div>
+            <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-zinc-400 dark:text-zinc-500">Demo 03 - Dengan Ikon</p>
+            <h2 class="mt-1 text-lg font-bold tracking-tight">Identitas Visual</h2>
+          </div>
+          <p class="text-xs text-zinc-500 dark:text-zinc-400">Ikon memperjelas makna tiap tab</p>
+        </header>
+        <div class="u-tabs">
+          <button class="u-tab active" data-tab="i1"><i data-lucide="home" class="w-4 h-4"></i> Beranda</button>
+          <button class="u-tab" data-tab="i2"><i data-lucide="search" class="w-4 h-4"></i> Pencarian</button>
+          <button class="u-tab" data-tab="i3"><i data-lucide="settings" class="w-4 h-4"></i> Preferensi</button>
+        </div>
+        <div class="mt-5 min-h-24">
+          <div class="u-tab-panel active" id="i1"><p class="text-sm text-zinc-600 dark:text-zinc-300">Dasbor beranda menampilkan metrik penting dan pintasan cepat.</p></div>
+          <div class="u-tab-panel" id="i2"><p class="text-sm text-zinc-600 dark:text-zinc-300">Cari produk, pesanan, atau pengguna menggunakan kata kunci.</p></div>
+          <div class="u-tab-panel" id="i3"><p class="text-sm text-zinc-600 dark:text-zinc-300">Ubah tema, bahasa, dan zona waktu akun Anda di sini.</p></div>
+        </div>
+      </section>
+
+      <section data-copy class="glass-panel rounded-2xl shadow-2xl p-6 md:p-8 anim-fade-in">
+        <header class="mb-6 flex flex-wrap items-end justify-between gap-3">
+          <div>
+            <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-zinc-400 dark:text-zinc-500">Demo 04 - Nonaktif dan Badge</p>
+            <h2 class="mt-1 text-lg font-bold tracking-tight">Status dan Hitungan</h2>
+          </div>
+          <p class="text-xs text-zinc-500 dark:text-zinc-400">Tab terkunci serta badge jumlah</p>
+        </header>
+        <div class="u-tabs">
+          <button class="u-tab active" data-tab="b1">Inbox <span class="inline-flex items-center justify-center min-w-5 h-5 px-1.5 rounded-full text-[11px] font-bold" style="background:rgba(220,38,38,.2);color:#b91c1c">7</span></button>
+          <button class="u-tab" data-tab="b2">Terkirim <span class="inline-flex items-center justify-center min-w-5 h-5 px-1.5 rounded-full text-[11px] font-bold" style="background:rgba(113,113,122,.2);color:#52525b">3</span></button>
+          <button class="u-tab" data-tab="b3"><i data-lucide="lock" class="w-4 h-4"></i> Arsip</button>
+          <button class="u-tab" disabled>Premium</button>
+        </div>
+        <div class="mt-5 min-h-24">
+          <div class="u-tab-panel active" id="b1"><p class="text-sm text-zinc-600 dark:text-zinc-300">7 pesan belum dibaca menanti balasan Anda.</p></div>
+          <div class="u-tab-panel" id="b2"><p class="text-sm text-zinc-600 dark:text-zinc-300">3 pesan berhasil dikirim hari ini.</p></div>
+          <div class="u-tab-panel" id="b3"><p class="text-sm text-zinc-600 dark:text-zinc-300">Arsip menyimpan pesan lama yang dilindungi.</p></div>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <button onclick="toggleTheme()" class="fixed top-4 right-4 z-50 p-2 rounded-full glass-panel shadow-2xl" title="Toggle theme">
+    <i data-lucide="sun" class="w-4 h-4 hidden dark:block"></i>
+    <i data-lucide="moon" class="w-4 h-4 block dark:hidden"></i>
+  </button>
+
+  <script>
+  lucide.createIcons();
+  function toggleTheme(){const b=document.body;const h=document.documentElement;b.classList.toggle('dark');h.classList.toggle('dark');const saved=b.classList.contains('dark')?'dark':'light';try{localStorage.setItem('uroo-theme',saved)}catch(e){};lucide.createIcons();}
+
+  document.querySelectorAll('.u-tabs').forEach(function(group){
+    group.querySelectorAll('.u-tab').forEach(function(tab){
+      tab.addEventListener('click', function(){
+        if(this.disabled) return;
+        group.querySelectorAll('.u-tab').forEach(function(t){ t.classList.remove('active'); });
+        this.classList.add('active');
+        var target = document.getElementById(this.getAttribute('data-tab'));
+        if(target){
+          var container = target.parentElement;
+          container.querySelectorAll('.u-tab-panel').forEach(function(p){
+            p.classList.remove('active');
+          });
+          target.classList.add('active');
+        }
+      });
+    });
+  });
+  </script>
+<script src="../../assets/js/uroo-copy.js"></script>
+<script src="../../assets/js/uroo-nav.js"></script>
+</body>
+</html>

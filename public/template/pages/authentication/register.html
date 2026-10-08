@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="id" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Uroo UI - Daftar</title>
+  <script src="../../assets/js/tailwind.js"></script>
+  <script src="../../assets/js/lucide.js"></script>
+  <script>tailwind.config={darkMode:'class',theme:{extend:{colors:{glass:{light:'rgba(255,255,255,0.65)','light-border':'rgba(255,255,255,0.8)',dark:'rgba(18,18,20,0.65)','dark-border':'rgba(255,255,255,0.1)'}}}}}</script>
+  <link rel="stylesheet" href="../../assets/css/uroo.css">
+  <style>
+    .u-bg{position:fixed;inset:0;z-index:-10;transition:opacity .35s ease}
+    .u-bg-light{background:linear-gradient(135deg,#dfe3ea,#f4f4f5)}
+    .u-bg-dark{background:linear-gradient(135deg,#0a0a0b,#1a1a1e);opacity:0}
+    body.dark .u-bg-light{opacity:0}
+    body.dark .u-bg-dark{opacity:1}
+    .u-glow{position:fixed;border-radius:9999px;filter:blur(90px);z-index:-9;pointer-events:none;transition:background-color .35s ease;background:rgba(0,0,0,0.06)}
+    body.dark .u-glow{background:rgba(255,255,255,0.05)}
+    .u-glow-1{width:420px;height:420px;top:-140px;left:-140px}
+    .u-glow-2{width:520px;height:520px;bottom:-200px;right:-140px}
+    .u-glow-3{width:300px;height:300px;top:42%;left:58%}
+
+    html{background:#e7e8ec}
+    html.dark{background:#0a0a0c}
+    body:not(.dark) .u-ic-sun{display:none}
+    body.dark .u-ic-moon{display:none}
+
+    .u-field{width:100%;height:48px;border-radius:14px;background:rgba(255,255,255,.6);border:1px solid rgba(24,24,27,.10);color:#18181b;font-size:14px;padding:0 46px 0 44px;outline:none;transition:border-color .2s ease,box-shadow .2s ease,background-color .2s ease}
+    body.dark .u-field{background:rgba(255,255,255,.05);border-color:rgba(255,255,255,.12);color:#f4f4f5}
+    .u-field::placeholder{color:#a1a1aa}
+    .u-field:focus{border-color:rgba(24,24,27,.5);box-shadow:0 0 0 4px rgba(24,24,27,.08)}
+    body.dark .u-field:focus{border-color:rgba(255,255,255,.55);box-shadow:0 0 0 4px rgba(255,255,255,.08)}
+    .u-field.u-invalid{border-color:#dc2626!important;box-shadow:0 0 0 4px rgba(220,38,38,.10)}
+    body.dark .u-field.u-invalid{border-color:#f87171!important;box-shadow:0 0 0 4px rgba(248,113,113,.12)}
+
+    .u-form-wrap{position:relative}
+    .u-ic-l{position:absolute;left:16px;top:50%;transform:translateY(-50%);color:#a1a1aa;pointer-events:none}
+    .u-ic-r{position:absolute;right:10px;top:50%;transform:translateY(-50%)}
+
+    .u-btn{transition:transform .2s ease,box-shadow .2s ease,background-color .2s ease}
+    .u-btn:hover{transform:translateY(-1px)}
+    .u-btn:active{transform:scale(.96)}
+
+    .u-meter{height:5px;border-radius:9999px;background:rgba(24,24,27,.08);overflow:hidden}
+    body.dark .u-meter{background:rgba(255,255,255,.10)}
+    .u-meter i{display:block;height:100%;width:0%;border-radius:9999px;transition:width .35s ease,background-color .35s ease}
+  </style>
+</head>
+<body class="min-h-screen font-sans antialiased text-zinc-800 dark dark:text-zinc-100">
+  <script>(function initTheme(){var saved=null;try{saved=localStorage.getItem('uroo-theme')}catch(e){};var dark=(saved==='dark')||(!saved&&window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches);var de=document.documentElement;if(dark){de.classList.add('dark');de.classList.remove('light');if(document.body){document.body.classList.add('dark');document.body.classList.remove('light');}}else{de.classList.remove('dark');de.classList.add('light');if(document.body){document.body.classList.remove('dark');document.body.classList.add('light');}}})();</script>
+
+
+<div class="u-bg u-bg-light"></div>
+<div class="u-bg u-bg-dark"></div>
+<div class="u-glow u-glow-1"></div>
+<div class="u-glow u-glow-2"></div>
+<div class="u-glow u-glow-3"></div>
+
+<div class="fixed top-6 left-6 z-50">
+  <a href="../../index.html" class="inline-flex items-center gap-2 glass-panel rounded-full px-4 py-2.5 text-[13px] font-bold text-zinc-700 dark:text-zinc-200 hover:scale-105 transition-transform" title="Kembali ke beranda">
+    <i data-lucide="arrow-left" class="w-4 h-4"></i>
+    Beranda
+  </a>
+</div>
+
+<button onclick="toggleTheme()" aria-label="Ganti tema" title="Ganti tema"
+  class="fixed top-6 right-6 z-50 glass-panel rounded-full p-2.5 text-zinc-600 dark:text-zinc-200 hover:scale-110 transition-transform">
+  <i data-lucide="sun" class="u-ic-sun w-5 h-5"></i>
+  <i data-lucide="moon" class="u-ic-moon w-5 h-5"></i>
+</button>
+
+<main class="flex min-h-screen items-center justify-center px-6 py-14">
+  <div class="w-full max-w-md anim-slide-up">
+
+    <div class="glass-panel rounded-3xl p-8 sm:p-10">
+      <a href="../../index.html" class="inline-flex items-center gap-2.5">
+        <span class="inline-flex items-center justify-center w-11 h-11 rounded-2xl bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900 shadow-lg">
+          <i data-lucide="layers" class="w-5 h-5"></i>
+        </span>
+        <span class="text-xl font-extrabold tracking-tight text-zinc-900 dark:text-white">Uroo UI</span>
+      </a>
+
+      <h1 class="mt-7 text-2xl font-extrabold tracking-tight text-zinc-900 dark:text-white">Buat akun baru</h1>
+      <p class="mt-1.5 text-sm text-zinc-500 dark:text-zinc-400">Gratis, dan hanya membutuhkan waktu satu menit.</p>
+
+      <form id="regForm" class="mt-8 space-y-5" novalidate>
+        <div>
+          <label for="nameInput" class="block text-[13px] font-semibold mb-1.5 text-zinc-700 dark:text-zinc-300">Nama lengkap</label>
+          <div class="u-form-wrap">
+            <i data-lucide="user" class="u-ic-l w-4 h-4"></i>
+            <input id="nameInput" type="text" class="u-field" placeholder="Nama Anda" autocomplete="name">
+          </div>
+          <p id="nameErr" class="hidden text-xs font-semibold text-red-600 dark:text-red-400 mt-1.5"></p>
+        </div>
+        <div>
+          <label for="emailInput" class="block text-[13px] font-semibold mb-1.5 text-zinc-700 dark:text-zinc-300">Alamat email</label>
+          <div class="u-form-wrap">
+            <i data-lucide="mail" class="u-ic-l w-4 h-4"></i>
+            <input id="emailInput" type="email" class="u-field" placeholder="nama@perusahaan.com" autocomplete="email">
+          </div>
+          <p id="emailErr" class="hidden text-xs font-semibold text-red-600 dark:text-red-400 mt-1.5"></p>
+        </div>
+        <div>
+          <label for="passInput" class="block text-[13px] font-semibold mb-1.5 text-zinc-700 dark:text-zinc-300">Kata sandi</label>
+          <div class="u-form-wrap">
+            <i data-lucide="lock" class="u-ic-l w-4 h-4"></i>
+            <input id="passInput" type="password" class="u-field pr-12" placeholder="Minimal 8 karakter" autocomplete="new-password">
+            <button type="button" id="eyeBtn" class="u-ic-r p-2 text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 transition-colors" aria-label="Tampilkan kata sandi">
+              <i data-lucide="eye" class="w-4 h-4"></i>
+            </button>
+          </div>
+          <p id="passErr" class="hidden text-xs font-semibold text-red-600 dark:text-red-400 mt-1.5"></p>
+          <div class="mt-2.5 flex items-center gap-2.5">
+            <div class="u-meter flex-1"><i id="meterBar"></i></div>
+            <span id="meterLabel" class="text-[11px] font-bold text-zinc-400 dark:text-zinc-500 shrink-0">Kekuatan</span>
+          </div>
+        </div>
+        <div>
+          <label for="confInput" class="block text-[13px] font-semibold mb-1.5 text-zinc-700 dark:text-zinc-300">Konfirmasi kata sandi</label>
+          <div class="u-form-wrap">
+            <i data-lucide="shield-check" class="u-ic-l w-4 h-4"></i>
+            <input id="confInput" type="password" class="u-field pr-12" placeholder="Ulangi kata sandi" autocomplete="new-password">
+            <button type="button" id="confEyeBtn" class="u-ic-r p-2 text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 transition-colors" aria-label="Tampilkan konfirmasi kata sandi">
+              <i data-lucide="eye" class="w-4 h-4"></i>
+            </button>
+          </div>
+          <p id="confErr" class="hidden text-xs font-semibold text-red-600 dark:text-red-400 mt-1.5"></p>
+        </div>
+        <label class="inline-flex items-start gap-2 text-[13px] font-medium text-zinc-600 dark:text-zinc-300 cursor-pointer select-none">
+          <input id="termsInput" type="checkbox" class="mt-0.5 h-4 w-4 rounded accent-zinc-900 dark:accent-zinc-100">
+          Saya menyetujui Syarat Layanan dan Kebijakan Privasi.
+        </label>
+        <p id="termsErr" class="hidden text-xs font-semibold text-red-600 dark:text-red-400 -mt-2"></p>
+        <button type="submit" class="u-btn w-full inline-flex items-center justify-center gap-2 rounded-full bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900 px-5 py-3 text-sm font-bold hover:shadow-lg">
+          <span>Buat Akun</span>
+          <i data-lucide="arrow-right" class="w-4 h-4"></i>
+        </button>
+      </form>
+    </div>
+
+    <p class="mt-7 text-center text-sm text-zinc-500 dark:text-zinc-400">
+      Sudah punya akun?
+      <a href="login.html" class="font-bold text-zinc-900 dark:text-zinc-100 underline decoration-2 underline-offset-2">Masuk</a>
+    </p>
+  </div>
+</main>
+
+<script>
+  lucide.createIcons();
+  function toggleTheme(){const h=document.documentElement,b=document.body;h.classList.toggle('dark');b.classList.toggle('dark');try{localStorage.setItem('uroo-theme',b.classList.contains('dark')?'dark':'light')}catch(e){};lucide.createIcons();}
+
+  var toastT;
+  function toast(msg){
+    var t=document.createElement('div');
+    t.className='fixed bottom-6 left-1/2 -translate-x-1/2 z-[60] glass-panel rounded-full px-5 py-3 flex items-center gap-2.5 text-sm font-semibold anim-toast-in';
+    t.innerHTML='<i data-lucide="check" class="w-4 h-4"></i><span>'+msg+'</span>';
+    document.body.appendChild(t);
+    lucide.createIcons();
+    setTimeout(function(){t.style.cssText+=';opacity:0;transition:opacity .4s ease'},2400);
+    setTimeout(function(){t.remove()},2900);
+  }
+
+  function markInvalid(id,msg){
+    var f=document.getElementById(id),e=document.getElementById(id+'Err');
+    f.classList.add('u-invalid');
+    e.textContent=msg;
+    e.classList.remove('hidden');
+    f.addEventListener('input',function clr(){
+      f.classList.remove('u-invalid');
+      e.classList.add('hidden');
+      f.removeEventListener('input',clr);
+    });
+  }
+  function validEmail(v){return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)}
+
+  function bindEye(btnId,inputId){
+    document.getElementById(btnId).addEventListener('click',function(){
+      var inp=document.getElementById(inputId);
+      var show=inp.type==='password';
+      inp.type=show?'text':'password';
+      this.innerHTML=show?'<i data-lucide="eye-off" class="w-4 h-4"></i>':'<i data-lucide="eye" class="w-4 h-4"></i>';
+      lucide.createIcons();
+    });
+  }
+  bindEye('eyeBtn','passInput');
+  bindEye('confEyeBtn','confInput');
+
+  var meterBar=document.getElementById('meterBar'),meterLabel=document.getElementById('meterLabel');
+  document.getElementById('passInput').addEventListener('input',function(){
+    var v=this.value,score=0;
+    if(v.length>=8)score++;
+    if(v.length>=10)score++;
+    if(/[A-Z]/.test(v)&&/[a-z]/.test(v))score++;
+    if(/\d/.test(v))score++;
+    if(/[^A-Za-z0-9]/.test(v))score++;
+    var cols=['#a1a1aa','#f59e0b','#f59e0b','#84cc16','#22c55e'];
+    var labels=['Terkirim','Lemah','Cukup','Kuat','Sangat kuat'];
+    if(v.length===0){score=0;}
+    var idx=Math.min(score,4);
+    meterBar.style.width=(score*20)+'%';
+    meterBar.style.backgroundColor=cols[idx];
+    meterLabel.textContent=v.length===0?'Kekuatan':labels[idx];
+    meterLabel.style.color=cols[idx];
+  });
+
+  document.getElementById('regForm').addEventListener('submit',function(e){
+    e.preventDefault();
+    var n=document.getElementById('nameInput'),em=document.getElementById('emailInput'),pw=document.getElementById('passInput'),cf=document.getElementById('confInput'),tm=document.getElementById('termsInput');
+    var ok=true;
+    if(n.value.trim().length<3){markInvalid('nameInput','Nama minimal 3 karakter.');ok=false;}
+    if(!validEmail(em.value)){markInvalid('emailInput','Masukkan alamat email yang valid.');ok=false;}
+    if(pw.value.length<8){markInvalid('passInput','Kata sandi minimal 8 karakter.');ok=false;}
+    if(cf.value!==pw.value){markInvalid('confInput','Konfirmasi tidak sama dengan kata sandi.');ok=false;}
+    if(!tm.checked){document.getElementById('termsErr').textContent='Harap setujui syarat layanan terlebih dahulu.';document.getElementById('termsErr').classList.remove('hidden');ok=false;}
+    if(!ok)return;
+    document.getElementById('termsErr').classList.add('hidden');
+    this.reset();
+    meterBar.style.width='0%';
+    meterLabel.textContent='Kekuatan';
+    meterLabel.style.color='';
+    toast('Akun berhasil dibuat. Silakan masuk.');
+    setTimeout(function(){window.location.href='login.html'},1400);
+  });
+</script>
+<script src="../../assets/js/uroo-nav.js"></script>
+</body>
+</html>

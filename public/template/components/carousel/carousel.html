@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="id" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Uroo UI - Korsel Gambar</title>
+  <script src="../../assets/js/tailwind.js"></script>
+  <script src="../../assets/js/lucide.js"></script>
+  <script>tailwind.config={darkMode:'class',theme:{extend:{colors:{glass:{light:'rgba(255,255,255,0.65)','light-border':'rgba(255,255,255,0.8)',dark:'rgba(18,18,20,0.65)','dark-border':'rgba(255,255,255,0.1)'}}}}}</script>
+  <link rel="stylesheet" href="../../assets/css/uroo.css">
+</head>
+<body class="min-h-screen p-6 font-sans antialiased text-zinc-800 dark:text-zinc-100" style="background:linear-gradient(135deg,#dfe3ea,#f4f4f5)">
+  <script>(function initTheme(){var saved=null;try{saved=localStorage.getItem('uroo-theme')}catch(e){};var dark=(saved==='dark')||(!saved&&window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches);var de=document.documentElement;if(dark){de.classList.add('dark');de.classList.remove('light');if(document.body){document.body.classList.add('dark');document.body.classList.remove('light');}}else{de.classList.remove('dark');de.classList.add('light');if(document.body){document.body.classList.remove('dark');document.body.classList.add('light');}}})();</script>
+
+<style>
+  body.dark{background:linear-gradient(135deg,#0a0a0c,#1a1a1e)!important}
+  body:not(.dark) .icon-sun{display:none}
+  body.dark .icon-moon{display:none}
+  .u-track{transition:transform .65s cubic-bezier(.22,1,.36,1)}
+  .u-arrow{transition:background-color .2s ease,transform .2s ease,opacity .2s ease}
+  .u-arrow:active{transform:scale(.92)}
+  .u-ghost{transition:background-color .2s ease}
+  .u-ghost:hover{background:rgba(0,0,0,.06)}
+  body.dark .u-ghost:hover{background:rgba(255,255,255,.1)}
+  .u-dot{transition:all .3s ease}
+  @keyframes u-progress{from{width:0%}to{width:100%}}
+  .u-prog{animation:u-progress 5s linear forwards}
+  .u-prog.u-paused{animation-play-state:paused}
+</style>
+
+<button onclick="toggleTheme()" aria-label="Ganti tema" title="Ganti tema"
+  class="fixed top-6 right-6 z-50 glass-panel rounded-full p-2.5 text-zinc-600 dark:text-zinc-200 hover:scale-110 transition-transform">
+  <i data-lucide="sun" class="icon-sun w-5 h-5"></i>
+  <i data-lucide="moon" class="icon-moon w-5 h-5"></i>
+</button>
+
+<main class="relative max-w-6xl mx-auto pt-16 pb-24">
+
+  <div class="pointer-events-none absolute inset-0" aria-hidden="true">
+    <div class="absolute -top-20 -left-24 w-[28rem] h-[28rem] bg-black/5 dark:bg-white/5 blur-3xl rounded-full"></div>
+    <div class="absolute top-1/3 -right-32 w-[30rem] h-[30rem] bg-black/5 dark:bg-white/5 blur-3xl rounded-full"></div>
+    <div class="absolute bottom-0 left-1/3 w-[24rem] h-[24rem] bg-black/5 dark:bg-white/5 blur-3xl rounded-full"></div>
+  </div>
+
+  <div class="relative z-10">
+    <header class="mb-10">
+      <p class="text-[11px] font-bold uppercase tracking-[0.2em] text-zinc-400 dark:text-zinc-500">Uroo UI / Korsel</p>
+      <h1 class="mt-2 text-3xl md:text-4xl font-extrabold tracking-tight text-zinc-900 dark:text-white">Korsel Gambar</h1>
+      <p class="mt-3 max-w-2xl text-sm leading-relaxed text-zinc-500 dark:text-zinc-400">
+        Korsel gambar dengan panah navigasi, indikator titik, perputaran otomatis,
+        bilah kemajuan, dan navigasi thumbnail. Berhenti otomatis saat kursor diarahkan ke area korsel.
+      </p>
+    </header>
+
+    <section class="mb-12">
+      <div class="flex items-center gap-3 mb-5">
+        <span class="h-5 w-1 rounded-full bg-zinc-900 dark:bg-zinc-100"></span>
+        <h2 class="text-lg font-bold text-zinc-900 dark:text-white">Korsel Utama</h2>
+      </div>
+
+      <div id="carousel" class="relative glass-panel rounded-3xl overflow-hidden select-none">
+        <div class="u-prog absolute top-0 left-0 z-20 h-1 bg-white/80 dark:bg-zinc-100" id="progBar"></div>
+
+        <div id="track" class="u-track flex" style="transform:translateX(0%)">
+          <section class="slide w-full shrink-0 relative h-[360px] md:h-[460px] bg-gradient-to-br from-zinc-400 to-zinc-800 dark:from-zinc-700 dark:to-zinc-950">
+            <img src="../../assets/img/unsplash-1506905925346-21bda4d32df4.jpg" alt="Panorama Gunung Bromo" class="absolute inset-0 w-full h-full object-cover" loading="eager">
+            <div class="absolute inset-0 bg-gradient-to-t from-black/75 via-black/15 to-transparent"></div>
+            <span class="absolute top-5 left-5 inline-flex items-center gap-1.5 rounded-full bg-black/45 backdrop-blur-md px-3 py-1.5 text-xs font-semibold text-white">
+              <i data-lucide="map-pin" class="w-3.5 h-3.5"></i> Jawa Timur
+            </span>
+            <div class="absolute bottom-0 left-0 p-6 md:p-9 text-white">
+              <p class="text-2xl md:text-4xl font-extrabold tracking-tight">Gunung Bromo</p>
+              <p class="mt-2 text-sm text-white/80 max-w-lg md:text-base">Lautan pasir yang membentang dengan matahari terbit di balik Garis Luhur.</p>
+            </div>
+          </section>
+          <section class="slide w-full shrink-0 relative h-[360px] md:h-[460px] bg-gradient-to-br from-zinc-400 to-zinc-800 dark:from-zinc-700 dark:to-zinc-950">
+            <img src="../../assets/img/unsplash-1501785888041-af3ef285b470.jpg" alt="Senja di tepi Danau Toba" class="absolute inset-0 w-full h-full object-cover" loading="lazy">
+            <div class="absolute inset-0 bg-gradient-to-t from-black/75 via-black/15 to-transparent"></div>
+            <span class="absolute top-5 left-5 inline-flex items-center gap-1.5 rounded-full bg-black/45 backdrop-blur-md px-3 py-1.5 text-xs font-semibold text-white">
+              <i data-lucide="map-pin" class="w-3.5 h-3.5"></i> Sumatera Utara
+            </span>
+            <div class="absolute bottom-0 left-0 p-6 md:p-9 text-white">
+              <p class="text-2xl md:text-4xl font-extrabold tracking-tight">Danau Toba</p>
+              <p class="mt-2 text-sm text-white/80 max-w-lg md:text-base">Kaldera vulkanik terbesar dengan Pulau Samosir di tengahnya.</p>
+            </div>
+          </section>
+          <section class="slide w-full shrink-0 relative h-[360px] md:h-[460px] bg-gradient-to-br from-zinc-400 to-zinc-800 dark:from-zinc-700 dark:to-zinc-950">
+            <img src="../../assets/img/unsplash-1470071459604-3b5ec3a7fe05.jpg" alt="Lembah Dieng yang berkabut" class="absolute inset-0 w-full h-full object-cover" loading="lazy">
+            <div class="absolute inset-0 bg-gradient-to-t from-black/75 via-black/15 to-transparent"></div>
+            <span class="absolute top-5 left-5 inline-flex items-center gap-1.5 rounded-full bg-black/45 backdrop-blur-md px-3 py-1.5 text-xs font-semibold text-white">
+              <i data-lucide="map-pin" class="w-3.5 h-3.5"></i> Jawa Tengah
+            </span>
+            <div class="absolute bottom-0 left-0 p-6 md:p-9 text-white">
+              <p class="text-2xl md:text-4xl font-extrabold tracking-tight">Lembah Dieng</p>
+              <p class="mt-2 text-sm text-white/80 max-w-lg md:text-base">Kabut dingin menyelimuti candi dan telaga di dataran tinggi ini.</p>
+            </div>
+          </section>
+          <section class="slide w-full shrink-0 relative h-[360px] md:h-[460px] bg-gradient-to-br from-zinc-400 to-zinc-800 dark:from-zinc-700 dark:to-zinc-950">
+            <img src="../../assets/img/unsplash-1472214103451-9374bd1c798e.jpg" alt="Savana Baluran saat sore" class="absolute inset-0 w-full h-full object-cover" loading="lazy">
+            <div class="absolute inset-0 bg-gradient-to-t from-black/75 via-black/15 to-transparent"></div>
+            <span class="absolute top-5 left-5 inline-flex items-center gap-1.5 rounded-full bg-black/45 backdrop-blur-md px-3 py-1.5 text-xs font-semibold text-white">
+              <i data-lucide="map-pin" class="w-3.5 h-3.5"></i> Jawa Timur
+            </span>
+            <div class="absolute bottom-0 left-0 p-6 md:p-9 text-white">
+              <p class="text-2xl md:text-4xl font-extrabold tracking-tight">Savana Baluran</p>
+              <p class="mt-2 text-sm text-white/80 max-w-lg md:text-base">Hamparan sabana yang berubah warna keemasan saat menjelang sore.</p>
+            </div>
+          </section>
+          <section class="slide w-full shrink-0 relative h-[360px] md:h-[460px] bg-gradient-to-br from-zinc-400 to-zinc-800 dark:from-zinc-700 dark:to-zinc-950">
+            <img src="../../assets/img/unsplash-1441974231531-c6227db76b6e.jpg" alt="Hutan tropis Kalimantan" class="absolute inset-0 w-full h-full object-cover" loading="lazy">
+            <div class="absolute inset-0 bg-gradient-to-t from-black/75 via-black/15 to-transparent"></div>
+            <span class="absolute top-5 left-5 inline-flex items-center gap-1.5 rounded-full bg-black/45 backdrop-blur-md px-3 py-1.5 text-xs font-semibold text-white">
+              <i data-lucide="map-pin" class="w-3.5 h-3.5"></i> Kalimantan
+            </span>
+            <div class="absolute bottom-0 left-0 p-6 md:p-9 text-white">
+              <p class="text-2xl md:text-4xl font-extrabold tracking-tight">Hutan Kalimantan</p>
+              <p class="mt-2 text-sm text-white/80 max-w-lg md:text-base">Keanekaragaman hayati dan kanopi hijau yang masih terjaga di paru-paru dunia.</p>
+            </div>
+          </section>
+        </div>
+
+        <button data-prev aria-label="Geser ke sebelumnya" class="u-arrow absolute left-4 top-1/2 -translate-y-1/2 z-20 w-11 h-11 rounded-full glass-strong text-zinc-800 dark:text-zinc-100 inline-flex items-center justify-center hover:scale-105">
+          <i data-lucide="chevron-left" class="w-5 h-5"></i>
+        </button>
+        <button data-next aria-label="Geser ke berikutnya" class="u-arrow absolute right-4 top-1/2 -translate-y-1/2 z-20 w-11 h-11 rounded-full glass-strong text-zinc-800 dark:text-zinc-100 inline-flex items-center justify-center hover:scale-105">
+          <i data-lucide="chevron-right" class="w-5 h-5"></i>
+        </button>
+
+        <div class="absolute bottom-0 inset-x-0 z-20 p-4 flex items-center justify-between gap-3">
+          <div class="flex items-center gap-2" id="dots"></div>
+          <div class="flex items-center gap-2">
+            <span class="glass-subtle rounded-full px-3 py-1.5 text-xs font-bold text-zinc-700 dark:text-zinc-200" id="counter">1 / 5</span>
+            <button data-autoplay aria-label="Aktifkan perputaran otomatis" class="inline-flex items-center justify-center w-9 h-9 rounded-full glass-strong text-zinc-800 dark:text-zinc-100">
+              <i data-lucide="pause" class="u-ic-pause w-4 h-4"></i>
+              <i data-lucide="play" class="u-ic-play w-4 h-4"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="flex items-center gap-3 mb-5">
+        <span class="h-5 w-1 rounded-full bg-zinc-900 dark:bg-zinc-100"></span>
+        <h2 class="text-lg font-bold text-zinc-900 dark:text-white">Navigasi Thumbnail</h2>
+      </div>
+      <div data-copy class="glass-panel rounded-3xl p-4">
+        <div class="grid grid-cols-2 sm:grid-cols-5 gap-3">
+          <button class="thumb u-ghost group relative rounded-2xl overflow-hidden aspect-[3/2] focus:outline-none" data-thumb="0">
+            <img src="../../assets/img/unsplash-1506905925346-21bda4d32df4.jpg" alt="Gunung Bromo" class="absolute inset-0 w-full h-full object-cover opacity-70 group-hover:opacity-100 transition-opacity" loading="lazy">
+          </button>
+          <button class="thumb u-ghost group relative rounded-2xl overflow-hidden aspect-[3/2] focus:outline-none" data-thumb="1">
+            <img src="../../assets/img/unsplash-1501785888041-af3ef285b470.jpg" alt="Danau Toba" class="absolute inset-0 w-full h-full object-cover opacity-70 group-hover:opacity-100 transition-opacity" loading="lazy">
+          </button>
+          <button class="thumb u-ghost group relative rounded-2xl overflow-hidden aspect-[3/2] focus:outline-none" data-thumb="2">
+            <img src="../../assets/img/unsplash-1470071459604-3b5ec3a7fe05.jpg" alt="Lembah Dieng" class="absolute inset-0 w-full h-full object-cover opacity-70 group-hover:opacity-100 transition-opacity" loading="lazy">
+          </button>
+          <button class="thumb u-ghost group relative rounded-2xl overflow-hidden aspect-[3/2] focus:outline-none" data-thumb="3">
+            <img src="../../assets/img/unsplash-1472214103451-9374bd1c798e.jpg" alt="Savana Baluran" class="absolute inset-0 w-full h-full object-cover opacity-70 group-hover:opacity-100 transition-opacity" loading="lazy">
+          </button>
+          <button class="thumb u-ghost group relative rounded-2xl overflow-hidden aspect-[3/2] focus:outline-none" data-thumb="4">
+            <img src="../../assets/img/unsplash-1441974231531-c6227db76b6e.jpg" alt="Hutan Kalimantan" class="absolute inset-0 w-full h-full object-cover opacity-70 group-hover:opacity-100 transition-opacity" loading="lazy">
+          </button>
+        </div>
+      </div>
+    </section>
+  </div>
+</main>
+
+<script>
+  lucide.createIcons();
+  function toggleTheme(){const h=document.documentElement,b=document.body;h.classList.toggle('dark');b.classList.toggle('dark');try{localStorage.setItem('uroo-theme',b.classList.contains('dark')?'dark':'light')}catch(e){};lucide.createIcons();}
+
+  var track = document.getElementById('track');
+  var slides = track.querySelectorAll('.slide');
+  var TOTAL = slides.length;
+  var idx = 0;
+  var autoOn = true;
+  var hovering = false;
+  var timer = null;
+  var INTERVAL = 5000;
+  var progBar = document.getElementById('progBar');
+  var counterEl = document.getElementById('counter');
+  var dotsWrap = document.getElementById('dots');
+
+  for(var k=0;k<TOTAL;k++){
+    var d = document.createElement('button');
+    d.type = 'button';
+    d.dataset.dot = k;
+    d.setAttribute('aria-label', 'Geser ke slide ' + (k+1));
+    d.className = 'u-dot w-2 h-2 rounded-full bg-zinc-400/60 hover:bg-zinc-700 dark:bg-white/40 dark:hover:bg-white';
+    dotsWrap.appendChild(d);
+  }
+  var dots = dotsWrap.querySelectorAll('[data-dot]');
+
+  function restartProg(){
+    progBar.style.animation = 'none';
+    void progBar.offsetWidth;
+    progBar.style.animation = 'u-progress ' + INTERVAL + 'ms linear forwards';
+    progBar.classList.toggle('u-paused', hovering || !autoOn);
+  }
+  function go(n){
+    idx = ((n % TOTAL) + TOTAL) % TOTAL;
+    track.style.transform = 'translateX(-' + (idx * 100) + '%)';
+    counterEl.textContent = (idx + 1) + ' / ' + TOTAL;
+    dots.forEach(function(dt,i){
+      var active = i === idx;
+      dt.className = 'u-dot ' + (active ? 'w-6 bg-zinc-900 dark:bg-zinc-100' : 'w-2 bg-zinc-400/60 hover:bg-zinc-700 dark:bg-white/40 dark:hover:bg-white');
+    });
+    restartProg();
+  }
+  function schedule(){
+    if(timer) clearInterval(timer);
+    timer = setInterval(function(){ go(idx + 1); }, INTERVAL);
+  }
+  function advance(){ go(idx + 1); }
+
+  var box = document.querySelector('#carousel');
+  box.addEventListener('mouseenter', function(){ hovering = true; restartProg(); if(timer) clearInterval(timer); });
+  box.addEventListener('mouseleave', function(){ hovering = false; schedule(); });
+
+  document.querySelector('[data-prev]').addEventListener('click', function(){ go(idx - 1); schedule(); });
+  document.querySelector('[data-next]').addEventListener('click', function(){ go(idx + 1); schedule(); });
+  dotsWrap.addEventListener('click', function(e){
+    var dot = e.target.closest('[data-dot]');
+    if(!dot) return;
+    go(+dot.dataset.dot); schedule();
+  });
+  document.querySelectorAll('[data-thumb]').forEach(function(t){
+    t.addEventListener('click', function(){ go(+this.dataset.thumb); schedule(); });
+  });
+
+  document.querySelector('[data-autoplay]').addEventListener('click', function(){
+    autoOn = !autoOn;
+    var playing = autoOn;
+    this.querySelector('.u-ic-pause').style.display = playing ? '' : 'none';
+    this.querySelector('.u-ic-play').style.display = playing ? 'none' : '';
+    if(autoOn){ schedule(); } else if(timer){ clearInterval(timer); }
+    restartProg();
+  });
+
+  var tsX = null;
+  box.addEventListener('touchstart', function(e){ tsX = e.changedTouches[0].clientX; }, {passive:true});
+  box.addEventListener('touchend', function(e){
+    if(tsX === null) return;
+    var dx = e.changedTouches[0].clientX - tsX;
+    if(Math.abs(dx) > 40){ go(idx + (dx < 0 ? 1 : -1)); schedule(); }
+    tsX = null;
+  }, {passive:true});
+
+  go(0);
+  schedule();
+  if(autoOn){ document.querySelector('[data-autoplay] .u-ic-pause').style.display=''; document.querySelector('[data-autoplay] .u-ic-play').style.display='none'; }
+</script>
+<script src="../../assets/js/uroo-copy.js"></script>
+<script src="../../assets/js/uroo-nav.js"></script>
+</body>
+</html>

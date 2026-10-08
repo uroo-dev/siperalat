@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="id" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Uroo UI - Tooltip</title>
+  <script src="../../assets/js/tailwind.js"></script>
+  <script src="../../assets/js/lucide.js"></script>
+  <script>tailwind.config={darkMode:'class',theme:{extend:{colors:{glass:{light:'rgba(255,255,255,0.65)','light-border':'rgba(255,255,255,0.8)',dark:'rgba(18,18,20,0.65)','dark-border':'rgba(255,255,255,0.1)'}}}}}</script>
+  <link rel="stylesheet" href="../../assets/css/uroo.css">
+  <style>
+    .u-bg{position:fixed;inset:0;z-index:-10;transition:opacity .35s ease}
+    .u-bg-light{background:linear-gradient(135deg,#dfe3ea,#f4f4f5)}
+    .u-bg-dark{background:linear-gradient(135deg,#0a0a0b,#1a1a1e);opacity:0}
+    body.dark .u-bg-light{opacity:0}
+    body.dark .u-bg-dark{opacity:1}
+    .u-glow{position:fixed;border-radius:9999px;filter:blur(90px);z-index:-9;pointer-events:none;transition:background-color .35s ease;background:rgba(0,0,0,0.06)}
+    body.dark .u-glow{background:rgba(255,255,255,0.05)}
+    .u-glow-1{width:420px;height:420px;top:-140px;left:-140px}
+    .u-glow-2{width:520px;height:520px;bottom:-200px;right:-140px}
+    .u-glow-3{width:300px;height:300px;top:42%;left:58%}
+
+    .u-tip{position:fixed;z-index:90;max-width:17rem;opacity:0;pointer-events:none;will-change:transform;}
+    .u-tip-inner{position:relative;padding:0.625rem 0.875rem;border-radius:0.75rem;font-size:0.8125rem;line-height:1.5;color:#fafafa;background:rgba(24,24,27,0.92);border:1px solid rgba(0,0,0,0.3);box-shadow:0 18px 40px -18px rgba(0,0,0,0.55);backdrop-filter:blur(12px);}
+    body:not(.dark) .u-tip-inner{color:#18181b;background:rgba(255,255,255,0.95);border:1px solid rgba(24,24,27,0.12);box-shadow:0 18px 40px -18px rgba(0,0,0,0.32);}
+    .u-tip::before{content:"";position:absolute;width:0.625rem;height:0.625rem;transform:rotate(45deg);background:rgba(24,24,27,0.92);border-radius:0.125rem;}
+    body:not(.dark) .u-tip::before{background:rgba(255,255,255,0.95);}
+    .u-tip.show{opacity:1;transition:opacity .16s ease,transform .16s ease;}
+    .u-tip.pos-top{transform:translateY(6px);}
+    .u-tip.pos-bottom{transform:translateY(-6px);}
+    .u-tip.pos-left{transform:translateX(6px);}
+    .u-tip.pos-right{transform:translateX(-6px);}
+    .u-tip.pos-top.show,.u-tip.pos-bottom.show,.u-tip.pos-left.show,.u-tip.pos-right.show{transform:translate(0,0);}
+    .pos-top::before{bottom:-0.3125rem;left:50%;margin-left:-0.3125rem;}
+    .pos-bottom::before{top:-0.3125rem;left:50%;margin-left:-0.3125rem;}
+    .pos-left::before{right:-0.3125rem;top:50%;margin-top:-0.3125rem;}
+    .pos-right::before{left:-0.3125rem;top:50%;margin-top:-0.3125rem;}
+
+    .u-trg{display:inline-flex;align-items:center;gap:0.5rem;padding:0.625rem 1rem;border-radius:0.75rem;font-size:0.8125rem;font-weight:600;color:#3f3f46;border:1px solid rgba(24,24,27,0.16);background:rgba(255,255,255,0.7);cursor:pointer;transition:all .2s ease;}
+    .u-trg .lucide{width:0.9375rem;height:0.9375rem;}
+    .u-trg:hover{border-color:rgba(24,24,27,0.45);}
+    .dark .u-trg{color:#d4d4d8;border-color:rgba(255,255,255,0.16);background:rgba(255,255,255,0.06);}
+    .dark .u-trg:hover{border-color:rgba(255,255,255,0.45);}
+    .u-trg--solid{background:#18181b;color:#fafafa;border-color:#18181b;}
+    .u-trg--solid:hover{background:#27272a;}
+    .dark .u-trg--solid{background:#fafafa;color:#18181b;border-color:#fafafa;}
+    .dark .u-trg--solid:hover{background:#e4e4e7;}
+
+    .u-field{display:flex;align-items:center;gap:0.625rem;border-radius:0.75rem;border:1px solid rgba(24,24,27,0.16);background:rgba(255,255,255,0.7);padding:0.625rem 0.875rem;color:#3f3f46;transition:border-color .2s ease,box-shadow .2s ease;}
+    .dark .u-field{color:#d4d4d8;border-color:rgba(255,255,255,0.16);background:rgba(255,255,255,0.06);}
+    .u-field:focus-within{border-color:rgba(24,24,27,0.5);box-shadow:0 0 0 3px rgba(24,24,27,0.08);}
+    .dark .u-field:focus-within{border-color:rgba(255,255,255,0.5);box-shadow:0 0 0 3px rgba(255,255,255,0.12);}
+    .u-field input{background:transparent;border:0;outline:none;font-size:0.8125rem;width:100%;color:inherit;}
+    .u-field .lucide{width:1rem;height:1rem;color:rgba(24,24,27,0.45);}
+    .dark .u-field .lucide{color:rgba(255,255,255,0.45);}
+
+    .tk{font-size:0.8125rem;font-weight:600;}
+    .th{font-size:0.75rem;color:rgba(24,24,27,0.55);}
+    .dark .th{color:rgba(255,255,255,0.5);}
+    .tip-kbd{display:inline-block;margin-left:0.25rem;border:1px solid rgba(255,255,255,0.25);border-radius:0.3125rem;padding:0 0.3125rem;font-size:0.6875rem;}
+  </style>
+</head>
+<body class="min-h-screen p-6 font-sans antialiased text-zinc-800 dark:text-zinc-100">
+  <script>(function initTheme(){var saved=null;try{saved=localStorage.getItem('uroo-theme')}catch(e){};var dark=(saved==='dark')||(!saved&&window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches);var de=document.documentElement;if(dark){de.classList.add('dark');de.classList.remove('light');if(document.body){document.body.classList.add('dark');document.body.classList.remove('light');}}else{de.classList.remove('dark');de.classList.add('light');if(document.body){document.body.classList.remove('dark');document.body.classList.add('light');}}})();</script>
+  <div class="u-bg u-bg-light" aria-hidden="true"></div>
+  <div class="u-bg u-bg-dark" aria-hidden="true"></div>
+  <div class="u-glow u-glow-1" aria-hidden="true"></div>
+  <div class="u-glow u-glow-2" aria-hidden="true"></div>
+  <div class="u-glow u-glow-3" aria-hidden="true"></div>
+
+  <div class="relative mx-auto max-w-6xl">
+    <header class="relative mb-10">
+      <p class="text-xs font-semibold uppercase tracking-[0.25em] text-zinc-500 dark:text-zinc-500">Uroo UI - Komponen</p>
+      <h1 class="mt-2 text-3xl font-bold tracking-tight md:text-4xl">Tooltip</h1>
+      <p class="mt-3 max-w-2xl text-sm leading-relaxed text-zinc-500 dark:text-zinc-400">Petunjuk singkat saat kursor atau fokus menyentuh elemen: empat arah, panah, jeda tampil, dan pemicu ikon serta tombol.</p>
+    </header>
+
+    <main class="relative grid gap-6 md:grid-cols-2">
+
+      <section data-copy class="glass-panel rounded-2xl p-6 md:p-8">
+        <p class="text-xs font-semibold uppercase tracking-[0.2em] text-zinc-500 dark:text-zinc-500">Variasi - Arah penempatan</p>
+        <div class="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-4">
+          <div class="flex justify-center py-6">
+            <button type="button" class="u-trg" data-uroo-tip="Petunjuk muncul di atas elemen." data-pos="top">Atas</button>
+          </div>
+          <div class="flex justify-center py-6">
+            <button type="button" class="u-trg" data-uroo-tip="Petunjuk muncul di bawah elemen." data-pos="bottom">Bawah</button>
+          </div>
+          <div class="flex justify-center py-6">
+            <button type="button" class="u-trg" data-uroo-tip="Petunjuk muncul di sisi kiri." data-pos="left">Kiri</button>
+          </div>
+          <div class="flex justify-center py-6">
+            <button type="button" class="u-trg" data-uroo-tip="Petunjuk muncul di sisi kanan." data-pos="right">Kanan</button>
+          </div>
+        </div>
+        <p class="mt-2 text-center text-xs text-zinc-500 dark:text-zinc-500">Panah kecil menunjuk ke elemen pemicu pada setiap arah.</p>
+      </section>
+
+      <section data-copy class="glass-panel rounded-2xl p-6 md:p-8">
+        <p class="text-xs font-semibold uppercase tracking-[0.2em] text-zinc-500 dark:text-zinc-500">Variasi - Pemicu ikon dan tombol</p>
+        <div class="mt-6 flex flex-wrap items-center gap-3">
+          <button type="button" class="u-trig" data-uroo-tip="Unduh laporan dalam format PDF." data-pos="top"><i data-lucide="download"></i>Unduh</button>
+          <button type="button" class="u-trig u-trig--solid" data-uroo-tip="Salin tautan undangan ke papan klip." data-pos="bottom"><i data-lucide="copy"></i>Salin tautan</button>
+          <button type="button" class="u-trig" data-uroo-tip="Buka pengaturan berlangganan." data-pos="top"><i data-lucide="settings"></i>Pengaturan</button>
+          <button type="button" class="u-trig" data-uroo-tip="Hapus draf pesan ini." data-pos="left"><i data-lucide="trash-2"></i>Buang</button>
+        </div>
+        <p class="mt-5 text-xs text-zinc-500 dark:text-zinc-500">Tooltip juga tersedia lewat ikon bantuan pada baris info:</p>
+        <div class="mt-3 flex items-center gap-2 rounded-xl border border-zinc-300/40 bg-white/40 p-3.5 dark:border-white/10 dark:bg-white/5">
+          <i data-lucide="calendar-days" class="h-4 w-4 text-zinc-400"></i>
+          <span class="th">Masa uji coba berakhir 30 September 2026</span>
+          <i data-lucide="circle-help" class="ml-auto h-4 w-4 cursor-pointer text-zinc-400" data-uroo-tip="Tenggat dapat diperpanjang satu kali selama 14 hari." data-pos="top" tabindex="0" role="button"></i>
+        </div>
+      </section>
+
+      <section data-copy class="glass-panel rounded-2xl p-6 md:p-8">
+        <p class="text-xs font-semibold uppercase tracking-[0.2em] text-zinc-500 dark:text-zinc-500">Variasi - Jeda tampil</p>
+        <div class="mt-6 flex flex-wrap items-center gap-3">
+          <button type="button" class="u-trg" data-uroo-tip="Saya langsung muncul." data-pos="top" data-d-show="0">Tanpa jeda</button>
+          <button type="button" class="u-trg" data-uroo-tip="Saya menunggu 400 milidetik." data-pos="top" data-d-show="400">Jeda 400 md</button>
+          <button type="button" class="u-trg u-trg--solid" data-uroo-tip="Saya hanya muncul setelah 1 detik." data-pos="top" data-d-show="1000">Jeda 1 detik</button>
+        </div>
+        <p class="mt-5 text-xs text-zinc-500 dark:text-zinc-500">Jeda panjang cocok untuk aksi destruktif agar pengguna tidak terkejut. Semua tooltip di sini berpanah atas.</p>
+      </section>
+
+      <section data-copy class="glass-panel rounded-2xl p-6 md:p-8">
+        <p class="text-xs font-semibold uppercase tracking-[0.2em] text-zinc-500 dark:text-zinc-500">Interaktif - Fokus dan isi kaya</p>
+        <div class="mt-6">
+          <p class="tk mb-2">Kata kunci pencarian</p>
+          <div class="u-field">
+            <i data-lucide="search"></i>
+            <input type="text" id="fldCari" placeholder="Contoh: laporan penjualan" data-uroo-tip="Fokus kolom memunculkan petunjuk otomatis di bawah. Tekan Esc untuk menutup." data-pos="bottom">
+          </div>
+          <p class="th mt-2">Tooltip muncul saat kolom menerima fokus (klik atau tab), bukan saat mengetik.</p>
+        </div>
+        <div class="mt-5 rounded-xl border border-zinc-300/40 bg-white/40 p-4 dark:border-white/10 dark:bg-white/5">
+          <div class="flex items-center justify-between">
+            <p class="tk">Penyimpanan ruang kerja</p>
+            <span class="u-trig" data-uroo-tip="Rincian penggunaan penyimpanan">
+              <i data-lucide="circle-help" class="h-4 w-4 cursor-pointer" tabindex="0" role="button"></i>
+            </span>
+          </div>
+          <div class="mt-3 h-2 overflow-hidden rounded-full bg-zinc-300/50 dark:bg-white/10">
+            <div class="h-full w-3/4 rounded-full bg-zinc-800 dark:bg-zinc-100"></div>
+          </div>
+          <p class="th mt-2">75% dari 20 GB terpakai.<span class="tip-kbd">Esc</span> menutup tooltip</p>
+        </div>
+      </section>
+    </main>
+
+    <footer class="relative mt-12 flex items-center justify-between border-t border-zinc-400/30 py-6 text-xs text-zinc-500 dark:border-white/10 dark:text-zinc-500">
+      <span>Uroo UI - Glassmorphism monokrom</span>
+      <span id="year"></span>
+    </footer>
+  </div>
+
+  <button onclick="toggleTheme()" class="glass-panel fixed right-4 top-4 z-50 inline-flex items-center justify-center rounded-full p-2.5" aria-label="Ganti tema">
+    <i data-lucide="sun" class="h-5 w-5 text-zinc-700 dark:hidden"></i>
+    <i data-lucide="moon" class="hidden h-5 w-5 text-zinc-200 dark:block"></i>
+  </button>
+
+  <script>
+    lucide.createIcons();
+    function toggleTheme(){const h=document.documentElement,b=document.body;h.classList.toggle('dark');b.classList.toggle('dark');try{localStorage.setItem('uroo-theme',b.classList.contains('dark')?'dark':'light')}catch(e){};lucide.createIcons();}
+    (function(){if(document.documentElement.classList.contains('dark')){document.body.classList.add('dark');}else{document.body.classList.remove('dark');}})();
+    document.getElementById('year').textContent = 'Uroo Dev - ' + new Date().getFullYear();
+
+    var tipEl = null, tipTimer = null;
+
+    function placeTip(trg){
+      var pos = trg.dataset.pos || 'top';
+      var r = trg.getBoundingClientRect();
+      var tr = tipEl.getBoundingClientRect();
+      var gap = 10, left = 0, top = 0;
+      if(pos === 'top'){ left = r.left + r.width / 2 - tr.width / 2; top = r.top - tr.height - gap; }
+      else if(pos === 'bottom'){ left = r.left + r.width / 2 - tr.width / 2; top = r.bottom + gap; }
+      else if(pos === 'left'){ left = r.left - tr.width - gap; top = r.top + r.height / 2 - tr.height / 2; }
+      else if(pos === 'right'){ left = r.right + gap; top = r.top + r.height / 2 - tr.height / 2; }
+      left = Math.max(10, Math.min(left, window.innerWidth - tr.width - 10));
+      top = Math.max(10, Math.min(top, window.innerHeight - tr.height - 10));
+      tipEl.style.left = left + 'px';
+      tipEl.style.top = top + 'px';
+    }
+
+    function buildTip(trg){
+      if(tipEl){ tipEl.remove(); tipEl = null; }
+      tipEl = document.createElement('div');
+      tipEl.className = 'u-tip pos-' + (trg.dataset.pos || 'top');
+      tipEl.setAttribute('role', 'tooltip');
+      tipEl.innerHTML = '<div class="u-tip-inner">' + (trg.dataset.urooTip || '') + '</div>';
+      document.body.appendChild(tipEl);
+      lucide.createIcons();
+      placeTip(trg);
+      requestAnimationFrame(function(){ tipEl.classList.add('show'); });
+    }
+
+    function tipShow(trg){
+      clearTimeout(tipTimer);
+      tipTimer = setTimeout(function(){ buildTip(trg); }, (+trg.dataset.dShow) || 60);
+    }
+
+    function tipHide(){
+      clearTimeout(tipTimer);
+      if(!tipEl) return;
+      var el = tipEl;
+      tipEl = null;
+      setTimeout(function(){
+        el.classList.remove('show');
+        setTimeout(function(){ el.remove(); }, 170);
+      }, 100);
+    }
+
+    document.querySelectorAll('[data-uroo-tip]').forEach(function(trg){
+      trg.addEventListener('mouseenter', function(){ tipShow(trg); });
+      trg.addEventListener('mouseleave', tipHide);
+      trg.addEventListener('focus', function(){ tipShow(trg); });
+      trg.addEventListener('blur', tipHide);
+      trg.addEventListener('keydown', function(e){
+        if(e.key === 'Escape'){ tipHide(); }
+      });
+    });
+  </script>
+<script src="../../assets/js/uroo-copy.js"></script>
+<script src="../../assets/js/uroo-nav.js"></script>
+</body>
+</html>

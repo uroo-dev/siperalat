@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="id" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Uroo UI - Pemisah</title>
+  <script src="../../assets/js/tailwind.js"></script>
+  <script src="../../assets/js/lucide.js"></script>
+  <script>tailwind.config={darkMode:'class',theme:{extend:{colors:{glass:{light:'rgba(255,255,255,0.65)','light-border':'rgba(255,255,255,0.8)',dark:'rgba(18,18,20,0.65)','dark-border':'rgba(255,255,255,0.1)'}}}}}</script>
+  <link rel="stylesheet" href="../../assets/css/uroo.css">
+  <style>
+    body { background: linear-gradient(135deg,#dfe3ea,#f4f4f5) !important; }
+    body.dark { background: linear-gradient(135deg,#0a0a0c,#1a1a1e) !important; }
+
+    .glass-panel {
+      backdrop-filter: blur(20px) saturate(180%);
+      -webkit-backdrop-filter: blur(20px) saturate(180%);
+      background-color: rgba(255,255,255,0.55);
+      border: 1px solid rgba(255,255,255,0.8);
+      box-shadow: 0 20px 40px -15px rgba(0,0,0,0.05), inset 0 1px 1px 0 rgba(255,255,255,0.9);
+    }
+    .dark .glass-panel {
+      background-color: rgba(24,24,27,0.55);
+      border: 1px solid rgba(255,255,255,0.08);
+      box-shadow: 0 20px 40px -15px rgba(0,0,0,0.5), inset 0 1px 1px 0 rgba(255,255,255,0.1);
+    }
+
+    @keyframes u-slide-up { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:translateY(0); } }
+    .anim-slide-up { animation: u-slide-up .35s cubic-bezier(.16,1,.3,1); }
+
+    .uroo-hr { height:1px; background:#d4d4d8; border:0; }
+    .dark .uroo-hr { background:rgba(255,255,255,.12); }
+    .uroo-hr-hard { height:2px; background:#a1a1aa; border:0; }
+    .dark .uroo-hr-hard { background:rgba(255,255,255,.2); }
+
+    .uroo-label-bubble {
+      display:inline-flex; align-items:center; gap:6px; padding:2px 10px;
+      border-radius:9999px; font-size:11px; font-weight:700; letter-spacing:.08em; text-transform:uppercase;
+      background:rgba(0,0,0,.05); color:#52525b;
+    }
+    .dark .uroo-label-bubble { background:rgba(255,255,255,.09); color:#a1a1aa; }
+
+    .uroo-split-ic {
+      display:grid; height:30px; width:30px; place-items:center; border-radius:9999px;
+      background:rgba(0,0,0,.05); border:1px solid rgba(0,0,0,.08);
+      color:#52525b;
+    }
+    .dark .uroo-split-ic { background:rgba(255,255,255,.08); border-color:rgba(255,255,255,.12); color:#a1a1aa; }
+
+    .uroo-vline { width:1px; background:#d4d4d8; }
+    .dark .uroo-vline { background:rgba(255,255,255,.12); }
+  </style>
+</head>
+<body class="min-h-screen p-6 font-sans antialiased text-zinc-800 dark:text-zinc-100" style="background:linear-gradient(135deg,#dfe3ea,#f4f4f5)">
+  <script>(function initTheme(){var saved=null;try{saved=localStorage.getItem('uroo-theme')}catch(e){};var dark=(saved==='dark')||(!saved&&window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches);var de=document.documentElement;if(dark){de.classList.add('dark');de.classList.remove('light');if(document.body){document.body.classList.add('dark');document.body.classList.remove('light');}}else{de.classList.remove('dark');de.classList.add('light');if(document.body){document.body.classList.remove('dark');document.body.classList.add('light');}}})();</script>
+
+  <!-- Ambient glow circles -->
+  <div aria-hidden="true" class="pointer-events-none fixed -top-32 -left-32 h-[420px] w-[420px] rounded-full bg-zinc-300/50 blur-3xl dark:bg-zinc-600/20"></div>
+  <div aria-hidden="true" class="pointer-events-none fixed -bottom-36 -right-28 h-[400px] w-[400px] rounded-full bg-zinc-400/25 blur-3xl dark:bg-zinc-700/25"></div>
+
+  <header class="relative mx-auto max-w-6xl">
+    <div class="mb-6 flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-zinc-500 dark:text-zinc-400">
+      <span class="inline-flex h-1.5 w-1.5 rounded-full bg-zinc-700 dark:bg-zinc-200"></span>
+      Komponen Uroo UI
+      <span class="text-zinc-300 dark:text-zinc-600">/</span>
+      Pemisah
+    </div>
+    <h1 class="text-3xl font-bold tracking-tight">Pemisah (Divider)</h1>
+    <p class="mt-2 max-w-2xl text-sm text-zinc-500 dark:text-zinc-400">
+      Garis pemisah untuk mengelompokkan konten: horizontal, vertikal, dengan label, dengan ikon, hingga gaya gradasi.
+    </p>
+  </header>
+
+  <main class="relative mx-auto mt-6 grid max-w-6xl gap-5 md:grid-cols-2">
+
+    <!-- Card 1: Horizontal -->
+    <section data-copy class="glass-panel anim-slide-up rounded-2xl p-5">
+      <div class="mb-2 flex items-center justify-between">
+        <h2 class="text-sm font-semibold">Horizontal</h2>
+        <span class="rounded-full px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider bg-black/5 text-zinc-500 dark:bg-white/10 dark:text-zinc-400">Dasar</span>
+      </div>
+      <p class="text-xs text-zinc-500 dark:text-zinc-400">Lebar penuh, berlekuk (indent), dan dua baris berundak.</p>
+
+      <div class="mt-5">
+        <p class="text-[13px] text-zinc-600 dark:text-zinc-300">Judul Bagian Satu</p>
+        <hr class="uroo-hr mt-4">
+        <p class="mt-4 text-[13px] text-zinc-600 dark:text-zinc-300">Judul Bagian Dua</p>
+      </div>
+
+      <div class="mt-5">
+        <p class="text-[13px] text-zinc-600 dark:text-zinc-300">Paragraf berlekuk masuk</p>
+        <hr class="uroo-hr mx-8 mt-4">
+        <p class="text-[13px] text-zinc-600 dark:text-zinc-300">Konten berikutnya</p>
+      </div>
+
+      <div class="mt-5 rounded-xl border border-zinc-200/70 bg-white/45 p-4 dark:border-white/10 dark:bg-white/5">
+        <p class="text-[12.5px] font-medium text-zinc-600 dark:text-zinc-300">Ringkasan</p>
+        <hr class="uroo-hr my-3">
+        <p class="text-[12px] text-zinc-500 dark:text-zinc-400">Total 4 item - Rp 2.400.000</p>
+        <hr class="uroo-hr my-3">
+        <p class="text-[12px] text-zinc-500 dark:text-zinc-400">Pembayaran di muka 40%</p>
+      </div>
+    </section>
+
+    <!-- Card 2: Dengan label -->
+    <section data-copy class="glass-panel anim-slide-up rounded-2xl p-5">
+      <div class="mb-2 flex items-center justify-between">
+        <h2 class="text-sm font-semibold">Dengan Label</h2>
+        <span class="rounded-full px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider bg-black/5 text-zinc-500 dark:bg-white/10 dark:text-zinc-400">Label</span>
+      </div>
+      <p class="text-xs text-zinc-500 dark:text-zinc-400">Label di tengah, kiri, dan kanan untuk menandai pembagian.</p>
+
+      <div class="mt-5">
+        <div class="flex items-center gap-3">
+          <span class="h-px flex-1 bg-zinc-300/70 dark:bg-white/10"></span>
+          <span class="text-[11px] font-bold uppercase tracking-widest text-zinc-400 dark:text-zinc-500">Atau</span>
+          <span class="h-px flex-1 bg-zinc-300/70 dark:bg-white/10"></span>
+        </div>
+      </div>
+
+      <div class="mt-5">
+        <div class="flex items-center gap-3">
+          <span class="h-px flex-1 bg-zinc-300/70 dark:bg-white/10"></span>
+          <span class="uroo-label-bubble"><i data-lucide="sparkles" class="h-3.5 w-3.5"></i> Lanjutkan</span>
+          <span class="h-px flex-1 bg-zinc-300/70 dark:bg-white/10"></span>
+        </div>
+      </div>
+
+      <div class="mt-5">
+        <div class="flex items-center gap-3">
+          <span class="text-[11px] font-bold uppercase tracking-widest text-zinc-400 dark:text-zinc-500">Potongan Harga</span>
+          <span class="h-px flex-1 bg-zinc-300/70 dark:bg-white/10"></span>
+        </div>
+      </div>
+
+      <div class="mt-5">
+        <div class="flex items-center gap-3">
+          <span class="h-px flex-1 bg-zinc-300/70 dark:bg-white/10"></span>
+          <span class="text-[11px] font-bold uppercase tracking-widest text-zinc-400 dark:text-zinc-500">Catatan</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Card 3: Dengan ikon -->
+    <section data-copy class="glass-panel anim-slide-up rounded-2xl p-5">
+      <div class="mb-2 flex items-center justify-between">
+        <h2 class="text-sm font-semibold">Dengan Ikon</h2>
+        <span class="rounded-full px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider bg-black/5 text-zinc-500 dark:bg-white/10 dark:text-zinc-400">Ikon</span>
+      </div>
+      <p class="text-xs text-zinc-500 dark:text-zinc-400">Pemisah dengan ikon pada tengah atau tepi garis.</p>
+
+      <div class="mt-5">
+        <div class="flex items-center gap-3">
+          <span class="h-px flex-1 bg-zinc-300/70 dark:bg-white/10"></span>
+          <span class="uroo-split-ic"><i data-lucide="zap" class="h-4 w-4"></i></span>
+          <span class="h-px flex-1 bg-zinc-300/70 dark:bg-white/10"></span>
+        </div>
+      </div>
+
+      <div class="mt-5">
+        <div class="flex items-center gap-3">
+          <span class="h-px flex-1 bg-zinc-300/70 dark:bg-white/10"></span>
+          <span class="uroo-split-ic h-9 w-9"><i data-lucide="users" class="h-4 w-4"></i></span>
+          <span class="h-px flex-1 bg-zinc-300/70 dark:bg-white/10"></span>
+        </div>
+        <p class="mt-2 text-center text-[11px] uppercase tracking-widest text-zinc-400 dark:text-zinc-500">Tim inti</p>
+      </div>
+
+      <div class="mt-5 rounded-xl border border-zinc-200/70 bg-white/45 p-4 dark:border-white/10 dark:bg-white/5">
+        <div class="flex items-center gap-3">
+          <span class="uroo-split-ic h-9 w-9"><i data-lucide="star" class="h-4 w-4"></i></span>
+          <span class="h-px flex-1 bg-zinc-300/70 dark:bg-white/10"></span>
+          <span class="text-[11px] font-bold uppercase tracking-widest text-zinc-400 dark:text-zinc-500">Pilihan</span>
+        </div>
+        <p class="mt-4 text-[12.5px] leading-relaxed text-zinc-600 dark:text-zinc-300">
+          Pemisah ini dipakai untuk menandai opsi utama yang disarankan sistem.
+        </p>
+      </div>
+    </section>
+
+    <!-- Card 4: Gaya -->
+    <section data-copy class="glass-panel anim-slide-up rounded-2xl p-5">
+      <div class="mb-2 flex items-center justify-between">
+        <h2 class="text-sm font-semibold">Gaya Garis</h2>
+        <span class="rounded-full px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider bg-black/5 text-zinc-500 dark:bg-white/10 dark:text-zinc-400">Variasi</span>
+      </div>
+      <p class="text-xs text-zinc-500 dark:text-zinc-400">Putih-putus, gradasi memudar, dan garis tebal.</p>
+
+      <div class="mt-5 space-y-5">
+        <div>
+          <p class="text-[12px] text-zinc-500 dark:text-zinc-400">Putus-putus</p>
+          <div class="mt-2 border-t border-dashed border-zinc-300 dark:border-white/15"></div>
+        </div>
+        <div>
+          <p class="text-[12px] text-zinc-500 dark:text-zinc-400">Gradasi memudar dua arah</p>
+          <div class="mt-2 h-px w-full bg-gradient-to-r from-transparent via-zinc-400/70 to-transparent dark:via-zinc-500/60"></div>
+        </div>
+        <div>
+          <p class="text-[12px] text-zinc-500 dark:text-zinc-400">Memudar menuju tepi kanan</p>
+          <div class="mt-2 h-px w-full bg-gradient-to-r from-zinc-400/80 to-transparent dark:from-zinc-500/70"></div>
+        </div>
+        <div>
+          <p class="text-[12px] text-zinc-500 dark:text-zinc-400">Tebal (2px)</p>
+          <hr class="uroo-hr-hard mt-2">
+        </div>
+        <div>
+          <p class="text-[12px] text-zinc-500 dark:text-zinc-400">Bercelah ganda</p>
+          <div class="mt-2 space-y-1">
+            <div class="h-px bg-zinc-300/70 dark:bg-white/10"></div>
+            <div class="h-px w-2/3 bg-zinc-300/70 dark:bg-white/10"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Card 5: Vertikal -->
+    <section data-copy class="glass-panel anim-slide-up rounded-2xl p-5">
+      <div class="mb-2 flex items-center justify-between">
+        <h2 class="text-sm font-semibold">Vertikal</h2>
+        <span class="rounded-full px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider bg-black/5 text-zinc-500 dark:bg-white/10 dark:text-zinc-400">Vertikal</span>
+      </div>
+      <p class="text-xs text-zinc-500 dark:text-zinc-400">Memisahkan grup tombol toolbar dan kolom informasi.</p>
+
+      <div class="mt-5 flex items-center justify-center rounded-xl border border-zinc-200/70 bg-white/45 py-3 dark:border-white/10 dark:bg-white/5">
+        <div class="flex items-center gap-1">
+          <button type="button" class="rounded-lg p-2 text-zinc-500 transition-colors hover:bg-black/5 hover:text-zinc-800 dark:text-zinc-400 dark:hover:bg-white/10 dark:hover:text-zinc-100" aria-label="Sejajarkan kiri"><i data-lucide="align-left" class="h-4 w-4"></i></button>
+          <button type="button" class="rounded-lg p-2 text-zinc-500 transition-colors hover:bg-black/5 hover:text-zinc-800 dark:text-zinc-400 dark:hover:bg-white/10 dark:hover:text-zinc-100" aria-label="Sejajarkan tengah"><i data-lucide="align-center" class="h-4 w-4"></i></button>
+          <button type="button" class="rounded-lg p-2 text-zinc-500 transition-colors hover:bg-black/5 hover:text-zinc-800 dark:text-zinc-400 dark:hover:bg-white/10 dark:hover:text-zinc-100" aria-label="Sejajarkan kanan"><i data-lucide="align-right" class="h-4 w-4"></i></button>
+          <span class="uroo-vline mx-2 h-5" aria-hidden="true"></span>
+          <button type="button" class="rounded-lg p-2 text-zinc-500 transition-colors hover:bg-black/5 hover:text-zinc-800 dark:text-zinc-400 dark:hover:bg-white/10 dark:hover:text-zinc-100" aria-label="Unduh"><i data-lucide="download" class="h-4 w-4"></i></button>
+          <button type="button" class="rounded-lg p-2 text-zinc-500 transition-colors hover:bg-black/5 hover:text-zinc-800 dark:text-zinc-400 dark:hover:bg-white/10 dark:hover:text-zinc-100" aria-label="Cetak"><i data-lucide="printer" class="h-4 w-4"></i></button>
+          <span class="uroo-vline mx-2 h-5" aria-hidden="true"></span>
+          <button type="button" class="rounded-lg p-2 text-zinc-400 transition-colors hover:bg-black/5 hover:text-zinc-800 dark:text-zinc-500 dark:hover:bg-white/10" aria-label="Hapus"><i data-lucide="trash-2" class="h-4 w-4"></i></button>
+        </div>
+      </div>
+
+      <div class="mt-5 flex items-center justify-center gap-8 rounded-xl border border-zinc-200/70 bg-white/45 py-5 dark:border-white/10 dark:bg-white/5">
+        <div class="text-center">
+          <p class="text-xl font-bold">24</p>
+          <p class="text-[11px] uppercase tracking-widest text-zinc-400 dark:text-zinc-500">Proyek</p>
+        </div>
+        <span class="uroo-vline h-14" aria-hidden="true"></span>
+        <div class="text-center">
+          <p class="text-xl font-bold">148</p>
+          <p class="text-[11px] uppercase tracking-widest text-zinc-400 dark:text-zinc-500">Tugas</p>
+        </div>
+        <span class="uroo-vline h-14" aria-hidden="true"></span>
+        <div class="text-center">
+          <p class="text-xl font-bold">9</p>
+          <p class="text-[11px] uppercase tracking-widest text-zinc-400 dark:text-zinc-500">Anggota</p>
+        </div>
+      </div>
+
+      <div class="mt-5 flex items-stretch justify-center gap-5 rounded-xl border border-zinc-200/70 bg-white/45 py-4 dark:border-white/10 dark:bg-white/5">
+        <div class="flex flex-col items-center gap-2">
+          <span class="uroo-vline flex-1 bg-zinc-300/70 dark:bg-white/10"></span>
+          <span class="uroo-split-ic"><i data-lucide="chevrons-up-down" class="h-4 w-4"></i></span>
+          <span class="uroo-vline flex-1 bg-zinc-300/70 dark:bg-white/10"></span>
+        </div>
+        <p class="max-w-[180px] self-center text-[12.5px] leading-relaxed text-zinc-500 dark:text-zinc-400">
+          Garis vertikal dengan ikon di tengah kerap dipakai antarmuka tabel sortir.
+        </p>
+      </div>
+    </section>
+
+    <!-- Card 6: Konteks nyata -->
+    <section data-copy class="glass-panel anim-slide-up rounded-2xl p-5">
+      <div class="mb-2 flex items-center justify-between">
+        <h2 class="text-sm font-semibold">Konteks Nyata</h2>
+        <span class="rounded-full px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider bg-black/5 text-zinc-500 dark:bg-white/10 dark:text-zinc-400">Penerapan</span>
+      </div>
+      <p class="text-xs text-zinc-500 dark:text-zinc-400">Pemisah di dalam formulir masuk dan menu.</p>
+
+      <div class="mt-5 grid gap-5 sm:grid-cols-2">
+        <div class="rounded-xl border border-zinc-200/70 bg-white/45 p-4 dark:border-white/10 dark:bg-white/5">
+          <p class="text-[13px] font-semibold">Masuk Akun</p>
+          <input type="email" value="ria.pratiwi@uroo.dev" readonly class="mt-3 w-full rounded-lg border border-zinc-200/80 bg-transparent px-3 py-2 text-[12.5px] text-zinc-700 dark:border-white/10 dark:text-zinc-200">
+          <input type="password" value="rahasia" readonly class="mt-2 w-full rounded-lg border border-zinc-200/80 bg-transparent px-3 py-2 text-[12.5px] text-zinc-700 dark:border-white/10 dark:text-zinc-200">
+          <button type="button" class="mt-3 w-full rounded-lg bg-zinc-900 py-2 text-[12.5px] font-semibold text-white transition-opacity hover:opacity-90 dark:bg-zinc-100 dark:text-zinc-900">Masuk</button>
+          <div class="my-4 flex items-center gap-3">
+            <span class="h-px flex-1 bg-zinc-300/70 dark:bg-white/10"></span>
+            <span class="text-[10px] font-bold uppercase tracking-widest text-zinc-400 dark:text-zinc-500">Atau</span>
+            <span class="h-px flex-1 bg-zinc-300/70 dark:bg-white/10"></span>
+          </div>
+          <button type="button" class="flex w-full items-center justify-center gap-2 rounded-lg border border-zinc-200/80 bg-white/60 py-2 text-[12.5px] font-semibold text-zinc-700 transition-colors hover:bg-white dark:border-white/12 dark:bg-white/5 dark:text-zinc-200 dark:hover:bg-white/10">
+            <i data-lucide="globe" class="h-4 w-4"></i> Masuk dengan Google
+          </button>
+        </div>
+
+        <div class="rounded-xl border border-zinc-200/70 bg-white/45 p-3 dark:border-white/10 dark:bg-white/5">
+          <p class="px-2 pb-2 pt-1 text-[13px] font-semibold">Menu Proyek</p>
+          <button type="button" class="flex w-full items-center gap-3 rounded-lg px-2 py-2 text-left text-[12.5px] font-medium text-zinc-700 transition-colors hover:bg-black/5 dark:text-zinc-200 dark:hover:bg-white/10">
+            <i data-lucide="eye" class="h-4 w-4 text-zinc-400"></i> Tampilkan Detail
+          </button>
+          <button type="button" class="flex w-full items-center gap-3 rounded-lg px-2 py-2 text-left text-[12.5px] font-medium text-zinc-700 transition-colors hover:bg-black/5 dark:text-zinc-200 dark:hover:bg-white/10">
+            <i data-lucide="share-2" class="h-4 w-4 text-zinc-400"></i> Bagikan Akses
+          </button>
+          <div class="uroo-hr mx-2 my-1.5"></div>
+          <button type="button" class="flex w-full items-center gap-3 rounded-lg px-2 py-2 text-left text-[12.5px] font-medium text-zinc-700 transition-colors hover:bg-black/5 dark:text-zinc-200 dark:hover:bg-white/10">
+            <i data-lucide="archive" class="h-4 w-4 text-zinc-400"></i> Arsipkan
+          </button>
+          <button type="button" class="flex w-full items-center gap-3 rounded-lg px-2 py-2 text-left text-[12.5px] font-medium text-zinc-400 transition-colors dark:text-zinc-500">
+            <i data-lucide="clock" class="h-4 w-4"></i> Hapus (terkunci)
+          </button>
+          <div class="uroo-hr mx-2 my-1.5"></div>
+          <button type="button" class="flex w-full items-center gap-3 rounded-lg px-2 py-2 text-left text-[12.5px] font-medium text-red-600 transition-colors hover:bg-red-500/10 dark:text-red-400">
+            <i data-lucide="trash-2" class="h-4 w-4"></i> Hapus Permanen
+          </button>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="relative mx-auto mt-6 max-w-6xl">
+    <p class="flex items-center gap-2 rounded-xl border border-dashed border-zinc-300/60 px-4 py-3 text-xs text-zinc-500 dark:border-white/10 dark:text-zinc-400">
+      <i data-lucide="info" class="h-4 w-4 flex-none"></i>
+      Pemisah memakai warna monokrom zinc. Dalam tema gelap garis otomatis memakai warna terang transparan agar tetap terbaca di atas kaca.
+    </p>
+  </footer>
+
+  <!-- Theme toggle -->
+  <button onclick="toggleTheme()" aria-label="Ubah tema"
+      class="glass-panel fixed top-4 right-4 z-50 rounded-full p-2.5 shadow-lg transition-transform hover:scale-105">
+    <i data-lucide="sun" class="hidden h-5 w-5 text-zinc-600 dark:block dark:text-zinc-200"></i>
+    <i data-lucide="moon" class="block h-5 w-5 text-zinc-600 dark:hidden dark:text-zinc-200"></i>
+  </button>
+
+  <script>
+    lucide.createIcons();
+
+    function toggleTheme(){
+      const h=document.documentElement,b=document.body;
+      h.classList.toggle('dark');
+      b.classList.toggle('dark');
+      try{localStorage.setItem('uroo-theme',b.classList.contains('dark')?'dark':'light')}catch(e){};
+      lucide.createIcons();
+    }
+
+    (function(){
+      if (document.documentElement.classList.contains('dark')) document.body.classList.add('dark');
+      else document.body.classList.remove('dark');
+    })();
+  </script>
+<script src="../../assets/js/uroo-copy.js"></script>
+<script src="../../assets/js/uroo-nav.js"></script>
+</body>
+</html>

@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="id" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Uroo UI - Keamanan &amp; Privasi</title>
+  <script src="../../assets/js/tailwind.js"></script>
+  <script src="../../assets/js/lucide.js"></script>
+  <script>tailwind.config={darkMode:'class',theme:{extend:{colors:{glass:{light:'rgba(255,255,255,0.65)','light-border':'rgba(255,255,255,0.8)',dark:'rgba(18,18,20,0.65)','dark-border':'rgba(255,255,255,0.1)'}}}}}</script>
+  <link rel="stylesheet" href="../../assets/css/uroo.css">
+  <style>
+    .u-bg{position:fixed;inset:0;z-index:-10;transition:opacity .35s ease}
+    .u-bg-light{background:linear-gradient(135deg,#dfe3ea,#f4f4f5)}
+    .u-bg-dark{background:linear-gradient(135deg,#0a0a0b,#1a1a1e);opacity:0}
+    body.dark .u-bg-light{opacity:0}
+    body.dark .u-bg-dark{opacity:1}
+    .u-glow{position:fixed;border-radius:9999px;filter:blur(90px);z-index:-9;pointer-events:none;background:rgba(0,0,0,0.06);transition:background-color .35s ease}
+    body.dark .u-glow{background:rgba(255,255,255,0.05)}
+    .u-glow-1{width:420px;height:420px;top:-140px;left:-140px}
+    .u-glow-2{width:520px;height:520px;bottom:-200px;right:-140px}
+    .u-glow-3{width:300px;height:300px;top:42%;left:58%}
+
+    #toast{transition:opacity .3s ease,transform .3s ease}
+    #toast.hidden-toast{opacity:0;transform:translateY(20px) scale(.96);pointer-events:none}
+    .sec-panel{display:none}
+    .sec-panel.active{display:block}
+    .sec-nav.active{background:rgba(0,0,0,.06);color:#18181b}
+    body.dark .sec-nav.active{background:rgba(255,255,255,.1);color:#fafafa}
+    [data-toggle]{-webkit-appearance:none;appearance:none;width:42px;height:24px;border-radius:9999px;background:rgba(113,113,122,.35);position:relative;cursor:pointer;flex-shrink:0;transition:background-color .25s ease}
+    [data-toggle]::after{content:'';position:absolute;top:2px;left:2px;width:20px;height:20px;border-radius:9999px;background:#fff;transition:transform .25s ease;box-shadow:0 2px 4px rgba(0,0,0,.2)}
+  </style>
+</head>
+<body class="min-h-screen font-sans antialiased text-zinc-800 dark:text-zinc-100">
+  <script>(function initTheme(){var saved=null;try{saved=localStorage.getItem('uroo-theme')}catch(e){};var dark=(saved==='dark')||(!saved&&window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches);var de=document.documentElement;if(dark){de.classList.add('dark');de.classList.remove('light');if(document.body){document.body.classList.add('dark');document.body.classList.remove('light');}}else{de.classList.remove('dark');de.classList.add('light');if(document.body){document.body.classList.remove('dark');document.body.classList.add('light');}}})();</script>
+
+  <div class="u-bg u-bg-light" aria-hidden="true"></div>
+  <div class="u-bg u-bg-dark" aria-hidden="true"></div>
+  <div class="u-glow u-glow-1" aria-hidden="true"></div>
+  <div class="u-glow u-glow-2" aria-hidden="true"></div>
+  <div class="u-glow u-glow-3" aria-hidden="true"></div>
+
+  <div class="max-w-6xl mx-auto px-4 py-6 md:py-10">
+    <!-- TOPBAR -->
+    <header class="glass-panel rounded-2xl px-4 py-3 flex items-center gap-3 sticky top-4 z-30 mb-6">
+      <div class="flex items-center gap-2.5 min-w-0">
+        <img src="../../assets/img/uroo_ui.png" alt="Uroo UI" class="w-9 h-9 rounded-xl object-cover shadow-lg shrink-0">
+        <div class="min-w-0">
+          <p class="font-extrabold text-[15px] leading-none tracking-tight">Uroo UI</p>
+          <p class="mt-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-zinc-400 dark:text-zinc-500">Keamanan &amp; Privasi</p>
+        </div>
+      </div>
+      <div class="ml-auto flex items-center gap-1.5">
+        <span class="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 text-xs font-bold"><i data-lucide="shield-check" class="w-3.5 h-3.5"></i> Akun Aman</span>
+        <span class="grid place-items-center w-9 h-9 rounded-full bg-gradient-to-br from-zinc-500 to-zinc-800 dark:from-zinc-300 dark:to-zinc-600 text-white dark:text-zinc-900 text-xs font-bold">RA</span>
+      </div>
+    </header>
+
+    <div class="flex flex-col lg:flex-row gap-6">
+      <!-- SIDEBAR -->
+      <aside class="lg:w-60 shrink-0">
+        <div class="glass-panel rounded-2xl p-3 lg:sticky lg:top-24">
+          <p class="px-3 py-2 text-[10px] font-bold uppercase tracking-[0.18em] text-zinc-400 dark:text-zinc-500">Keamanan Akun</p>
+          <nav class="space-y-1">
+            <button class="sec-nav active w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-bold" data-sec="akun"><i data-lucide="user" class="w-[18px] h-[18px]"></i> Akun</button>
+            <button class="sec-nav w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-bold text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-50 hover:bg-black/5 dark:hover:bg-white/10" data-sec="keamanan"><i data-lucide="lock" class="w-[18px] h-[18px]"></i> Keamanan</button>
+            <button class="sec-nav w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-bold text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-50 hover:bg-black/5 dark:hover:bg-white/10" data-sec="privasi"><i data-lucide="eye-off" class="w-[18px] h-[18px]"></i> Privasi</button>
+            <button class="sec-nav w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-bold text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-50 hover:bg-black/5 dark:hover:bg-white/10" data-sec="sesi"><i data-lucide="smartphone" class="w-[18px] h-[18px]"></i> Sesi Aktif</button>
+          </nav>
+          <div class="mt-3 pt-3 border-t border-black/5 dark:border-white/10">
+            <div class="rounded-xl bg-emerald-500/10 dark:bg-emerald-500/10 p-3">
+              <div class="flex items-center gap-2 text-emerald-600 dark:text-emerald-400 text-xs font-bold"><i data-lucide="shield-check" class="w-4 h-4"></i> Skor Keamanan</div>
+              <p class="mt-1 text-2xl font-extrabold text-emerald-600 dark:text-emerald-400">82<span class="text-xs font-semibold">/100</span></p>
+              <p class="text-[10px] text-zinc-500 dark:text-zinc-400 mt-0.5">Aktifkan 2FA untuk naikkan skor</p>
+            </div>
+          </div>
+        </div>
+      </aside>
+
+      <!-- CONTENT -->
+      <main class="flex-1 min-w-0">
+        <!-- ====== AKUN ====== -->
+        <section id="sec-akun" class="sec-panel active space-y-4">
+          <div class="glass-panel rounded-2xl p-6">
+            <h2 class="font-bold tracking-tight">Informasi Akun</h2>
+            <p class="text-sm text-zinc-500 dark:text-zinc-400 mt-1">Kelola detail dasar akun Anda.</p>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-5">
+              <div>
+                <label class="text-xs font-semibold text-zinc-500 dark:text-zinc-400">Nama Lengkap</label>
+                <input value="Raka Adiwijaya" class="mt-1.5 w-full h-11 px-3.5 rounded-xl bg-black/5 dark:bg-white/10 border border-black/5 dark:border-white/10 text-sm font-medium outline-none focus:ring-2 ring-zinc-900/10 dark:ring-white/20">
+              </div>
+              <div>
+                <label class="text-xs font-semibold text-zinc-500 dark:text-zinc-400">Email Login</label>
+                <input value="raka.adiwijaya@uroo.dev" class="mt-1.5 w-full h-11 px-3.5 rounded-xl bg-black/5 dark:bg-white/10 border border-black/5 dark:border-white/10 text-sm font-medium outline-none focus:ring-2 ring-zinc-900/10 dark:ring-white/20">
+              </div>
+              <div>
+                <label class="text-xs font-semibold text-zinc-500 dark:text-zinc-400">Nomor Telepon</label>
+                <input value="+62 812 3456 7890" class="mt-1.5 w-full h-11 px-3.5 rounded-xl bg-black/5 dark:bg-white/10 border border-black/5 dark:border-white/10 text-sm font-medium outline-none focus:ring-2 ring-zinc-900/10 dark:ring-white/20">
+              </div>
+              <div>
+                <label class="text-xs font-semibold text-zinc-500 dark:text-zinc-400">Username</label>
+                <input value="@rakaadi" class="mt-1.5 w-full h-11 px-3.5 rounded-xl bg-black/5 dark:bg-white/10 border border-black/5 dark:border-white/10 text-sm font-medium outline-none focus:ring-2 ring-zinc-900/10 dark:ring-white/20">
+              </div>
+            </div>
+            <div class="mt-5 flex items-center justify-end gap-3">
+              <button onclick="showToast('Info akun tersimpan','Detail akun berhasil diperbarui')" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-zinc-900 dark:bg-zinc-50 text-zinc-50 dark:text-zinc-900 text-sm font-bold hover:opacity-90 shadow-lg"><i data-lucide="save" class="w-4 h-4"></i> Simpan</button>
+            </div>
+          </div>
+          <div class="glass-panel rounded-2xl p-6">
+            <h2 class="font-bold tracking-tight text-rose-500">Zona Berbahaya</h2>
+            <p class="text-sm text-zinc-500 dark:text-zinc-400 mt-1">Tindakan berikut bersifat permanen dan tidak dapat dibatalkan.</p>
+            <div class="mt-5 space-y-3">
+              <div class="flex items-center justify-between rounded-xl bg-black/5 dark:bg-white/5 p-4">
+                <div><p class="text-sm font-semibold">Hapus Akun</p><p class="text-xs text-zinc-400 mt-0.5">Hapus semua data dan riwayat aktivitas Anda</p></div>
+                <button class="px-4 py-2 rounded-xl bg-rose-500/15 text-rose-500 text-sm font-bold hover:bg-rose-500/25">Hapus</button>
+              </div>
+              <div class="flex items-center justify-between rounded-xl bg-black/5 dark:bg-white/5 p-4">
+                <div><p class="text-sm font-semibold">Ekspor Data</p><p class="text-xs text-zinc-400 mt-0.5">Unduh salinan data pribadi Anda</p></div>
+                <button class="px-4 py-2 rounded-xl bg-black/5 dark:bg-white/10 text-sm font-bold hover:bg-black/10 dark:hover:bg-white/15">Ekspor</button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ====== KEAMANAN ====== -->
+        <section id="sec-keamanan" class="sec-panel space-y-4">
+          <div class="glass-panel rounded-2xl p-6">
+            <h2 class="font-bold tracking-tight">Ganti Kata Sandi</h2>
+            <p class="text-sm text-zinc-500 dark:text-zinc-400 mt-1">Kata sandi minimal 8 karakter dengan kombinasi huruf dan angka.</p>
+            <div class="grid grid-cols-1 gap-4 mt-5">
+              <div>
+                <label class="text-xs font-semibold text-zinc-500 dark:text-zinc-400">Kata Sandi Saat Ini</label>
+                <div class="relative mt-1.5">
+                  <input id="pw-current" type="password" value="password123" class="w-full h-11 px-3.5 pr-11 rounded-xl bg-black/5 dark:bg-white/10 border border-black/5 dark:border-white/10 text-sm font-medium outline-none focus:ring-2 ring-zinc-900/10 dark:ring-white/20">
+                  <button type="button" onclick="togglePw('pw-current',this)" class="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400"><i data-lucide="eye" class="w-4 h-4"></i></button>
+                </div>
+              </div>
+              <div>
+                <label class="text-xs font-semibold text-zinc-500 dark:text-zinc-400">Kata Sandi Baru</label>
+                <div class="relative mt-1.5">
+                  <input id="pw-new" type="password" value="" oninput="checkStrength(this.value)" placeholder="Masukkan kata sandi baru" class="w-full h-11 px-3.5 pr-11 rounded-xl bg-black/5 dark:bg-white/10 border border-black/5 dark:border-white/10 text-sm font-medium outline-none focus:ring-2 ring-zinc-900/10 dark:ring-white/20">
+                  <button type="button" onclick="togglePw('pw-new',this)" class="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400"><i data-lucide="eye" class="w-4 h-4"></i></button>
+                </div>
+                <div id="pw-meter" class="hidden mt-3">
+                  <div class="flex gap-1.5">
+                    <span class="meter-bar flex-1 h-1.5 rounded-full bg-zinc-200 dark:bg-zinc-700"></span>
+                    <span class="meter-bar flex-1 h-1.5 rounded-full bg-zinc-200 dark:bg-zinc-700"></span>
+                    <span class="meter-bar flex-1 h-1.5 rounded-full bg-zinc-200 dark:bg-zinc-700"></span>
+                    <span class="meter-bar flex-1 h-1.5 rounded-full bg-zinc-200 dark:bg-zinc-700"></span>
+                  </div>
+                  <p id="pw-label" class="mt-1.5 text-xs font-semibold text-zinc-400">Kekuatan kata sandi</p>
+                </div>
+              </div>
+              <div>
+                <label class="text-xs font-semibold text-zinc-500 dark:text-zinc-400">Konfirmasi Kata Sandi Baru</label>
+                <input id="pw-confirm" type="password" placeholder="Ulangi kata sandi baru" class="mt-1.5 w-full h-11 px-3.5 rounded-xl bg-black/5 dark:bg-white/10 border border-black/5 dark:border-white/10 text-sm font-medium outline-none focus:ring-2 ring-zinc-900/10 dark:ring-white/20">
+              </div>
+            </div>
+            <div class="mt-5 flex items-center gap-3">
+              <button id="pw-save" onclick="savePassword()" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-zinc-900 dark:bg-zinc-50 text-zinc-50 dark:text-zinc-900 text-sm font-bold hover:opacity-90 shadow-lg"><i data-lucide="save" class="w-4 h-4"></i> Perbarui Kata Sandi</button>
+              <span id="pw-error" class="text-xs font-semibold text-rose-500 hidden">Kata sandi tidak cocok atau kurang dari 8 karakter</span>
+            </div>
+          </div>
+
+          <div class="glass-panel rounded-2xl p-6">
+            <div class="flex flex-col sm:flex-row sm:items-center gap-4">
+              <div class="flex-1">
+                <h2 class="font-bold tracking-tight">Autentikasi Dua Faktor (2FA)</h2>
+                <p class="text-sm text-zinc-500 dark:text-zinc-400 mt-1">Tambah lapisan keamanan ekstra dengan kode verifikasi setiap login.</p>
+                <span id="twofa-status" class="mt-2 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-zinc-500/15 text-zinc-600 dark:text-zinc-300 text-xs font-bold"><i data-lucide="circle-slash" class="w-3.5 h-3.5"></i> Nonaktif</span>
+              </div>
+              <label class="flex items-center gap-3 cursor-pointer shrink-0">
+                <span class="text-sm font-semibold" id="twofa-label">Aktifkan</span>
+                <input type="checkbox" id="twofa-toggle" class="mt-0" onchange="toggle2FA(this.checked)">
+              </label>
+            </div>
+          </div>
+        </section>
+
+        <!-- ====== PRIVASI ====== -->
+        <section id="sec-privasi" class="sec-panel space-y-4">
+          <div class="glass-panel rounded-2xl p-6">
+            <h2 class="font-bold tracking-tight mb-5">Pengaturan Privasi</h2>
+            <div class="space-y-5">
+              <div class="flex items-start justify-between gap-4">
+                <div><p class="text-sm font-semibold">Profil Publik</p><p class="text-xs text-zinc-400 mt-0.5">Izinkan siapa pun melihat profil dan portofolio Anda</p></div>
+                <input type="checkbox" class="mt-0" data-toggle checked>
+              </div>
+              <div class="flex items-start justify-between gap-4">
+                <div><p class="text-sm font-semibold">Tampilkan Email</p><p class="text-xs text-zinc-400 mt-0.5">Sembunyikan alamat email dari pengunjung profil</p></div>
+                <input type="checkbox" class="mt-0" data-toggle checked>
+              </div>
+              <div class="flex items-start justify-between gap-4">
+                <div><p class="text-sm font-semibold">Aktivitas Online</p><p class="text-xs text-zinc-400 mt-0.5">Tampilkan status "sedang online" kepada anggota lain</p></div>
+                <input type="checkbox" class="mt-0" data-toggle>
+              </div>
+              <div class="flex items-start justify-between gap-4">
+                <div><p class="text-sm font-semibold">Pesan Pribadi</p><p class="text-xs text-zinc-400 mt-0.5">Terima pesan langsung dari pengguna lain</p></div>
+                <input type="checkbox" class="mt-0" data-toggle checked>
+              </div>
+            </div>
+            <div class="mt-6 pt-5 border-t border-black/5 dark:border-white/10 flex justify-end">
+              <button onclick="showToast('Pilihan privasi tersimpan','Pengaturan privasi berhasil diperbarui')" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-zinc-900 dark:bg-zinc-50 text-zinc-50 dark:text-zinc-900 text-sm font-bold hover:opacity-90 shadow-lg"><i data-lucide="save" class="w-4 h-4"></i> Simpan</button>
+            </div>
+          </div>
+        </section>
+
+        <!-- ====== SESI ====== -->
+        <section id="sec-sesi" class="sec-panel space-y-4">
+          <div class="glass-panel rounded-2xl p-6">
+            <div class="flex items-center justify-between mb-5">
+              <div><h2 class="font-bold tracking-tight">Sesi Aktif</h2><p class="text-sm text-zinc-500 dark:text-zinc-400 mt-1">Perangkat yang saat ini login ke akun Anda.</p></div>
+              <button onclick="showToast('Semua sesi dicabut','Semua perangkat lain telah dikeluarkan')" class="text-sm font-bold text-rose-500 hover:underline">Cabut Semua</button>
+            </div>
+            <div class="space-y-3" id="session-list">
+              <div class="flex items-center gap-4 rounded-2xl bg-black/5 dark:bg-white/5 p-4">
+                <span class="grid place-items-center w-11 h-11 rounded-xl bg-zinc-900 dark:bg-zinc-50 text-zinc-50 dark:text-zinc-900 shrink-0"><i data-lucide="monitor" class="w-5 h-5"></i></span>
+                <div class="flex-1 min-w-0">
+                  <p class="text-sm font-bold">Chrome - Windows 11 <span class="ml-1.5 inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 text-[10px] font-bold"><i data-lucide="circle-dot" class="w-2 h-2"></i> Saat Ini</span></p>
+                  <p class="text-xs text-zinc-400 mt-0.5">Bandung, ID &#183; Bank Rakyat Tower &#183; Diperbarui 2 menit lalu</p>
+                </div>
+                <button onclick="revokeSession(this)" class="px-3 py-1.5 rounded-lg text-xs font-bold text-zinc-500 dark:text-zinc-400 hover:text-rose-500 hover:bg-rose-500/10">Cabut</button>
+              </div>
+              <div class="flex items-center gap-4 rounded-2xl bg-black/5 dark:bg-white/5 p-4" data-session>
+                <span class="grid place-items-center w-11 h-11 rounded-xl bg-sky-500/15 text-sky-600 dark:text-sky-400 shrink-0"><i data-lucide="smartphone" class="w-5 h-5"></i></span>
+                <div class="flex-1 min-w-0">
+                  <p class="text-sm font-bold">Xiaomi 13 - Aplikasi Uroo</p>
+                  <p class="text-xs text-zinc-400 mt-0.5">Jakarta, ID &#183; Login 3 hari lalu</p>
+                </div>
+                <button onclick="revokeSession(this)" class="px-3 py-1.5 rounded-lg text-xs font-bold text-zinc-500 dark:text-zinc-400 hover:text-rose-500 hover:bg-rose-500/10">Cabut</button>
+              </div>
+              <div class="flex items-center gap-4 rounded-2xl bg-black/5 dark:bg-white/5 p-4" data-session>
+                <span class="grid place-items-center w-11 h-11 rounded-xl bg-amber-500/15 text-amber-600 dark:text-amber-400 shrink-0"><i data-lucide="laptop" class="w-5 h-5"></i></span>
+                <div class="flex-1 min-w-0">
+                  <p class="text-sm font-bold">Safari - MacBook Air</p>
+                  <p class="text-xs text-zinc-400 mt-0.5">Yogyakarta, ID &#183; Login 12 hari lalu</p>
+                </div>
+                <button onclick="revokeSession(this)" class="px-3 py-1.5 rounded-lg text-xs font-bold text-zinc-500 dark:text-zinc-400 hover:text-rose-500 hover:bg-rose-500/10">Cabut</button>
+              </div>
+              <div class="flex items-center gap-4 rounded-2xl bg-black/5 dark:bg-white/5 p-4" data-session>
+                <span class="grid place-items-center w-11 h-11 rounded-xl bg-zinc-500/15 text-zinc-600 dark:text-zinc-300 shrink-0"><i data-lucide="tablet" class="w-5 h-5"></i></span>
+                <div class="flex-1 min-w-0">
+                  <p class="text-sm font-bold">iPad Pro - Safari</p>
+                  <p class="text-xs text-zinc-400 mt-0.5">Surabaya, ID &#183; Login 1 bulan lalu</p>
+                </div>
+                <button onclick="revokeSession(this)" class="px-3 py-1.5 rounded-lg text-xs font-bold text-zinc-500 dark:text-zinc-400 hover:text-rose-500 hover:bg-rose-500/10">Cabut</button>
+              </div>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <!-- ====== 2FA MODAL ====== -->
+  <div id="modal-2fa" class="fixed inset-0 z-50 hidden items-center justify-center p-4">
+    <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" onclick="closeModal('modal-2fa')"></div>
+    <div class="glass-panel rounded-2xl p-6 w-full max-w-sm relative z-10 anim-scale-in">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="font-bold">Aktifkan Autentikasi 2FA</h2>
+        <button onclick="closeModal('modal-2fa')" class="p-1.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/10"><i data-lucide="x" class="w-4 h-4"></i></button>
+      </div>
+      <p class="text-sm text-zinc-500 dark:text-zinc-400">Pindai kode QR ini menggunakan aplikasi autentikator (mis. Google Authenticator).</p>
+      <div class="my-4 grid place-items-center">
+        <svg viewBox="0 0 120 120" class="w-40 h-40 bg-white rounded-xl p-2"><g fill="#18181b"><rect x="8" y="8" width="14" height="14"/><rect x="38" y="8" width="8" height="14"/><rect x="72" y="8" width="14" height="14"/><rect x="8" y="38" width="8" height="8"/><rect x="104" y="38" width="8" height="14"/><rect x="24" y="52" width="14" height="14"/><rect x="52" y="52" width="8" height="8"/><rect x="72" y="52" width="14" height="8"/><rect x="8" y="82" width="14" height="14"/><rect x="52" y="82" width="8" height="14"/><rect x="90" y="82" width="14" height="14"/><rect x="38" y="98" width="8" height="14"/><rect x="104" y="82" width="8" height="8"/><rect x="8" y="104" width="14" height="8"/><rect x="90" y="52" width="8" height="8"/><rect x="24" y="8" width="8" height="8"/><rect x="112" y="68" width="8" height="8"/></g></svg>
+      </div>
+      <div>
+        <label class="text-xs font-semibold text-zinc-500 dark:text-zinc-400">Kode Verifikasi</label>
+        <input id="otp-input" placeholder="6 digit kode" inputmode="numeric" class="mt-1.5 w-full h-11 px-3.5 text-center tracking-[0.5em] rounded-xl bg-black/5 dark:bg-white/10 border border-black/5 dark:border-white/10 text-sm font-bold outline-none focus:ring-2 ring-zinc-900/10 dark:ring-white/20">
+      </div>
+      <p id="otp-error" class="hidden mt-2 text-xs font-semibold text-rose-500">Kode tidak valid. Coba lagi.</p>
+      <div class="mt-4 flex justify-end gap-2">
+        <button onclick="closeModal('modal-2fa')" class="px-4 py-2 rounded-xl bg-black/5 dark:bg-white/10 text-sm font-bold">Batal</button>
+        <button onclick="verifyOTP()" class="px-4 py-2 rounded-xl bg-zinc-900 dark:bg-zinc-50 text-zinc-50 dark:text-zinc-900 text-sm font-bold">Verifikasi</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div id="toast" class="toast hidden-toast fixed bottom-6 left-1/2 -translate-x-1/2 z-[70] glass-panel rounded-2xl px-5 py-3.5 flex items-center gap-3 shadow-2xl">
+    <span class="grid place-items-center w-7 h-7 rounded-full bg-emerald-500/15 text-emerald-600 dark:text-emerald-400"><i data-lucide="check" class="w-4 h-4"></i></span>
+    <div><p id="toast-title" class="text-sm font-bold">Berhasil</p><p id="toast-msg" class="text-xs text-zinc-500 dark:text-zinc-400"></p></div>
+  </div>
+
+  <button onclick="toggleTheme()" class="fixed top-5 right-5 z-[60] p-2.5 rounded-full glass-panel shadow-2xl text-zinc-600 dark:text-zinc-300">
+    <i data-lucide="moon" class="w-4 h-4 hidden dark:block"></i>
+    <i data-lucide="sun" class="w-4 h-4 block dark:hidden"></i>
+  </button>
+
+  <script>
+    lucide.createIcons();
+    function toggleTheme(){const b=document.body;const h=document.documentElement;b.classList.toggle('dark');h.classList.toggle('dark');try{localStorage.setItem('uroo-theme',b.classList.contains('dark')?'dark':'light')}catch(e){};lucide.createIcons();}
+
+    const toast=document.getElementById('toast');
+    let toastTimer;
+    function showToast(title,msg){document.getElementById('toast-title').textContent=title||'Berhasil';document.getElementById('toast-msg').textContent=msg||'';toast.classList.remove('hidden-toast');toast.classList.add('anim-toast-in');clearTimeout(toastTimer);toastTimer=setTimeout(()=>{toast.classList.add('hidden-toast');toast.classList.remove('anim-toast-in')},2800);}
+    function closeModal(id){const m=document.getElementById(id);m.classList.add('hidden');m.classList.remove('flex');}
+
+    function togglePw(id,btn){const el=document.getElementById(id);if(el.type==='password'){el.type='text';btn.innerHTML='<i data-lucide="eye-off" class="w-4 h-4"></i>';}else{el.type='password';btn.innerHTML='<i data-lucide="eye" class="w-4 h-4"></i>';}lucide.createIcons();}
+
+    function checkStrength(v){
+      const meter=document.getElementById('pw-meter');
+      const label=document.getElementById('pw-label');
+      if(!v){meter.classList.add('hidden');return;}
+      meter.classList.remove('hidden');
+      let s=0;
+      if(v.length>=8)s++;
+      if(/[A-Z]/.test(v))s++;
+      if(/[0-9]/.test(v))s++;
+      if(/[^A-Za-z0-9]/.test(v))s++;
+      const colors=['#f43f5e','#f59e0b','#eab308','#22c55e'];
+      const names=['Lemah','Cukup','Kuat','Sangat Kuat'];
+      const bars=meter.querySelectorAll('.meter-bar');
+      bars.forEach((b,i)=>{b.style.backgroundColor=i<s?colors[s-1]:''});
+      label.textContent=names[s-1];label.style.color=colors[s-1];
+    }
+
+    function savePassword(){
+      const cur=document.getElementById('pw-current').value;
+      const nw=document.getElementById('pw-new').value;
+      const cf=document.getElementById('pw-confirm').value;
+      const err=document.getElementById('pw-error');
+      if(!cur||nw.length<8||nw!==cf){err.classList.remove('hidden');return;}
+      err.classList.add('hidden');
+      document.getElementById('pw-new').value='';document.getElementById('pw-confirm').value='';document.getElementById('pw-current').value='';
+      document.getElementById('pw-meter').classList.add('hidden');
+      showToast('Kata sandi diperbarui','Kata sandi Anda berhasil diganti');
+    }
+
+    function toggle2FA(on){
+      if(on){
+        openModal('modal-2fa');
+      }else{
+        confirmDisable2FA();
+      }
+    }
+    function openModal(id){const m=document.getElementById(id);m.classList.remove('hidden');m.classList.add('flex');}
+    function verifyOTP(){
+      const v=document.getElementById('otp-input').value.trim();
+      if(v.length!==6){document.getElementById('otp-error').classList.remove('hidden');return;}
+      document.getElementById('otp-error').classList.add('hidden');
+      closeModal('modal-2fa');
+      document.getElementById('twofa-toggle').checked=true;updateToggle(document.getElementById('twofa-toggle'));
+      document.getElementById('twofa-label').textContent='Aktif';
+      document.getElementById('twofa-status').innerHTML='<i data-lucide="shield-check" class="w-3.5 h-3.5"></i> Aktif';document.getElementById('twofa-status').className='mt-2 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 text-xs font-bold';
+      lucide.createIcons();
+      showToast('2FA diaktifkan','Akun Anda kini lebih aman');
+    }
+    function confirmDisable2FA(){
+      if(confirm('Yakin menonaktifkan autentikasi dua faktor?')){
+        document.getElementById('twofa-toggle').checked=false;updateToggle(document.getElementById('twofa-toggle'));
+        document.getElementById('twofa-label').textContent='Aktifkan';
+        document.getElementById('twofa-status').innerHTML='<i data-lucide="circle-slash" class="w-3.5 h-3.5"></i> Nonaktif';document.getElementById('twofa-status').className='mt-2 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-zinc-500/15 text-zinc-600 dark:text-zinc-300 text-xs font-bold';
+        lucide.createIcons();
+        showToast('2FA dinonaktifkan','Autentikasi dua faktor telah dimatikan');
+      }else{
+        document.getElementById('twofa-toggle').checked=true;updateToggle(document.getElementById('twofa-toggle'));
+      }
+    }
+
+    function revokeSession(btn){
+      if(!confirm('Cabut sesi untuk perangkat ini?'))return;
+      btn.closest('[data-session], div').outerHTML='';
+      showToast('Sesi dicabut','Perangkat telah dikeluarkan dari akun');
+    }
+
+    document.querySelectorAll('.sec-nav').forEach(btn=>{
+      btn.addEventListener('click',()=>{
+        document.querySelectorAll('.sec-nav').forEach(b=>b.classList.remove('active'));
+        btn.classList.add('active');
+        document.querySelectorAll('.sec-panel').forEach(p=>p.classList.remove('active'));
+        document.getElementById('sec-'+btn.dataset.sec).classList.add('active');
+      });
+    });
+
+    function updateToggle(el){const on=el.checked;el.style.background=on?'#18181b':'rgba(113,113,122,.35)';if(document.body.classList.contains('dark')&&on)el.style.background='#fafafa';const dots=el.querySelectorAll(':scope::before,:scope::after');}
+    document.querySelectorAll('[data-toggle]').forEach(el=>{el.addEventListener('change',()=>{const on=el.checked;el.style.background=on?'#18181b':(document.body.classList.contains('dark')?'rgba(113,113,122,.35)':'rgba(113,113,122,.35)');if(document.body.classList.contains('dark')&&on)el.style.background='#fafafa';el.style.setProperty('--dot',on?'translateX(18px)':'translateX(0)');});});
+    document.addEventListener('DOMContentLoaded',()=>{document.querySelectorAll('[data-toggle]').forEach(el=>{const on=el.checked;el.style.background=on?'#18181b':'rgba(113,113,122,.35)';if(document.body.classList.contains('dark')&&on)el.style.background='#fafafa';});});
+  </script>
+<script src="../../assets/js/uroo-nav.js"></script>
+</body>
+</html>

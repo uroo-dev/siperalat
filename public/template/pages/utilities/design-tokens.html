@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="id" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Uroo UI — Design Tokens</title>
+  <script src="../../assets/js/tailwind.js"></script>
+  <script src="../../assets/js/lucide.js"></script>
+  <script>
+    tailwind.config = { darkMode: 'class', theme: { extend: { colors: { glass: {
+      light: 'rgba(255,255,255,0.65)', 'light-border': 'rgba(255,255,255,0.8)',
+      dark: 'rgba(18,18,20,0.65)', 'dark-border': 'rgba(255,255,255,0.1)'
+    } } } } };
+  </script>
+  <link rel="stylesheet" href="../../assets/css/uroo.css">
+  <style>
+    .u-bg{position:fixed;inset:0;z-index:-10;transition:opacity .35s ease}
+    .u-bg-light{background:linear-gradient(135deg,#dfe3ea,#f4f4f5)}
+    .u-bg-dark{background:linear-gradient(135deg,#0a0a0b,#1a1a1e);opacity:0}
+    body.dark .u-bg-light{opacity:0}
+    body.dark .u-bg-dark{opacity:1}
+    .u-glow{position:fixed;border-radius:9999px;filter:blur(90px);z-index:-9;pointer-events:none;background:rgba(0,0,0,0.06);transition:background-color .35s ease}
+    body.dark .u-glow{background:rgba(255,255,255,0.05)}
+    .u-glow-1{width:420px;height:420px;top:-140px;left:-140px}
+    .u-glow-2{width:520px;height:520px;bottom:-200px;right:-140px}
+    .tok{display:flex;justify-content:space-between;align-items:center;gap:.5rem;padding:.55rem .7rem;border-radius:.7rem;font-size:.7rem;border:1px solid rgba(0,0,0,.07)}
+    body.dark .tok{border-color:rgba(255,255,255,.09)}
+    .tok b{font-weight:600;flex:none}
+    .tok code{font-family:ui-monospace,monospace;color:#71717a;text-align:right;word-break:break-all}
+    .sg{flex:none;width:18px;height:18px;border-radius:5px;border:1px solid rgba(0,0,0,.1)}
+  </style>
+</head>
+<body class="min-h-screen font-sans antialiased text-zinc-800 dark:text-zinc-100">
+  <script>(function initTheme(){var saved=null;try{saved=localStorage.getItem('uroo-theme')}catch(e){};var dark=(saved==='dark')||(!saved&&window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches);var de=document.documentElement;if(dark){de.classList.add('dark');de.classList.remove('light');if(document.body){document.body.classList.add('dark');document.body.classList.remove('light');}}else{de.classList.remove('dark');de.classList.add('light');if(document.body){document.body.classList.remove('dark');document.body.classList.add('light');}}})();</script>
+  <div class="u-bg u-bg-light" aria-hidden="true"></div>
+  <div class="u-bg u-bg-dark" aria-hidden="true"></div>
+  <div class="u-glow u-glow-1" aria-hidden="true"></div>
+  <div class="u-glow u-glow-2" aria-hidden="true"></div>
+
+  <button onclick="toggleTheme()" class="fixed top-4 right-4 z-50 p-2 rounded-full glass-panel shadow-2xl" title="Toggle tema">
+    <i data-lucide="sun" class="w-4 h-4 hidden dark:block"></i>
+    <i data-lucide="moon" class="w-4 h-4 block dark:hidden"></i>
+  </button>
+
+  <main class="max-w-4xl mx-auto px-5 py-10 space-y-6">
+
+    <header class="glass-panel rounded-3xl p-6 sm:p-8">
+      <span class="inline-flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-1 rounded-full bg-black/5 dark:bg-white/5 mb-3">
+        <i data-lucide="shapes" class="w-3 h-3"></i> Foundation · Tokens
+      </span>
+      <h1 class="text-3xl font-extrabold tracking-tight">Design Tokens</h1>
+      <p class="text-sm text-zinc-500 dark:text-zinc-400 mt-1">Referensi token lengkap — glass, warna, tipografi, spacing, radius, shadow, blur, z-index, transisi.</p>
+    </header>
+
+    <!-- Glass -->
+    <section class="glass-panel rounded-3xl p-6 sm:p-8" data-copy>
+      <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-zinc-400 dark:text-zinc-500 mb-3">Glass Tokens</p>
+      <div class="grid sm:grid-cols-2 gap-2">
+        <div class="tok"><b>--glass-light</b><code>rgba(255,255,255,0.65)</code></div>
+        <div class="tok"><b>--glass-light-border</b><code>rgba(255,255,255,0.8)</code></div>
+        <div class="tok"><b>--glass-dark</b><code>rgba(18,18,20,0.65)</code></div>
+        <div class="tok"><b>--glass-dark-border</b><code>rgba(255,255,255,0.1)</code></div>
+        <div class="tok sm:col-span-2"><b>--blur-panel</b><code>blur(20px) saturate(180%)</code></div>
+      </div>
+    </section>
+
+    <!-- Colors -->
+    <section class="glass-panel rounded-3xl p-6 sm:p-8" data-copy>
+      <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-zinc-400 dark:text-zinc-500 mb-3">Warna</p>
+      <div class="grid sm:grid-cols-2 gap-2">
+        <div class="tok"><b>--color-bg</b><span class="sg" style="background:#f4f4f5"></span><code>#f4f4f5</code></div>
+        <div class="tok"><b>--color-surface</b><span class="sg" style="background:#ffffff"></span><code>#ffffff</code></div>
+        <div class="tok"><b>--color-text</b><span class="sg" style="background:#18181b"></span><code>#18181b</code></div>
+        <div class="tok"><b>--color-primary</b><span class="sg" style="background:#18181b"></span><code>#18181b</code></div>
+        <div class="tok"><b>--color-accent</b><span class="sg" style="background:#2dd4bf"></span><code>#2dd4bf</code></div>
+        <div class="tok"><b>--color-success</b><span class="sg" style="background:#10b981"></span><code>#10b981</code></div>
+        <div class="tok"><b>--color-warning</b><span class="sg" style="background:#f59e0b"></span><code>#f59e0b</code></div>
+        <div class="tok"><b>--color-danger</b><span class="sg" style="background:#ef4444"></span><code>#ef4444</code></div>
+        <div class="tok sm:col-span-2"><b>--color-info</b><span class="sg" style="background:#3b82f6"></span><code>#3b82f6</code></div>
+      </div>
+    </section>
+
+    <!-- Typography -->
+    <section class="glass-panel rounded-3xl p-6 sm:p-8" data-copy>
+      <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-zinc-400 dark:text-zinc-500 mb-3">Tipografi</p>
+      <div class="grid sm:grid-cols-3 gap-2">
+        <div class="tok sm:col-span-3"><b>--font-sans</b><code>Inter · Plus Jakarta Sans</code></div>
+        <div class="tok"><b>--text-sm</b><code>0.875rem</code></div>
+        <div class="tok"><b>--text-base</b><code>1rem</code></div>
+        <div class="tok"><b>--text-lg</b><code>1.125rem</code></div>
+        <div class="tok"><b>--text-xl</b><code>1.25rem</code></div>
+        <div class="tok"><b>--text-2xl</b><code>1.5rem</code></div>
+        <div class="tok"><b>--text-4xl</b><code>2.25rem</code></div>
+      </div>
+    </section>
+
+    <!-- Spacing -->
+    <section class="glass-panel rounded-3xl p-6 sm:p-8" data-copy>
+      <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-zinc-400 dark:text-zinc-500 mb-3">Spacing</p>
+      <div class="grid sm:grid-cols-3 gap-2">
+        <div class="tok"><b>--spacing-1</b><code>0.25rem</code></div>
+        <div class="tok"><b>--spacing-2</b><code>0.5rem</code></div>
+        <div class="tok"><b>--spacing-3</b><code>0.75rem</code></div>
+        <div class="tok"><b>--spacing-4</b><code>1rem</code></div>
+        <div class="tok"><b>--spacing-6</b><code>1.5rem</code></div>
+        <div class="tok"><b>--spacing-8</b><code>2rem</code></div>
+        <div class="tok"><b>--spacing-12</b><code>3rem</code></div>
+        <div class="tok"><b>--spacing-16</b><code>4rem</code></div>
+      </div>
+    </section>
+
+    <!-- Radius & Shadow -->
+    <section class="glass-panel rounded-3xl p-6 sm:p-8" data-copy>
+      <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-zinc-400 dark:text-zinc-500 mb-3">Radius & Shadow</p>
+      <div class="grid sm:grid-cols-2 gap-2">
+        <div class="tok"><b>--radius-sm</b><code>0.625rem</code></div>
+        <div class="tok"><b>--radius-md</b><code>0.875rem</code></div>
+        <div class="tok"><b>--radius-lg</b><code>1.25rem</code></div>
+        <div class="tok"><b>--radius-2xl</b><code>2rem</code></div>
+        <div class="tok"><b>--shadow-md</b><code>0 4px 6px -1px rgba(0,0,0,0.1)</code></div>
+        <div class="tok"><b>--shadow-lg</b><code>0 10px 15px -3px rgba(0,0,0,0.1)</code></div>
+        <div class="tok sm:col-span-2"><b>--shadow-glass</b><code>0 20px 40px -15px rgba(0,0,0,0.05) + inset</code></div>
+      </div>
+    </section>
+
+    <!-- Z-index & Transitions -->
+    <section class="glass-panel rounded-3xl p-6 sm:p-8" data-copy>
+      <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-zinc-400 dark:text-zinc-500 mb-3">Z-Index & Transisi</p>
+      <div class="grid sm:grid-cols-2 gap-2">
+        <div class="tok"><b>--z-dropdown</b><code>1000</code></div>
+        <div class="tok"><b>--z-modal</b><code>1050</code></div>
+        <div class="tok"><b>--z-tooltip</b><code>1070</code></div>
+        <div class="tok"><b>--z-toast</b><code>1080</code></div>
+        <div class="tok"><b>--transition-fast</b><code>0.15s ease</code></div>
+        <div class="tok"><b>--transition-base</b><code>0.3s ease</code></div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    lucide.createIcons();
+    function toggleTheme() {
+      const h = document.documentElement, b = document.body;
+      h.classList.toggle('dark'); b.classList.toggle('dark');
+      try { localStorage.setItem('uroo-theme', b.classList.contains('dark') ? 'dark' : 'light'); } catch (e) {}
+      lucide.createIcons();
+    }
+  </script>
+  <script src="../../assets/js/uroo-copy.js"></script>
+<script src="../../assets/js/uroo-nav.js"></script>
+</body>
+</html>

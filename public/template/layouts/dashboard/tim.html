@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="id" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kinerja Tim - Dashboard</title>
+  <script src="../../assets/js/tailwind.js"></script>
+  <script src="../../assets/js/lucide.js"></script>
+  <script>tailwind.config={darkMode:'class',theme:{extend:{colors:{glass:{light:'rgba(255,255,255,0.65)','light-border':'rgba(255,255,255,0.8)',dark:'rgba(18,18,20,0.65)','dark-border':'rgba(255,255,255,0.1)'}}}}}</script>
+  <link rel="stylesheet" href="../../assets/css/uroo.css">
+  <style>
+    .u-bg{position:fixed;inset:0;z-index:-10;transition:opacity .35s ease}
+    .u-bg-light{background:linear-gradient(135deg,#dfe3ea,#f4f4f5)}
+    .u-bg-dark{background:linear-gradient(135deg,#0a0a0b,#1a1a1e);opacity:0}
+    body.dark .u-bg-light{opacity:0}
+    body.dark .u-bg-dark{opacity:1}
+    .u-glow{position:fixed;border-radius:9999px;filter:blur(90px);z-index:-9;pointer-events:none;background:rgba(0,0,0,0.06);transition:background-color .35s ease}
+    body.dark .u-glow{background:rgba(255,255,255,0.05)}
+    .u-glow-1{width:420px;height:420px;top:-140px;left:-140px}
+    .u-glow-2{width:520px;height:520px;bottom:-200px;right:-140px}
+    .u-glow-3{width:300px;height:300px;top:42%;left:58%}
+    #sidebar{width:16rem;transition:transform .28s cubic-bezier(.16,1,.3,1),width .28s cubic-bezier(.16,1,.3,1)}
+    #sidebar.collapsed{width:4.75rem}
+    #sidebar .nav-label{transition:opacity .15s ease,width .15s ease}
+    #sidebar.collapsed .nav-label{opacity:0;width:0;overflow:hidden;white-space:nowrap}
+    #sidebar.collapsed .nav-link{justify-content:center;padding-left:0;padding-right:0}
+    #sidebar.collapsed .group-title{justify-content:center;padding-left:0;padding-right:0}
+    #sidebar.collapsed .nav-text{display:none}
+    #sidebar.collapsed .logo-text{display:none}
+    #sidebar .badge-dot{transition:opacity .15s}
+    #sidebar.collapsed .badge-dot{opacity:0}
+    @media (max-width:767px){
+      #sidebar{position:fixed;top:1rem;bottom:1rem;left:1rem;z-index:50;transform:translateX(-130%);}
+      #sidebar.open{transform:translateX(0);}
+    }
+    :root{--u-chart:#18181b;--u-chart-mid:#71717a}
+    .dark{--u-chart:#fafafa;--u-chart-mid:#a1a1aa}
+    .pbar{height:8px;border-radius:9999px;background:rgba(0,0,0,0.08);overflow:hidden}
+    .dark .pbar{background:rgba(255,255,255,0.1)}
+    .pbar i{display:block;height:100%;border-radius:9999px;transition:width .6s cubic-bezier(.16,1,.3,1)}
+  </style>
+</head>
+<body class="min-h-screen font-sans antialiased text-zinc-800 dark:text-zinc-100">
+  <script>(function initTheme(){var saved=null;try{saved=localStorage.getItem('uroo-theme')}catch(e){};var dark=(saved==='dark')||(!saved&&window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches);var de=document.documentElement;if(dark){de.classList.add('dark');de.classList.remove('light');if(document.body){document.body.classList.add('dark');document.body.classList.remove('light');}}else{de.classList.remove('dark');de.classList.add('light');if(document.body){document.body.classList.remove('dark');document.body.classList.add('light');}}})();</script>
+  <div class="u-bg u-bg-light" aria-hidden="true"></div>
+  <div class="u-bg u-bg-dark" aria-hidden="true"></div>
+  <div class="u-glow u-glow-1" aria-hidden="true"></div>
+  <div class="u-glow u-glow-2" aria-hidden="true"></div>
+  <div class="u-glow u-glow-3" aria-hidden="true"></div>
+
+  <div id="overlay" class="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm opacity-0 pointer-events-none transition-opacity duration-300 md:hidden" onclick="closeDrawer()"></div>
+
+  <div class="md:flex md:gap-4 md:p-4 min-h-screen">
+    <aside id="sidebar" class="glass-panel rounded-2xl flex flex-col overflow-hidden shrink-0 md:sticky md:top-4 md:h-[calc(100vh-2rem)]">
+      <div class="flex items-center gap-3 px-5 h-16 border-b border-black/5 dark:border-white/10 shrink-0">
+        <img src="../../assets/img/uroo_ui.png" alt="Uroo UI" class="w-9 h-9 rounded-xl object-cover shadow-lg shrink-0">
+        <div class="logo-text min-w-0">
+          <p class="font-extrabold text-[15px] leading-none tracking-tight">Uroo UI</p>
+          <p class="mt-0.5 text-[10px] font-semibold uppercase tracking-[0.18em] text-zinc-400 dark:text-zinc-500">Dashboard</p>
+        </div>
+        <button onclick="closeDrawer()" class="ml-auto md:hidden p-1.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/10"><i data-lucide="x" class="w-4 h-4"></i></button>
+        <button onclick="toggleSidebar()" class="hidden md:block ml-auto p-1.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 text-zinc-400"><i data-lucide="panel-left-close" class="w-4 h-4"></i></button>
+      </div>
+
+      <nav class="flex-1 overflow-y-auto px-3 py-4 space-y-6">
+        <div>
+          <p class="group-title flex items-center nav-label px-3 mb-2 text-[10px] font-bold uppercase tracking-[0.18em] text-zinc-400 dark:text-zinc-500">Navigasi</p>
+          <div class="space-y-1">
+            <a href="dashboard.html" class="nav-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-50 hover:bg-black/5 dark:hover:bg-white/10"><i data-lucide="layout-dashboard" class="w-[18px] h-[18px] shrink-0"></i><span class="nav-label">Overview</span></a>
+            <a href="analitik.html" class="nav-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-50 hover:bg-black/5 dark:hover:bg-white/10"><i data-lucide="bar-chart-3" class="w-[18px] h-[18px] shrink-0"></i><span class="nav-label">Analitik</span></a>
+            <a href="laporan.html" class="nav-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-50 hover:bg-black/5 dark:hover:bg-white/10"><i data-lucide="file-text" class="w-[18px] h-[18px] shrink-0"></i><span class="nav-label">Laporan</span></a>
+            <a href="tim.html" class="nav-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold bg-zinc-900 text-zinc-50 dark:bg-zinc-50 dark:text-zinc-900 shadow-lg"><i data-lucide="users" class="w-[18px] h-[18px] shrink-0"></i><span class="nav-label">Tim</span></a>
+          </div>
+        </div>
+        <div>
+          <p class="group-title flex items-center nav-label px-3 mb-2 text-[10px] font-bold uppercase tracking-[0.18em] text-zinc-400 dark:text-zinc-500">Wawasan</p>
+          <div class="space-y-1">
+            <a href="konversi.html" class="nav-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-50 hover:bg-black/5 dark:hover:bg-white/10"><i data-lucide="target" class="w-[18px] h-[18px] shrink-0"></i><span class="nav-label">Konversi</span></a>
+            <a href="retensi.html" class="nav-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-50 hover:bg-black/5 dark:hover:bg-white/10"><i data-lucide="mouse-pointer-click" class="w-[18px] h-[18px] shrink-0"></i><span class="nav-label">Retensi</span></a>
+            <a href="realtime.html" class="nav-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-50 hover:bg-black/5 dark:hover:bg-white/10"><i data-lucide="zap" class="w-[18px] h-[18px] shrink-0"></i><span class="nav-label">Real-time</span><span class="badge-dot nav-text ml-auto w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span></a>
+          </div>
+        </div>
+        <div>
+          <p class="group-title flex items-center nav-label px-3 mb-2 text-[10px] font-bold uppercase tracking-[0.18em] text-zinc-400 dark:text-zinc-500">Sistem</p>
+          <div class="space-y-1">
+            <a href="pengaturan.html" class="nav-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-50 hover:bg-black/5 dark:hover:bg-white/10"><i data-lucide="settings" class="w-[18px] h-[18px] shrink-0"></i><span class="nav-label">Pengaturan</span></a>
+            <a href="bantuan.html" class="nav-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-50 hover:bg-black/5 dark:hover:bg-white/10"><i data-lucide="help-circle" class="w-[18px] h-[18px] shrink-0"></i><span class="nav-label">Bantuan</span></a>
+          </div>
+        </div>
+      </nav>
+
+      <div class="p-3 border-t border-black/5 dark:border-white/10 shrink-0">
+        <button class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-50 hover:bg-black/5 dark:hover:bg-white/10">
+          <span class="grid place-items-center w-8 h-8 rounded-full bg-gradient-to-br from-zinc-500 to-zinc-800 dark:from-zinc-300 dark:to-zinc-600 text-white dark:text-zinc-900 text-xs font-bold shrink-0">DB</span>
+          <span class="nav-label text-left min-w-0">
+            <span class="block font-bold text-[13px] leading-tight">Dita Baskoro</span>
+            <span class="block text-[11px] font-normal text-zinc-400 leading-tight">Administrator</span>
+          </span>
+        </button>
+      </div>
+    </aside>
+
+    <main class="flex-1 py-6 min-w-0">
+      <div class="mb-6 flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <p class="text-[11px] font-bold uppercase tracking-[0.2em] text-zinc-400 dark:text-zinc-500">Tim / Kinerja</p>
+          <h1 class="text-2xl md:text-3xl font-bold tracking-tight mt-1">Kinerja Tim</h1>
+          <p class="mt-1 text-sm text-zinc-500 dark:text-zinc-400">Realisasi target tiap anggota pada periode Januari 2026.</p>
+        </div>
+        <div class="flex items-center gap-2">
+          <button onclick="toast('Daftar anggota diunduh sebagai CSV','file-spreadsheet')" class="inline-flex items-center gap-2 px-3.5 h-10 rounded-xl border border-black/10 dark:border-white/15 text-sm font-semibold text-zinc-600 dark:text-zinc-300 hover:bg-black/5 dark:hover:bg-white/10 active:scale-[0.98] transition-transform"><i data-lucide="download" class="w-4 h-4"></i> Ekspor</button>
+          <button onclick="toast('Undangan anggota baru telah dikirim','user-plus')" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-zinc-900 dark:bg-zinc-50 text-zinc-50 dark:text-zinc-900 text-sm font-bold hover:opacity-90 shadow-lg active:scale-[0.98] transition-transform"><i data-lucide="user-plus" class="w-4 h-4"></i> Undang Anggota</button>
+        </div>
+      </div>
+
+      <!-- KPI strip -->
+      <div class="grid grid-cols-2 xl:grid-cols-4 gap-4 mb-6">
+        <div class="glass-panel rounded-2xl p-5">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-semibold text-zinc-500 dark:text-zinc-400">Anggota Aktif</span>
+            <i data-lucide="users" class="w-4 h-4 text-zinc-400"></i>
+          </div>
+          <p class="mt-3 text-3xl font-extrabold tracking-tight">12</p>
+          <p class="mt-1 text-xs font-semibold text-emerald-600 dark:text-emerald-400">+2 bulan ini</p>
+        </div>
+        <div class="glass-panel rounded-2xl p-5">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-semibold text-zinc-500 dark:text-zinc-400">Rata-rata Capaian</span>
+            <i data-lucide="target" class="w-4 h-4 text-zinc-400"></i>
+          </div>
+          <p class="mt-3 text-3xl font-extrabold tracking-tight">86%</p>
+          <p class="mt-1 text-xs font-semibold text-emerald-600 dark:text-emerald-400">+4,2% vs bulan lalu</p>
+        </div>
+        <div class="glass-panel rounded-2xl p-5">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-semibold text-zinc-500 dark:text-zinc-400">Di Atas Target</span>
+            <i data-lucide="trophy" class="w-4 h-4 text-amber-500"></i>
+          </div>
+          <p class="mt-3 text-3xl font-extrabold tracking-tight">8</p>
+          <p class="mt-1 text-xs font-semibold text-zinc-400">dari 12 anggota</p>
+        </div>
+        <div class="glass-panel rounded-2xl p-5">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-semibold text-zinc-500 dark:text-zinc-400">Perlu Perhatian</span>
+            <i data-lucide="triangle-alert" class="w-4 h-4 text-rose-500"></i>
+          </div>
+          <p class="mt-3 text-3xl font-extrabold tracking-tight">2</p>
+          <p class="mt-1 text-xs font-semibold text-rose-600 dark:text-rose-400">capaian di bawah 75%</p>
+        </div>
+      </div>
+
+      <!-- Roster table -->
+      <div class="glass-panel rounded-2xl overflow-hidden">
+        <div class="px-5 py-4 border-b border-black/5 dark:border-white/10 flex items-center justify-between gap-3">
+          <div>
+            <h2 class="font-bold tracking-tight">Roster Bulan Ini</h2>
+            <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">9 anggota ditampilkan · sortir otomatis berdasar capaian</p>
+          </div>
+          <label class="relative">
+            <i data-lucide="search" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400"></i>
+            <input id="memberSearch" oninput="filterMembers(this.value)" type="text" placeholder="Cari anggota..." class="w-52 pl-9 pr-3 h-10 rounded-xl bg-black/5 dark:bg-white/10 outline-none text-sm font-medium placeholder:text-zinc-400 focus:ring-2 ring-zinc-400/40 transition-shadow">
+          </label>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full text-sm">
+            <thead>
+              <tr class="text-left text-[11px] font-bold uppercase tracking-[0.15em] text-zinc-400 dark:text-zinc-500">
+                <th class="px-5 py-3 font-bold">Anggota</th>
+                <th class="px-5 py-3 font-bold">Divisi</th>
+                <th class="px-5 py-3 font-bold">Target Bulan Ini</th>
+                <th class="px-5 py-3 font-bold min-w-[180px]">Capaian</th>
+                <th class="px-5 py-3 font-bold">Status</th>
+                <th class="px-5 py-3 font-bold"></th>
+              </tr>
+            </thead>
+            <tbody id="rosterBody" class="divide-y divide-black/5 dark:divide-white/10"></tbody>
+          </table>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <button onclick="toggleTheme()" class="fixed top-5 right-5 z-[80] p-2.5 rounded-full glass-panel shadow-2xl text-zinc-600 dark:text-zinc-300 md:top-[1.6rem] md:right-[1.6rem]">
+    <i data-lucide="moon" class="w-4 h-4 hidden dark:block"></i>
+    <i data-lucide="sun" class="w-4 h-4 block dark:hidden"></i>
+  </button>
+
+  <script>
+    lucide.createIcons();
+    function toggleTheme(){document.documentElement.classList.toggle('dark');document.body.classList.toggle('dark');try{localStorage.setItem('uroo-theme',document.documentElement.classList.contains('dark')?'dark':'light')}catch(e){};lucide.createIcons();}
+    const sidebar=document.getElementById('sidebar');
+    function toggleSidebar(){
+      if(window.innerWidth>=768){sidebar.classList.toggle('collapsed');}
+      else{sidebar.classList.toggle('open');document.getElementById('overlay').classList.toggle('opacity-0',!sidebar.classList.contains('open'));document.getElementById('overlay').classList.toggle('pointer-events-none',!sidebar.classList.contains('open'));}
+    }
+    function openDrawer(){sidebar.classList.add('open');document.getElementById('overlay').classList.remove('opacity-0','pointer-events-none');}
+    function closeDrawer(){sidebar.classList.remove('open');document.getElementById('overlay').classList.add('opacity-0','pointer-events-none');}
+    function toast(msg,type){
+      const t=document.createElement('div');
+      t.className='fixed bottom-5 right-5 z-[85] glass-panel rounded-xl px-4 py-3 text-sm font-semibold shadow-2xl anim-toast-in flex items-center gap-2.5 pointer-events-none max-w-sm';
+      t.innerHTML='<i data-lucide="'+(type||'check-circle')+'" class="w-4 h-4 shrink-0"></i><span>'+msg+'</span>';
+      document.body.appendChild(t);lucide.createIcons();
+      setTimeout(()=>{t.style.opacity='0';t.style.transition='opacity .3s';setTimeout(()=>t.remove(),320)},2600);
+    }
+    const ROSTER=[
+      {name:'Dita Baskoro',role:'Administrator',div:'Marketing',grad:'from-zinc-500 to-zinc-800',target:'Rp 120 jt',pct:108,color:'#10b981',status:'Di Atas Target'},
+      {name:'Raka Pratama',role:'Head of Sales',div:'Penjualan',grad:'from-sky-500 to-indigo-600',target:'Rp 250 jt',pct:94,color:'#0ea5e9',status:'On Track'},
+      {name:'Sari Wijaya',role:'Growth & SEO',div:'Marketing',grad:'from-emerald-500 to-teal-600',target:'Rp 90 jt',pct:88,color:'#0ea5e9',status:'On Track'},
+      {name:'Lia Kusuma',role:'Content & Editorial',div:'Konten',grad:'from-violet-500 to-purple-600',target:'Rp 60 jt',pct:96,color:'#10b981',status:'Di Atas Target'},
+      {name:'Nadia Putri',role:'Lead Designer',div:'Desain',grad:'from-rose-500 to-pink-600',target:'Rp 80 jt',pct:90,color:'#10b981',status:'On Track'},
+      {name:'Yusuf Hidayat',role:'Partnership',div:'Kolaborasi',grad:'from-teal-500 to-emerald-600',target:'Rp 140 jt',pct:84,color:'#0ea5e9',status:'On Track'},
+      {name:'Rina Setiawan',role:'Finance & Ops',div:'Keuangan',grad:'from-indigo-500 to-violet-600',target:'Rp 55 jt',pct:100,color:'#10b981',status:'Selesai'},
+      {name:'Bima Ardianto',role:'Customer Success',div:'Layanan',grad:'from-amber-500 to-orange-600',target:'Rp 75 jt',pct:72,color:'#f43f5e',status:'Perlu Perhatian'},
+      {name:'Farhan Maulana',role:'Frontend Engineer',div:'Teknologi',grad:'from-pink-500 to-rose-600',target:'Rp 110 jt',pct:61,color:'#f43f5e',status:'Perlu Perhatian'}
+    ];
+    function statusClass(s){
+      if(s==='Di Atas Target')return 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400';
+      if(s==='Selesai')return 'bg-zinc-900 text-zinc-50 dark:bg-zinc-50 dark:text-zinc-900';
+      if(s==='Perlu Perhatian')return 'bg-rose-500/15 text-rose-600 dark:text-rose-400';
+      return 'bg-sky-500/15 text-sky-600 dark:text-sky-400';
+    }
+    function initials(name){return name.split(' ').map(p=>p[0]).slice(0,2).join('').toUpperCase();}
+    function buildRoster(list){
+      const t=document.getElementById('rosterBody');
+      t.innerHTML=list.map((m,i)=>'' +
+        '<tr class="hover:bg-black/[0.03] dark:hover:bg-white/[0.04] transition-colors">'+
+          '<td class="px-5 py-4"><div class="flex items-center gap-3">'+
+            '<span class="grid place-items-center w-10 h-10 rounded-full bg-gradient-to-br '+m.grad+' text-white text-[11px] font-bold shrink-0">'+initials(m.name)+'</span>'+
+            '<div class="min-w-0"><p class="font-bold leading-tight truncate">'+m.name+'</p><p class="text-xs text-zinc-400 mt-0.5">'+m.role+'</p></div>'+
+          '</div></td>'+
+          '<td class="px-5 py-4"><span class="inline-flex text-[11px] font-bold px-2.5 py-1 rounded-full bg-black/5 dark:bg-white/10 text-zinc-500 dark:text-zinc-400">'+m.div+'</span></td>'+
+          '<td class="px-5 py-4 font-semibold whitespace-nowrap">'+m.target+'</td>'+
+          '<td class="px-5 py-4"><div class="flex items-center gap-3">'+
+            '<div class="pbar flex-1"><i style="width:'+Math.min(m.pct,100)+'%;background:'+m.color+'"></i></div>'+
+            '<span class="text-xs font-bold w-11 text-right" style="color:'+m.color+'">'+m.pct+'%</span>'+
+          '</div></td>'+
+          '<td class="px-5 py-4"><span class="inline-flex text-[11px] font-bold px-2.5 py-1 rounded-full '+statusClass(m.status)+'">'+m.status+'</span></td>'+
+          '<td class="px-5 py-4 text-right"><button onclick="memberMenu(0)" class="grid place-items-center w-8 h-8 rounded-lg text-zinc-400 hover:bg-black/5 dark:hover:bg-white/10" title="Aksi anggota"><i data-lucide="more-horizontal" class="w-4 h-4"></i></button></td>'+
+        '</tr>'
+      ).join('');
+      lucide.createIcons();
+    }
+    function filterMembers(q){
+      const s=q.toLowerCase().trim();
+      buildRoster(ROSTER.filter(m=>!s||m.name.toLowerCase().includes(s)||m.role.toLowerCase().includes(s)||m.div.toLowerCase().includes(s)));
+    }
+    function memberMenu(i){toast('Menu anggota tidak tersedia di pratinjau','info');}
+    buildRoster(ROSTER);
+  </script>
+<script src="../../assets/js/uroo-nav.js"></script>
+</body>
+</html>

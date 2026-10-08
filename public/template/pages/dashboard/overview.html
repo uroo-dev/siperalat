@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="id" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Uroo UI - Dashboard</title>
+  <script src="../../assets/js/tailwind.js"></script>
+  <script src="../../assets/js/lucide.js"></script>
+  <script>tailwind.config={darkMode:'class',theme:{extend:{colors:{glass:{light:'rgba(255,255,255,0.65)','light-border':'rgba(255,255,255,0.8)',dark:'rgba(18,18,20,0.65)','dark-border':'rgba(255,255,255,0.1)'}}}}}</script>
+  <link rel="stylesheet" href="../../assets/css/uroo.css">
+  <style>
+    .u-bg{position:fixed;inset:0;z-index:-10;transition:opacity .35s ease}
+    .u-bg-light{background:linear-gradient(135deg,#dfe3ea,#f4f4f5)}
+    .u-bg-dark{background:linear-gradient(135deg,#0a0a0b,#1a1a1e);opacity:0}
+    body.dark .u-bg-light{opacity:0}
+    body.dark .u-bg-dark{opacity:1}
+    .u-glow{position:fixed;border-radius:9999px;filter:blur(90px);z-index:-9;pointer-events:none;background:rgba(0,0,0,0.06);transition:background-color .35s ease}
+    body.dark .u-glow{background:rgba(255,255,255,0.05)}
+    .u-glow-1{width:420px;height:420px;top:-140px;left:-140px}
+    .u-glow-2{width:520px;height:520px;bottom:-200px;right:-140px}
+    .u-glow-3{width:300px;height:300px;top:42%;left:58%}
+
+    #sidebar{width:16rem;transition:transform .28s cubic-bezier(.16,1,.3,1),width .28s cubic-bezier(.16,1,.3,1)}
+    #sidebar.collapsed{width:4.75rem}
+    #sidebar .nav-label{transition:opacity .15s ease,width .15s ease}
+    #sidebar.collapsed .nav-label{opacity:0;width:0;overflow:hidden;white-space:nowrap}
+    #sidebar.collapsed .nav-link{justify-content:center;padding-left:0;padding-right:0}
+    #sidebar.collapsed .group-title{justify-content:center;padding-left:0;padding-right:0}
+    #sidebar.collapsed .nav-text{display:none}
+    #sidebar.collapsed .logo-text{display:none}
+    #sidebar .badge-dot{transition:opacity .15s}
+    #sidebar.collapsed .badge-dot{opacity:0}
+    @media (max-width:767px){
+      #sidebar{position:fixed;top:1rem;bottom:1rem;left:1rem;z-index:50;transform:translateX(-130%);}
+      #sidebar.open{transform:translateX(0);}
+    }
+    .bar{border-radius:6px 6px 0 0;transition:height .5s cubic-bezier(.16,1,.3,1),opacity .3s}
+    .line-pt{transition:all .4s cubic-bezier(.16,1,.3,1)}
+    .dot-pulse{animation:uPulse 2s ease-in-out infinite}
+    @keyframes uPulse{0%,100%{opacity:1}50%{opacity:.4}}
+  </style>
+</head>
+<body class="min-h-screen font-sans antialiased text-zinc-800 dark:text-zinc-100">
+  <script>(function initTheme(){var saved=null;try{saved=localStorage.getItem('uroo-theme')}catch(e){};var dark=(saved==='dark')||(!saved&&window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches);var de=document.documentElement;if(dark){de.classList.add('dark');de.classList.remove('light');if(document.body){document.body.classList.add('dark');document.body.classList.remove('light');}}else{de.classList.remove('dark');de.classList.add('light');if(document.body){document.body.classList.remove('dark');document.body.classList.add('light');}}})();</script>
+
+  <div class="u-bg u-bg-light" aria-hidden="true"></div>
+  <div class="u-bg u-bg-dark" aria-hidden="true"></div>
+  <div class="u-glow u-glow-1" aria-hidden="true"></div>
+  <div class="u-glow u-glow-2" aria-hidden="true"></div>
+  <div class="u-glow u-glow-3" aria-hidden="true"></div>
+
+  <div id="overlay" class="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm opacity-0 pointer-events-none transition-opacity duration-300 md:hidden" onclick="closeDrawer()"></div>
+
+  <div class="md:flex md:gap-4 md:p-4 min-h-screen">
+    <!-- ============================ SIDEBAR ============================ -->
+    <aside id="sidebar" class="glass-panel rounded-2xl flex flex-col overflow-hidden shrink-0 md:sticky md:top-4 md:h-[calc(100vh-2rem)]">
+      <div class="flex items-center gap-3 px-5 h-16 border-b border-black/5 dark:border-white/10 shrink-0">
+        <img src="../../assets/img/uroo_ui.png" alt="Uroo UI" class="w-9 h-9 rounded-xl object-cover shadow-lg shrink-0">
+        <div class="logo-text min-w-0">
+          <p class="font-extrabold text-[15px] leading-none tracking-tight">Uroo UI</p>
+          <p class="mt-0.5 text-[10px] font-semibold uppercase tracking-[0.18em] text-zinc-400 dark:text-zinc-500">Dashboard</p>
+        </div>
+        <button onclick="closeDrawer()" class="ml-auto md:hidden p-1.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/10"><i data-lucide="x" class="w-4 h-4"></i></button>
+        <button onclick="toggleSidebar()" class="hidden md:block ml-auto p-1.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 text-zinc-400"><i data-lucide="panel-left-close" class="w-4 h-4"></i></button>
+      </div>
+
+            <nav class="flex-1 overflow-y-auto px-3 py-4 space-y-6">
+        <div>
+          <p class="group-title flex items-center nav-label px-3 mb-2 text-[10px] font-bold uppercase tracking-[0.18em] text-zinc-400 dark:text-zinc-500">Navigasi</p>
+          <div class="space-y-1">
+            <a href="overview.html" class="nav-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold bg-zinc-900 text-zinc-50 dark:bg-zinc-50 dark:text-zinc-900 shadow-lg"><i data-lucide="layout-dashboard" class="w-[18px] h-[18px] shrink-0"></i><span class="nav-label">Overview</span></a>
+            <a href="analytics.html" class="nav-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-50 hover:bg-black/5 dark:hover:bg-white/10"><i data-lucide="chart-column-big" class="w-[18px] h-[18px] shrink-0"></i><span class="nav-label">Analitik</span></a>
+            <a href="sales.html" class="nav-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-50 hover:bg-black/5 dark:hover:bg-white/10"><i data-lucide="shopping-cart" class="w-[18px] h-[18px] shrink-0"></i><span class="nav-label">Penjualan</span></a>
+          </div>
+        </div>
+        <div>
+          <p class="group-title flex items-center nav-label px-3 mb-2 text-[10px] font-bold uppercase tracking-[0.18em] text-zinc-400 dark:text-zinc-500">Wawasan</p>
+          <div class="space-y-1">
+            <a href="pelanggan.html" class="nav-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-50 hover:bg-black/5 dark:hover:bg-white/10"><i data-lucide="users" class="w-[18px] h-[18px] shrink-0"></i><span class="nav-label">Pelanggan</span></a>
+            <a href="produk.html" class="nav-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-50 hover:bg-black/5 dark:hover:bg-white/10"><i data-lucide="tag" class="w-[18px] h-[18px] shrink-0"></i><span class="nav-label">Produk</span></a>
+          </div>
+        </div>
+        <div>
+          <p class="group-title flex items-center nav-label px-3 mb-2 text-[10px] font-bold uppercase tracking-[0.18em] text-zinc-400 dark:text-zinc-500">Sistem</p>
+          <div class="space-y-1">
+            <a href="pengaturan.html" class="nav-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-50 hover:bg-black/5 dark:hover:bg-white/10"><i data-lucide="settings" class="w-[18px] h-[18px] shrink-0"></i><span class="nav-label">Pengaturan</span></a>
+            <a href="bantuan.html" class="nav-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-50 hover:bg-black/5 dark:hover:bg-white/10"><i data-lucide="help-circle" class="w-[18px] h-[18px] shrink-0"></i><span class="nav-label">Bantuan</span></a>
+          </div>
+        </div>
+      </nav>
+
+      <div class="p-3 border-t border-black/5 dark:border-white/10 shrink-0">
+        <button class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-50 hover:bg-black/5 dark:hover:bg-white/10">
+          <span class="grid place-items-center w-8 h-8 rounded-full bg-gradient-to-br from-zinc-500 to-zinc-800 dark:from-zinc-300 dark:to-zinc-600 text-white dark:text-zinc-900 text-xs font-bold shrink-0">DB</span>
+          <span class="nav-label text-left min-w-0"><span class="block font-bold text-[13px] leading-tight">Dita Baskoro</span><span class="block text-[11px] font-normal text-zinc-400 leading-tight">Owner Store</span></span>
+        </button>
+      </div>
+    </aside>
+
+    <!-- ============================ MAIN ============================ -->
+    <div class="flex flex-col flex-1 min-w-0 px-4 md:px-0 mt-4 md:mt-0">
+      <!-- TOPBAR -->
+      <header class="glass-panel rounded-2xl px-4 py-3 flex items-center gap-3 sticky top-4 z-30">
+        <button onclick="openDrawer()" class="md:hidden p-2 -ml-1 rounded-xl hover:bg-black/5 dark:hover:bg-white/10"><i data-lucide="menu" class="w-5 h-5"></i></button>
+        <div class="hidden sm:flex flex-1 max-w-md items-center gap-2.5 px-3.5 h-10 rounded-xl bg-black/5 dark:bg-white/10 focus-within:ring-2 ring-zinc-900/10 dark:ring-white/20">
+          <i data-lucide="search" class="w-4 h-4 text-zinc-400 shrink-0"></i>
+          <input type="text" placeholder="Cari laporan, pelanggan, produk..." class="w-full bg-transparent text-sm outline-none placeholder:text-zinc-400">
+        </div>
+        <div class="ml-auto flex items-center gap-1.5">
+          <div class="hidden sm:inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-black/5 dark:bg-white/10">
+            <select id="rangeSelect" onchange="applyRange()" class="bg-transparent text-sm font-semibold text-zinc-500 dark:text-zinc-400 outline-none cursor-pointer">
+              <option value="7">7 hari terakhir</option>
+              <option value="30" selected>30 hari terakhir</option>
+              <option value="90">90 hari terakhir</option>
+            </select>
+          </div>
+          <button class="relative p-2.5 rounded-xl hover:bg-black/5 dark:hover:bg-white/10 text-zinc-500 dark:text-zinc-400"><i data-lucide="bell" class="w-[18px] h-[18px]"></i><span class="absolute top-2 right-2 w-2 h-2 rounded-full bg-rose-500 ring-2 ring-white dark:ring-zinc-800 dot-pulse"></span></button>
+          <div class="w-px h-6 bg-black/10 dark:bg-white/10 mx-1"></div>
+          <button class="flex items-center gap-2.5 pl-1 pr-2 py-1 rounded-xl hover:bg-black/5 dark:hover:bg-white/10">
+            <span class="grid place-items-center w-9 h-9 rounded-full bg-gradient-to-br from-zinc-500 to-zinc-800 dark:from-zinc-300 dark:to-zinc-600 text-white dark:text-zinc-900 text-xs font-bold">DB</span>
+            <span class="hidden xl:block text-left"><span class="block text-[13px] font-bold leading-tight">Dita Baskoro</span><span class="block text-[11px] text-zinc-500 dark:text-zinc-400 leading-tight">Owner Store</span></span>
+            <i data-lucide="chevron-down" class="hidden xl:block w-4 h-4 text-zinc-400"></i>
+          </button>
+        </div>
+      </header>
+
+      <!-- CONTENT -->
+      <main class="flex-1 py-6">
+        <div class="mb-6 flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <p class="text-[11px] font-bold uppercase tracking-[0.2em] text-zinc-400 dark:text-zinc-500">Uroo Store</p>
+            <h1 class="text-2xl md:text-3xl font-bold tracking-tight mt-1">Ringkasan Overview</h1>
+            <p class="mt-1 text-sm text-zinc-500 dark:text-zinc-400">Gambaran performa toko, trafik, dan transaksi terbaru</p>
+          </div>
+          <div class="flex items-center gap-2">
+            <button class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl glass-panel text-sm font-bold"><i data-lucide="filter" class="w-4 h-4"></i> Filter</button>
+            <button onclick="toast('Laporan diekspor sebagai PDF','download')" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-zinc-900 dark:bg-zinc-50 text-zinc-50 dark:text-zinc-900 text-sm font-bold hover:opacity-90 shadow-lg"><i data-lucide="download" class="w-4 h-4"></i> Ekspor</button>
+          </div>
+        </div>
+
+        <!-- KPI cards -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 mb-4">
+          <div class="glass-panel rounded-2xl p-5">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-semibold text-zinc-500 dark:text-zinc-400">Total Pendapatan</span>
+              <span class="grid place-items-center w-9 h-9 rounded-xl bg-black/5 dark:bg-white/10"><i data-lucide="banknote" class="w-4 h-4"></i></span>
+            </div>
+            <p id="kpiRevenue" class="mt-3 text-3xl font-extrabold tracking-tight">Rp 892jt</p>
+            <p class="mt-1 text-xs font-semibold text-emerald-600 dark:text-emerald-400">+15,6% vs bulan lalu</p>
+          </div>
+          <div class="glass-panel rounded-2xl p-5">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-semibold text-zinc-500 dark:text-zinc-400">Sesi</span>
+              <span class="grid place-items-center w-9 h-9 rounded-xl bg-sky-500/15 text-sky-600 dark:text-sky-400"><i data-lucide="eye" class="w-4 h-4"></i></span>
+            </div>
+            <p id="kpiSessions" class="mt-3 text-3xl font-extrabold tracking-tight">48.2K</p>
+            <p class="mt-1 text-xs font-semibold text-emerald-600 dark:text-emerald-400">+8,2%</p>
+          </div>
+          <div class="glass-panel rounded-2xl p-5">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-semibold text-zinc-500 dark:text-zinc-400">Pesanan</span>
+              <span class="grid place-items-center w-9 h-9 rounded-xl bg-emerald-500/15 text-emerald-600 dark:text-emerald-400"><i data-lucide="shopping-bag" class="w-4 h-4"></i></span>
+            </div>
+            <p id="kpiOrders" class="mt-3 text-3xl font-extrabold tracking-tight">12.480</p>
+            <p class="mt-1 text-xs font-semibold text-emerald-600 dark:text-emerald-400">+9,3%</p>
+          </div>
+          <div class="glass-panel rounded-2xl p-5">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-semibold text-zinc-500 dark:text-zinc-400">Konversi</span>
+              <span class="grid place-items-center w-9 h-9 rounded-xl bg-amber-500/15 text-amber-600 dark:text-amber-400"><i data-lucide="target" class="w-4 h-4"></i></span>
+            </div>
+            <p id="kpiConv" class="mt-3 text-3xl font-extrabold tracking-tight">3,4%</p>
+            <p class="mt-1 text-xs font-semibold text-rose-600 dark:text-rose-400">-0,2% dari target</p>
+          </div>
+        </div>
+
+        <!-- Line trend + device split -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-4">
+          <div class="glass-panel rounded-2xl p-5 lg:col-span-2">
+            <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
+              <div>
+                <h2 class="font-bold tracking-tight">Tren Pendapatan</h2>
+                <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">Periode 1 - 30 Agustus 2026</p>
+              </div>
+              <div class="flex items-center gap-1 text-xs font-semibold">
+                <button onclick="setLine('pendapatan')" class="metric-btn px-2.5 py-1.5 rounded-lg bg-zinc-900 dark:bg-zinc-50 text-zinc-50 dark:text-zinc-900 inline-flex items-center gap-1"><i data-lucide="trending-up" class="w-3.5 h-3.5"></i> Pendapatan</button>
+                <button onclick="setLine('sesi')" class="metric-btn px-2.5 py-1.5 rounded-lg text-zinc-500 dark:text-zinc-400 hover:bg-black/5 dark:hover:bg-white/10 inline-flex items-center gap-1"><i data-lucide="eye" class="w-3.5 h-3.5"></i> Sesi</button>
+              </div>
+            </div>
+            <svg id="lineChart" viewBox="0 0 720 240" class="w-full" role="img" aria-label="Grafik tren pendapatan dan sesi">
+              <defs>
+                <linearGradient id="uArea" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stop-color="var(--u-chart)" stop-opacity="0.16"/>
+                  <stop offset="100%" stop-color="var(--u-chart)" stop-opacity="0"/>
+                </linearGradient>
+              </defs>
+              <g stroke="var(--u-grid)" stroke-width="1">
+                <line x1="20" y1="16" x2="700" y2="16"/><line x1="20" y1="66" x2="700" y2="66"/><line x1="20" y1="116" x2="700" y2="116"/><line x1="20" y1="166" x2="700" y2="166"/><line x1="20" y1="216" x2="700" y2="216"/>
+              </g>
+              <path id="chartArea" d="" style="fill:url(#uArea)"></path>
+              <path id="chartLine" d="" fill="none" stroke="var(--u-chart)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+              <g id="chartDots"></g>
+              <g id="chartLbl" font-size="11" fill="var(--u-chart-mid)" text-anchor="middle"></g>
+            </svg>
+          </div>
+
+          <!-- Device split -->
+          <div class="glass-panel rounded-2xl p-5">
+            <div class="flex items-center justify-between mb-4">
+              <h2 class="font-bold tracking-tight">Perangkat</h2>
+              <i data-lucide="monitor-smartphone" class="w-5 h-5 text-zinc-400"></i>
+            </div>
+            <div class="space-y-4">
+              <div>
+                <div class="flex items-center justify-between text-sm mb-1.5"><span class="flex items-center gap-2"><i data-lucide="smartphone" class="w-4 h-4 text-zinc-400"></i> Mobile</span><span class="font-bold">68%</span></div>
+                <div class="h-2.5 rounded-full bg-black/5 dark:bg-white/10"><div class="h-2.5 rounded-full bg-zinc-900 dark:bg-zinc-50" style="width:68%"></div></div>
+              </div>
+              <div>
+                <div class="flex items-center justify-between text-sm mb-1.5"><span class="flex items-center gap-2"><i data-lucide="monitor" class="w-4 h-4 text-zinc-400"></i> Desktop</span><span class="font-bold">24%</span></div>
+                <div class="h-2.5 rounded-full bg-black/5 dark:bg-white/10"><div class="h-2.5 rounded-full bg-zinc-500" style="width:24%"></div></div>
+              </div>
+              <div>
+                <div class="flex items-center justify-between text-sm mb-1.5"><span class="flex items-center gap-2"><i data-lucide="tablet" class="w-4 h-4 text-zinc-400"></i> Tablet</span><span class="font-bold">8%</span></div>
+                <div class="h-2.5 rounded-full bg-black/5 dark:bg-white/10"><div class="h-2.5 rounded-full bg-zinc-300 dark:bg-zinc-600" style="width:8%"></div></div>
+              </div>
+            </div>
+            <div class="mt-6 pt-6 border-t border-black/5 dark:border-white/10">
+              <h3 class="text-xs font-bold uppercase tracking-wider text-zinc-400 mb-3">Saluran</h3>
+              <div class="space-y-3 text-sm">
+                <div class="flex items-center justify-between"><span>Organik</span><span class="font-bold">42%</span></div>
+                <div class="flex items-center justify-between"><span>Sosial</span><span class="font-bold">26%</span></div>
+                <div class="flex items-center justify-between"><span>Langsung</span><span class="font-bold">20%</span></div>
+                <div class="flex items-center justify-between"><span>Referral</span><span class="font-bold">12%</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Orders table -->
+        <div class="glass-panel rounded-2xl overflow-hidden">
+          <div class="flex flex-wrap items-center justify-between gap-3 p-5 pb-4">
+            <h2 class="font-bold tracking-tight">Pesanan Terkini</h2>
+            <span class="px-2.5 py-1 rounded-lg bg-black/5 dark:bg-white/10 text-xs font-semibold text-zinc-500 dark:text-zinc-400">30 hari</span>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+              <thead>
+                <tr class="border-y border-black/5 dark:border-white/10 text-xs text-zinc-400 font-bold uppercase tracking-wide">
+                  <th class="px-5 py-3 text-left">Order</th>
+                  <th class="px-5 py-3 text-left">Pelanggan</th>
+                  <th class="px-5 py-3 text-left">Produk</th>
+                  <th class="px-5 py-3 text-left">Total</th>
+                  <th class="px-5 py-3 text-left">Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr class="border-b border-black/5 dark:border-white/10 hover:bg-black/5 dark:hover:bg-white/5">
+                  <td class="px-5 py-3.5 font-semibold">#ORD-20124</td>
+                  <td class="px-5 py-3.5 text-zinc-500 dark:text-zinc-400">Budi Santoso</td>
+                  <td class="px-5 py-3.5">Smartwatch S2</td>
+                  <td class="px-5 py-3.5 font-semibold">Rp 1.250.000</td>
+                  <td class="px-5 py-3.5"><span class="px-2 py-0.5 rounded-md bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 text-xs font-bold">Selesai</span></td>
+                </tr>
+                <tr class="border-b border-black/5 dark:border-white/10 hover:bg-black/5 dark:hover:bg-white/5">
+                  <td class="px-5 py-3.5 font-semibold">#ORD-20123</td>
+                  <td class="px-5 py-3.5 text-zinc-500 dark:text-zinc-400">Siti Rahma</td>
+                  <td class="px-5 py-3.5">TWS Uroo Air</td>
+                  <td class="px-5 py-3.5 font-semibold">Rp 480.000</td>
+                  <td class="px-5 py-3.5"><span class="px-2 py-0.5 rounded-md bg-sky-500/15 text-sky-600 dark:text-sky-400 text-xs font-bold">Dikemas</span></td>
+                </tr>
+                <tr class="border-b border-black/5 dark:border-white/10 hover:bg-black/5 dark:hover:bg-white/5">
+                  <td class="px-5 py-3.5 font-semibold">#ORD-20122</td>
+                  <td class="px-5 py-3.5 text-zinc-500 dark:text-zinc-400">Agus Wijaya</td>
+                  <td class="px-5 py-3.5">Kursi Gaming</td>
+                  <td class="px-5 py-3.5 font-semibold">Rp 2.050.000</td>
+                  <td class="px-5 py-3.5"><span class="px-2 py-0.5 rounded-md bg-amber-500/15 text-amber-600 dark:text-amber-400 text-xs font-bold">Diproses</span></td>
+                </tr>
+                <tr class="border-b border-black/5 dark:border-white/10 hover:bg-black/5 dark:hover:bg-white/5">
+                  <td class="px-5 py-3.5 font-semibold">#ORD-20121</td>
+                  <td class="px-5 py-3.5 text-zinc-500 dark:text-zinc-400">Dewi Lestari</td>
+                  <td class="px-5 py-3.5">Webcam 4K</td>
+                  <td class="px-5 py-3.5 font-semibold">Rp 890.000</td>
+                  <td class="px-5 py-3.5"><span class="px-2 py-0.5 rounded-md bg-rose-500/15 text-rose-600 dark:text-rose-400 text-xs font-bold">Retur</span></td>
+                </tr>
+                <tr class="hover:bg-black/5 dark:hover:bg-white/5">
+                  <td class="px-5 py-3.5 font-semibold">#ORD-20120</td>
+                  <td class="px-5 py-3.5 text-zinc-500 dark:text-zinc-400">Rizki Pratama</td>
+                  <td class="px-5 py-3.5">Standing Desk</td>
+                  <td class="px-5 py-3.5 font-semibold">Rp 320.000</td>
+                  <td class="px-5 py-3.5"><span class="px-2 py-0.5 rounded-md bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 text-xs font-bold">Selesai</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <button onclick="toggleTheme()" class="fixed top-5 right-5 z-[60] p-2.5 rounded-full glass-panel shadow-2xl text-zinc-600 dark:text-zinc-300 md:top-[1.6rem] md:right-[1.6rem]">
+    <i data-lucide="moon" class="w-4 h-4 hidden dark:block"></i>
+    <i data-lucide="sun" class="w-4 h-4 block dark:hidden"></i>
+  </button>
+
+  <script>
+    lucide.createIcons();
+    function toggleTheme(){const b=document.body;const h=document.documentElement;b.classList.toggle('dark');h.classList.toggle('dark');try{localStorage.setItem('uroo-theme',b.classList.contains('dark')?'dark':'light')}catch(e){};lucide.createIcons();drawLine();}
+    const sidebar=document.getElementById('sidebar');
+    function toggleSidebar(){
+      if(window.innerWidth>=768){sidebar.classList.toggle('collapsed');}
+      else{sidebar.classList.toggle('open');document.getElementById('overlay').classList.toggle('opacity-0',!sidebar.classList.contains('open'));document.getElementById('overlay').classList.toggle('pointer-events-none',!sidebar.classList.contains('open'));}
+    }
+    function openDrawer(){sidebar.classList.add('open');document.getElementById('overlay').classList.remove('opacity-0','pointer-events-none');}
+    function closeDrawer(){sidebar.classList.remove('open');document.getElementById('overlay').classList.add('opacity-0','pointer-events-none');}
+
+    function toast(msg,type){
+      const t=document.createElement('div');
+      t.className='fixed bottom-5 right-5 z-[85] glass-panel rounded-xl px-4 py-3 text-sm font-semibold shadow-2xl anim-toast-in flex items-center gap-2.5 pointer-events-none max-w-sm';
+      t.innerHTML='<i data-lucide="'+(type||'check-circle')+'" class="w-4 h-4 shrink-0"></i><span>'+msg+'</span>';
+      document.body.appendChild(t);lucide.createIcons();
+      setTimeout(()=>{t.style.opacity='0';t.style.transition='opacity .3s';setTimeout(()=>t.remove(),320)},2600);
+    }
+
+    const LINE={pendapatan:[118,126,112,138,145,132,150,158,144,162,170,155,168,172,158,166,180,172,176,188,182,190,198,186,204,196,210,222,214,228],sesi:[19,21,20,24,22,26,25,27,24,28,30,27,29,31,28,32,33,30,34,35,32,36,38,35,37,39,40,42,41,44]};
+    const XLBL=['1','5','10','15','20','25','30'];
+    let lineMode='pendapatan';
+    function smoothPath(pts){
+      if(pts.length<2)return'';
+      let d='M'+pts[0].x+' '+pts[0].y;
+      for(let i=0;i<pts.length-1;i++){
+        const p0=pts[i-1]||pts[i],p1=pts[i],p2=pts[i+1],p3=pts[i+2]||p2;
+        const c1x=p1.x+(p2.x-p0.x)/6,c1y=p1.y+(p2.y-p0.y)/6;
+        const c2x=p2.x-(p3.x-p1.x)/6,c2y=p2.y-(p3.y-p1.y)/6;
+        d+=' C'+c1x+' '+c1y+', '+c2x+' '+c2y+', '+p2.x+' '+p2.y;
+      }
+      return d;
+    }
+    function drawLine(){
+      const vals=LINE[lineMode];
+      const W=720,H=240,x0=22,x1=698,y0=18,y1=216;
+      const min=Math.min(...vals),max=Math.max(...vals),span=(max-min)||1;
+      const pts=vals.map((v,i)=>({x:x0+(x1-x0)*i/(vals.length-1),y:y1-(y0+(v-min)/span*(y1-y0))}));
+      const line=smoothPath(pts);
+      const area=line+' L'+pts[pts.length-1].x+' '+y1+' L'+pts[0].x+' '+y1+' Z';
+      document.getElementById('chartArea').setAttribute('d',area);
+      document.getElementById('chartLine').setAttribute('d',line);
+      const dg=document.getElementById('chartDots');
+      dg.innerHTML=pts.map(p=>'<circle class="line-pt" cx="'+p.x.toFixed(1)+'" cy="'+p.y.toFixed(1)+'" r="4" fill="var(--u-chart)" stroke="rgba(255,255,255,0.9)" stroke-width="2"/>').join('');
+      const lg=document.getElementById('chartLbl');
+      lg.innerHTML=XLBL.map(l=>'<text x="'+x0+'">'+l+'</text>').join('');
+      document.querySelectorAll('#chartLbl text').forEach((t,i)=>{
+        const idx=Math.round(i*(vals.length-1)/(XLBL.length-1));
+        t.setAttribute('x',pts[idx].x);t.setAttribute('y','234');
+      });
+      document.querySelectorAll('.metric-btn').forEach(b=>{
+        const on=b.getAttribute('data-m')===lineMode;
+        b.className=b.className.replace(/bg-zinc-900 dark:bg-zinc-50 text-zinc-50 dark:text-zinc-900/g,'').replace(/text-zinc-500 dark:text-zinc-400/g,'');
+        if(on)b.classList.add('bg-zinc-900','dark:bg-zinc-50','text-zinc-50','dark:text-zinc-900');
+        else b.classList.add('text-zinc-500','dark:text-zinc-400');
+      });
+    }
+    function setLine(m){if(m!==lineMode){lineMode=m;drawLine();}}
+    function applyRange(){
+      const v=document.getElementById('rangeSelect').value;
+      const scale={7:0.6,30:1,90:1.6}[v];
+      document.getElementById('kpiRevenue').textContent='Rp '+((892*scale)>=1000?((892*scale)/1000).toFixed(1)+'M':(892*scale).toFixed(0)+'jt');
+      document.getElementById('kpiSessions').textContent=Math.round(48.2*scale/1000)+'K';
+      document.getElementById('kpiOrders').textContent=(12480*scale).toFixed(0);
+      document.getElementById('kpiConv').textContent=(3.4*Math.max(0.8,Math.min(1.1,scale))).toFixed(1)+'%';
+    }
+    drawLine();
+  </script>
+<script src="../../assets/js/uroo-nav.js"></script>
+</body>
+</html>

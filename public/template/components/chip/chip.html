@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="id" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Uroo UI - Chip</title>
+  <script src="../../assets/js/tailwind.js"></script>
+  <script src="../../assets/js/lucide.js"></script>
+  <script>tailwind.config={darkMode:'class',theme:{extend:{colors:{glass:{light:'rgba(255,255,255,0.65)','light-border':'rgba(255,255,255,0.8)',dark:'rgba(18,18,20,0.65)','dark-border':'rgba(255,255,255,0.1)'}}}}}</script>
+  <link rel="stylesheet" href="../../assets/css/uroo.css">
+</head>
+<body class="min-h-screen p-6 font-sans antialiased text-zinc-800 dark:text-zinc-100" style="background:linear-gradient(135deg,#dfe3ea,#f4f4f5)">
+  <script>(function initTheme(){var saved=null;try{saved=localStorage.getItem('uroo-theme')}catch(e){};var dark=(saved==='dark')||(!saved&&window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches);var de=document.documentElement;if(dark){de.classList.add('dark');de.classList.remove('light');if(document.body){document.body.classList.add('dark');document.body.classList.remove('light');}}else{de.classList.remove('dark');de.classList.add('light');if(document.body){document.body.classList.remove('dark');document.body.classList.add('light');}}})();</script>
+
+<style>
+  body.dark{background:linear-gradient(135deg,#0a0a0c,#1a1a1e)!important}
+  body:not(.dark) .icon-sun{display:none}
+  body.dark .icon-moon{display:none}
+  .u-chip{transition:background-color .2s ease,color .2s ease,border-color .2s ease,transform .15s ease,opacity .2s ease}
+  .u-chip:hover{transform:translateY(-1px)}
+  .u-chip:active{transform:scale(.95)}
+  .u-chip-on{background:#18181b!important;color:#fafafa!important;border-color:transparent!important}
+  body.dark .u-chip-on{background:#f4f4f5!important;color:#18181b!important}
+  .u-chip-off{opacity:.38;pointer-events:none}
+  .u-x{transition:background-color .15s ease,transform .15s ease}
+  .u-x:hover{transform:rotate(90deg)}
+  .u-item{transition:opacity .3s ease,transform .3s ease}
+  .u-item.hidden{display:none}
+</style>
+
+<button onclick="toggleTheme()" aria-label="Ganti tema" title="Ganti tema"
+  class="fixed top-6 right-6 z-50 glass-panel rounded-full p-2.5 text-zinc-600 dark:text-zinc-200 hover:scale-110 transition-transform">
+  <i data-lucide="sun" class="icon-sun w-5 h-5"></i>
+  <i data-lucide="moon" class="icon-moon w-5 h-5"></i>
+</button>
+
+<main class="relative max-w-6xl mx-auto pt-16 pb-24">
+
+  <div class="pointer-events-none absolute inset-0" aria-hidden="true">
+    <div class="absolute -top-20 -left-24 w-[28rem] h-[28rem] bg-black/5 dark:bg-white/5 blur-3xl rounded-full"></div>
+    <div class="absolute top-1/3 -right-32 w-[30rem] h-[30rem] bg-black/5 dark:bg-white/5 blur-3xl rounded-full"></div>
+    <div class="absolute bottom-0 left-1/3 w-[24rem] h-[24rem] bg-black/5 dark:bg-white/5 blur-3xl rounded-full"></div>
+  </div>
+
+  <div class="relative z-10">
+    <header class="mb-10">
+      <p class="text-[11px] font-bold uppercase tracking-[0.2em] text-zinc-400 dark:text-zinc-500">Uroo UI / Chip</p>
+      <h1 class="mt-2 text-3xl md:text-4xl font-extrabold tracking-tight text-zinc-900 dark:text-white">Chip & Tag</h1>
+      <p class="mt-3 max-w-2xl text-sm leading-relaxed text-zinc-500 dark:text-zinc-400">
+        Chip untuk label, kategori, dan aksi singkat: varian lembut, solid, garis, berikon,
+        dapat dihapus, dapat diklik untuk memfilter, dan kondisi nonaktif.
+      </p>
+    </header>
+
+    <section data-copy class="glass-panel rounded-3xl p-6 md:p-7 mb-8">
+      <div class="flex items-center gap-3 mb-6">
+        <span class="h-5 w-1 rounded-full bg-zinc-900 dark:bg-zinc-100"></span>
+        <h2 class="text-lg font-bold text-zinc-900 dark:text-white">Varian Chip</h2>
+      </div>
+      <div class="flex flex-wrap items-center gap-3">
+        <span class="u-chip inline-flex items-center gap-1.5 rounded-full bg-zinc-900/5 dark:bg-white/10 border border-zinc-900/10 dark:border-white/10 px-3.5 py-1.5 text-xs font-semibold text-zinc-700 dark:text-zinc-200">Lembut</span>
+        <span class="u-chip inline-flex items-center gap-1.5 rounded-full bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900 px-3.5 py-1.5 text-xs font-semibold">Solid</span>
+        <span class="u-chip inline-flex items-center gap-1.5 rounded-full border border-zinc-300 dark:border-white/20 px-3.5 py-1.5 text-xs font-semibold text-zinc-700 dark:text-zinc-200">Garis Tepi</span>
+        <span class="u-chip inline-flex items-center gap-1.5 rounded-full bg-zinc-900/5 dark:bg-white/10 px-3.5 py-1.5 text-xs font-semibold text-zinc-700 dark:text-zinc-200">
+          <i data-lucide="zap" class="w-3.5 h-3.5"></i> Dengan Ikon
+        </span>
+        <span class="u-chip inline-flex items-center gap-1.5 rounded-full bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider">Kecil</span>
+        <span class="u-chip inline-flex items-center gap-2 rounded-full bg-zinc-900/5 dark:bg-white/10 px-4 py-2 text-sm font-semibold text-zinc-700 dark:text-zinc-200">
+          <i data-lucide="star" class="w-4 h-4"></i> Ukuran Standar
+        </span>
+        <span class="u-chip inline-flex items-center gap-1.5 rounded-full bg-zinc-900/5 dark:bg-white/10 border border-dashed border-zinc-300 dark:border-white/20 px-3.5 py-1.5 text-xs font-semibold text-zinc-500 dark:text-zinc-400">
+          <i data-lucide="tag" class="w-3.5 h-3.5"></i> Putus-putus
+        </span>
+      </div>
+    </section>
+
+    <section class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+      <div class="glass-panel rounded-3xl p-6 md:p-7">
+        <div class="flex items-center gap-3 mb-6">
+          <span class="h-5 w-1 rounded-full bg-zinc-900 dark:bg-zinc-100"></span>
+          <h2 class="text-lg font-bold text-zinc-900 dark:text-white">Chip Dapat Dihapus</h2>
+        </div>
+        <div id="chipZone" class="flex flex-wrap gap-2.5 min-h-[40px]"></div>
+        <form id="chipForm" class="mt-5 flex items-center gap-2.5">
+          <input id="chipInput" type="text" placeholder="Tambah tag baru..." autocomplete="off"
+            class="flex-1 rounded-full glass-subtle px-4 py-2.5 text-sm text-zinc-800 dark:text-zinc-100 placeholder:text-zinc-400 dark:placeholder:text-zinc-500 focus:outline-none focus:ring-2 ring-zinc-900/20 dark:ring-white/20">
+          <button type="submit" class="inline-flex items-center gap-1.5 rounded-full bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900 px-4 py-2.5 text-xs font-semibold u-btn">
+            <i data-lucide="plus" class="w-3.5 h-3.5"></i> Tambah
+          </button>
+          <button type="button" id="chipReset" class="inline-flex items-center gap-1.5 rounded-full glass-subtle px-4 py-2.5 text-xs font-semibold text-zinc-600 dark:text-zinc-300 u-btn">
+            <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i> Reset
+          </button>
+        </form>
+        <p id="chipCount" class="mt-4 text-xs font-semibold text-zinc-400 dark:text-zinc-500">3 tag aktif</p>
+      </div>
+
+      <div class="glass-panel rounded-3xl p-6 md:p-7">
+        <div class="flex items-center gap-3 mb-6">
+          <span class="h-5 w-1 rounded-full bg-zinc-900 dark:bg-zinc-100"></span>
+          <h2 class="text-lg font-bold text-zinc-900 dark:text-white">Chip Klik sebagai Filter</h2>
+        </div>
+        <div id="catChips" class="flex flex-wrap gap-2.5">
+          <button class="u-chip inline-flex items-center gap-1.5 rounded-full bg-zinc-900/5 dark:bg-white/10 border border-zinc-900/10 dark:border-white/10 px-3.5 py-1.5 text-xs font-semibold text-zinc-700 dark:text-zinc-200" data-filter="all">Semua</button>
+          <button class="u-chip inline-flex items-center gap-1.5 rounded-full bg-zinc-900/5 dark:bg-white/10 border border-zinc-900/10 dark:border-white/10 px-3.5 py-1.5 text-xs font-semibold text-zinc-700 dark:text-zinc-200" data-filter="teknis">
+            <i data-lucide="code" class="w-3.5 h-3.5"></i> Teknis
+          </button>
+          <button class="u-chip inline-flex items-center gap-1.5 rounded-full bg-zinc-900/5 dark:bg-white/10 border border-zinc-900/10 dark:border-white/10 px-3.5 py-1.5 text-xs font-semibold text-zinc-700 dark:text-zinc-200" data-filter="sosial">
+            <i data-lucide="users" class="w-3.5 h-3.5"></i> Sosial
+          </button>
+          <button class="u-chip inline-flex items-center gap-1.5 rounded-full bg-zinc-900/5 dark:bg-white/10 border border-zinc-900/10 dark:border-white/10 px-3.5 py-1.5 text-xs font-semibold text-zinc-700 dark:text-zinc-200" data-filter="desain">
+            <i data-lucide="palette" class="w-3.5 h-3.5"></i> Desain
+          </button>
+          <button class="u-chip inline-flex items-center gap-1.5 rounded-full bg-zinc-900/5 dark:bg-white/10 border border-zinc-900/10 dark:border-white/10 px-3.5 py-1.5 text-xs font-semibold text-zinc-700 dark:text-zinc-200" data-filter="bisnis">
+            <i data-lucide="briefcase" class="w-3.5 h-3.5"></i> Bisnis
+          </button>
+        </div>
+        <p id="filterCount" class="mt-5 text-xs font-semibold text-zinc-400 dark:text-zinc-500 mb-1">Semua tampil</p>
+        <div id="filterItems" class="space-y-1.5">
+          <div class="u-item flex items-center gap-3 rounded-2xl bg-zinc-900/5 dark:bg-white/5 p-3" data-cat="teknis">
+            <span class="glass-subtle rounded-xl w-9 h-9 inline-flex items-center justify-center text-zinc-700 dark:text-zinc-200"><i data-lucide="code" class="w-4 h-4"></i></span>
+            <div class="flex-1 min-w-0"><p class="text-sm font-semibold text-zinc-800 dark:text-zinc-100 truncate">Hackathon Produk</p><p class="text-[11px] text-zinc-400 dark:text-zinc-500">Kode bareng selama 36 jam</p></div>
+            <span class="text-xs font-bold text-zinc-300 dark:text-zinc-600">Teknis</span>
+          </div>
+          <div class="u-item flex items-center gap-3 rounded-2xl bg-zinc-900/5 dark:bg-white/5 p-3" data-cat="sosial">
+            <span class="glass-subtle rounded-xl w-9 h-9 inline-flex items-center justify-center text-zinc-700 dark:text-zinc-200"><i data-lucide="users" class="w-4 h-4"></i></span>
+            <div class="flex-1 min-w-0"><p class="text-sm font-semibold text-zinc-800 dark:text-zinc-100 truncate">Ngopi Bareng</p><p class="text-[11px] text-zinc-400 dark:text-zinc-500">Diskusi santai tiap Jumat</p></div>
+            <span class="text-xs font-bold text-zinc-300 dark:text-zinc-600">Sosial</span>
+          </div>
+          <div class="u-item flex items-center gap-3 rounded-2xl bg-zinc-900/5 dark:bg-white/5 p-3" data-cat="desain">
+            <span class="glass-subtle rounded-xl w-9 h-9 inline-flex items-center justify-center text-zinc-700 dark:text-zinc-200"><i data-lucide="palette" class="w-4 h-4"></i></span>
+            <div class="flex-1 min-w-0"><p class="text-sm font-semibold text-zinc-800 dark:text-zinc-100 truncate">Workshop Antar Muka</p><p class="text-[11px] text-zinc-400 dark:text-zinc-500">Memahami grid dan spacing</p></div>
+            <span class="text-xs font-bold text-zinc-300 dark:text-zinc-600">Desain</span>
+          </div>
+          <div class="u-item flex items-center gap-3 rounded-2xl bg-zinc-900/5 dark:bg-white/5 p-3" data-cat="bisnis">
+            <span class="glass-subtle rounded-xl w-9 h-9 inline-flex items-center justify-center text-zinc-700 dark:text-zinc-200"><i data-lucide="briefcase" class="w-4 h-4"></i></span>
+            <div class="flex-1 min-w-0"><p class="text-sm font-semibold text-zinc-800 dark:text-zinc-100 truncate">Sesi Pitch Startup</p><p class="text-[11px] text-zinc-400 dark:text-zinc-500">Presentasi singkat calon mitra</p></div>
+            <span class="text-xs font-bold text-zinc-300 dark:text-zinc-600">Bisnis</span>
+          </div>
+          <div class="u-item flex items-center gap-3 rounded-2xl bg-zinc-900/5 dark:bg-white/5 p-3" data-cat="teknis">
+            <span class="glass-subtle rounded-xl w-9 h-9 inline-flex items-center justify-center text-zinc-700 dark:text-zinc-200"><i data-lucide="code" class="w-4 h-4"></i></span>
+            <div class="flex-1 min-w-0"><p class="text-sm font-semibold text-zinc-800 dark:text-zinc-100 truncate">Dev Talk: Arsitektur</p><p class="text-[11px] text-zinc-400 dark:text-zinc-500">Microservice vs monolit</p></div>
+            <span class="text-xs font-bold text-zinc-300 dark:text-zinc-600">Teknis</span>
+          </div>
+          <div class="u-item flex items-center gap-3 rounded-2xl bg-zinc-900/5 dark:bg-white/5 p-3" data-cat="sosial">
+            <span class="glass-subtle rounded-xl w-9 h-9 inline-flex items-center justify-center text-zinc-700 dark:text-zinc-200"><i data-lucide="users" class="w-4 h-4"></i></span>
+            <div class="flex-1 min-w-0"><p class="text-sm font-semibold text-zinc-800 dark:text-zinc-100 truncate">Hiking Komunitas</p><p class="text-[11px] text-zinc-400 dark:text-zinc-500">Jalur pendakian Gunung Salak</p></div>
+            <span class="text-xs font-bold text-zinc-300 dark:text-zinc-600">Sosial</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section data-copy class="glass-panel rounded-3xl p-6 md:p-7">
+      <div class="flex items-center gap-3 mb-6">
+        <span class="h-5 w-1 rounded-full bg-zinc-900 dark:bg-zinc-100"></span>
+        <h2 class="text-lg font-bold text-zinc-900 dark:text-white">Chip Nonaktif</h2>
+      </div>
+      <div class="flex flex-wrap items-center gap-3">
+        <span class="u-chip u-chip-off inline-flex items-center gap-1.5 rounded-full bg-zinc-900/5 dark:bg-white/10 px-3.5 py-1.5 text-xs font-semibold text-zinc-700 dark:text-zinc-200">Proses berjalan</span>
+        <span class="u-chip u-chip-off inline-flex items-center gap-1.5 rounded-full bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900 px-3.5 py-1.5 text-xs font-semibold">
+          <i data-lucide="zap" class="w-3.5 h-3.5"></i> Mode khusus
+        </span>
+        <span class="u-chip u-chip-off inline-flex items-center gap-1.5 rounded-full border border-zinc-300 dark:border-white/20 px-3.5 py-1.5 text-xs font-semibold text-zinc-700 dark:text-zinc-200">
+          Tag terkunci <i data-lucide="lock" class="w-3 h-3"></i>
+        </span>
+      </div>
+    </section>
+  </div>
+</main>
+
+<script>
+  lucide.createIcons();
+  function toggleTheme(){const h=document.documentElement,b=document.body;h.classList.toggle('dark');b.classList.toggle('dark');try{localStorage.setItem('uroo-theme',b.classList.contains('dark')?'dark':'light')}catch(e){};lucide.createIcons();}
+
+  function toast(msg){
+    var t = document.createElement('div');
+    t.className = 'fixed bottom-6 left-1/2 -translate-x-1/2 z-[60] glass-panel rounded-full px-5 py-3 flex items-center gap-2.5 text-sm font-semibold anim-toast-in';
+    t.innerHTML = '<i data-lucide="check" class="w-4 h-4"></i><span>'+msg+'</span>';
+    document.body.appendChild(t);
+    lucide.createIcons();
+    setTimeout(function(){ t.style.cssText += ';opacity:0;transition:opacity .4s ease'; }, 2400);
+    setTimeout(function(){ t.remove(); }, 2900);
+  }
+
+  var chipZone = document.getElementById('chipZone');
+  var chipCount = document.getElementById('chipCount');
+  var chipForm = document.getElementById('chipForm');
+  var chipInput = document.getElementById('chipInput');
+  var chipReset = document.getElementById('chipReset');
+  var INITIAL = ['Tailwind CSS', 'Laravel', 'PostgreSQL'];
+
+  function makeChip(label){
+    var s = document.createElement('span');
+    s.className = 'u-chip inline-flex items-center gap-1.5 rounded-full bg-zinc-900/5 dark:bg-white/10 border border-zinc-900/10 dark:border-white/10 pl-3.5 pr-1.5 py-1.5 text-xs font-semibold text-zinc-700 dark:text-zinc-200 anim-scale-in';
+    var txt = document.createElement('span');
+    txt.textContent = label;
+    var x = document.createElement('button');
+    x.type = 'button';
+    x.setAttribute('aria-label', 'Hapus tag ' + label);
+    x.className = 'u-x flex items-center justify-center w-5 h-5 rounded-full text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100';
+    x.innerHTML = '<i data-lucide="x" class="w-3 h-3"></i>';
+    x.addEventListener('click', function(e){
+      e.stopPropagation();
+      s.remove();
+      updateCount();
+      toast('Tag "' + label + '" dihapus');
+    });
+    s.appendChild(txt);
+    s.appendChild(x);
+    return s;
+  }
+
+  function addChip(label){
+    var exists = Array.prototype.some.call(chipZone.children, function(c){ return c.firstChild && c.firstChild.textContent === label; });
+    if(exists){ toast('Tag "' + label + '" sudah ada'); return; }
+    var chip = makeChip(label);
+    if(chip){
+      chipZone.appendChild(chip);
+      lucide.createIcons();
+      updateCount();
+    }
+  }
+  function updateCount(){
+    var n = chipZone.children.length;
+    chipCount.textContent = n + ' tag aktif';
+  }
+  INITIAL.forEach(function(l){ addChip(l); });
+  chipForm.addEventListener('submit', function(e){
+    e.preventDefault();
+    var v = chipInput.value.trim();
+    if(!v) return;
+    addChip(v);
+    chipInput.value = '';
+  });
+  chipReset.addEventListener('click', function(){
+    chipZone.innerHTML = '';
+    INITIAL.forEach(function(l){ addChip(l); });
+    toast('Tag dikembalikan ke kondisi awal');
+  });
+
+  var catChips = document.querySelectorAll('#catChips [data-filter]');
+  var items = Array.prototype.slice.call(document.querySelectorAll('#filterItems .u-item'));
+  var filterCount = document.getElementById('filterCount');
+
+  function refreshChipButtons(){
+    catChips.forEach(function(c){
+      c.classList.toggle('u-chip-on', !!c.dataset.on);
+    });
+  }
+  function applyFilter(){
+    var active = Array.prototype.filter.call(catChips, function(c){ return c.dataset.on === '1'; });
+    var cats = active.map(function(c){ return c.dataset.filter; });
+    var hasAll = cats.indexOf('all') >= 0;
+    var shown = 0;
+    items.forEach(function(it){
+      var show = hasAll || active.length === 0 || cats.indexOf(it.dataset.cat) >= 0;
+      it.classList.toggle('hidden', !show);
+      if(show) shown++;
+    });
+    filterCount.textContent = hasAll || active.length === 0
+      ? 'Semua tampil' : active.length + ' filter: ' + shown + ' acara tampil';
+  }
+  catChips.forEach(function(c){
+    c.addEventListener('click', function(){
+      var isAll = this.dataset.filter === 'all';
+      if(isAll){
+        catChips.forEach(function(o){ o.dataset.on = '0'; });
+        this.dataset.on = '1';
+      } else {
+        var on = this.dataset.on === '1' ? '0' : '1';
+        this.dataset.on = on;
+        var allBtn = document.querySelector('#catChips [data-filter="all"]');
+        if(on === '1') allBtn.dataset.on = '0';
+        if(on === '0' && Array.prototype.every.call(catChips, function(o){ return o.dataset.on === '0'; })){
+          allBtn.dataset.on = '1';
+        }
+      }
+      refreshChipButtons();
+      applyFilter();
+    });
+  });
+  document.querySelector('#catChips [data-filter="all"]').dataset.on = '1';
+  refreshChipButtons();
+  applyFilter();
+</script>
+<script src="../../assets/js/uroo-copy.js"></script>
+<script src="../../assets/js/uroo-nav.js"></script>
+</body>
+</html>

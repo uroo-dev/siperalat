@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="id" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Uroo UI - Ecommerce</title>
+  <script src="../../assets/js/tailwind.js"></script>
+  <script src="../../assets/js/lucide.js"></script>
+  <script>tailwind.config={darkMode:'class',theme:{extend:{colors:{glass:{light:'rgba(255,255,255,0.65)','light-border':'rgba(255,255,255,0.8)',dark:'rgba(18,18,20,0.65)','dark-border':'rgba(255,255,255,0.1)'}}}}}</script>
+  <link rel="stylesheet" href="../../assets/css/uroo.css">
+  <style>
+    .u-bg{position:fixed;inset:0;z-index:-10;transition:opacity .35s ease}
+    .u-bg-light{background:linear-gradient(135deg,#dfe3ea,#f4f4f5)}
+    .u-bg-dark{background:linear-gradient(135deg,#0a0a0b,#1a1a1e);opacity:0}
+    body.dark .u-bg-light{opacity:0}
+    body.dark .u-bg-dark{opacity:1}
+    .u-glow{position:fixed;border-radius:9999px;filter:blur(90px);z-index:-9;pointer-events:none;transition:background-color .35s ease;background:rgba(0,0,0,0.06)}
+    body.dark .u-glow{background:rgba(255,255,255,0.05)}
+    .u-glow-1{width:420px;height:420px;top:-140px;left:-140px}
+    .u-glow-2{width:520px;height:520px;bottom:-200px;right:-140px}
+    .u-glow-3{width:300px;height:300px;top:42%;left:58%}
+
+    html{background:#e7e8ec}
+    html.dark{background:#0a0a0c}
+    body:not(.dark) .u-ic-sun{display:none}
+    body.dark .u-ic-moon{display:none}
+
+    .u-chip{display:inline-flex;align-items:center;gap:6px;padding:9px 18px;border-radius:9999px;font-size:13px;font-weight:700;white-space:nowrap;background:rgba(255,255,255,.5);border:1px solid rgba(24,24,27,.10);color:#52525b;transition:background-color .2s ease,color .2s ease,border-color .2s ease,transform .2s ease}
+    body.dark .u-chip{background:rgba(255,255,255,.05);border-color:rgba(255,255,255,.10);color:#a1a1aa}
+    .u-chip:hover{transform:translateY(-1px)}
+    .u-chip.u-on{background:#18181b;color:#fff;border-color:#18181b;box-shadow:0 8px 20px -8px rgba(0,0,0,.35)}
+    body.dark .u-chip.u-on{background:#f4f4f5;color:#18181b;border-color:#f4f4f5}
+
+    .u-search{width:100%;height:42px;border-radius:9999px;background:rgba(255,255,255,.55);border:1px solid rgba(24,24,27,.10);color:#18181b;font-size:13px;padding:0 18px 0 40px;outline:none;transition:border-color .2s ease,box-shadow .2s ease}
+    body.dark .u-search{background:rgba(255,255,255,.05);border-color:rgba(255,255,255,.12);color:#f4f4f5}
+    .u-search::placeholder{color:#a1a1aa}
+    .u-search:focus{border-color:rgba(24,24,27,.45);box-shadow:0 0 0 4px rgba(24,24,27,.08)}
+    body.dark .u-search:focus{border-color:rgba(255,255,255,.5);box-shadow:0 0 0 4px rgba(255,255,255,.08)}
+
+    .u-cartbadge{transition:transform .25s cubic-bezier(.16,1,.3,1)}
+    .u-cartbadge.u-pop{animation:u-pop .4s cubic-bezier(.16,1,.3,1)}
+    @keyframes u-pop{0%{transform:scale(.5)}55%{transform:scale(1.35)}100%{transform:scale(1)}}
+
+    .u-btn{transition:transform .2s ease,box-shadow .2s ease,background-color .2s ease}
+    .u-btn:hover{transform:translateY(-1px)}
+    .u-btn:active{transform:scale(.96)}
+    .u-card{transition:transform .3s cubic-bezier(.16,1,.3,1),box-shadow .3s ease}
+    .u-card:hover{transform:translateY(-6px)}
+  </style>
+</head>
+<body class="min-h-screen font-sans antialiased text-zinc-800 dark dark:text-zinc-100">
+  <script>(function initTheme(){var saved=null;try{saved=localStorage.getItem('uroo-theme')}catch(e){};var dark=(saved==='dark')||(!saved&&window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches);var de=document.documentElement;if(dark){de.classList.add('dark');de.classList.remove('light');if(document.body){document.body.classList.add('dark');document.body.classList.remove('light');}}else{de.classList.remove('dark');de.classList.add('light');if(document.body){document.body.classList.remove('dark');document.body.classList.add('light');}}})();</script>
+
+
+<div class="u-bg u-bg-light"></div>
+<div class="u-bg u-bg-dark"></div>
+<div class="u-glow u-glow-1"></div>
+<div class="u-glow u-glow-2"></div>
+<div class="u-glow u-glow-3"></div>
+
+<button onclick="toggleTheme()" aria-label="Ganti tema" title="Ganti tema"
+  class="fixed top-4 right-4 z-50 glass-panel rounded-full p-2.5 text-zinc-600 dark:text-zinc-200 hover:scale-110 transition-transform">
+  <i data-lucide="sun" class="u-ic-sun w-5 h-5"></i>
+  <i data-lucide="moon" class="u-ic-moon w-5 h-5"></i>
+</button>
+
+<header class="sticky top-0 z-40 glass-panel rounded-none border-x-0 border-t-0">
+  <div class="max-w-7xl mx-auto h-16 px-4 sm:px-8 pr-16 flex items-center gap-4">
+    <a href="#" class="inline-flex items-center gap-2.5 shrink-0">
+      <span class="inline-flex items-center justify-center w-9 h-9 rounded-2xl bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900">
+        <i data-lucide="layers" class="w-5 h-5"></i>
+      </span>
+      <span class="hidden sm:block text-lg font-extrabold tracking-tight text-zinc-900 dark:text-white">Uroo Goods</span>
+    </a>
+
+    <nav class="hidden md:flex items-center gap-6 text-sm font-semibold text-zinc-500 dark:text-zinc-400 shrink-0">
+      <a href="#" class="text-zinc-900 dark:text-white">Beranda</a>
+      <a href="#" onclick="event.preventDefault()" class="hover:text-zinc-900 dark:hover:text-white transition-colors">Kategori</a>
+      <a href="#" onclick="event.preventDefault();setCat('Penawaran')" class="hover:text-zinc-900 dark:hover:text-white transition-colors">Penawaran</a>
+      <a href="#footer" class="hover:text-zinc-900 dark:hover:text-white transition-colors">Tentang</a>
+    </nav>
+
+    <div class="relative flex-1 max-w-md hidden sm:block">
+      <i data-lucide="search" class="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-400 pointer-events-none"></i>
+      <input id="searchDesktop" type="search" class="u-search" placeholder="Cari produk, kategori, merek..." aria-label="Cari produk">
+    </div>
+
+    <button id="menuBtn" class="md:hidden ml-auto inline-flex items-center justify-center w-10 h-10 rounded-full glass-panel text-zinc-700 dark:text-zinc-200" aria-label="Menu">
+      <i data-lucide="menu" class="w-5 h-5"></i>
+    </button>
+
+    <button id="cartBtn" class="relative shrink-0 inline-flex items-center justify-center w-11 h-11 rounded-full glass-panel text-zinc-700 dark:text-zinc-100 hover:scale-105 transition-transform" aria-label="Keranjang belanja">
+      <i data-lucide="shopping-cart" class="w-5 h-5"></i>
+      <span id="cartCount" class="u-cartbadge absolute -top-1.5 -right-1.5 inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 rounded-full bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900 text-[11px] font-extrabold">0</span>
+    </button>
+  </div>
+
+  <div id="mobileMenu" class="hidden md:hidden border-t border-zinc-900/10 dark:border-white/10 p-4 space-y-3 anim-slide-down">
+    <div class="relative">
+      <i data-lucide="search" class="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-400 pointer-events-none"></i>
+      <input id="searchMobile" type="search" class="u-search" placeholder="Cari produk..." aria-label="Cari produk">
+    </div>
+    <div class="grid grid-cols-2 gap-2 text-sm font-semibold">
+      <a href="#" class="glass-panel rounded-2xl px-4 py-3 text-zinc-900 dark:text-white">Beranda</a>
+      <a href="#" onclick="event.preventDefault();setCat('Penawaran')" class="glass-panel rounded-2xl px-4 py-3 text-zinc-600 dark:text-zinc-300">Penawaran</a>
+      <a href="#footer" class="glass-panel rounded-2xl px-4 py-3 text-zinc-600 dark:text-zinc-300">Kategori</a>
+      <a href="#footer" class="glass-panel rounded-2xl px-4 py-3 text-zinc-600 dark:text-zinc-300">Tentang</a>
+    </div>
+  </div>
+</header>
+
+<main class="relative max-w-7xl mx-auto px-4 sm:px-8 pt-10 pb-20">
+  <section class="glass-panel rounded-3xl overflow-hidden relative">
+    <div class="absolute inset-0 bg-gradient-to-br from-zinc-200 via-zinc-300 to-zinc-500 dark:from-zinc-700 dark:via-zinc-800 dark:to-zinc-900" aria-hidden="true"></div>
+    <div class="absolute -right-16 -top-16 w-64 h-64 bg-white/30 dark:bg-white/5 blur-3xl rounded-full" aria-hidden="true"></div>
+    <div class="relative z-10 p-8 md:p-12 max-w-xl">
+      <span class="inline-flex items-center gap-1.5 rounded-full bg-black/80 text-white dark:bg-white/90 dark:text-zinc-900 px-3.5 py-1.5 text-[11px] font-bold uppercase tracking-widest">
+        <i data-lucide="sparkles" class="w-3.5 h-3.5"></i> Penawaran Musim Ini
+      </span>
+      <h1 class="mt-4 text-3xl md:text-4xl font-extrabold tracking-tight text-zinc-900 dark:text-white">
+        Koleksi favorit dengan harga terbaik.
+      </h1>
+      <p class="mt-3 text-sm leading-relaxed text-zinc-600 dark:text-zinc-300">
+        Gunakan kode <span class="font-bold">UROO10</span> untuk potongan tambahan
+        10% di seluruh item bertanda promo. Selama persediaan masih ada.
+      </p>
+      <button onclick="setCat('Penawaran')" class="u-btn mt-6 inline-flex items-center gap-2 rounded-full bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900 px-6 py-3 text-sm font-bold">
+        Lihat Penawaran
+        <i data-lucide="arrow-right" class="w-4 h-4"></i>
+      </button>
+    </div>
+    <i data-lucide="shopping-bag" class="absolute right-10 bottom-8 w-24 h-24 text-black/10 dark:text-white/10 hidden md:block"></i>
+  </section>
+
+  <section class="mt-10">
+    <div class="flex items-center justify-between gap-4 flex-wrap">
+      <div class="flex items-center gap-3">
+        <span class="h-6 w-1 rounded-full bg-zinc-900 dark:bg-zinc-100"></span>
+        <h2 class="text-xl font-extrabold tracking-tight text-zinc-900 dark:text-white">Produk Terlaris</h2>
+      </div>
+      <p id="productCount" class="text-xs font-semibold text-zinc-400 dark:text-zinc-500"></p>
+    </div>
+
+    <div id="chipsRow" class="mt-5 flex items-center gap-2 overflow-x-auto pb-2 -mx-4 px-4 sm:mx-0 sm:px-0"></div>
+
+    <div id="grid" class="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"></div>
+
+    <div id="empty" class="hidden mt-8 glass-panel rounded-3xl py-20 px-6 text-center">
+      <span class="inline-flex items-center justify-center w-16 h-16 rounded-3xl bg-zinc-900/5 dark:bg-white/10 text-zinc-400 dark:text-zinc-500">
+        <i data-lucide="search-x" class="w-8 h-8"></i>
+      </span>
+      <h3 class="mt-5 text-lg font-bold text-zinc-900 dark:text-white">Produk tidak ditemukan</h3>
+      <p class="mt-2 text-sm text-zinc-500 dark:text-zinc-400">Coba kata kunci atau kategori lain untuk melihat lebih banyak produk.</p>
+    </div>
+  </section>
+</main>
+
+<footer id="footer" class="relative max-w-7xl mx-auto px-4 sm:px-8 pb-12">
+  <div class="glass-panel rounded-3xl px-8 py-12 pt-10">
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-10">
+      <div class="col-span-2 md:col-span-1">
+        <div class="inline-flex items-center gap-2.5">
+          <span class="inline-flex items-center justify-center w-9 h-9 rounded-2xl bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900">
+            <i data-lucide="layers" class="w-5 h-5"></i>
+          </span>
+          <span class="text-lg font-extrabold tracking-tight text-zinc-900 dark:text-white">Uroo Goods</span>
+        </div>
+        <p class="mt-4 text-sm leading-relaxed text-zinc-500 dark:text-zinc-400">
+          Toko perlengkapan digital dan gaya hidup pilihan, dikurasi dari pengrajin lokal terbaik di Indonesia.
+        </p>
+        <div class="mt-5 flex items-center gap-2">
+          <a href="#" onclick="event.preventDefault()" class="inline-flex items-center justify-center w-9 h-9 rounded-full glass-panel text-zinc-600 dark:text-zinc-300 hover:scale-105 transition-transform" aria-label="Instagram"><i data-lucide="instagram" class="w-4 h-4"></i></a>
+          <a href="#" onclick="event.preventDefault()" class="inline-flex items-center justify-center w-9 h-9 rounded-full glass-panel text-zinc-600 dark:text-zinc-300 hover:scale-105 transition-transform" aria-label="Twitter"><i data-lucide="twitter" class="w-4 h-4"></i></a>
+          <a href="#" onclick="event.preventDefault()" class="inline-flex items-center justify-center w-9 h-9 rounded-full glass-panel text-zinc-600 dark:text-zinc-300 hover:scale-105 transition-transform" aria-label="YouTube"><i data-lucide="youtube" class="w-4 h-4"></i></a>
+        </div>
+      </div>
+
+      <div>
+        <h4 class="text-[11px] font-bold uppercase tracking-widest text-zinc-400 dark:text-zinc-500">Belanja</h4>
+        <ul class="mt-4 space-y-2.5 text-sm font-medium text-zinc-600 dark:text-zinc-300">
+          <li><a href="#" onclick="event.preventDefault();setCat('Elektronik')" class="hover:text-zinc-900 dark:hover:text-white transition-colors">Elektronik</a></li>
+          <li><a href="#" onclick="event.preventDefault();setCat('Fesyen')" class="hover:text-zinc-900 dark:hover:text-white transition-colors">Fesyen</a></li>
+          <li><a href="#" onclick="event.preventDefault();setCat('Rumah')" class="hover:text-zinc-900 dark:hover:text-white transition-colors">Rumah</a></li>
+          <li><a href="#" onclick="event.preventDefault();setCat('Kecantikan')" class="hover:text-zinc-900 dark:hover:text-white transition-colors">Kecantikan</a></li>
+        </ul>
+      </div>
+
+      <div>
+        <h4 class="text-[11px] font-bold uppercase tracking-widest text-zinc-400 dark:text-zinc-500">Perusahaan</h4>
+        <ul class="mt-4 space-y-2.5 text-sm font-medium text-zinc-600 dark:text-zinc-300">
+          <li><a href="#" onclick="event.preventDefault()" class="hover:text-zinc-900 dark:hover:text-white transition-colors">Tentang kami</a></li>
+          <li><a href="#" onclick="event.preventDefault()" class="hover:text-zinc-900 dark:hover:text-white transition-colors">Karier</a></li>
+          <li><a href="#" onclick="event.preventDefault()" class="hover:text-zinc-900 dark:hover:text-white transition-colors">Blog</a></li>
+          <li><a href="#" onclick="event.preventDefault()" class="hover:text-zinc-900 dark:hover:text-white transition-colors">Program kemitraan</a></li>
+        </ul>
+      </div>
+
+      <div class="col-span-2 md:col-span-1">
+        <h4 class="text-[11px] font-bold uppercase tracking-widest text-zinc-400 dark:text-zinc-500">Bantuan</h4>
+        <ul class="mt-4 space-y-2.5 text-sm font-medium text-zinc-600 dark:text-zinc-300">
+          <li><a href="#" onclick="event.preventDefault()" class="hover:text-zinc-900 dark:hover:text-white transition-colors">Pusat bantuan</a></li>
+          <li><a href="#" onclick="event.preventDefault()" class="hover:text-zinc-900 dark:hover:text-white transition-colors">Lacak pesanan</a></li>
+          <li><a href="#" onclick="event.preventDefault()" class="hover:text-zinc-900 dark:hover:text-white transition-colors">Pengembalian barang</a></li>
+          <li><a href="#" onclick="event.preventDefault()" class="hover:text-zinc-900 dark:hover:text-white transition-colors">Hubungi kami</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="mt-12 pt-8 border-t border-zinc-900/10 dark:border-white/10 flex flex-col sm:flex-row items-center justify-between gap-5">
+      <p class="text-xs text-zinc-400 dark:text-zinc-500">© 2026 Uroo Goods. Seluruh hak cipta dilindungi.</p>
+      <form id="newsForm" class="flex items-center gap-2 w-full sm:w-auto" novalidate>
+        <div class="relative flex-1 sm:w-72">
+          <i data-lucide="mail" class="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-400 pointer-events-none"></i>
+          <input id="newsEmail" type="email" class="u-search" placeholder="Berlangganan newsletter" aria-label="Berlangganan newsletter">
+        </div>
+        <button type="submit" class="u-btn shrink-0 inline-flex items-center justify-center gap-2 rounded-full bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900 px-5 py-2.5 text-xs font-bold">
+          <i data-lucide="send" class="w-3.5 h-3.5"></i>
+          Kirim
+        </button>
+      </form>
+    </div>
+  </div>
+</footer>
+
+<script>
+  lucide.createIcons();
+  function toggleTheme(){const h=document.documentElement,b=document.body;h.classList.toggle('dark');b.classList.toggle('dark');try{localStorage.setItem('uroo-theme',b.classList.contains('dark')?'dark':'light')}catch(e){};lucide.createIcons();}
+
+  var toastT;
+  function toast(msg){
+    var t=document.createElement('div');
+    t.className='fixed bottom-6 left-1/2 -translate-x-1/2 z-[60] glass-panel rounded-full px-5 py-3 flex items-center gap-2.5 text-sm font-semibold anim-toast-in';
+    t.innerHTML='<i data-lucide="check" class="w-4 h-4"></i><span>'+msg+'</span>';
+    document.body.appendChild(t);
+    lucide.createIcons();
+    setTimeout(function(){t.style.cssText+=';opacity:0;transition:opacity .4s ease'},2400);
+    setTimeout(function(){t.remove()},2900);
+  }
+
+  var GRADS=['from-zinc-200 via-zinc-300 to-zinc-400 dark:from-zinc-700 dark:via-zinc-800 dark:to-zinc-600',
+             'from-zinc-300 via-zinc-400 to-zinc-600 dark:from-zinc-800 dark:via-zinc-700 dark:to-zinc-900',
+             'from-zinc-100 via-zinc-300 to-zinc-500 dark:from-zinc-600 dark:via-zinc-800 dark:to-zinc-950'];
+
+  var PRODUCTS=[
+    {name:'Kopi Arabika Gayo 250g',cat:'Kuliner',price:85000,rating:4.9,sold:2400,icon:'coffee',new:true,deal:false},
+    {name:'Batik Tulis Pekalongan',cat:'Fesyen',price:450000,rating:4.8,sold:860,icon:'shirt',new:false,deal:false},
+    {name:'Tas Kulit Garut',cat:'Fesyen',price:780000,rating:4.9,sold:420,icon:'shopping-bag',new:false,deal:true},
+    {name:'Headphone Studio Aero',cat:'Elektronik',price:1290000,rating:4.7,sold:1100,icon:'headphones',new:false,deal:true},
+    {name:'Smartwatch Fit Pro',cat:'Elektronik',price:975000,rating:4.6,sold:2800,icon:'watch',new:true,deal:false},
+    {name:'Lampu Meja Arco',cat:'Rumah',price:245000,rating:4.5,sold:680,icon:'lamp',new:false,deal:false},
+    {name:'Serum Glow Vitamin C',cat:'Kecantikan',price:165000,rating:4.8,sold:3100,icon:'droplets',new:false,deal:true},
+    {name:'Sneakers Kanvas Monoks',cat:'Fesyen',price:549000,rating:4.7,sold:1500,icon:'footprints',new:false,deal:false},
+    {name:'Kemeja Linen Natural',cat:'Fesyen',price:320000,rating:4.6,sold:950,icon:'shirt',new:false,deal:false},
+    {name:'Armchair Moka Senja',cat:'Rumah',price:2150000,rating:4.9,sold:310,icon:'armchair',new:false,deal:false},
+    {name:'Parfum Amber Wulandari',cat:'Kecantikan',price:285000,rating:4.8,sold:720,icon:'spray-can',new:true,deal:false},
+    {name:'Kastengel Rasa Nusantara',cat:'Kuliner',price:118000,rating:4.9,sold:1900,icon:'cookie',new:false,deal:false},
+    {name:'Kabel Magfast 100W',cat:'Elektronik',price:129000,rating:4.5,sold:4500,icon:'usb',new:false,deal:false},
+    {name:'Rak Tanaman Minimalis',cat:'Rumah',price:395000,rating:4.7,sold:520,icon:'library',new:false,deal:true}
+  ];
+
+  var CATS=['Semua','Elektronik','Fesyen','Rumah','Kecantikan','Kuliner','Penawaran'];
+  var activeCat='Semua';
+  var query='';
+  var cartCount=0;
+
+  function fmtRp(n){return 'Rp '+n.toLocaleString('id-ID')}
+  function fmtSold(n){return n>=1000?(n/1000).toFixed(1).replace('.',',')+'rb':n+' '}
+
+  function cardHTML(p,i){
+    var badges='';
+    if(p.deal)badges+='<span class="inline-flex items-center gap-1 rounded-full bg-black/75 text-white backdrop-blur-md px-3 py-1 text-[10px] font-bold uppercase tracking-widest"><i data-lucide="zap" class="w-3 h-3"></i> Diskon</span>';
+    if(p.new)badges+='<span class="inline-flex items-center gap-1 rounded-full bg-white/85 text-zinc-900 backdrop-blur-md px-3 py-1 text-[10px] font-bold uppercase tracking-widest"><i data-lucide="sparkles" class="w-3 h-3"></i> Baru</span>';
+    return ''+
+    '<article class="u-card glass-panel rounded-3xl overflow-hidden flex flex-col">'+
+      '<div class="relative h-44 bg-gradient-to-br '+GRADS[i%GRADS.length]+' flex items-center justify-center">'+
+        '<span class="inline-flex items-center justify-center w-16 h-16 rounded-3xl bg-white/40 backdrop-blur-md text-zinc-800 dark:bg-black/30 dark:text-zinc-100">'+
+          '<i data-lucide="'+p.icon+'" class="w-8 h-8"></i>'+
+        '</span>'+
+        (badges?'<div class="absolute top-3 left-3 flex flex-col gap-1.5">'+badges+'</div>':'')+
+      '</div>'+
+      '<div class="flex flex-col flex-1 p-5">'+
+        '<p class="text-[11px] font-bold uppercase tracking-wider text-zinc-400 dark:text-zinc-500">'+p.cat+'</p>'+
+        '<h3 class="mt-1.5 text-[15px] font-bold leading-snug text-zinc-900 dark:text-white">'+p.name+'</h3>'+
+        '<div class="mt-2 flex items-center gap-1.5 text-xs text-zinc-500 dark:text-zinc-400">'+
+          '<i data-lucide="star" class="w-3.5 h-3.5 text-zinc-900 dark:text-zinc-100"></i>'+
+          '<span class="font-bold text-zinc-800 dark:text-zinc-100">'+p.rating.toFixed(1)+'</span>'+
+          '<span>('+fmtSold(p.sold)+'terjual)</span>'+
+        '</div>'+
+        '<div class="mt-5 pt-4 border-t border-zinc-900/10 dark:border-white/10 flex items-center justify-between gap-3 mt-auto">'+
+          '<span class="text-[15px] font-extrabold tracking-tight text-zinc-900 dark:text-white">'+fmtRp(p.price)+'</span>'+
+          '<button data-add="'+i+'" class="u-btn inline-flex items-center gap-1.5 rounded-full bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900 px-3.5 py-2 text-xs font-bold">'+
+            '<i data-lucide="shopping-cart" class="w-3.5 h-3.5"></i><span>Tambah</span>'+
+          '</button>'+
+        '</div>'+
+      '</div>'+
+    '</article>';
+  }
+
+  function filterOn(p){
+    if(activeCat==='Semua'&&!query)return true;
+    if(activeCat==='Penawaran'){
+      if(query&&!p.name.toLowerCase().includes(query))return false;
+      if(!p.deal)return false;
+      return true;
+    }
+    if(p.cat!==activeCat)return false;
+    if(query&&!p.name.toLowerCase().includes(query))return false;
+    return true;
+  }
+
+  function renderChips(){
+    var html='';
+    CATS.forEach(function(c){
+      html+='<button class="u-chip'+(c===activeCat?' u-on':'')+'" data-cat="'+c+'">'+
+            (c==='Penawaran'?'<i data-lucide="zap" class="w-3.5 h-3.5"></i>':'')+
+            c+'</button>';
+    });
+    document.getElementById('chipsRow').innerHTML=html;
+    document.querySelectorAll('[data-cat]').forEach(function(b){
+      b.addEventListener('click',function(){setCat(this.getAttribute('data-cat'))});
+    });
+  }
+
+  function renderGrid(){
+    var list=PRODUCTS.map(function(p,i){return {p:p,i:i}}).filter(function(o){return filterOn(o.p)});
+    var grid=document.getElementById('grid');
+    if(list.length===0){
+      grid.innerHTML='';
+      document.getElementById('empty').classList.remove('hidden');
+    }else{
+      grid.innerHTML=list.map(function(o){return cardHTML(o.p,o.i)}).join('');
+      document.getElementById('empty').classList.add('hidden');
+    }
+    document.getElementById('productCount').textContent='Menampilkan '+list.length+' dari '+PRODUCTS.length+' produk';
+    lucide.createIcons();
+    document.querySelectorAll('[data-add]').forEach(function(b){
+      b.addEventListener('click',function(){addToCart(parseInt(this.getAttribute('data-add'),10),this)});
+    });
+  }
+
+  function setCat(c){
+    activeCat=c;
+    renderChips();
+    renderGrid();
+  }
+
+  function addToCart(i,btn){
+    cartCount++;
+    var badge=document.getElementById('cartCount');
+    badge.textContent=cartCount;
+    badge.classList.remove('u-pop');
+    void badge.offsetWidth;
+    badge.classList.add('u-pop');
+    btn.classList.add('u-carted');
+    btn.innerHTML='<i data-lucide="check" class="w-3.5 h-3.5"></i><span>Ditambahkan</span>';
+    lucide.createIcons();
+    toast(PRODUCTS[i].name+' ditambahkan ke keranjang');
+    setTimeout(function(){btn.classList.remove('u-carted');btn.innerHTML='<i data-lucide="shopping-cart" class="w-3.5 h-3.5"></i><span>Tambah</span>';lucide.createIcons()},1800);
+  }
+
+  document.getElementById('cartBtn').addEventListener('click',function(){
+    if(cartCount===0)toast('Keranjang Anda masih kosong');
+    else toast(cartCount+' item di dalam keranjang');
+  });
+
+  document.getElementById('menuBtn').addEventListener('click',function(){
+    var m=document.getElementById('mobileMenu');
+    m.classList.toggle('hidden');
+    m.classList.toggle('anim-slide-down');
+  });
+
+  function bindSearch(input){
+    input.addEventListener('input',function(){
+      query=this.value.trim().toLowerCase();
+      renderGrid();
+    });
+  }
+  bindSearch(document.getElementById('searchDesktop'));
+  bindSearch(document.getElementById('searchMobile'));
+
+  document.getElementById('newsForm').addEventListener('submit',function(e){
+    e.preventDefault();
+    var v=document.getElementById('newsEmail').value.trim();
+    if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)){toast('Masukkan alamat email yang valid');return;}
+    document.getElementById('newsEmail').value='';
+    toast('Terima kasih! Anda sudah berlangganan newsletter Uroo Goods.');
+  });
+
+  renderChips();
+  renderGrid();
+</script>
+<script src="../../assets/js/uroo-nav.js"></script>
+</body>
+</html>

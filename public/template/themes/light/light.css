@@ -1,0 +1,37 @@
+/* ============================================================
+   UROO UI - Theme: Light
+   Monochromatic glassmorphism in light mode.
+   Apply by NOT having the `dark` class on <html>/<body>.
+   ============================================================ */
+
+html:not(.dark) body,
+body.light,
+body:not(.dark) {
+  /* Canvas */
+  --u-canvas: linear-gradient(135deg, #dfe3ea, #f4f4f5);
+
+  /* Surfaces */
+  --u-glass-bg: rgba(255, 255, 255, 0.55);
+  --u-glass-border: rgba(255, 255, 255, 0.8);
+  --u-glass-inset: rgba(255, 255, 255, 0.9);
+
+  /* Text */
+  --u-text: #18181b;
+  --u-text-muted: #71717a;
+  --u-text-subtle: #a1a1aa;
+
+  /* Brand */
+  --u-primary: #18181b;
+  --u-primary-fg: #ffffff;
+  --u-accent: #2dd4bf;
+
+  /* Shadows */
+  --u-shadow-glass: 0 20px 40px -15px rgba(0, 0, 0, 0.05),
+                    inset 0 1px 1px 0 rgba(255, 255, 255, 0.9);
+}
+
+html:not(.dark) .glass-panel {
+  background-color: var(--u-glass-bg);
+  border: 1px solid var(--u-glass-border);
+  box-shadow: var(--u-shadow-glass);
+}

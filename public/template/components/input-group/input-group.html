@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="id" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Uroo UI - Input Group</title>
+  <script src="../../assets/js/tailwind.js"></script>
+  <script src="../../assets/js/lucide.js"></script>
+  <script>tailwind.config={darkMode:'class',theme:{extend:{colors:{glass:{light:'rgba(255,255,255,0.65)','light-border':'rgba(255,255,255,0.8)',dark:'rgba(18,18,20,0.65)','dark-border':'rgba(255,255,255,0.1)'}}}}}</script>
+  <link rel="stylesheet" href="../../assets/css/uroo.css">
+  <style>
+    .gi-input{width:100%;background:rgba(255,255,255,0.7);padding:0.625rem 0.875rem;font-size:0.875rem;color:#3f3f46;outline:none;border:1px solid rgba(24,24,27,0.14);transition:border-color .2s ease,box-shadow .2s ease,background-color .2s ease;}
+    .gi-input::placeholder{color:#a1a1aa;}
+    .gi-input:focus{border-color:rgba(24,24,27,0.55);box-shadow:0 0 0 3px rgba(24,24,27,0.08);background:#ffffff;}
+    .dark .gi-input{color:#d4d4d8;border-color:rgba(255,255,255,0.14);background:rgba(24,24,27,0.6);}
+    .dark .gi-input::placeholder{color:#52525b;}
+    .dark .gi-input:focus{border-color:rgba(255,255,255,0.5);box-shadow:0 0 0 3px rgba(255,255,255,0.12);background:rgba(24,24,27,0.85);}
+    .gi-addon{display:inline-flex;align-items:center;background:rgba(24,24,27,0.05);color:#52525b;border:1px solid rgba(24,24,27,0.14);padding:0 0.875rem;font-size:0.875rem;white-space:nowrap;}
+    .dark .gi-addon{background:rgba(255,255,255,0.06);color:#a1a1aa;border-color:rgba(255,255,255,0.14);}
+    .gi-join{display:flex;align-items:center;border:1px solid rgba(24,24,27,0.14);border-radius:0.75rem;overflow:hidden;background:rgba(255,255,255,0.7);transition:border-color .2s ease,box-shadow .2s ease;}
+    .glue-focus .gi-join{border-color:rgba(24,24,27,0.55);box-shadow:0 0 0 3px rgba(24,24,27,0.08);}
+    .dark .gi-join{border-color:rgba(255,255,255,0.14);background:rgba(24,24,27,0.6);}
+    .dark .glue-focus .gi-join{border-color:rgba(255,255,255,0.5);box-shadow:0 0 0 3px rgba(255,255,255,0.12);}
+    .gi-join .gi-input{border:none;background:transparent;box-shadow:none!important;}
+    .gi-join .gi-addon{border:none;border-right:1px solid rgba(24,24,27,0.14);}
+    .dark .gi-join .gi-addon{border-right-color:rgba(255,255,255,0.14);}
+    .gi-join .gi-addon.addon-right{border-right:none;border-left:1px solid rgba(24,24,27,0.14);}
+    .dark .gi-join .gi-addon.addon-right{border-left-color:rgba(255,255,255,0.14);}
+  </style>
+</head>
+<body class="min-h-screen p-6 font-sans antialiased text-zinc-800 dark:text-zinc-100" style="background:linear-gradient(135deg,#dfe3ea,#f4f4f5)">
+  <script>(function initTheme(){var saved=null;try{saved=localStorage.getItem('uroo-theme')}catch(e){};var dark=(saved==='dark')||(!saved&&window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches);var de=document.documentElement;if(dark){de.classList.add('dark');de.classList.remove('light');if(document.body){document.body.classList.add('dark');document.body.classList.remove('light');}}else{de.classList.remove('dark');de.classList.add('light');if(document.body){document.body.classList.remove('dark');document.body.classList.add('light');}}})();</script>
+  <div class="relative mx-auto max-w-6xl">
+    <div class="pointer-events-none absolute -top-24 -left-28 h-96 w-96 rounded-full bg-zinc-500/30 dark:bg-zinc-300/10 blur-[110px]"></div>
+    <div class="pointer-events-none absolute right-0 top-1/3 h-[26rem] w-[26rem] rounded-full bg-zinc-300/50 dark:bg-zinc-500/10 blur-[120px]"></div>
+    <div class="pointer-events-none absolute -bottom-16 left-1/3 h-80 w-80 rounded-full bg-white/70 dark:bg-white/5 blur-[100px]"></div>
+
+    <header class="relative mb-10">
+      <p class="text-xs font-semibold uppercase tracking-[0.25em] text-zinc-500 dark:text-zinc-500">Uroo UI - Komponen</p>
+      <h1 class="mt-2 text-3xl font-bold tracking-tight md:text-4xl">Input Group</h1>
+      <p class="mt-3 max-w-2xl text-sm leading-relaxed text-zinc-500 dark:text-zinc-400">Kumpulan input yang digabungkan dengan addon awalan, akhiran, dan tombol dalam satu satuan yang utuh.</p>
+    </header>
+
+    <main class="relative grid gap-6 md:grid-cols-2">
+
+      <section data-copy class="glass-panel rounded-2xl p-6 md:p-8">
+        <p class="text-xs font-semibold uppercase tracking-[0.2em] text-zinc-500 dark:text-zinc-500">Variasi - Awalan dan akhiran</p>
+        <div class="mt-5 space-y-5">
+          <div>
+            <label for="jumlah" class="mb-1.5 block text-sm font-semibold">Jumlah transfer</label>
+            <div id="rpGroup" class="gi-join">
+              <span class="gi-addon">Rp</span>
+              <input id="jumlah" type="text" class="gi-input" placeholder="1.500.000" oninput="formatRupiah(this)">
+            </div>
+            <p class="mt-1.5 text-xs text-zinc-500 dark:text-zinc-500">Format angka otomatis, contoh: 1500000 menjadi 1.500.000.</p>
+          </div>
+          <div>
+            <label for="domain" class="mb-1.5 block text-sm font-semibold">Alamat situs</label>
+            <div class="gi-join">
+              <input id="domain" type="text" class="gi-input" placeholder="nama-bisnis">
+              <span class="gi-addon addon-right">.com</span>
+            </div>
+            <p class="mt-1.5 text-xs text-zinc-500 dark:text-zinc-500">Awalan otomatis ditambahkan ke bagian akhir nama domain.</p>
+          </div>
+        </div>
+      </section>
+
+      <section data-copy class="glass-panel rounded-2xl p-6 md:p-8">
+        <p class="text-xs font-semibold uppercase tracking-[0.2em] text-zinc-500 dark:text-zinc-500">Variasi - Grup pencarian</p>
+        <div class="mt-5 space-y-5">
+          <div id="searchGroup" class="gi-join">
+            <span class="gi-addon"><i data-lucide="search" class="h-4 w-4"></i></span>
+            <input id="searchInput" type="text" class="gi-input" placeholder="Cari produk, kategori, atau pesanan">
+            <button onclick="cari()" class="inline-flex shrink-0 items-center gap-1.5 bg-zinc-900 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-zinc-700 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-white">
+              Cari
+            </button>
+          </div>
+          <div>
+            <label class="mb-1.5 block text-sm font-semibold">Pencarian dengan ikon akhiran</label>
+            <div class="gi-join">
+              <input type="text" class="gi-input" placeholder="Kata kunci halaman bantuan">
+              <button onclick="showToast('Pencarian bantuan untuk kata kunci dilakukan.')" class="inline-flex h-[42px] w-[42px] shrink-0 items-center justify-center bg-zinc-100 text-zinc-700 transition-colors hover:bg-zinc-200 dark:bg-zinc-800 dark:text-zinc-200 dark:hover:bg-zinc-700" aria-label="Cari">
+                <i data-lucide="search" class="h-4 w-4"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section data-copy class="glass-panel rounded-2xl p-6 md:p-8">
+        <p class="text-xs font-semibold uppercase tracking-[0.2em] text-zinc-500 dark:text-zinc-500">Variasi - Input bergabung</p>
+        <div class="mt-5 space-y-5">
+          <div>
+            <label class="mb-1.5 block text-sm font-semibold">Nomor telepon</label>
+            <div class="gi-join">
+              <span class="gi-addon">+62</span>
+              <input id="telInput" type="tel" class="gi-input" placeholder="81234567890" oninput="formatPhone(this)">
+              <span class="gi-addon addon-right"><i data-lucide="phone" class="h-4 w-4"></i></span>
+            </div>
+            <p class="mt-1.5 text-xs text-zinc-500 dark:text-zinc-500">Hanya angka yang dapat dimasukkan, maksimal 12 digit.</p>
+          </div>
+          <div>
+            <label class="mb-1.5 block text-sm font-semibold">Rentang tanggal kunjungan</label>
+            <div class="gi-join">
+              <span class="gi-addon">Mulai</span>
+              <input type="date" class="gi-input" value="2026-08-01">
+              <span class="gi-addon">Sampai</span>
+              <input type="date" class="gi-input" value="2026-08-15">
+            </div>
+          </div>
+          <div>
+            <label class="mb-1.5 block text-sm font-semibold">Panjang dan lebar</label>
+            <div class="gi-join">
+              <input type="number" class="gi-input" placeholder="120">
+              <span class="gi-addon addon-right">cm</span>
+              <span class="gi-addon">x</span>
+              <input type="number" class="gi-input" placeholder="80">
+              <span class="gi-addon addon-right">cm</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section data-copy class="glass-panel rounded-2xl p-6 md:p-8">
+        <p class="text-xs font-semibold uppercase tracking-[0.2em] text-zinc-500 dark:text-zinc-500">Variasi - Tombol terpasang</p>
+        <div class="mt-5 space-y-5">
+          <div>
+            <label for="subEmail" class="mb-1.5 block text-sm font-semibold">Berlangganan buletin</label>
+            <div class="gi-join">
+              <span class="gi-addon"><i data-lucide="mail" class="h-4 w-4"></i></span>
+              <input id="subEmail" type="email" class="gi-input" placeholder="alamat@email.com">
+              <button onclick="subscribe()" class="inline-flex shrink-0 items-center gap-1.5 bg-zinc-900 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-zinc-700 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-white">
+                <i data-lucide="send" class="h-4 w-4"></i>Berlangganan
+              </button>
+            </div>
+            <p id="subMsg" class="mt-1.5 text-xs text-zinc-500 dark:text-zinc-500">Dapatkan kabar rilis fitur baru setiap minggu.</p>
+          </div>
+          <div>
+            <label for="kupon" class="mb-1.5 block text-sm font-semibold">Kode kupon</label>
+            <div class="gi-join">
+              <input id="kupon" type="text" class="gi-input" placeholder="Masukkan kode promo">
+              <button onclick="applyKupon()" class="inline-flex shrink-0 items-center justify-center border-l border-zinc-300/60 px-4 py-2.5 text-sm font-semibold text-zinc-700 transition-colors hover:bg-zinc-900/5 dark:border-white/10 dark:text-zinc-200 dark:hover:bg-white/10">
+                Terapkan
+              </button>
+            </div>
+            <p id="kuponMsg" class="mt-1.5 text-xs text-zinc-500 dark:text-zinc-500">Kupon yang valid akan mengurangi total belanja secara otomatis.</p>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="relative mt-12 flex items-center justify-between border-t border-zinc-400/30 py-6 text-xs text-zinc-500 dark:border-white/10 dark:text-zinc-500">
+      <span>Uroo UI - Glassmorphism monokrom</span>
+      <span id="year"></span>
+    </footer>
+  </div>
+
+  <button onclick="toggleTheme()" class="glass-panel fixed right-4 top-4 z-50 inline-flex items-center justify-center rounded-full p-2.5" aria-label="Ganti tema">
+    <i data-lucide="sun" class="h-5 w-5 text-zinc-700 dark:hidden"></i>
+    <i data-lucide="moon" class="hidden h-5 w-5 text-zinc-200 dark:block"></i>
+  </button>
+
+  <script>
+    lucide.createIcons();
+    function toggleTheme(){const h=document.documentElement,b=document.body;h.classList.toggle('dark');b.classList.toggle('dark');b.style.background=b.classList.contains('dark')?'linear-gradient(135deg,#0a0a0c,#1a1a1e)':'linear-gradient(135deg,#dfe3ea,#f4f4f5)';try{localStorage.setItem('uroo-theme',b.classList.contains('dark')?'dark':'light')}catch(e){};lucide.createIcons();}
+    (function(){const dark=document.documentElement.classList.contains('dark');document.body.style.background=dark?'linear-gradient(135deg,#0a0a0c,#1a1a1e)':'linear-gradient(135deg,#dfe3ea,#f4f4f5)';})();
+    document.getElementById('year').textContent = 'Uroo Dev - ' + new Date().getFullYear();
+
+    ['rpGroup','searchGroup'].forEach(function(id){
+      const wrap=document.getElementById(id);
+      const box=wrap.querySelector('.gi-join');
+      const input=wrap.querySelector('.gi-input');
+      input.addEventListener('focus',function(){box.parentElement.classList.add('glue-focus');});
+      input.addEventListener('blur',function(){box.parentElement.classList.remove('glue-focus');});
+    });
+
+    function formatRupiah(el){el.value=el.value.replace(/\D/g,'').replace(/\B(?=(\d{3})+(?!\d))/g,'.');}
+    function formatPhone(el){el.value=el.value.replace(/\D/g,'').slice(0,12);}
+
+    function cari(){
+      const q=document.getElementById('searchInput').value.trim();
+      if(!q){showToast('Ketik kata kunci terlebih dahulu.');return;}
+      showToast('Hasil pencarian untuk "'+q+'" ditampilkan.');
+    }
+    function subscribe(){
+      const el=document.getElementById('subEmail');
+      const msg=document.getElementById('subMsg');
+      const v=el.value.trim();
+      if(/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)){
+        msg.textContent='Terima kasih, langganan buletin Anda aktif.';
+        msg.className='mt-1.5 text-xs font-medium text-emerald-600 dark:text-emerald-400';
+        showToast('Anda berhasil berlangganan buletin Uroo.');
+      }else{
+        msg.textContent='Alamat email tidak valid. Periksa kembali formatnya.';
+        msg.className='mt-1.5 text-xs font-medium text-red-600 dark:text-red-400';
+      }
+    }
+    function applyKupon(){
+      const el=document.getElementById('kupon');
+      const msg=document.getElementById('kuponMsg');
+      const v=el.value.trim().toUpperCase();
+      if(v==='UROO10'){
+        msg.textContent='Kupon UROO10 berlaku, diskon 10% sudah dipakai.';
+        msg.className='mt-1.5 text-xs font-medium text-emerald-600 dark:text-emerald-400';
+        showToast('Diskon 10% diterapkan ke transaksi Anda.');
+      }else{
+        msg.textContent='Kode kupon tidak ditemukan atau sudah kedaluwarsa.';
+        msg.className='mt-1.5 text-xs font-medium text-red-600 dark:text-red-400';
+      }
+    }
+
+    function showToast(msg){
+      const t=document.createElement('div');
+      t.className='glass-panel anim-slide-up fixed bottom-6 left-1/2 z-[60] -translate-x-1/2 rounded-xl px-4 py-3 text-sm font-medium text-zinc-800 dark:text-zinc-100';
+      t.textContent=msg;
+      document.body.appendChild(t);
+      setTimeout(()=>{t.style.transition='all .3s';t.style.opacity='0';t.style.transform='translate(-50%,8px)';setTimeout(()=>t.remove(),320);},2400);
+    }
+  </script>
+<script src="../../assets/js/uroo-copy.js"></script>
+<script src="../../assets/js/uroo-nav.js"></script>
+</body>
+</html>

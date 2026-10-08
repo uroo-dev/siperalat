@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="id" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Uroo UI - Pemilih Tanggal</title>
+  <script src="../../assets/js/tailwind.js"></script>
+  <script src="../../assets/js/lucide.js"></script>
+  <script>tailwind.config={darkMode:'class',theme:{extend:{colors:{glass:{light:'rgba(255,255,255,0.65)','light-border':'rgba(255,255,255,0.8)',dark:'rgba(18,18,20,0.65)','dark-border':'rgba(255,255,255,0.1)'}}}}}</script>
+  <link rel="stylesheet" href="../../assets/css/uroo.css">
+  <style>
+    body { background: linear-gradient(135deg,#dfe3ea,#f4f4f5) !important; }
+    body.dark { background: linear-gradient(135deg,#0a0a0c,#1a1a1e) !important; }
+
+    .glass-panel {
+      backdrop-filter: blur(20px) saturate(180%);
+      -webkit-backdrop-filter: blur(20px) saturate(180%);
+      background-color: rgba(255,255,255,0.55);
+      border: 1px solid rgba(255,255,255,0.8);
+      box-shadow: 0 20px 40px -15px rgba(0,0,0,0.05), inset 0 1px 1px 0 rgba(255,255,255,0.9);
+    }
+    .dark .glass-panel {
+      background-color: rgba(24,24,27,0.55);
+      border: 1px solid rgba(255,255,255,0.08);
+      box-shadow: 0 20px 40px -15px rgba(0,0,0,0.5), inset 0 1px 1px 0 rgba(255,255,255,0.1);
+    }
+
+    @keyframes u-slide-up { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:translateY(0); } }
+    .anim-slide-up { animation: u-slide-up .35s cubic-bezier(.16,1,.3,1); }
+
+    /* ==== Date picker ==== */
+    .uroo-dp { position: relative; }
+    .uroo-dp-label { display:block; font-size:12px; font-weight:600; margin-bottom:6px; color:#52525b; }
+    .dark .uroo-dp-label { color:#a1a1aa; }
+    .uroo-dp-field { position: relative; }
+    .uroo-dp-field input {
+      width:100%; padding:10px 42px 10px 12px; border-radius:12px;
+      font-size:14px; color:#18181b; background:rgba(255,255,255,.6);
+      border:1px solid rgba(0,0,0,.14); cursor:pointer;
+      transition:border-color .15s ease, background-color .15s ease;
+    }
+    .dark .uroo-dp-field input { color:#fafafa; background:rgba(255,255,255,.05); border-color:rgba(255,255,255,.14); }
+    .uroo-dp-field:focus-within input { border-color:rgba(0,0,0,.55); }
+    .dark .uroo-dp-field:focus-within input { border-color:rgba(255,255,255,.55); }
+    .uroo-dp-field input[disabled] { cursor:not-allowed; opacity:.5; }
+    .uroo-dp-btn {
+      position:absolute; top:50%; right:6px; transform:translateY(-50%);
+      padding:6px; border-radius:9px; color:#71717a;
+      transition:color .15s, background-color .15s, transform .2s ease;
+    }
+    .uroo-dp-btn:hover { background:rgba(0,0,0,.06); color:#18181b; }
+    .dark .uroo-dp-btn:hover { background:rgba(255,255,255,.1); color:#fafafa; }
+    .uroo-dp-open .uroo-dp-btn { transform:translateY(-50%) rotate(180deg); color:#18181b; }
+    .dark .uroo-dp-open .uroo-dp-btn { color:#fafafa; }
+    .uroo-dp-btn[disabled] { cursor:not-allowed; opacity:.4; }
+
+    .uroo-dp-panel {
+      position:absolute; z-index:1100; top:calc(100% + 10px); left:0; width:324px; max-width:calc(100vw - 40px);
+      padding:14px; border-radius:16px;
+      opacity:0; visibility:hidden; transform:translateY(-8px) scale(.98);
+      transition:opacity .18s ease, transform .2s cubic-bezier(.16,1,.3,1), visibility .18s;
+      pointer-events:none;
+    }
+    .uroo-dp-open .uroo-dp-panel { opacity:1; visibility:visible; transform:none; pointer-events:auto; }
+    .uroo-dp-head { display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; }
+    .uroo-dp-month { font-size:13px; font-weight:700; }
+    .uroo-dp-nav { padding:6px; border-radius:9px; color:#71717a; transition:background-color .15s, color .15s; }
+    .uroo-dp-nav:hover { background:rgba(0,0,0,.07); color:#18181b; }
+    .dark .uroo-dp-nav:hover { background:rgba(255,255,255,.1); color:#fafafa; }
+    .uroo-dp-wd { display:grid; grid-template-columns:repeat(7,1fr); gap:4px; margin-bottom:6px; }
+    .uroo-dp-wd span { text-align:center; font-size:10.5px; font-weight:700; text-transform:uppercase; letter-spacing:.05em; color:#a1a1aa; padding:2px 0; }
+    .uroo-dp-grid { display:grid; grid-template-columns:repeat(7,1fr); gap:4px; }
+    .uroo-dp-day {
+      height:34px; display:flex; align-items:center; justify-content:center;
+      border-radius:9px; font-size:13px; font-weight:500; color:#3f3f46;
+      transition:background-color .12s, color .12s, box-shadow .12s;
+    }
+    .uroo-dp-day.uroo-dp-empty { visibility:hidden; }
+    .uroo-dp-day:hover { background:rgba(0,0,0,.07); color:#18181b; }
+    .uroo-dp-day:disabled { opacity:.28; cursor:not-allowed; }
+    .uroo-dp-day:disabled:hover { background:transparent; }
+    .uroo-dp-day.uroo-dp-today { box-shadow: inset 0 0 0 1.5px rgba(0,0,0,.45); }
+    .uroo-dp-day.uroo-dp-sel, .uroo-dp-day.uroo-dp-sel:hover { background:#18181b; color:#fff; }
+    .dark .uroo-dp-day { color:#d4d4d8; }
+    .dark .uroo-dp-day:hover { background:rgba(255,255,255,.1); color:#fafafa; }
+    .dark .uroo-dp-day:disabled:hover { background:transparent; }
+    .dark .uroo-dp-day.uroo-dp-today { box-shadow: inset 0 0 0 1.5px rgba(255,255,255,.55); }
+    .dark .uroo-dp-day.uroo-dp-sel, .dark .uroo-dp-day.uroo-dp-sel:hover { background:#fafafa; color:#18181b; }
+
+    .uroo-dp-foot { display:flex; align-items:center; justify-content:space-between; margin-top:12px; padding-top:12px; border-top:1px solid rgba(0,0,0,.07); }
+    .dark .uroo-dp-foot { border-top-color:rgba(255,255,255,.1); }
+    .uroo-dp-todaybtn, .uroo-dp-clear {
+      display:inline-flex; align-items:center; gap:6px; font-size:12.5px; font-weight:600;
+      padding:7px 10px; border-radius:9px; transition:background-color .15s;
+    }
+    .uroo-dp-todaybtn { color:#18181b; }
+    .dark .uroo-dp-todaybtn { color:#fafafa; }
+    .uroo-dp-todaybtn:hover { background:rgba(0,0,0,.07); }
+    .dark .uroo-dp-todaybtn:hover { background:rgba(255,255,255,.1); }
+    .uroo-dp-clear { color:#71717a; }
+    .dark .uroo-dp-clear { color:#a1a1aa; }
+    .uroo-dp-clear:hover { background:rgba(0,0,0,.07); }
+    .dark .uroo-dp-clear:hover { background:rgba(255,255,255,.1); }
+
+    .uroo-dp-badge { display:inline-flex; align-items:center; gap:5px; font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.05em; border-radius:9999px; padding:3px 8px; }
+  </style>
+</head>
+<body class="min-h-screen p-6 font-sans antialiased text-zinc-800 dark:text-zinc-100" style="background:linear-gradient(135deg,#dfe3ea,#f4f4f5)">
+  <script>(function initTheme(){var saved=null;try{saved=localStorage.getItem('uroo-theme')}catch(e){};var dark=(saved==='dark')||(!saved&&window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches);var de=document.documentElement;if(dark){de.classList.add('dark');de.classList.remove('light');if(document.body){document.body.classList.add('dark');document.body.classList.remove('light');}}else{de.classList.remove('dark');de.classList.add('light');if(document.body){document.body.classList.remove('dark');document.body.classList.add('light');}}})();</script>
+
+  <!-- Ambient glow circles -->
+  <div aria-hidden="true" class="pointer-events-none fixed -top-32 -left-32 h-[420px] w-[420px] rounded-full bg-zinc-300/50 blur-3xl dark:bg-zinc-600/20"></div>
+  <div aria-hidden="true" class="pointer-events-none fixed -bottom-36 -right-28 h-[400px] w-[400px] rounded-full bg-zinc-400/25 blur-3xl dark:bg-zinc-700/25"></div>
+  <div aria-hidden="true" class="pointer-events-none fixed top-1/3 right-1/4 h-64 w-64 rounded-full bg-white/40 blur-3xl dark:bg-zinc-800/30"></div>
+
+  <header class="relative mx-auto max-w-6xl">
+    <div class="mb-6 flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-zinc-500 dark:text-zinc-400">
+      <span class="inline-flex h-1.5 w-1.5 rounded-full bg-zinc-700 dark:bg-zinc-200"></span>
+      Komponen Uroo UI
+      <span class="text-zinc-300 dark:text-zinc-600">/</span>
+      Pemilih Tanggal
+    </div>
+    <h1 class="text-3xl font-bold tracking-tight">Pemilih Tanggal</h1>
+    <p class="mt-2 max-w-2xl text-sm text-zinc-500 dark:text-zinc-400">
+      Klik kolom untuk membuka kalender, navigasikan bulan dengan panah, dan pilih tanggal.
+      Tanggal di luar batas akan otomatis dinonaktifkan.
+    </p>
+  </header>
+
+  <main class="relative mx-auto mt-6 grid max-w-6xl gap-5 md:grid-cols-2 lg:grid-cols-3">
+
+    <!-- 1: Dasar -->
+    <section data-copy class="glass-panel anim-slide-up rounded-2xl p-5">
+      <div class="mb-4 flex items-center justify-between">
+        <h2 class="text-sm font-semibold">Dasar</h2>
+        <span class="uroo-dp-badge bg-black/5 text-zinc-500 dark:bg-white/10 dark:text-zinc-400">Tanpa batasan</span>
+      </div>
+      <div class="uroo-dp" data-dp data-dp-min="1900-01-01">
+        <label class="uroo-dp-label" for="dp-dasar">Tanggal mulai proyek</label>
+        <div class="uroo-dp-field">
+          <input id="dp-dasar" type="text" readonly inputmode="none" placeholder="Pilih tanggal..." aria-haspopup="dialog">
+          <button type="button" class="uroo-dp-btn" data-dp-open aria-label="Buka kalender"><i data-lucide="calendar"></i></button>
+          <div class="uroo-dp-panel glass-panel" data-dp-panel role="dialog" aria-label="Kalender memilih tanggal" tabindex="0"></div>
+        </div>
+        <p class="mt-3 text-xs text-zinc-400 dark:text-zinc-500" data-dp-hint>Pilih tanggal dari kalender.</p>
+      </div>
+    </section>
+
+    <!-- 2: Batas minimal -->
+    <section data-copy class="glass-panel anim-slide-up rounded-2xl p-5">
+      <div class="mb-4 flex items-center justify-between">
+        <h2 class="text-sm font-semibold">Batas Minimal</h2>
+        <span class="uroo-dp-badge bg-black/5 text-zinc-500 dark:bg-white/10 dark:text-zinc-400">Mulai hari ini</span>
+      </div>
+      <div class="uroo-dp" data-dp data-dp-min="today">
+        <label class="uroo-dp-label" for="dp-min">Tenggat pengumpulan</label>
+        <div class="uroo-dp-field">
+          <input id="dp-min" type="text" readonly inputmode="none" placeholder="Pilih tanggal..." aria-haspopup="dialog">
+          <button type="button" class="uroo-dp-btn" data-dp-open aria-label="Buka kalender"><i data-lucide="calendar"></i></button>
+          <div class="uroo-dp-panel glass-panel" data-dp-panel role="dialog" aria-label="Kalender memilih tanggal" tabindex="0"></div>
+        </div>
+        <p class="mt-3 text-xs text-zinc-400 dark:text-zinc-500" data-dp-hint>Hanya tanggal dari hari ini ke depan.</p>
+      </div>
+    </section>
+
+    <!-- 3: Rentang -->
+    <section data-copy class="glass-panel anim-slide-up rounded-2xl p-5">
+      <div class="mb-4 flex items-center justify-between">
+        <h2 class="text-sm font-semibold">Rentang Batas</h2>
+        <span class="uroo-dp-badge bg-black/5 text-zinc-500 dark:bg-white/10 dark:text-zinc-400">1-31 Agu 2026</span>
+      </div>
+      <div class="uroo-dp" data-dp data-dp-min="2026-08-01" data-dp-max="2026-08-31">
+        <label class="uroo-dp-label" for="dp-range">Jadwal reservasi gedung</label>
+        <div class="uroo-dp-field">
+          <input id="dp-range" type="text" readonly inputmode="none" placeholder="Pilih tanggal..." aria-haspopup="dialog">
+          <button type="button" class="uroo-dp-btn" data-dp-open aria-label="Buka kalender"><i data-lucide="calendar"></i></button>
+          <div class="uroo-dp-panel glass-panel" data-dp-panel role="dialog" aria-label="Kalender memilih tanggal" tabindex="0"></div>
+        </div>
+        <p class="mt-3 text-xs text-zinc-400 dark:text-zinc-500" data-dp-hint>Jendela reservasi 1 hingga 31 Agustus 2026.</p>
+      </div>
+    </section>
+
+    <!-- 4: Nilai awal -->
+    <section data-copy class="glass-panel anim-slide-up rounded-2xl p-5">
+      <div class="mb-4 flex items-center justify-between">
+        <h2 class="text-sm font-semibold">Nilai Awal</h2>
+        <span class="uroo-dp-badge bg-black/5 text-zinc-500 dark:bg-white/10 dark:text-zinc-400">Terisi</span>
+      </div>
+      <div class="uroo-dp" data-dp data-dp-value="2026-08-29">
+        <label class="uroo-dp-label" for="dp-init">Tanggal peluncuran</label>
+        <div class="uroo-dp-field">
+          <input id="dp-init" type="text" readonly inputmode="none" placeholder="Pilih tanggal..." aria-haspopup="dialog">
+          <button type="button" class="uroo-dp-btn" data-dp-open aria-label="Buka kalender"><i data-lucide="calendar"></i></button>
+          <div class="uroo-dp-panel glass-panel" data-dp-panel role="dialog" aria-label="Kalender memilih tanggal" tabindex="0"></div>
+        </div>
+        <p class="mt-3 text-xs text-zinc-400 dark:text-zinc-500" data-dp-hint>Nilai awal telah diisi sebelumnya.</p>
+      </div>
+    </section>
+
+    <!-- 5: Nonaktif -->
+    <section data-copy class="glass-panel anim-slide-up rounded-2xl p-5">
+      <div class="mb-4 flex items-center justify-between">
+        <h2 class="text-sm font-semibold">Nonaktif</h2>
+        <span class="uroo-dp-badge bg-black/5 text-zinc-500 dark:bg-white/10 dark:text-zinc-400">Disabled</span>
+      </div>
+      <div class="uroo-dp" data-dp data-dp-disabled="true">
+        <label class="uroo-dp-label" for="dp-dis">Berlaku hingga</label>
+        <div class="uroo-dp-field">
+          <input id="dp-dis" type="text" readonly placeholder="Input tidak tersedia..." aria-haspopup="dialog">
+          <button type="button" class="uroo-dp-btn" data-dp-open aria-label="Buka kalender"><i data-lucide="calendar"></i></button>
+          <div class="uroo-dp-panel glass-panel" data-dp-panel role="dialog" aria-label="Kalender memilih tanggal" tabindex="0"></div>
+        </div>
+        <p class="mt-3 text-xs text-zinc-400 dark:text-zinc-500" data-dp-hint>Konfigurasi dikunci oleh admin.</p>
+      </div>
+    </section>
+
+    <!-- 6: Prasetel hari ini -->
+    <section data-copy class="glass-panel anim-slide-up rounded-2xl p-5">
+      <div class="mb-4 flex items-center justify-between">
+        <h2 class="text-sm font-semibold">Prasetel Hari Ini</h2>
+        <span class="uroo-dp-badge bg-black/5 text-zinc-500 dark:bg-white/10 dark:text-zinc-400">default</span>
+      </div>
+      <div class="uroo-dp" data-dp data-dp-min="today" data-dp-value="today">
+        <label class="uroo-dp-label" for="dp-today">Tanggal seminar</label>
+        <div class="uroo-dp-field">
+          <input id="dp-today" type="text" readonly inputmode="none" placeholder="Pilih tanggal..." aria-haspopup="dialog">
+          <button type="button" class="uroo-dp-btn" data-dp-open aria-label="Buka kalender"><i data-lucide="calendar"></i></button>
+          <div class="uroo-dp-panel glass-panel" data-dp-panel role="dialog" aria-label="Kalender memilih tanggal" tabindex="0"></div>
+        </div>
+        <p class="mt-3 text-xs text-zinc-400 dark:text-zinc-500" data-dp-hint>Otomatis mengikuti tanggal hari ini.</p>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="relative mx-auto mt-6 max-w-6xl">
+    <p class="flex items-center gap-2 rounded-xl border border-dashed border-zinc-300/60 px-4 py-3 text-xs text-zinc-500 dark:border-white/10 dark:text-zinc-400">
+      <i data-lucide="keyboard" class="h-4 w-4 flex-none"></i>
+      Buka kalender dengan klik atau Enter. Navigasi sel dengan panah, pilih dengan Enter, tutup dengan Esc atau klik di luar. Kalender dimulai dari hari Senin sesuai konvensi lokal Indonesia.
+    </p>
+  </footer>
+
+  <!-- Theme toggle -->
+  <button onclick="toggleTheme()" aria-label="Ubah tema"
+      class="glass-panel fixed top-4 right-4 z-50 rounded-full p-2.5 shadow-lg transition-transform hover:scale-105">
+    <i data-lucide="sun" class="hidden h-5 w-5 text-zinc-600 dark:block dark:text-zinc-200"></i>
+    <i data-lucide="moon" class="block h-5 w-5 text-zinc-600 dark:hidden dark:text-zinc-200"></i>
+  </button>
+
+  <script>
+    lucide.createIcons();
+
+    function toggleTheme(){
+      const h=document.documentElement,b=document.body;
+      h.classList.toggle('dark');
+      b.classList.toggle('dark');
+      try{localStorage.setItem('uroo-theme',b.classList.contains('dark')?'dark':'light')}catch(e){};
+      lucide.createIcons();
+    }
+
+    (function(){
+      if (document.documentElement.classList.contains('dark')) document.body.classList.add('dark');
+      else document.body.classList.remove('dark');
+    })();
+
+    /* ================= Date picker engine ================= */
+    var DP_MONTHS=['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+    var DP_WDAYS=['Sen','Sel','Rab','Kam','Jum','Sab','Min'];
+    var DP_INSTANCES=[];
+
+    function dpPad(n){ return n<10 ? '0'+n : ''+n; }
+    function dpIso(d){ return d.getFullYear()+'-'+dpPad(d.getMonth()+1)+'-'+dpPad(d.getDate()); }
+    function dpParse(v){
+      if(!v) return null;
+      var p=v.split('-').map(Number);
+      return new Date(p[0], (p[1]||1)-1, p[2]||1);
+    }
+    function dpFmt(d){ return d ? d.toLocaleDateString('id-ID',{day:'2-digit',month:'long',year:'numeric'}) : ''; }
+    function dpToday(){ var n=new Date(); return new Date(n.getFullYear(), n.getMonth(), n.getDate()); }
+
+    function dpRender(inst){
+      var year=inst.vY, month=inst.vM;
+      inst.monthLabel.textContent=DP_MONTHS[month]+' '+year;
+      var first=new Date(year,month,1);
+      var offset=(first.getDay()+6)%7;
+      var dim=new Date(year,month+1,0).getDate();
+      var html='';
+      for(var i=0;i<offset;i++) html+='<span class="uroo-dp-day uroo-dp-empty"></span>';
+      for(var d=1; d<=dim; d++){
+        var dt=new Date(year,month,d);
+        var iso=dpIso(dt);
+        var cls='uroo-dp-day';
+        if (iso===inst.sel) cls+=' uroo-dp-sel';
+        if (iso===inst.today) cls+=' uroo-dp-today';
+        var disabled=(inst.min && dt<inst.min) || (inst.max && dt>inst.max);
+        if (disabled){ html+='<button type="button" class="'+cls+'" data-date="'+iso+'" disabled>'+d+'</button>'; continue; }
+        html+='<button type="button" class="'+cls+'" data-date="'+iso+'">'+d+'</button>';
+      }
+      inst.grid.innerHTML=html;
+    }
+
+    function dpOpen(inst){
+      if (inst.disabled) return;
+      if (!inst._panelBuilt) dpBuildPanel(inst);
+      inst.field.classList.add('uroo-dp-open');
+      inst.btn.setAttribute('aria-expanded','true');
+      var first=inst.grid.querySelector('.uroo-dp-day[data-date]:not([disabled])');
+      if (first) first.focus();
+    }
+    function dpClose(inst){
+      inst.field.classList.remove('uroo-dp-open');
+      inst.btn.setAttribute('aria-expanded','false');
+    }
+
+    function dpCommit(inst){
+      var d=dpParse(inst.sel);
+      inst.input.value= d ? dpFmt(d) : '';
+      inst.input.dataset.value= inst.sel || '';
+      if (inst.onChange) inst.onChange(inst, inst.sel, d);
+      dpClose(inst);
+    }
+
+    function dpBuildPanel(inst){
+      inst._panelBuilt=true;
+      var html=
+        '<div class="uroo-dp-head">'+
+          '<button type="button" class="uroo-dp-nav" data-dp-prev aria-label="Bulan sebelumnya"><i data-lucide="chevron-left"></i></button>'+
+          '<span class="uroo-dp-month"></span>'+
+          '<button type="button" class="uroo-dp-nav" data-dp-next aria-label="Bulan berikutnya"><i data-lucide="chevron-right"></i></button>'+
+        '</div>'+
+        '<div class="uroo-dp-wd">'+DP_WDAYS.map(function(w){ return '<span>'+w+'</span>'; }).join('')+'</div>'+
+        '<div class="uroo-dp-grid"></div>'+
+        '<div class="uroo-dp-foot">'+
+          '<button type="button" class="uroo-dp-todaybtn" data-dp-today><i data-lucide="calendar-days"></i> Hari Ini</button>'+
+          '<button type="button" class="uroo-dp-clear" data-dp-clear><i data-lucide="x"></i> Bersihkan</button>'+
+        '</div>';
+      inst.panel.innerHTML=html;
+      inst.monthLabel=inst.panel.querySelector('.uroo-dp-month');
+      inst.grid=inst.panel.querySelector('.uroo-dp-grid');
+      if (window.lucide) { try{ lucide.createIcons(); }catch(e){} }
+
+      inst.panel.addEventListener('click', function(e){
+        var cell=e.target.closest('button[data-date]');
+        if (cell && !cell.disabled){ inst.sel=cell.dataset.date; dpCommit(inst); return; }
+        if (e.target.closest('[data-dp-prev]')){
+          inst.vM--; if(inst.vM<0){ inst.vM=11; inst.vY--; } dpRender(inst); return;
+        }
+        if (e.target.closest('[data-dp-next]')){
+          inst.vM++; if(inst.vM>11){ inst.vM=0; inst.vY++; } dpRender(inst); return;
+        }
+        if (e.target.closest('[data-dp-today]')){
+          var t=dpToday();
+          if (inst.min && t<inst.min) t=inst.min;
+          if (inst.max && t>inst.max) t=inst.max;
+          inst.sel=dpIso(t);
+          inst.vY=t.getFullYear(); inst.vM=t.getMonth();
+          dpRender(inst);
+          dpCommit(inst);
+          return;
+        }
+        if (e.target.closest('[data-dp-clear]')){
+          inst.sel=null;
+          dpCommit(inst);
+        }
+      });
+
+      inst.panel.addEventListener('keydown', function(e){
+        if (e.key==='Escape'){ e.preventDefault(); dpClose(inst); return; }
+        var cells=inst.grid.querySelectorAll('.uroo-dp-day[data-date]:not([disabled])');
+        if (!cells.length) return;
+        var idx=Array.prototype.indexOf.call(cells, document.activeElement);
+        var delta = e.key==='ArrowRight'?1 : e.key==='ArrowLeft'?-1 : e.key==='ArrowDown'?7 : e.key==='ArrowUp'?-7 : 0;
+        if (delta){
+          e.preventDefault();
+          var next=idx+delta;
+          if (delta===1||delta===-1){ if(next<0) next=cells.length-1; if(next>cells.length-1) next=0; }
+          else if (next<0 || next>cells.length-1) return;
+          cells[next].focus();
+          return;
+        }
+        if (e.key==='Enter' && document.activeElement && document.activeElement.hasAttribute('data-date')){
+          e.preventDefault();
+          inst.sel=document.activeElement.dataset.date;
+          dpCommit(inst);
+        }
+      });
+    }
+
+    function dpBindField(inst){
+      function toggle(){
+        if (inst.field.classList.contains('uroo-dp-open')) dpClose(inst);
+        else dpOpen(inst);
+      }
+      inst.input.addEventListener('click', toggle);
+      inst.btn.addEventListener('click', function(e){ e.stopPropagation(); toggle(); });
+      inst.input.addEventListener('keydown', function(e){
+        if (e.key==='Escape'){ e.preventDefault(); dpClose(inst); }
+        if (e.key==='Enter' || e.key==='ArrowDown'){ e.preventDefault(); dpOpen(inst); }
+      });
+    }
+
+    function initDatePicker(root, opts){
+      opts=opts||{};
+      var field=root.querySelector('[data-dp-field]')||root.querySelector('.uroo-dp-field');
+      var input=field.querySelector('input');
+      var btn=field.querySelector('[data-dp-open]');
+      var panel=field.querySelector('[data-dp-panel]');
+      var hint=root.querySelector('[data-dp-hint]');
+
+      var todayRef=dpToday();
+      function resolve(v){
+        if (v==='today') return dpIso(todayRef);
+        if (v===undefined||v===null||v==='') return null;
+        return String(v);
+      }
+
+      var inst={
+        root:root, field:field, input:input, btn:btn, panel:panel, hint:hint,
+        min: resolve(opts.min)?dpParse(resolve(opts.min)):null,
+        max: resolve(opts.max)?dpParse(resolve(opts.max)):null,
+        sel: resolve(opts.value),
+        disabled: !!opts.disabled,
+        _panelBuilt:false, _inited:true
+      };
+      inst.today=dpIso(todayRef);
+
+      var seed= inst.sel ? dpParse(inst.sel) : todayRef;
+      inst.vY=seed.getFullYear(); inst.vM=seed.getMonth();
+
+      if (inst.sel){
+        var sv=dpParse(inst.sel);
+        if ((inst.min && sv<inst.min) || (inst.max && sv>inst.max)) inst.sel=null;
+      }
+      if (inst.sel){
+        inst.input.value=dpFmt(dpParse(inst.sel));
+        inst.input.dataset.value=inst.sel;
+      } else {
+        inst.input.value='';
+        inst.input.dataset.value='';
+      }
+
+      if (inst.disabled){
+        input.setAttribute('disabled','');
+        btn.setAttribute('disabled','');
+      }
+
+      dpBuildPanel(inst);
+      dpRender(inst);
+      dpBindField(inst);
+
+      inst.onChange=function(isel, iso, d){
+        if (isel.hint && !isel.hint.dataset.baseHint) isel.hint.dataset.baseHint = opts.hint || isel.hint.textContent;
+        var base= isel.hint ? (isel.hint.dataset.baseHint||'') : '';
+        if (isel.hint){
+          isel.hint.textContent = (iso && d) ? ('Terpilih: '+dpFmt(d)+(base?' — '+base:'')) : base;
+        }
+        if (opts.onChange) opts.onChange(isel, iso, d);
+      };
+      if (inst.sel) inst.onChange(inst, inst.sel, dpParse(inst.sel));
+
+      DP_INSTANCES.push(inst);
+      root._urooDp=inst;
+      return inst;
+    }
+
+    document.addEventListener('click', function(e){
+      DP_INSTANCES.forEach(function(inst){
+        if (inst.field.classList.contains('uroo-dp-open') && !inst.field.contains(e.target)) dpClose(inst);
+      });
+    });
+    document.addEventListener('keydown', function(e){
+      if (e.key!=='Escape') return;
+      DP_INSTANCES.forEach(function(inst){
+        if (inst.field.classList.contains('uroo-dp-open')) dpClose(inst);
+      });
+    });
+
+    /* ================= Init demos ================= */
+    function cfg(date){ return date==='today' ? dpIso(dpToday()) : date; }
+
+    document.querySelectorAll('[data-dp]').forEach(function(root){
+      var min=root.getAttribute('data-dp-min');
+      var max=root.getAttribute('data-dp-max');
+      var value=root.getAttribute('data-dp-value');
+      var disabled=root.getAttribute('data-dp-disabled')==='true';
+      var op={ disabled:disabled };
+      if (min) op.min=cfg(min);
+      if (max) op.max=cfg(max);
+      if (value) op.value=cfg(value);
+      initDatePicker(root, op);
+    });
+  </script>
+<script src="../../assets/js/uroo-copy.js"></script>
+<script src="../../assets/js/uroo-nav.js"></script>
+</body>
+</html>

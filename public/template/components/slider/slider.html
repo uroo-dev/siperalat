@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="id" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Uroo UI - Slider</title>
+  <script src="../../assets/js/tailwind.js"></script>
+  <script src="../../assets/js/lucide.js"></script>
+  <script>tailwind.config={darkMode:'class',theme:{extend:{colors:{glass:{light:'rgba(255,255,255,0.65)','light-border':'rgba(255,255,255,0.8)',dark:'rgba(18,18,20,0.65)','dark-border':'rgba(255,255,255,0.1)'}}}}}</script>
+  <link rel="stylesheet" href="../../assets/css/uroo.css">
+  <style>
+    .u-bg{position:fixed;inset:0;z-index:-10;transition:opacity .35s ease}
+    .u-bg-light{background:linear-gradient(135deg,#dfe3ea,#f4f4f5)}
+    .u-bg-dark{background:linear-gradient(135deg,#0a0a0b,#1a1a1e);opacity:0}
+    body.dark .u-bg-light{opacity:0}
+    body.dark .u-bg-dark{opacity:1}
+    .u-glow{position:fixed;border-radius:9999px;filter:blur(90px);z-index:-9;pointer-events:none;transition:background-color .35s ease;background:rgba(0,0,0,0.06)}
+    body.dark .u-glow{background:rgba(255,255,255,0.05)}
+    .u-glow-1{width:420px;height:420px;top:-140px;left:-140px}
+    .u-glow-2{width:520px;height:520px;bottom:-200px;right:-140px}
+    .u-glow-3{width:300px;height:300px;top:42%;left:58%}
+    body:not(.dark) .icon-sun{display:none}
+    body.dark .icon-moon{display:none}
+    .u-slide{position:relative;height:6px;border-radius:9999px;background:rgba(0,0,0,.12);cursor:pointer;touch-action:none}
+    body.dark .u-slide{background:rgba(255,255,255,.14)}
+    .u-slide-track{position:absolute;top:0;left:0;height:100%;border-radius:9999px;background:linear-gradient(90deg,#1c1917,#52525b);pointer-events:none}
+    body.dark .u-slide-track{background:linear-gradient(90deg,#fafafa,#a1a1aa)}
+    .u-slide-thumb{position:absolute;top:50%;width:18px;height:18px;border-radius:9999px;background:#fff;border:2px solid #18181b;box-shadow:0 4px 10px rgba(0,0,0,.25);transform:translate(-50%,-50%);pointer-events:none}
+    body.dark .u-slide-thumb{background:#18181b;border-color:#fafafa;box-shadow:0 4px 10px rgba(0,0,0,.4)}
+    .u-slide.u-drag .u-slide-thumb{transform:translate(-50%,-50%) scale(1.15)}
+    .u-bubble{position:absolute;top:-2.4rem;left:50%;transform:translateX(-50%) translateY(4px);opacity:0;pointer-events:none;transition:opacity .15s ease,transform .15s ease;background:#18181b;color:#fff;font-size:.7rem;font-weight:700;padding:.25rem .55rem;border-radius:.5rem;white-space:nowrap}
+    body.dark .u-bubble{background:#fafafa;color:#18181b}
+    .u-bubble::after{content:'';position:absolute;top:100%;left:50%;transform:translateX(-50%);border:5px solid transparent;border-top-color:#18181b}
+    body.dark .u-bubble::after{border-top-color:#fafafa}
+    .u-slide:hover .u-bubble,.u-slide.u-drag .u-bubble{opacity:1;transform:translateX(-50%) translateY(0)}
+    .u-slide.u-off{opacity:.45;cursor:not-allowed}
+    .u-btn{transition:background-color .2s ease,transform .1s ease}
+    .u-btn:active{transform:scale(.97)}
+  </style>
+</head>
+<body class="min-h-screen p-6 font-sans antialiased text-zinc-800 dark:text-zinc-100">
+  <script>(function initTheme(){var saved=null;try{saved=localStorage.getItem('uroo-theme')}catch(e){};var dark=(saved==='dark')||(!saved&&window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches);var de=document.documentElement;if(dark){de.classList.add('dark');de.classList.remove('light');if(document.body){document.body.classList.add('dark');document.body.classList.remove('light');}}else{de.classList.remove('dark');de.classList.add('light');if(document.body){document.body.classList.remove('dark');document.body.classList.add('light');}}})();</script>
+<div class="u-bg u-bg-light" aria-hidden="true"></div>
+<div class="u-bg u-bg-dark" aria-hidden="true"></div>
+<div class="u-glow u-glow-1" aria-hidden="true"></div>
+<div class="u-glow u-glow-2" aria-hidden="true"></div>
+<div class="u-glow u-glow-3" aria-hidden="true"></div>
+
+<button onclick="toggleTheme()" aria-label="Ganti tema" title="Ganti tema"
+  class="fixed top-6 right-6 z-50 glass-panel rounded-full p-2.5 text-zinc-600 dark:text-zinc-200 hover:scale-110 transition-transform">
+  <i data-lucide="sun" class="icon-sun w-5 h-5"></i>
+  <i data-lucide="moon" class="icon-moon w-5 h-5"></i>
+</button>
+
+<main class="relative max-w-6xl mx-auto pt-16 pb-24">
+
+  <div class="relative z-10">
+    <header class="mb-10">
+      <p class="text-[11px] font-bold uppercase tracking-[0.2em] text-zinc-400 dark:text-zinc-500">Uroo UI / Slider</p>
+      <h1 class="mt-2 text-3xl md:text-4xl font-extrabold tracking-tight text-zinc-900 dark:text-white">Slider</h1>
+      <p class="mt-3 max-w-2xl text-sm leading-relaxed text-zinc-500 dark:text-zinc-400">
+        Penggeser rentang kaca dengan nilai tunggal, label min/maks, rentang ganda (dual),
+        gelembung nilai, kondisi nonaktif, serta dukungan langkah (step) yang presisi.
+      </p>
+    </header>
+
+    <section class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+      <div data-copy class="glass-panel rounded-3xl p-6 md:p-7">
+        <div class="flex items-center gap-3 mb-6">
+          <span class="h-5 w-1 rounded-full bg-zinc-900 dark:bg-zinc-100"></span>
+          <h2 class="text-lg font-bold text-zinc-900 dark:text-white">Nilai Tunggal</h2>
+        </div>
+        <div class="flex items-center justify-between mb-3">
+          <p class="text-sm font-semibold text-zinc-800 dark:text-zinc-100">Volume Suara</p>
+          <span class="text-sm font-extrabold text-zinc-900 dark:text-white"><span id="volVal">50</span>%</span>
+        </div>
+        <div class="u-slide" id="volSlide" data-min="0" data-max="100" data-step="1" data-value="50" data-bubble="1"></div>
+        <div class="flex justify-between mt-2 text-xs text-zinc-400 dark:text-zinc-500">
+          <span>0%</span><span>100%</span>
+        </div>
+        <div class="mt-6 flex items-center justify-between gap-3 bg-black/[0.03] dark:bg-white/[0.04] border border-black/5 dark:border-white/10 rounded-2xl p-4">
+          <div class="flex items-center gap-2 text-zinc-500 dark:text-zinc-300">
+            <i data-lucide="volume-2" class="w-5 h-5"></i>
+            <span class="text-sm font-semibold">Pratinjau</span>
+          </div>
+          <span id="volBadge" class="text-sm font-bold text-zinc-900 dark:text-white">Sedang</span>
+        </div>
+      </div>
+
+      <div data-copy class="glass-panel rounded-3xl p-6 md:p-7">
+        <div class="flex items-center gap-3 mb-6">
+          <span class="h-5 w-1 rounded-full bg-zinc-900 dark:bg-zinc-100"></span>
+          <h2 class="text-lg font-bold text-zinc-900 dark:text-white">Dengan Langkah</h2>
+        </div>
+        <p class="text-xs text-zinc-400 dark:text-zinc-500 mb-4 -mt-2">Langkah sebesar 10, mulai dari 20</p>
+        <div class="flex items-center justify-between mb-3">
+          <p class="text-sm font-semibold text-zinc-800 dark:text-zinc-100">Batas waktu pengiriman</p>
+          <span class="text-sm font-extrabold text-zinc-900 dark:text-white"><span id="stepVal">40</span> hari</span>
+        </div>
+        <div class="u-slide" id="stepSlide" data-min="20" data-max="100" data-step="10" data-value="40" data-bubble="1"></div>
+        <div class="flex flex-wrap justify-between mt-2 text-[10px] text-zinc-400 dark:text-zinc-500">
+          <span>20</span><span>30</span><span>40</span><span>50</span><span>60</span><span>70</span><span>80</span><span>90</span><span>100</span>
+        </div>
+        <div class="mt-6 flex items-center gap-3">
+          <button id="stepMinus" class="u-btn inline-flex items-center justify-center w-9 h-9 rounded-full bg-black/5 dark:bg-white/10 hover:bg-black/10 dark:hover:bg-white/15"><i data-lucide="minus" class="w-4 h-4"></i></button>
+          <button id="stepPlus" class="u-btn inline-flex items-center justify-center w-9 h-9 rounded-full bg-black/5 dark:bg-white/10 hover:bg-black/10 dark:hover:bg-white/15"><i data-lucide="plus" class="w-4 h-4"></i></button>
+          <span class="text-xs text-zinc-400 dark:text-zinc-500 ml-1">Sesuaikan dengan +/- 10</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+      <div data-copy class="glass-panel rounded-3xl p-6 md:p-7">
+        <div class="flex items-center gap-3 mb-6">
+          <span class="h-5 w-1 rounded-full bg-zinc-900 dark:bg-zinc-100"></span>
+          <h2 class="text-lg font-bold text-zinc-900 dark:text-white">Rentang Ganda</h2>
+        </div>
+        <div class="flex items-center justify-between mb-3">
+          <p class="text-sm font-semibold text-zinc-800 dark:text-zinc-100">Batas Harga Penginapan</p>
+          <span class="text-sm font-extrabold text-zinc-900 dark:text-white"><span id="rangeLow">Rp 500rb</span> - <span id="rangeHigh">Rp 1,5jt</span></span>
+        </div>
+        <div class="u-slide" id="dualSlide" data-min="100" data-max="3000" data-step="50" data-dual="1" data-low="500" data-high="1500" data-bubble="1"></div>
+        <div class="flex justify-between mt-2 text-xs text-zinc-400 dark:text-zinc-500">
+          <span>Rp 100rb</span><span>Rp 3jt</span>
+        </div>
+        <div class="mt-6 flex items-center justify-between gap-3 bg-black/[0.03] dark:bg-white/[0.04] border border-black/5 dark:border-white/10 rounded-2xl p-4">
+          <div class="flex items-center gap-2 text-zinc-500 dark:text-zinc-300">
+            <i data-lucide="bed-double" class="w-5 h-5"></i>
+            <span class="text-sm font-semibold">Kisaran dipilih</span>
+          </div>
+          <span id="rangeCount" class="text-sm font-bold text-zinc-900 dark:text-white">214 hotel</span>
+        </div>
+      </div>
+
+      <div data-copy class="glass-panel rounded-3xl p-6 md:p-7">
+        <div class="flex items-center gap-3 mb-6">
+          <span class="h-5 w-1 rounded-full bg-zinc-900 dark:bg-zinc-100"></span>
+          <h2 class="text-lg font-bold text-zinc-900 dark:text-white">Nonaktif</h2>
+        </div>
+        <p class="text-xs text-zinc-400 dark:text-zinc-500 mb-4 -mt-2">Slider yang tidak dapat diubah</p>
+        <div class="flex items-center justify-between mb-3">
+          <p class="text-sm font-semibold text-zinc-500 dark:text-zinc-400">Jarak tempuh kendaraan</p>
+          <span class="text-sm font-extrabold text-zinc-400 dark:text-zinc-600">120 km</span>
+        </div>
+        <div class="u-slide u-off" id="offSlide" data-min="0" data-max="500" data-step="1" data-value="120" data-disabled="1"></div>
+        <div class="flex justify-between mt-2 text-xs text-zinc-400 dark:text-zinc-500">
+          <span>0 km</span><span>500 km</span>
+        </div>
+        <div class="mt-6 rounded-2xl p-4 bg-black/[0.03] dark:bg-white/[0.04] border border-black/5 dark:border-white/10 flex items-center gap-3">
+          <i data-lucide="lock" class="w-5 h-5 text-zinc-400"></i>
+          <p class="text-sm text-zinc-500 dark:text-zinc-400">Terkunci oleh pengaturan paket, tidak dapat digeser.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="max-w-3xl">
+      <div data-copy class="glass-panel rounded-3xl p-6 md:p-7">
+        <div class="flex items-center gap-3 mb-6">
+          <span class="h-5 w-1 rounded-full bg-zinc-900 dark:bg-zinc-100"></span>
+          <h2 class="text-lg font-bold text-zinc-900 dark:text-white">Konfigurasi Dinamis</h2>
+        </div>
+        <p class="text-xs text-zinc-400 dark:text-zinc-500 mb-6 -mt-2">Ubah rentang jalan kaki harian (dalam menit)</p>
+        <div class="flex items-center justify-between mb-3">
+          <p class="text-sm font-semibold text-zinc-800 dark:text-zinc-100">Target harian</p>
+          <span class="text-sm font-extrabold text-zinc-900 dark:text-white"><span id="walkVal">45</span> menit</span>
+        </div>
+        <div class="u-slide" id="walkSlide" data-min="5" data-max="180" data-step="5" data-value="45" data-bubble="1"></div>
+        <div class="flex justify-between mt-2 text-xs text-zinc-400 dark:text-zinc-500">
+          <span>5 menit</span><span>180 menit</span>
+        </div>
+        <div class="mt-6 flex flex-wrap gap-2">
+          <button class="q-btn u-btn px-4 py-1.5 rounded-full text-xs font-semibold border border-black/15 dark:border-white/20 hover:bg-black/5 dark:hover:bg-white/10" data-q="20">20 mnt</button>
+          <button class="q-btn u-btn px-4 py-1.5 rounded-full text-xs font-semibold border border-black/15 dark:border-white/20 hover:bg-black/5 dark:hover:bg-white/10" data-q="45">45 mnt</button>
+          <button class="q-btn u-btn px-4 py-1.5 rounded-full text-xs font-semibold border border-black/15 dark:border-white/20 hover:bg-black/5 dark:hover:bg-white/10" data-q="60">60 mnt</button>
+          <button class="q-btn u-btn px-4 py-1.5 rounded-full text-xs font-semibold border border-black/15 dark:border-white/20 hover:bg-black/5 dark:hover:bg-white/10" data-q="90">90 mnt</button>
+          <button class="q-btn u-btn px-4 py-1.5 rounded-full text-xs font-semibold border border-black/15 dark:border-white/20 hover:bg-black/5 dark:hover:bg-white/10" data-q="120">120 mnt</button>
+        </div>
+      </div>
+    </section>
+  </div>
+</main>
+
+<script>
+  lucide.createIcons();
+  function toggleTheme(){const h=document.documentElement,b=document.body;h.classList.toggle('dark');b.classList.toggle('dark');try{localStorage.setItem('uroo-theme',b.classList.contains('dark')?'dark':'light')}catch(e){};lucide.createIcons();}
+
+  function fmtRupiah(n){ return 'Rp ' + (n>=1000 ? (n/1000)+'jt' : n+'rb').replace('.',','); }
+
+  function slideInit(el){
+    if(el.dataset.init) return; el.dataset.init='1';
+    var min=parseInt(el.getAttribute('data-min'),10)||0;
+    var max=parseInt(el.getAttribute('data-max'),10)||100;
+    var step=parseInt(el.getAttribute('data-step'),10)||1;
+    var dual=el.getAttribute('data-dual')==='1';
+    var disabled=el.getAttribute('data-disabled')==='1';
+    var bubbleOn=el.getAttribute('data-bubble')==='1';
+
+    el.style.cssText += ';height:6px';
+    var track=document.createElement('div'); track.className='u-slide-track';
+    var low=dual?parseInt(el.getAttribute('data-low'),10):parseInt(el.getAttribute('data-value'),10);
+    var high=dual?parseInt(el.getAttribute('data-high'),10):low;
+    el.appendChild(track);
+
+    var thumbs=[];
+    function addThumb(val){
+      var t=document.createElement('div'); t.className='u-slide-thumb'; el.appendChild(t); thumbs.push(t);
+      return t;
+    }
+    var tLow=addThumb(low);
+    var tHigh=dual?addThumb(high):null;
+    if(bubbleOn){
+      var b=document.createElement('span'); b.className='u-bubble'; el.appendChild(b);
+      el._bubble=b;
+    }
+
+    el._min=min; el._max=max; el._step=step; el._dual=dual; el._disabled=disabled;
+    el._low=low; el._high=high;
+
+    function pct(v){ return ((v-min)/(max-min))*100; }
+    function snap(v){ var s=((v-min)/step); return min+Math.round(s)*step; }
+    function paint(fromUser){
+      var lp=pct(clamp(el._low,min,max)), hp=dual?pct(clamp(el._high,min,max)):0;
+      if(fromUser!=='lowOnly') tLow.style.left=lp+'%';
+      if(dual && fromUser!=='highOnly') tHigh.style.left=hp+'%';
+      if(dual){
+        track.style.left=Math.min(lp,hp)+'%';
+        track.style.width=Math.abs(hp-lp)+'%';
+      } else {
+        track.style.left='0%';
+        track.style.width=lp+'%';
+      }
+      if(bubbleOn && !disabled){
+        var mid = dual? (lp+hp)/2 : lp;
+        el._bubble.style.left=mid+'%';
+        el._bubble.textContent = dual ? 'Rp '+fmtRupiah(el._low)+' - '+fmtRupiah(el._high) : String(el._low);
+      }
+    }
+    function clamp(v,a,b){ return Math.max(a,Math.min(v,b)); }
+
+    function drag(e){
+      if(disabled) return;
+      el.classList.add('u-drag');
+      var rect=el.getBoundingClientRect();
+      var x=e.touches?e.touches[0].clientX:e.clientX;
+      var ratio=clamp((x-rect.left)/rect.width,0,1);
+      var v=snap(min+ratio*(max-min));
+      if(dual){
+        var distLow=Math.abs((pct(v)-pct(el._low)));
+        var distHigh=Math.abs((pct(v)-pct(el._high)));
+        if(distLow<=distHigh){ el._low=Math.min(v,el._high-step); paint('lowOnly'); }
+        else { el._high=Math.max(v,el._low+step); paint('highOnly'); }
+        emitDual();
+      } else {
+        el._low=v; paint(); emitSingle();
+      }
+    }
+    function endDrag(){ el.classList.remove('u-drag'); }
+
+    function ptr(e){ e.preventDefault(); drag(e); }
+    el.addEventListener('pointerdown',function(e){ if(disabled)return; el.setPointerCapture(e.pointerId); ptr(e); });
+    el.addEventListener('pointermove',function(e){ if(el.classList.contains('u-drag')) ptr(e); });
+    ['pointerup','pointercancel','pointerleave'].forEach(function(t){ el.addEventListener(t,endDrag); });
+    el.addEventListener('touchstart',function(e){ if(disabled)return; drag(e); },{passive:true});
+    el.addEventListener('touchmove',function(e){ if(disabled)return; drag(e); },{passive:true});
+    el.addEventListener('touchend',endDrag);
+
+    var cb=el.getAttribute('data-cb');
+    function emitSingle(){ if(cb&&window[cb]) window[cb](el,el._low); }
+    function emitDual(){ if(cb&&window[cb]) window[cb](el,el._low,el._high); }
+    el._paint=paint; el._emit=dual?emitDual:emitSingle;
+    paint();
+  }
+
+  document.querySelectorAll('.u-slide').forEach(slideInit);
+
+  var vol=document.getElementById('volSlide');
+  vol.setAttribute('data-cb','volCb');
+  window.volCb=function(el,v){
+    document.getElementById('volVal').textContent=v;
+    var badge=document.getElementById('volBadge');
+    badge.textContent = v<=30?'Rendah':(v<=70?'Sedang':'Tinggi');
+  };
+  window.volCb(vol,Number(vol._low));
+
+  var step=document.getElementById('stepSlide');
+  step.setAttribute('data-cb','stepCb');
+  window.stepCb=function(el,v){ document.getElementById('stepVal').textContent=v; };
+  window.stepCb(step,Number(step._low));
+  document.getElementById('stepMinus').onclick=function(){ step._low=Math.max(step._min,step._low-step._step); step._paint(); window.stepCb(step,step._low); };
+  document.getElementById('stepPlus').onclick=function(){ step._low=Math.min(step._max,step._low+step._step); step._paint(); window.stepCb(step,step._low); };
+
+  var dual=document.getElementById('dualSlide');
+  dual.setAttribute('data-cb','dualCb');
+  window.dualCb=function(el,l,h){
+    document.getElementById('rangeLow').textContent='Rp '+fmtRupiah(l);
+    document.getElementById('rangeHigh').textContent='Rp '+fmtRupiah(h);
+    var span=h-l;
+    document.getElementById('rangeCount').textContent=Math.max(0, Math.round(span/50))+ ' hotel';
+  };
+  window.dualCb(dual,Number(dual._low),Number(dual._high));
+
+  var walk=document.getElementById('walkSlide');
+  walk.setAttribute('data-cb','walkCb');
+  window.walkCb=function(el,v){
+    document.getElementById('walkVal').textContent=v;
+    document.querySelectorAll('.q-btn').forEach(function(b){ b.classList.toggle('bg-zinc-900',Number(b.dataset.q)===v); b.classList.toggle('text-white',Number(b.dataset.q)===v); b.classList.toggle('dark:bg-zinc-100',Number(b.dataset.q)===v); b.classList.toggle('dark:text-zinc-900',Number(b.dataset.q)===v); });
+  };
+  window.walkCb(walk,Number(walk._low));
+  document.querySelectorAll('.q-btn').forEach(function(b){
+    b.addEventListener('click',function(){ walk._low=Number(b.dataset.q); walk._paint(); window.walkCb(walk,walk._low); });
+  });
+</script>
+<script src="../../assets/js/uroo-copy.js"></script>
+<script src="../../assets/js/uroo-nav.js"></script>
+</body>
+</html>

@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="id" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Uroo UI — Foundation: Z-Index</title>
+  <script src="../../assets/js/tailwind.js"></script>
+  <script src="../../assets/js/lucide.js"></script>
+  <script>
+    tailwind.config = { darkMode: 'class', theme: { extend: { colors: { glass: {
+      light: 'rgba(255,255,255,0.65)', 'light-border': 'rgba(255,255,255,0.8)',
+      dark: 'rgba(18,18,20,0.65)', 'dark-border': 'rgba(255,255,255,0.1)'
+    } } } } };
+  </script>
+  <link rel="stylesheet" href="../../assets/css/uroo.css">
+  <style>
+    .u-bg{position:fixed;inset:0;z-index:-10;transition:opacity .35s ease}
+    .u-bg-light{background:linear-gradient(135deg,#dfe3ea,#f4f4f5)}
+    .u-bg-dark{background:linear-gradient(135deg,#0a0a0b,#1a1a1e);opacity:0}
+    body.dark .u-bg-light{opacity:0}
+    body.dark .u-bg-dark{opacity:1}
+    .u-glow{position:fixed;border-radius:9999px;filter:blur(90px);z-index:-9;pointer-events:none;background:rgba(0,0,0,0.06);transition:background-color .35s ease}
+    body.dark .u-glow{background:rgba(255,255,255,0.05)}
+    .u-glow-1{width:420px;height:420px;top:-140px;left:-140px}
+    .u-glow-2{width:520px;height:520px;bottom:-200px;right:-140px}
+    .z-item{display:flex;align-items:center;gap:1rem;padding:.9rem 1.1rem;border-radius:.9rem;background:rgba(0,0,0,0.04);border:1px solid rgba(0,0,0,0.06)}
+    body.dark .z-item{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08)}
+    .z-val{flex:none;width:4rem;font-family:ui-monospace,monospace;font-weight:700}
+  </style>
+</head>
+<body class="min-h-screen font-sans antialiased text-zinc-800 dark:text-zinc-100">
+  <script>(function initTheme(){var saved=null;try{saved=localStorage.getItem('uroo-theme')}catch(e){};var dark=(saved==='dark')||(!saved&&window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches);var de=document.documentElement;if(dark){de.classList.add('dark');de.classList.remove('light');if(document.body){document.body.classList.add('dark');document.body.classList.remove('light');}}else{de.classList.remove('dark');de.classList.add('light');if(document.body){document.body.classList.remove('dark');document.body.classList.add('light');}}})();</script>
+  <div class="u-bg u-bg-light" aria-hidden="true"></div>
+  <div class="u-bg u-bg-dark" aria-hidden="true"></div>
+  <div class="u-glow u-glow-1" aria-hidden="true"></div>
+  <div class="u-glow u-glow-2" aria-hidden="true"></div>
+
+  <button onclick="toggleTheme()" class="fixed top-4 right-4 z-50 p-2 rounded-full glass-panel shadow-2xl" title="Toggle tema">
+    <i data-lucide="sun" class="w-4 h-4 hidden dark:block"></i>
+    <i data-lucide="moon" class="w-4 h-4 block dark:hidden"></i>
+  </button>
+
+  <main class="max-w-3xl mx-auto px-5 py-10 space-y-6">
+
+    <header class="glass-panel rounded-3xl p-6 sm:p-8">
+      <span class="inline-flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-1 rounded-full bg-black/5 dark:bg-white/5 mb-3">
+        <i data-lucide="layers" class="w-3 h-3"></i> Foundation
+      </span>
+      <h1 class="text-3xl font-extrabold tracking-tight">Z-Index</h1>
+      <p class="text-sm text-zinc-500 dark:text-zinc-400 mt-1">Urutan lapisan komponen — pastikan overlay selalu di atas konten.</p>
+    </header>
+
+    <section class="glass-panel rounded-3xl p-6 sm:p-8 space-y-3">
+      <div class="z-item"><span class="z-val">0</span><span class="flex-1 text-sm font-medium">Konten dasar</span><span class="text-xs text-zinc-500">body · in-flow</span></div>
+      <div class="z-item"><span class="z-val">10</span><span class="flex-1 text-sm font-medium">Sticky header</span><span class="text-xs text-zinc-500">fixed nav</span></div>
+      <div class="z-item"><span class="z-val">20</span><span class="flex-1 text-sm font-medium">Dropdown · Popover</span><span class="text-xs text-zinc-500">float</span></div>
+      <div class="z-item"><span class="z-val">30</span><span class="flex-1 text-sm font-medium">Sticky sidebar</span><span class="text-xs text-zinc-500">profile</span></div>
+      <div class="z-item"><span class="z-val">40</span><span class="flex-1 text-sm font-medium">Tooltip</span><span class="text-xs text-zinc-500">hint</span></div>
+      <div class="z-item"><span class="z-val">50</span><span class="flex-1 text-sm font-medium">Modal · Dialog</span><span class="text-xs text-zinc-500">overlay</span></div>
+      <div class="z-item"><span class="z-val">60</span><span class="flex-1 text-sm font-medium">Toast</span><span class="text-xs text-zinc-500">notification</span></div>
+      <div class="z-item"><span class="z-val">70+</span><span class="flex-1 text-sm font-medium">Konfirmasi modal</span><span class="text-xs text-zinc-500">blind</span></div>
+    </section>
+
+    <section class="glass-panel rounded-3xl p-6 sm:p-8" data-copy data-lang="css">
+      <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-zinc-400 dark:text-zinc-500 mb-4">Pola Stacking Praktis</p>
+      <div class="relative h-44">
+        <div class="absolute inset-0 rounded-2xl bg-black/10 dark:bg-white/10 z-10 p-2 text-[11px]">z-10 · popover</div>
+        <div class="absolute inset-2 rounded-2xl bg-black/20 dark:bg-white/20 z-20 p-2 text-[11px]">z-20 · dropdown</div>
+        <div class="absolute inset-4 rounded-2xl bg-black/30 dark:bg-white/30 z-30 p-2 text-[11px]">z-30 · modal</div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    lucide.createIcons();
+    function toggleTheme() {
+      const h = document.documentElement, b = document.body;
+      h.classList.toggle('dark'); b.classList.toggle('dark');
+      try { localStorage.setItem('uroo-theme', b.classList.contains('dark') ? 'dark' : 'light'); } catch (e) {}
+      lucide.createIcons();
+    }
+  </script>
+  <script src="../../assets/js/uroo-copy.js"></script>
+<script src="../../assets/js/uroo-nav.js"></script>
+</body>
+</html>

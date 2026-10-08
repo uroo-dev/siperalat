@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="id" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Uroo UI - Input</title>
+  <script src="../../assets/js/tailwind.js"></script>
+  <script src="../../assets/js/lucide.js"></script>
+  <script>tailwind.config={darkMode:'class',theme:{extend:{colors:{glass:{light:'rgba(255,255,255,0.65)','light-border':'rgba(255,255,255,0.8)',dark:'rgba(18,18,20,0.65)','dark-border':'rgba(255,255,255,0.1)'}}}}}</script>
+  <link rel="stylesheet" href="../../assets/css/uroo.css">
+  <style>
+    .ui-input{width:100%;border-radius:0.75rem;border:1px solid rgba(24,24,27,0.14);background:rgba(255,255,255,0.7);padding:0.625rem 1rem;font-size:0.875rem;color:#3f3f46;outline:none;transition:border-color .2s ease,box-shadow .2s ease,background-color .2s ease;}
+    .ui-input::placeholder{color:#a1a1aa;}
+    .ui-input:focus{border-color:rgba(24,24,27,0.55);box-shadow:0 0 0 3px rgba(24,24,27,0.08);background:#ffffff;}
+    .ui-input:disabled{opacity:.55;cursor:not-allowed;}
+    .dark .ui-input{color:#d4d4d8;border-color:rgba(255,255,255,0.14);background:rgba(24,24,27,0.6);}
+    .dark .ui-input::placeholder{color:#52525b;}
+    .dark .ui-input:focus{border-color:rgba(255,255,255,0.5);box-shadow:0 0 0 3px rgba(255,255,255,0.12);background:rgba(24,24,27,0.85);}
+    .ui-input.has-error{border-color:#dc2626;box-shadow:0 0 0 3px rgba(220,38,38,0.12);}
+    .ui-input.has-success{border-color:#16a34a;box-shadow:0 0 0 3px rgba(22,163,74,0.12);}
+    .dark .ui-input.has-error{border-color:#f87171;}
+    .dark .ui-input.has-success{border-color:#4ade80;}
+    .ui-input-sm{padding:0.375rem 0.75rem;font-size:0.75rem;}
+    .ui-input-lg{padding:0.75rem 1.125rem;font-size:1rem;}
+  </style>
+</head>
+<body class="min-h-screen p-6 font-sans antialiased text-zinc-800 dark:text-zinc-100" style="background:linear-gradient(135deg,#dfe3ea,#f4f4f5)">
+  <script>(function initTheme(){var saved=null;try{saved=localStorage.getItem('uroo-theme')}catch(e){};var dark=(saved==='dark')||(!saved&&window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches);var de=document.documentElement;if(dark){de.classList.add('dark');de.classList.remove('light');if(document.body){document.body.classList.add('dark');document.body.classList.remove('light');}}else{de.classList.remove('dark');de.classList.add('light');if(document.body){document.body.classList.remove('dark');document.body.classList.add('light');}}})();</script>
+  <div class="relative mx-auto max-w-6xl">
+    <div class="pointer-events-none absolute -top-24 -left-28 h-96 w-96 rounded-full bg-zinc-500/30 dark:bg-zinc-300/10 blur-[110px]"></div>
+    <div class="pointer-events-none absolute right-0 top-1/3 h-[26rem] w-[26rem] rounded-full bg-zinc-300/50 dark:bg-zinc-500/10 blur-[120px]"></div>
+    <div class="pointer-events-none absolute -bottom-16 left-1/3 h-80 w-80 rounded-full bg-white/70 dark:bg-white/5 blur-[100px]"></div>
+
+    <header class="relative mb-10">
+      <p class="text-xs font-semibold uppercase tracking-[0.25em] text-zinc-500 dark:text-zinc-500">Uroo UI - Komponen</p>
+      <h1 class="mt-2 text-3xl font-bold tracking-tight md:text-4xl">Input</h1>
+      <p class="mt-3 max-w-2xl text-sm leading-relaxed text-zinc-500 dark:text-zinc-400">Bidang input dengan berbagai kondisi: ikon, status validasi, label, bantuan, serta ukuran yang berbeda-beda.</p>
+    </header>
+
+    <main class="relative grid gap-6 md:grid-cols-2">
+
+      <section data-copy class="glass-panel rounded-2xl p-6 md:p-8">
+        <p class="text-xs font-semibold uppercase tracking-[0.2em] text-zinc-500 dark:text-zinc-500">Variasi - Default</p>
+        <div class="mt-5 space-y-5">
+          <div>
+            <label for="nama" class="mb-1.5 block text-sm font-semibold">Nama lengkap</label>
+            <input id="nama" type="text" class="ui-input" placeholder="Masukkan nama lengkap">
+            <p class="mt-1.5 text-xs text-zinc-500 dark:text-zinc-500">Gunakan nama yang sama dengan dokumen resmi Anda.</p>
+          </div>
+          <div>
+            <label for="alamat" class="mb-1.5 block text-sm font-semibold">Alamat</label>
+            <input id="alamat" type="text" class="ui-input" placeholder="Jalan, nomor rumah, kecamatan">
+          </div>
+        </div>
+      </section>
+
+      <section data-copy class="glass-panel rounded-2xl p-6 md:p-8">
+        <p class="text-xs font-semibold uppercase tracking-[0.2em] text-zinc-500 dark:text-zinc-500">Variasi - Dengan ikon kiri</p>
+        <div class="mt-5 space-y-5">
+          <div class="relative">
+            <i data-lucide="user" class="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-400"></i>
+            <input type="text" class="ui-input pl-10" placeholder="Nama pengguna">
+          </div>
+          <div class="relative">
+            <i data-lucide="lock" class="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-400"></i>
+            <input type="password" class="ui-input pl-10" placeholder="Kata sandi">
+          </div>
+          <div class="relative">
+            <i data-lucide="phone" class="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-400"></i>
+            <input type="tel" class="ui-input pl-10" placeholder="Nomor telepon">
+          </div>
+        </div>
+      </section>
+
+      <section data-copy class="glass-panel rounded-2xl p-6 md:p-8">
+        <p class="text-xs font-semibold uppercase tracking-[0.2em] text-zinc-500 dark:text-zinc-500">Variasi - Dengan ikon kanan</p>
+        <div class="mt-5 space-y-5">
+          <div>
+            <label for="emailValidasi" class="mb-1.5 block text-sm font-semibold">Alamat email</label>
+            <div class="relative">
+              <i data-lucide="mail" class="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-400"></i>
+              <input id="emailValidasi" type="email" class="ui-input pl-10 pr-10" placeholder="nama@perusahaan.id" oninput="validasiEmail(this)">
+              <span id="emailOk" class="pointer-events-none absolute right-3.5 top-1/2 hidden -translate-y-1/2"><i data-lucide="circle-check" class="h-4 w-4 text-emerald-500"></i></span>
+              <span id="emailBad" class="pointer-events-none absolute right-3.5 top-1/2 hidden -translate-y-1/2"><i data-lucide="circle-alert" class="h-4 w-4 text-red-500"></i></span>
+            </div>
+            <p id="emailMsg" class="mt-1.5 text-xs text-zinc-500 dark:text-zinc-500">Ketik alamat email lalu lihat indikator validasi di kanan.</p>
+          </div>
+        </div>
+      </section>
+
+      <section data-copy class="glass-panel rounded-2xl p-6 md:p-8">
+        <p class="text-xs font-semibold uppercase tracking-[0.2em] text-zinc-500 dark:text-zinc-500">Variasi - Kata sandi</p>
+        <div class="mt-5 space-y-5">
+          <div>
+            <label for="pwdInput" class="mb-1.5 block text-sm font-semibold">Kata sandi</label>
+            <div class="relative">
+              <input id="pwdInput" type="password" class="ui-input pr-11" placeholder="Masukkan kata sandi">
+              <button onclick="togglePwd()" class="absolute right-3 top-1/2 -translate-y-1/2 rounded-lg p-1 text-zinc-400 transition-colors hover:text-zinc-700 dark:hover:text-zinc-200" aria-label="Tampilkan atau sembunyikan kata sandi">
+                <i id="eyeIco" data-lucide="eye" class="h-4 w-4"></i>
+                <i id="eyeOffIco" data-lucide="eye-off" class="hidden h-4 w-4"></i>
+              </button>
+            </div>
+            <p class="mt-1.5 text-xs text-zinc-500 dark:text-zinc-500">Minimal 8 karakter, kombinasi huruf dan angka.</p>
+          </div>
+        </div>
+      </section>
+
+      <section data-copy class="glass-panel rounded-2xl p-6 md:p-8">
+        <p class="text-xs font-semibold uppercase tracking-[0.2em] text-zinc-500 dark:text-zinc-500">Variasi - Status error dan sukses</p>
+        <div class="mt-5 space-y-5">
+          <div class="relative">
+            <input id="errInput" type="text" class="ui-input has-error pr-10" value="kontak-gagal">
+            <i data-lucide="circle-alert" class="pointer-events-none absolute right-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-red-500"></i>
+            <p class="mt-1.5 text-xs font-medium text-red-600 dark:text-red-400">Nomor telepon tidak valid. Gunakan awalan +62.</p>
+          </div>
+          <div class="relative">
+            <input id="okInput" type="text" class="ui-input has-success pr-10" value="Raka Mahendra">
+            <i data-lucide="circle-check" class="pointer-events-none absolute right-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-emerald-500"></i>
+            <p class="mt-1.5 text-xs font-medium text-emerald-600 dark:text-emerald-400">Data profil berhasil disimpan.</p>
+          </div>
+        </div>
+      </section>
+
+      <section data-copy class="glass-panel rounded-2xl p-6 md:p-8">
+        <p class="text-xs font-semibold uppercase tracking-[0.2em] text-zinc-500 dark:text-zinc-500">Variasi - Nonaktif dan ukuran</p>
+        <div class="mt-5 space-y-5">
+          <div>
+            <label class="mb-1.5 block text-sm font-semibold">Nonaktif</label>
+            <input type="text" class="ui-input" disabled placeholder="Bidang tidak dapat diubah">
+          </div>
+          <div>
+            <label class="mb-1.5 block text-sm font-semibold">Ukuran kecil</label>
+            <input type="text" class="ui-input ui-input-sm" placeholder="Kecil (sm)">
+          </div>
+          <div>
+            <label class="mb-1.5 block text-sm font-semibold">Ukuran sedang</label>
+            <input type="text" class="ui-input" placeholder="Sedang (md)">
+          </div>
+          <div>
+            <label class="mb-1.5 block text-sm font-semibold">Ukuran besar</label>
+            <input type="text" class="ui-input ui-input-lg" placeholder="Besar (lg)">
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="relative mt-12 flex items-center justify-between border-t border-zinc-400/30 py-6 text-xs text-zinc-500 dark:border-white/10 dark:text-zinc-500">
+      <span>Uroo UI - Glassmorphism monokrom</span>
+      <span id="year"></span>
+    </footer>
+  </div>
+
+  <button onclick="toggleTheme()" class="glass-panel fixed right-4 top-4 z-50 inline-flex items-center justify-center rounded-full p-2.5" aria-label="Ganti tema">
+    <i data-lucide="sun" class="h-5 w-5 text-zinc-700 dark:hidden"></i>
+    <i data-lucide="moon" class="hidden h-5 w-5 text-zinc-200 dark:block"></i>
+  </button>
+
+  <script>
+    lucide.createIcons();
+    function toggleTheme(){const h=document.documentElement,b=document.body;h.classList.toggle('dark');b.classList.toggle('dark');b.style.background=b.classList.contains('dark')?'linear-gradient(135deg,#0a0a0c,#1a1a1e)':'linear-gradient(135deg,#dfe3ea,#f4f4f5)';try{localStorage.setItem('uroo-theme',b.classList.contains('dark')?'dark':'light')}catch(e){};lucide.createIcons();}
+    (function(){const dark=document.documentElement.classList.contains('dark');document.body.style.background=dark?'linear-gradient(135deg,#0a0a0c,#1a1a1e)':'linear-gradient(135deg,#dfe3ea,#f4f4f5)';})();
+    document.getElementById('year').textContent = 'Uroo Dev - ' + new Date().getFullYear();
+
+    function togglePwd(){
+      const input=document.getElementById('pwdInput');
+      const show=input.type==='password';
+      input.type=show?'text':'password';
+      document.getElementById('eyeIco').classList.toggle('hidden',show);
+      document.getElementById('eyeOffIco').classList.toggle('hidden',!show);
+    }
+
+    function validasiEmail(el){
+      const ok=document.getElementById('emailOk');
+      const bad=document.getElementById('emailBad');
+      const msg=document.getElementById('emailMsg');
+      const v=el.value.trim();
+      if(v.length===0){
+        ok.classList.add('hidden');bad.classList.add('hidden');
+        el.classList.remove('has-error','has-success');
+        msg.textContent='Ketik alamat email lalu lihat indikator validasi di kanan.';
+        msg.className='mt-1.5 text-xs text-zinc-500 dark:text-zinc-500';
+        return;
+      }
+      const valid=/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
+      ok.classList.toggle('hidden',!valid);
+      bad.classList.toggle('hidden',valid);
+      el.classList.toggle('has-success',valid);
+      el.classList.toggle('has-error',!valid);
+      if(valid){
+        msg.textContent='Alamat email valid.';
+        msg.className='mt-1.5 text-xs font-medium text-emerald-600 dark:text-emerald-400';
+      }else{
+        msg.textContent='Format email belum tepat, contoh: nama@perusahaan.id';
+        msg.className='mt-1.5 text-xs font-medium text-red-600 dark:text-red-400';
+      }
+    }
+  </script>
+<script src="../../assets/js/uroo-copy.js"></script>
+<script src="../../assets/js/uroo-nav.js"></script>
+</body>
+</html>

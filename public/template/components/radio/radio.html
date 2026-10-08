@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="id" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Uroo UI - Radio</title>
+  <script src="../../assets/js/tailwind.js"></script>
+  <script src="../../assets/js/lucide.js"></script>
+  <script>tailwind.config={darkMode:'class',theme:{extend:{colors:{glass:{light:'rgba(255,255,255,0.65)','light-border':'rgba(255,255,255,0.8)',dark:'rgba(18,18,20,0.65)','dark-border':'rgba(255,255,255,0.1)'}}}}}</script>
+  <link rel="stylesheet" href="../../assets/css/uroo.css">
+  <style>
+    .u-bg{position:fixed;inset:0;z-index:-10;transition:opacity .35s ease}
+    .u-bg-light{background:linear-gradient(135deg,#dfe3ea,#f4f4f5)}
+    .u-bg-dark{background:linear-gradient(135deg,#0a0a0b,#1a1a1e);opacity:0}
+    body.dark .u-bg-light{opacity:0}
+    body.dark .u-bg-dark{opacity:1}
+    .u-glow{position:fixed;border-radius:9999px;filter:blur(90px);z-index:-9;pointer-events:none;transition:background-color .35s ease;background:rgba(0,0,0,0.06)}
+    body.dark .u-glow{background:rgba(255,255,255,0.05)}
+    .u-glow-1{width:420px;height:420px;top:-140px;left:-140px}
+    .u-glow-2{width:520px;height:520px;bottom:-200px;right:-140px}
+    .u-glow-3{width:300px;height:300px;top:42%;left:58%}
+    body:not(.dark) .icon-sun{display:none}
+    body.dark .icon-moon{display:none}
+    .u-radio{display:inline-flex;align-items:center;gap:1rem;cursor:pointer;border-radius:.875rem;transition:background-color .2s ease,padding .2s ease}
+    .u-dot{display:inline-flex;align-items:center;justify-content:center;width:1.25rem;height:1.25rem;border-radius:9999px;border:1.5px solid rgba(0,0,0,.25);background:rgba(255,255,255,.7);flex-shrink:0;transition:border-color .2s ease,background .2s ease}
+    body.dark .u-dot{background:rgba(255,255,255,.05);border-color:rgba(255,255,255,.3)}
+    body .u-radio:hover .u-dot{border-color:rgba(0,0,0,.6)}
+    body.dark .u-radio:hover .u-dot{border-color:rgba(255,255,255,.7)}
+    .u-radio .u-inp:focus-visible + .u-dot{outline:2px solid rgba(0,0,0,.6);outline-offset:2px}
+    body.dark .u-radio .u-inp:focus-visible + .u-dot{outline-color:rgba(255,255,255,.75)}
+    .u-radio .u-inp:checked + .u-dot{border-color:#18181b}
+    body.dark .u-radio .u-inp:checked + .u-dot{border-color:#f4f4f5}
+    .u-radio .u-dot .u-core{width:.56rem;height:.56rem;border-radius:9999px;background:#18181b;transform:scale(0);transition:transform .2s cubic-bezier(.34,1.56,.64,1)}
+    body.dark .u-radio .u-dot .u-core{background:#f4f4f5}
+    .u-radio .u-inp:checked + .u-dot .u-core{transform:scale(1)}
+    .u-radio.u-off{cursor:not-allowed}
+    .u-radio.u-off .u-dot{opacity:.4}
+    .u-radio.u-off .u-body{opacity:.5}
+    .u-radio.u-card{border:1px solid rgba(0,0,0,.09);background:rgba(255,255,255,.4);padding:.9rem 1rem}
+    body.dark .u-radio.u-card{border-color:rgba(255,255,255,.1);background:rgba(255,255,255,.03)}
+    .u-radio.u-card:hover{border-color:rgba(0,0,0,.28)}
+    body.dark .u-radio.u-card:hover{border-color:rgba(255,255,255,.32)}
+    .u-radio.u-card:has(.u-inp:checked){border-color:#18181b;background:rgba(0,0,0,.04)}
+    body.dark .u-radio.u-card:has(.u-inp:checked){border-color:rgba(255,255,255,.65);background:rgba(255,255,255,.06)}
+    .u-btn{transition:background-color .2s ease,opacity .2s ease,transform .1s ease}
+    .u-btn:active{transform:scale(.97)}
+  </style>
+</head>
+<body class="min-h-screen p-6 font-sans antialiased text-zinc-800 dark:text-zinc-100">
+  <script>(function initTheme(){var saved=null;try{saved=localStorage.getItem('uroo-theme')}catch(e){};var dark=(saved==='dark')||(!saved&&window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches);var de=document.documentElement;if(dark){de.classList.add('dark');de.classList.remove('light');if(document.body){document.body.classList.add('dark');document.body.classList.remove('light');}}else{de.classList.remove('dark');de.classList.add('light');if(document.body){document.body.classList.remove('dark');document.body.classList.add('light');}}})();</script>
+<div class="u-bg u-bg-light" aria-hidden="true"></div>
+<div class="u-bg u-bg-dark" aria-hidden="true"></div>
+<div class="u-glow u-glow-1" aria-hidden="true"></div>
+<div class="u-glow u-glow-2" aria-hidden="true"></div>
+<div class="u-glow u-glow-3" aria-hidden="true"></div>
+
+<button onclick="toggleTheme()" aria-label="Ganti tema" title="Ganti tema"
+  class="fixed top-6 right-6 z-50 glass-panel rounded-full p-2.5 text-zinc-600 dark:text-zinc-200 hover:scale-110 transition-transform">
+  <i data-lucide="sun" class="icon-sun w-5 h-5"></i>
+  <i data-lucide="moon" class="icon-moon w-5 h-5"></i>
+</button>
+
+<main class="relative max-w-6xl mx-auto pt-16 pb-24">
+
+  <div class="relative z-10">
+    <header class="mb-10">
+      <p class="text-[11px] font-bold uppercase tracking-[0.2em] text-zinc-400 dark:text-zinc-500">Uroo UI / Radio</p>
+      <h1 class="mt-2 text-3xl md:text-4xl font-extrabold tracking-tight text-zinc-900 dark:text-white">Radio Button</h1>
+      <p class="mt-3 max-w-2xl text-sm leading-relaxed text-zinc-500 dark:text-zinc-400">
+        Tombol radio kaca untuk pilihan tunggal: kondisi default, terpilih, dan nonaktif,
+        ditambah grup vertikal, horizontal, serta varian kartu. Pemilihan grup selalu sinkron.
+      </p>
+    </header>
+
+    <section class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+      <div data-copy class="glass-panel rounded-3xl p-6 md:p-7">
+        <div class="flex items-center gap-3 mb-6">
+          <span class="h-5 w-1 rounded-full bg-zinc-900 dark:bg-zinc-100"></span>
+          <h2 class="text-lg font-bold text-zinc-900 dark:text-white">Kondisi Radio</h2>
+        </div>
+        <div class="space-y-2">
+          <label class="u-radio w-full p-2.5">
+            <input type="radio" name="cond" class="u-inp sr-only">
+            <span class="u-dot"><span class="u-core"></span></span>
+            <span class="u-body">
+              <span class="block text-sm font-semibold text-zinc-800 dark:text-zinc-100">Kirim lewat email</span>
+              <span class="block text-xs text-zinc-400 dark:text-zinc-500 mt-0.5">Default - belum dipilih</span>
+            </span>
+          </label>
+          <label class="u-radio w-full p-2.5">
+            <input type="radio" name="cond" class="u-inp sr-only" checked>
+            <span class="u-dot"><span class="u-core"></span></span>
+            <span class="u-body">
+              <span class="block text-sm font-semibold text-zinc-800 dark:text-zinc-100">Kirim lewat SMS</span>
+              <span class="block text-xs text-zinc-400 dark:text-zinc-500 mt-0.5">Terpilih - sudah aktif</span>
+            </span>
+          </label>
+          <label class="u-radio u-off w-full p-2.5">
+            <input type="radio" name="cond" class="u-inp sr-only" disabled checked>
+            <span class="u-dot"><span class="u-core"></span></span>
+            <span class="u-body">
+              <span class="block text-sm font-semibold text-zinc-800 dark:text-zinc-100">Kirim lewat WhatsApp</span>
+              <span class="block text-xs text-zinc-400 dark:text-zinc-500 mt-0.5">Nonaktif - terpilih</span>
+            </span>
+          </label>
+          <label class="u-radio u-off w-full p-2.5">
+            <input type="radio" name="cond" class="u-inp sr-only" disabled>
+            <span class="u-dot"><span class="u-core"></span></span>
+            <span class="u-body">
+              <span class="block text-sm font-semibold text-zinc-800 dark:text-zinc-100">Kirim lewat pos</span>
+              <span class="block text-xs text-zinc-400 dark:text-zinc-500 mt-0.5">Nonaktif - belum dipilih</span>
+            </span>
+          </label>
+        </div>
+      </div>
+
+      <div data-copy class="glass-panel rounded-3xl p-6 md:p-7">
+        <div class="flex items-center gap-3 mb-6">
+          <span class="h-5 w-1 rounded-full bg-zinc-900 dark:bg-zinc-100"></span>
+          <h2 class="text-lg font-bold text-zinc-900 dark:text-white">Grup Vertikal</h2>
+        </div>
+        <p class="text-xs text-zinc-400 dark:text-zinc-500 -mt-2 mb-4">Pilih ukuran penyimpanan akun Anda</p>
+        <div class="space-y-2" data-uroo-vertical>
+          <label class="u-radio w-full p-2.5">
+            <input type="radio" name="storage" class="u-inp sr-only" value="5 GB">
+            <span class="u-dot"><span class="u-core"></span></span>
+            <span class="u-body">
+              <span class="block text-sm font-semibold text-zinc-800 dark:text-zinc-100">5 GB Penyimpanan</span>
+              <span class="block text-xs text-zinc-400 dark:text-zinc-500 mt-0.5">Gratis, untuk keperluan dasar</span>
+            </span>
+          </label>
+          <label class="u-radio w-full p-2.5">
+            <input type="radio" name="storage" class="u-inp sr-only" value="100 GB" checked>
+            <span class="u-dot"><span class="u-core"></span></span>
+            <span class="u-body">
+              <span class="block text-sm font-semibold text-zinc-800 dark:text-zinc-100">100 GB Penyimpanan</span>
+              <span class="block text-xs text-zinc-400 dark:text-zinc-500 mt-0.5">Rp 29.000/bulan, paling populer</span>
+            </span>
+          </label>
+          <label class="u-radio w-full p-2.5">
+            <input type="radio" name="storage" class="u-inp sr-only" value="2 TB">
+            <span class="u-dot"><span class="u-core"></span></span>
+            <span class="u-body">
+              <span class="block text-sm font-semibold text-zinc-800 dark:text-zinc-100">2 TB Penyimpanan</span>
+              <span class="block text-xs text-zinc-400 dark:text-zinc-500 mt-0.5">Rp 99.000/bulan, untuk profesional</span>
+            </span>
+          </label>
+          <label class="u-radio w-full p-2.5">
+            <input type="radio" name="storage" class="u-inp sr-only" value="5 TB">
+            <span class="u-dot"><span class="u-core"></span></span>
+            <span class="u-body">
+              <span class="block text-sm font-semibold text-zinc-800 dark:text-zinc-100">5 TB Penyimpanan</span>
+              <span class="block text-xs text-zinc-400 dark:text-zinc-500 mt-0.5">Rp 249.000/bulan, skala tim</span>
+            </span>
+          </label>
+        </div>
+      </div>
+    </section>
+
+    <section class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+      <div data-copy class="glass-panel rounded-3xl p-6 md:p-7">
+        <div class="flex items-center gap-3 mb-6">
+          <span class="h-5 w-1 rounded-full bg-zinc-900 dark:bg-zinc-100"></span>
+          <h2 class="text-lg font-bold text-zinc-900 dark:text-white">Grup Horizontal</h2>
+        </div>
+        <p class="text-xs text-zinc-400 dark:text-zinc-500 -mt-2 mb-4">Pilih zona waktu pengguna Anda</p>
+        <div class="flex flex-wrap gap-3" data-uroo-horizontal>
+          <label class="u-radio px-4 py-2.5 rounded-full">
+            <input type="radio" name="tz" class="u-inp sr-only" value="WIB">
+            <span class="u-dot"><span class="u-core"></span></span>
+            <span class="text-sm font-semibold text-zinc-800 dark:text-zinc-100">WIB</span>
+          </label>
+          <label class="u-radio px-4 py-2.5 rounded-full">
+            <input type="radio" name="tz" class="u-inp sr-only" value="WITA" checked>
+            <span class="u-dot"><span class="u-core"></span></span>
+            <span class="text-sm font-semibold text-zinc-800 dark:text-zinc-100">WITA</span>
+          </label>
+          <label class="u-radio px-4 py-2.5 rounded-full">
+            <input type="radio" name="tz" class="u-inp sr-only" value="WIT">
+            <span class="u-dot"><span class="u-core"></span></span>
+            <span class="text-sm font-semibold text-zinc-800 dark:text-zinc-100">WIT</span>
+          </label>
+        </div>
+        <div class="mt-6 rounded-2xl p-4 bg-black/[0.03] dark:bg-white/[0.04] border border-black/5 dark:border-white/10">
+          <p class="text-xs uppercase tracking-widest text-zinc-400 dark:text-zinc-500 mb-1">Zona aktif</p>
+          <p id="horizOut" class="text-sm font-bold text-zinc-900 dark:text-white">WITA</p>
+        </div>
+      </div>
+
+      <div data-copy class="glass-panel rounded-3xl p-6 md:p-7">
+        <div class="flex items-center gap-3 mb-6">
+          <span class="h-5 w-1 rounded-full bg-zinc-900 dark:bg-zinc-100"></span>
+          <h2 class="text-lg font-bold text-zinc-900 dark:text-white">Varian Kartu</h2>
+        </div>
+        <div class="space-y-3" data-uroo-card>
+          <label class="u-radio u-card w-full flex items-center gap-4">
+            <input type="radio" name="billing" class="u-inp sr-only" value="Bulanan">
+            <span class="u-dot"><span class="u-core"></span></span>
+            <span class="flex-1 flex items-center justify-between">
+              <span>
+                <span class="block text-sm font-bold text-zinc-800 dark:text-zinc-100">Bulanan</span>
+                <span class="block text-xs text-zinc-400 dark:text-zinc-500 mt-0.5">Cocok untuk uji coba</span>
+              </span>
+              <span class="text-sm font-extrabold text-zinc-900 dark:text-white">Rp 49rb</span>
+            </span>
+          </label>
+          <label class="u-radio u-card w-full flex items-center gap-4">
+            <input type="radio" name="billing" class="u-inp sr-only" value="Tahunan">
+            <span class="u-dot"><span class="u-core"></span></span>
+            <span class="flex-1 flex items-center justify-between">
+              <span>
+                <span class="block text-sm font-bold text-zinc-800 dark:text-zinc-100">Tahunan</span>
+                <span class="block text-xs text-zinc-400 dark:text-zinc-500 mt-0.5">Hemat hingga 2 bulan</span>
+              </span>
+              <span class="text-sm font-extrabold text-zinc-900 dark:text-white">Rp 490rb</span>
+            </span>
+          </label>
+          <label class="u-radio u-card w-full flex items-center gap-4 u-off">
+            <input type="radio" name="billing" class="u-inp sr-only" value="Lifetime" disabled>
+            <span class="u-dot"><span class="u-core"></span></span>
+            <span class="flex-1 flex items-center justify-between">
+              <span>
+                <span class="block text-sm font-bold text-zinc-800 dark:text-zinc-100">Sepanjang Masa</span>
+                <span class="block text-xs text-zinc-400 dark:text-zinc-500 mt-0.5">Sudah tidak tersedia</span>
+              </span>
+              <span class="text-sm font-extrabold text-zinc-400 dark:text-zinc-600">Rp 4,9jt</span>
+            </span>
+          </label>
+        </div>
+      </div>
+    </section>
+
+    <section class="max-w-2xl">
+      <div data-copy class="glass-panel rounded-3xl p-6 md:p-7">
+        <div class="flex items-center gap-3 mb-5">
+          <span class="h-5 w-1 rounded-full bg-zinc-900 dark:bg-zinc-100"></span>
+          <h2 class="text-lg font-bold text-zinc-900 dark:text-white">Tampilan Pilihan Terkini</h2>
+        </div>
+        <div class="flex flex-wrap items-center gap-3">
+          <span class="u-chip inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-xs font-semibold bg-black/5 dark:bg-white/10 text-zinc-700 dark:text-zinc-200" id="livePill">100 GB</span>
+          <button class="u-btn inline-flex items-center gap-2 rounded-full bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900 px-4 py-2 text-xs font-semibold" onclick="resetAll()">
+            <i data-lucide="rotate-ccw" class="w-4 h-4"></i> Atur Ulang
+          </button>
+        </div>
+        <p class="mt-3 text-xs text-zinc-400 dark:text-zinc-500">Semua grup di atas berbagi rutinitas yang memperbarui indikator ini saat Anda memilih opsi.</p>
+      </div>
+    </section>
+  </div>
+</main>
+
+<script>
+  lucide.createIcons();
+  function toggleTheme(){const h=document.documentElement,b=document.body;h.classList.toggle('dark');b.classList.toggle('dark');try{localStorage.setItem('uroo-theme',b.classList.contains('dark')?'dark':'light')}catch(e){};lucide.createIcons();}
+
+  var pill = document.getElementById('livePill');
+  function readSelected(){
+    var picked = document.querySelector('input[name="storage"]:checked');
+    var tz = document.querySelector('input[name="tz"]:checked');
+    var bill = document.querySelector('input[name="billing"]:checked');
+    var parts = [];
+    if(picked) parts.push(picked.value);
+    if(tz) document.getElementById('horizOut').textContent = tz.value;
+    if(bill) parts.push(bill.value);
+    pill.textContent = picked ? picked.value : 'Belum dipilih';
+  }
+  function resetAll(){
+    var d = document.querySelector('input[name="storage"][value="100 GB"]');
+    if(d) d.checked = true;
+    var t = document.querySelector('input[name="tz"][value="WITA"]');
+    if(t) t.checked = true;
+    var b = document.querySelector('input[name="billing"][value="Tahunan"]');
+    if(b) b.checked = true;
+    readSelected();
+  }
+  document.querySelectorAll('input[type="radio"]').forEach(function(r){
+    r.addEventListener('change', readSelected);
+  });
+</script>
+<script src="../../assets/js/uroo-copy.js"></script>
+<script src="../../assets/js/uroo-nav.js"></script>
+</body>
+</html>

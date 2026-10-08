@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="id" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Uroo UI - Auth Flow</title>
+  <script src="../assets/js/tailwind.js"></script>
+  <script src="../assets/js/lucide.js"></script>
+  <script>tailwind.config={darkMode:'class',theme:{extend:{colors:{glass:{light:'rgba(255,255,255,0.65)','light-border':'rgba(255,255,255,0.8)',dark:'rgba(18,18,20,0.65)','dark-border':'rgba(255,255,255,0.1)'}}}}}</script>
+  <link rel="stylesheet" href="../assets/css/uroo.css">
+  <style>
+    .u-bg{position:fixed;inset:0;z-index:-10;transition:opacity .35s ease}
+    .u-bg-light{background:linear-gradient(135deg,#dfe3ea,#f4f4f5)}
+    .u-bg-dark{background:linear-gradient(135deg,#0a0a0b,#1a1a1e);opacity:0}
+    body.dark .u-bg-light{opacity:0}
+    body.dark .u-bg-dark{opacity:1}
+    .u-glow{position:fixed;border-radius:9999px;filter:blur(90px);z-index:-9;pointer-events:none;transition:background-color .35s ease;background:rgba(0,0,0,0.06)}
+    body.dark .u-glow{background:rgba(255,255,255,0.05)}
+    .u-glow-1{width:420px;height:420px;top:-140px;left:-140px}
+    .u-glow-2{width:520px;height:520px;bottom:-200px;right:-140px}
+    .u-glow-3{width:300px;height:300px;top:42%;left:58%}
+
+    html{background:#e7e8ec}
+    html.dark{background:#0a0a0c}
+    body:not(.dark) .u-ic-sun{display:none}
+    body.dark .u-ic-moon{display:none}
+
+    .u-field{width:100%;height:48px;border-radius:14px;background:rgba(255,255,255,.6);border:1px solid rgba(24,24,27,.10);color:#18181b;font-size:14px;padding:0 14px 0 44px;outline:none;transition:border-color .2s ease,box-shadow .2s ease,background-color .2s ease}
+    body.dark .u-field{background:rgba(255,255,255,.05);border-color:rgba(255,255,255,.12);color:#f4f4f5}
+    .u-field::placeholder{color:#a1a1aa}
+    .u-field:focus{border-color:rgba(24,24,27,.5);box-shadow:0 0 0 4px rgba(24,24,27,.08)}
+    body.dark .u-field:focus{border-color:rgba(255,255,255,.55);box-shadow:0 0 0 4px rgba(255,255,255,.08)}
+    .u-field.u-invalid{border-color:#dc2626!important;box-shadow:0 0 0 4px rgba(220,38,38,.10)}
+    body.dark .u-field.u-invalid{border-color:#f87171!important;box-shadow:0 0 0 4px rgba(248,113,113,.12)}
+    .u-field.pr-14{padding-right:50px}
+
+    .u-form-wrap{position:relative}
+    .u-ic-l{position:absolute;left:16px;top:50%;transform:translateY(-50%);color:#a1a1aa;pointer-events:none}
+    .u-ic-r{position:absolute;right:10px;top:50%;transform:translateY(-50%)}
+
+    .u-btn{transition:transform .2s ease,box-shadow .2s ease,background-color .2s ease}
+    .u-btn:hover{transform:translateY(-1px)}
+    .u-btn:active{transform:scale(.96)}
+    .u-btn[disabled]{opacity:.7;pointer-events:none}
+
+    .auth-pane{display:none}
+    .auth-pane.active{display:block;animation:u-fade-in .3s ease-out}
+
+    .step{display:flex;align-items:center;gap:10px;color:#a1a1aa;transition:color .25s ease}
+    .step .step-dot{width:30px;height:30px;border-radius:9999px;display:grid;place-items:center;font-size:12px;font-weight:700;background:rgba(113,113,122,.12);color:#71717a;transition:all .25s ease}
+    .step.active{color:#18181b}
+    body.dark .step.active{color:#fafafa}
+    .step.done .step-dot{background:#18181b;color:#fff}
+    body.dark .step.done .step-dot{background:#fafafa;color:#18181b}
+    .step.active .step-dot{background:rgba(24,24,27,.15);color:#18181b}
+    body.dark .step.active .step-dot{background:rgba(255,255,255,.15);color:#fafafa}
+    .step-link{display:flex;align-items:center;gap:10px;font-size:12px;font-weight:700}
+    .step-bar{height:2px;flex:1;background:rgba(113,113,122,.18);border-radius:9999px;overflow:hidden}
+    .step-bar i{display:block;height:100%;width:0;background:#18181b;border-radius:9999px;transition:width .3s ease}
+    body.dark .step-bar i{background:#fafafa}
+
+    .otp-box{width:48px;height:56px;text-align:center;font-size:22px;font-weight:800;border-radius:14px;background:rgba(255,255,255,.6);border:1px solid rgba(24,24,27,.12);color:#18181b;outline:none;transition:border-color .2s ease,box-shadow .2s ease,background-color .2s ease}
+    body.dark .otp-box{background:rgba(255,255,255,.05);border-color:rgba(255,255,255,.12);color:#f4f4f5}
+    .otp-box:focus{border-color:rgba(24,24,27,.5);box-shadow:0 0 0 4px rgba(24,24,27,.08)}
+    body.dark .otp-box:focus{border-color:rgba(255,255,255,.55);box-shadow:0 0 0 4px rgba(255,255,255,.08)}
+    .otp-box.u-invalid{border-color:#dc2626!important;box-shadow:0 0 0 4px rgba(220,38,38,.10)}
+    body.dark .otp-box.u-invalid{border-color:#f87171!important;box-shadow:0 0 0 4px rgba(248,113,113,.12)}
+  </style>
+</head>
+<body class="min-h-screen font-sans antialiased text-zinc-800 dark dark:text-zinc-100">
+  <script>(function initTheme(){var saved=null;try{saved=localStorage.getItem('uroo-theme')}catch(e){};var dark=(saved==='dark')||(!saved&&window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches);var de=document.documentElement;if(dark){de.classList.add('dark');de.classList.remove('light');if(document.body){document.body.classList.add('dark');document.body.classList.remove('light');}}else{de.classList.remove('dark');de.classList.add('light');if(document.body){document.body.classList.remove('dark');document.body.classList.add('light');}}})();</script>
+
+
+<div class="u-bg u-bg-light" aria-hidden="true"></div>
+<div class="u-bg u-bg-dark" aria-hidden="true"></div>
+<div class="u-glow u-glow-1" aria-hidden="true"></div>
+<div class="u-glow u-glow-2" aria-hidden="true"></div>
+<div class="u-glow u-glow-3" aria-hidden="true"></div>
+
+<div class="fixed top-6 right-6 z-50">
+  <button onclick="toggleTheme()" aria-label="Ganti tema" title="Ganti tema"
+    class="glass-panel rounded-full p-2.5 text-zinc-600 dark:text-zinc-200 hover:scale-110 transition-transform">
+    <i data-lucide="sun" class="u-ic-sun w-5 h-5"></i>
+    <i data-lucide="moon" class="u-ic-moon w-5 h-5"></i>
+  </button>
+</div>
+
+<main class="flex min-h-screen items-center justify-center px-6 py-14">
+  <div class="w-full max-w-md anim-slide-up">
+
+    <div class="glass-panel rounded-3xl p-8 sm:p-10">
+      <a href="../index.html" class="inline-flex items-center gap-2.5">
+        <span class="inline-flex items-center justify-center w-11 h-11 rounded-2xl bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900 shadow-lg">
+          <i data-lucide="layers" class="w-5 h-5"></i>
+        </span>
+        <span class="text-xl font-extrabold tracking-tight text-zinc-900 dark:text-white">Uroo UI</span>
+      </a>
+
+      <!-- Progress stepper -->
+      <div class="mt-8 flex items-center gap-3" id="stepper">
+        <div class="step active" data-step="1">
+          <span class="step-dot"><i data-lucide="user" class="w-4 h-4"></i></span>
+          <span class="step-link">Akun</span>
+        </div>
+        <span class="step-bar"><i id="bar1" data-bar="1"></i></span>
+        <div class="step" data-step="2">
+          <span class="step-dot"><i data-lucide="message-square" class="w-4 h-4"></i></span>
+          <span class="step-link">Verifikasi</span>
+        </div>
+        <span class="step-bar"><i id="bar2" data-bar="2"></i></span>
+        <div class="step" data-step="3">
+          <span class="step-dot"><i data-lucide="shield-check" class="w-4 h-4"></i></span>
+          <span class="step-link">2FA</span>
+        </div>
+      </div>
+
+      <!-- ============ LOGIN / REGISTER TAB PANE ============ -->
+      <div class="mt-7">
+        <div class="glass-panel rounded-2xl p-1.5 grid grid-cols-2 gap-1.5 mb-6">
+          <button id="tabLogin" onclick="switchForm('login')" class="rounded-xl py-2.5 text-sm font-bold bg-zinc-900 text-zinc-50 dark:bg-zinc-50 dark:text-zinc-900 transition-all">Masuk</button>
+          <button id="tabRegister" onclick="switchForm('register')" class="rounded-xl py-2.5 text-sm font-bold text-zinc-500 dark:text-zinc-400 hover:bg-black/5 dark:hover:bg-white/10 transition-all">Daftar</button>
+        </div>
+
+        <!-- LOGIN -->
+        <form id="loginPane" class="auth-pane active space-y-5" novalidate>
+          <h1 class="text-2xl font-extrabold tracking-tight text-zinc-900 dark:text-white">Selamat datang kembali</h1>
+          <p class="text-sm text-zinc-500 dark:text-zinc-400 -mt-3">Masuk untuk melanjutkan ke ruang kerja Anda.</p>
+          <div>
+            <label for="loginEmail" class="block text-[13px] font-semibold mb-1.5 text-zinc-700 dark:text-zinc-300">Alamat email</label>
+            <div class="u-form-wrap">
+              <i data-lucide="mail" class="u-ic-l w-4 h-4"></i>
+              <input id="loginEmail" type="email" class="u-field" placeholder="nama@perusahaan.com" autocomplete="email">
+            </div>
+            <p id="loginEmailErr" class="hidden text-xs font-semibold text-red-600 dark:text-red-400 mt-1.5"></p>
+          </div>
+          <div>
+            <label for="loginPass" class="block text-[13px] font-semibold mb-1.5 text-zinc-700 dark:text-zinc-300">Kata sandi</label>
+            <div class="u-form-wrap">
+              <i data-lucide="lock" class="u-ic-l w-4 h-4"></i>
+              <input id="loginPass" type="password" class="u-field pr-14" placeholder="Minimal 6 karakter" autocomplete="current-password">
+              <button type="button" onclick="toggleEye('loginPass',this)" class="u-ic-r p-2 text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 transition-colors" aria-label="Tampilkan kata sandi"><i data-lucide="eye" class="w-4 h-4"></i></button>
+            </div>
+            <p id="loginPassErr" class="hidden text-xs font-semibold text-red-600 dark:text-red-400 mt-1.5"></p>
+          </div>
+          <div class="flex items-center justify-between">
+            <label class="inline-flex items-center gap-2 text-[13px] font-medium text-zinc-600 dark:text-zinc-300 cursor-pointer select-none">
+              <input id="loginRemember" type="checkbox" class="h-4 w-4 rounded accent-zinc-900 dark:accent-zinc-100" checked>
+              Ingat saya
+            </label>
+            <button type="button" onclick="spawnToast('Tautan pemulihan kata sandi telah dikirim ke email Anda.')" class="text-[13px] font-semibold text-zinc-900 dark:text-zinc-100 underline decoration-2 underline-offset-2">Lupa kata sandi?</button>
+          </div>
+          <button type="submit" class="u-btn w-full inline-flex items-center justify-center gap-2 rounded-full bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900 px-5 py-3 text-sm font-bold hover:shadow-lg">
+            <span class="loginBtnLabel">Masuk</span>
+          </button>
+        </form>
+
+        <!-- REGISTER -->
+        <form id="registerPane" class="auth-pane space-y-5" novalidate>
+          <h1 class="text-2xl font-extrabold tracking-tight text-zinc-900 dark:text-white">Buat akun baru</h1>
+          <p class="text-sm text-zinc-500 dark:text-zinc-400 -mt-3">Daftar gratis dan mulai bekerja dalam hitungan menit.</p>
+          <div>
+            <label for="regName" class="block text-[13px] font-semibold mb-1.5 text-zinc-700 dark:text-zinc-300">Nama lengkap</label>
+            <div class="u-form-wrap">
+              <i data-lucide="user" class="u-ic-l w-4 h-4"></i>
+              <input id="regName" type="text" class="u-field" placeholder="Nama Anda" autocomplete="name">
+            </div>
+            <p id="regNameErr" class="hidden text-xs font-semibold text-red-600 dark:text-red-400 mt-1.5"></p>
+          </div>
+          <div>
+            <label for="regEmail" class="block text-[13px] font-semibold mb-1.5 text-zinc-700 dark:text-zinc-300">Alamat email</label>
+            <div class="u-form-wrap">
+              <i data-lucide="mail" class="u-ic-l w-4 h-4"></i>
+              <input id="regEmail" type="email" class="u-field" placeholder="nama@perusahaan.com" autocomplete="email">
+            </div>
+            <p id="regEmailErr" class="hidden text-xs font-semibold text-red-600 dark:text-red-400 mt-1.5"></p>
+          </div>
+          <div>
+            <label for="regPhone" class="block text-[13px] font-semibold mb-1.5 text-zinc-700 dark:text-zinc-300">Nomor WhatsApp</label>
+            <div class="u-form-wrap">
+              <i data-lucide="smartphone" class="u-ic-l w-4 h-4"></i>
+              <input id="regPhone" type="tel" class="u-field" placeholder="08xxxxxxxxxx" autocomplete="tel">
+            </div>
+            <p id="regPhoneErr" class="hidden text-xs font-semibold text-red-600 dark:text-red-400 mt-1.5"></p>
+          </div>
+          <div>
+            <label for="regPass" class="block text-[13px] font-semibold mb-1.5 text-zinc-700 dark:text-zinc-300">Kata sandi</label>
+            <div class="u-form-wrap">
+              <i data-lucide="lock" class="u-ic-l w-4 h-4"></i>
+              <input id="regPass" type="password" class="u-field pr-14" placeholder="Minimal 8 karakter" autocomplete="new-password">
+              <button type="button" onclick="toggleEye('regPass',this)" class="u-ic-r p-2 text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 transition-colors" aria-label="Tampilkan kata sandi"><i data-lucide="eye" class="w-4 h-4"></i></button>
+            </div>
+            <p id="regPassErr" class="hidden text-xs font-semibold text-red-600 dark:text-red-400 mt-1.5"></p>
+          </div>
+          <label class="inline-flex items-start gap-2 text-[13px] font-medium text-zinc-600 dark:text-zinc-300 cursor-pointer select-none">
+            <input id="regTerms" type="checkbox" class="mt-0.5 h-4 w-4 rounded accent-zinc-900 dark:accent-zinc-100">
+            Saya menyetujui Syarat Layanan dan Kebijakan Privasi.
+          </label>
+          <button type="submit" class="u-btn w-full inline-flex items-center justify-center gap-2 rounded-full bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900 px-5 py-3 text-sm font-bold hover:shadow-lg">
+            <span class="regBtnLabel">Lanjut ke OTP</span>
+            <i data-lucide="arrow-right" class="w-4 h-4"></i>
+          </button>
+        </form>
+      </div>
+
+      <!-- ============ OTP PANE ============ -->
+      <div id="otpPane" class="auth-pane mt-7">
+        <h1 class="text-2xl font-extrabold tracking-tight text-zinc-900 dark:text-white">Masukkan kode OTP</h1>
+        <p class="mt-1.5 text-sm text-zinc-500 dark:text-zinc-400">Kami mengirimkan kode 6 digit ke <span id="otpTarget" class="font-bold text-zinc-800 dark:text-zinc-100">+62 812-3456-7890</span>.</p>
+        <form id="otpForm" class="mt-8 space-y-6" novalidate>
+          <div class="flex justify-between gap-2" id="otpBoxes">
+            <input type="text" inputmode="numeric" maxlength="1" class="otp-box" data-otp="0" aria-label="Digit 1">
+            <input type="text" inputmode="numeric" maxlength="1" class="otp-box" data-otp="1" aria-label="Digit 2">
+            <input type="text" inputmode="numeric" maxlength="1" class="otp-box" data-otp="2" aria-label="Digit 3">
+            <input type="text" inputmode="numeric" maxlength="1" class="otp-box" data-otp="3" aria-label="Digit 4">
+            <input type="text" inputmode="numeric" maxlength="1" class="otp-box" data-otp="4" aria-label="Digit 5">
+            <input type="text" inputmode="numeric" maxlength="1" class="otp-box" data-otp="5" aria-label="Digit 6">
+          </div>
+          <p id="otpErr" class="hidden text-xs font-semibold text-red-600 dark:text-red-400 text-center -mt-4"></p>
+          <button type="submit" class="u-btn w-full inline-flex items-center justify-center gap-2 rounded-full bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900 px-5 py-3 text-sm font-bold hover:shadow-lg otpBtnLabel">
+            Verifikasi Kode
+          </button>
+          <div class="flex items-center justify-center gap-1.5 text-[13px] text-zinc-500 dark:text-zinc-400">
+            <span>Belum menerima kode?</span>
+            <button type="button" onclick="resendOtp(this)" class="font-bold text-zinc-900 dark:text-zinc-100 underline decoration-2 underline-offset-2">Kirim ulang</button>
+          </div>
+          <button type="button" onclick="goPane('account')" class="w-full inline-flex items-center justify-center gap-2 text-[13px] font-semibold text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-50">
+            <i data-lucide="arrow-left" class="w-4 h-4"></i> Kembali ke akun
+          </button>
+        </form>
+      </div>
+
+      <!-- ============ 2FA PANE ============ -->
+      <div id="twofaPane" class="auth-pane mt-7">
+        <h1 class="text-2xl font-extrabold tracking-tight text-zinc-900 dark:text-white">Verifikasi dua langkah</h1>
+        <p class="mt-1.5 text-sm text-zinc-500 dark:text-zinc-400">Konfirmasi identitas Anda dengan aplikasi authenticator.</p>
+        <div class="mt-6 glass-panel rounded-2xl p-5 flex items-center gap-4">
+          <span class="grid place-items-center w-12 h-12 rounded-2xl bg-zinc-900 dark:bg-zinc-50 text-zinc-50 dark:text-zinc-900 shrink-0"><i data-lucide="qr-code" class="w-6 h-6"></i></span>
+          <div>
+            <p class="text-sm font-bold">Pindai kode QR</p>
+            <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">Buka aplikasi authenticator lalu pindai kode di bawah ini.</p>
+          </div>
+        </div>
+        <form id="twofaForm" class="mt-6 space-y-6" novalidate>
+          <div>
+            <label for="twofaCode" class="block text-[13px] font-semibold mb-1.5 text-zinc-700 dark:text-zinc-300">Kode 6 digit</label>
+            <div class="u-form-wrap">
+              <i data-lucide="shield" class="u-ic-l w-4 h-4"></i>
+              <input id="twofaCode" type="text" inputmode="numeric" maxlength="6" class="u-field" placeholder="Contoh: 482910" autocomplete="one-time-code">
+            </div>
+            <p id="twofaCodeErr" class="hidden text-xs font-semibold text-red-600 dark:text-red-400 mt-1.5"></p>
+          </div>
+          <div class="flex items-center justify-between">
+            <button type="button" onclick="goPane('otp')" class="inline-flex items-center gap-2 text-[13px] font-semibold text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-50">
+              <i data-lucide="arrow-left" class="w-4 h-4"></i> Kembali
+            </button>
+            <button type="submit" class="u-btn inline-flex items-center justify-center gap-2 rounded-full bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900 px-6 py-3 text-sm font-bold hover:shadow-lg twofaBtnLabel">
+              Verifikasi
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <p class="mt-7 text-center text-sm text-zinc-500 dark:text-zinc-400" id="footerLink">
+      Belum punya akun?
+      <button onclick="switchForm('register')" class="font-bold text-zinc-900 dark:text-zinc-100 underline decoration-2 underline-offset-2">Daftar gratis</button>
+    </p>
+
+    <p class="mt-6 text-center text-xs leading-relaxed text-zinc-400 dark:text-zinc-500">
+      Dengan melanjutkan, Anda menyetujui Syarat Layanan dan Kebijakan Privasi Uroo.
+    </p>
+  </div>
+</main>
+
+<div id="toastWrap" class="fixed bottom-6 left-1/2 -translate-x-1/2 z-[70] pointer-events-none"></div>
+
+<script>
+  lucide.createIcons();
+
+  function toggleTheme(){
+    const h=document.documentElement,b=document.body;
+    h.classList.toggle('dark');b.classList.toggle('dark');
+    try{localStorage.setItem('uroo-theme',b.classList.contains('dark')?'dark':'light')}catch(e){}
+    lucide.createIcons();
+  }
+
+  function spawnToast(msg){
+    var t=document.createElement('div');
+    t.className='glass-panel rounded-full px-5 py-3 flex items-center gap-2.5 text-sm font-semibold anim-toast-in pointer-events-auto shadow-2xl mb-2';
+    t.innerHTML='<i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-500"></i><span>'+msg+'</span>';
+    document.getElementById('toastWrap').appendChild(t);
+    lucide.createIcons();
+    setTimeout(function(){t.style.cssText+=';opacity:0;transition:opacity .4s ease;transform:translateY(8px)'},2600);
+    setTimeout(function(){t.remove()},3100);
+  }
+
+  function markInvalid(id,msg){
+    var f=document.getElementById(id),e=document.getElementById(id+'Err');
+    f.classList.add('u-invalid');
+    e.textContent=msg;
+    e.classList.remove('hidden');
+    f.addEventListener('input',function clr(){
+      f.classList.remove('u-invalid');e.classList.add('hidden');f.removeEventListener('input',clr);
+    });
+  }
+  function validEmail(v){return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)}
+  function validPhone(v){return /^(\+?62|0)8\d{8,11}$/.test(v.replace(/[\s-]/g,''))}
+
+  function toggleEye(id,btn){
+    var inp=document.getElementById(id);
+    var show=inp.type==='password';
+    inp.type=show?'text':'password';
+    btn.innerHTML=show?'<i data-lucide="eye-off" class="w-4 h-4"></i>':'<i data-lucide="eye" class="w-4 h-4"></i>';
+    lucide.createIcons();
+  }
+
+  /* ---- Tab switching ---- */
+  var accountMode='login';
+  function switchForm(mode){
+    accountMode=mode;
+    [['tabLogin','loginPane'],['tabRegister','registerPane']].forEach(function(pair){
+      var tab=document.getElementById(pair[0]);
+      tab.classList.toggle('bg-zinc-900',pair[1]===(mode==='login'?'loginPane':'registerPane'));
+      tab.classList.toggle('dark:bg-zinc-50',pair[1]===(mode==='login'?'loginPane':'registerPane'));
+      tab.classList.toggle('text-zinc-50',pair[1]===(mode==='login'?'loginPane':'registerPane'));
+      tab.classList.toggle('dark:text-zinc-900',pair[1]===(mode==='login'?'loginPane':'registerPane'));
+      tab.classList.toggle('text-zinc-500',pair[1]!==(mode==='login'?'loginPane':'registerPane'));
+      tab.classList.toggle('dark:text-zinc-400',pair[1]!==(mode==='login'?'loginPane':'registerPane'));
+      tab.classList.toggle('bg-transparent',pair[1]!==(mode==='login'?'loginPane':'registerPane'));
+    });
+    document.getElementById('loginPane').classList.toggle('active',mode==='login');
+    document.getElementById('registerPane').classList.toggle('active',mode==='register');
+    document.getElementById('footerLink').innerHTML = mode==='login'
+      ? 'Belum punya akun? <button onclick="switchForm(\'register\')" class="font-bold text-zinc-900 dark:text-zinc-100 underline decoration-2 underline-offset-2">Daftar gratis</button>'
+      : 'Sudah punya akun? <button onclick="switchForm(\'login\')" class="font-bold text-zinc-900 dark:text-zinc-100 underline decoration-2 underline-offset-2">Masuk di sini</button>';
+  }
+
+  /* ---- Pane navigation + stepper ---- */
+  function setStep(step){
+    document.querySelectorAll('#stepper .step').forEach(function(s,i){
+      var idx=parseInt(s.getAttribute('data-step'),10);
+      s.classList.toggle('active',idx===step);
+      s.classList.toggle('done',idx<step);
+    });
+    [['bar1',1],['bar2',2]].forEach(function(b){
+      var el=document.getElementById(b[0]);
+      el.style.width=(step>b[1]?'100%':(step===b[1]?'50%':'0%'));
+    });
+  }
+
+  function goPane(pane){
+    document.querySelectorAll('.auth-pane').forEach(function(p){p.classList.remove('active')});
+    if(pane==='account'){
+      document.getElementById(accountMode==='login'?'loginPane':'registerPane').classList.add('active');
+    }else{
+      document.getElementById(pane==='otp'?'otpPane':'twofaPane').classList.add('active');
+    }
+    setStep(pane==='account'?1:pane==='otp'?2:3);
+    if(pane==='otp'&&otpBoxes.length)otpBoxes[0].focus();
+    lucide.createIcons();
+  }
+
+  /* ---- LOGIN ---- */
+  document.getElementById('loginPane').addEventListener('submit',function(e){
+    e.preventDefault();
+    var em=document.getElementById('loginEmail'),pw=document.getElementById('loginPass');
+    var ok=true;
+    if(!validEmail(em.value)){markInvalid('loginEmail','Masukkan alamat email yang valid.');ok=false;}
+    if(pw.value.length<6){markInvalid('loginPass','Kata sandi minimal 6 karakter.');ok=false;}
+    if(!ok)return;
+    spawnToast(document.getElementById('loginRemember').checked?'Login berhasil. Sesi Anda diingat.':'Login berhasil. Selamat datang kembali!');
+    showLoading(this);
+  });
+
+  function showLoading(form){
+    var btn=form.querySelector('button[type=submit]');
+    var label=btn.querySelector('span');
+    btn.classList.add('opacity-70','pointer-events-none');
+    var old=label.innerHTML;
+    label.innerHTML='<span class="anim-spin inline-block w-4 h-4 rounded-full border-2 border-white/40 dark:border-zinc-900/40 border-t-white dark:border-t-zinc-900" style="vertical-align:-2px"></span>';
+    setTimeout(function(){
+      btn.classList.remove('opacity-70','pointer-events-none');
+      label.innerHTML=old;
+      lucide.createIcons();
+    },1200);
+  }
+
+  /* ---- REGISTER ---- */
+  document.getElementById('registerPane').addEventListener('submit',function(e){
+    e.preventDefault();
+    var nm=document.getElementById('regName'),em=document.getElementById('regEmail'),ph=document.getElementById('regPhone'),pw=document.getElementById('regPass'),terms=document.getElementById('regTerms');
+    var ok=true;
+    if(nm.value.trim().length<3){markInvalid('regName','Nama minimal 3 karakter.');ok=false;}
+    if(!validEmail(em.value)){markInvalid('regEmail','Masukkan alamat email yang valid.');ok=false;}
+    if(!validPhone(ph.value)){markInvalid('regPhone','Nomor WhatsApp tidak valid.');ok=false;}
+    if(pw.value.length<8){markInvalid('regPass','Kata sandi minimal 8 karakter.');ok=false;}
+    if(!terms.checked){spawnToast('Anda harus menyetujui syarat layanan terlebih dahulu.');ok=false;}
+    if(!ok)return;
+    document.getElementById('otpTarget').textContent=ph.value.trim();
+    showLoading(this);
+    goPane('otp');
+  });
+
+  /* ---- OTP ---- */
+  var otpBoxes=Array.prototype.slice.call(document.querySelectorAll('.otp-box'));
+  otpBoxes.forEach(function(box,i){
+    box.addEventListener('input',function(){
+      this.value=this.value.replace(/[^0-9]/g,'');
+      if(this.value&&i<otpBoxes.length-1)otpBoxes[i+1].focus();
+      checkOtpComplete();
+    });
+    box.addEventListener('keydown',function(e){
+      if(e.key==='Backspace'&&!this.value&&i>0)otpBoxes[i-1].focus();
+      if(e.key==='ArrowLeft'&&i>0)otpBoxes[i-1].focus();
+      if(e.key==='ArrowRight'&&i<otpBoxes.length-1)otpBoxes[i+1].focus();
+    });
+    box.addEventListener('paste',function(e){
+      e.preventDefault();
+      var paste=(e.clipboardData||window.clipboardData).getData('text').replace(/[^0-9]/g,'').slice(0,6);
+      for(var j=0;j<paste.length;j++){
+        otpBoxes[j].value=paste[j];
+      }
+      if(paste.length)otpBoxes[Math.min(paste.length,5)].focus();
+      checkOtpComplete();
+    });
+  });
+  function getOtp(){return otpBoxes.map(function(b){return b.value}).join('')}
+  function checkOtpComplete(){
+    if(getOtp().length===6){
+      document.getElementById('otpForm').dispatchEvent(new Event('submit',{cancelable:true}));
+    }
+  }
+  function resendOtp(btn){
+    spawnToast('Kode OTP baru telah dikirim.');
+  }
+  document.getElementById('otpForm').addEventListener('submit',function(e){
+    e.preventDefault();
+    var code=getOtp();
+    if(code.length!==6){
+      otpBoxes.forEach(function(b){b.classList.add('u-invalid')});
+      spawnToast('Lengkapi keenam digit kode OTP.');
+      return;
+    }
+    otpBoxes.forEach(function(b){b.classList.remove('u-invalid')});
+    showLoading(this);
+    goPane('twofa');
+  });
+
+  /* ---- 2FA ---- */
+  document.getElementById('twofaForm').addEventListener('submit',function(e){
+    e.preventDefault();
+    var c=document.getElementById('twofaCode');
+    if(!/^\d{6}$/.test(c.value)){markInvalid('twofaCode','Kode harus berupa 6 digit angka.');return;}
+    showLoading(this);
+    spawnToast('Verifikasi berhasil. Selamat datang di Uroo UI!');
+  });
+</script>
+<script src="../assets/js/uroo-nav.js"></script>
+</body>
+</html>

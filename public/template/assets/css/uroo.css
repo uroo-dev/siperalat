@@ -1,0 +1,110 @@
+/* ============================================================
+   UROO UI - Shared Core CSS
+   Liquid Glassmorphism Engine + Tokens + Base
+   ============================================================ */
+
+/* ---- Local Fonts (Inter + Plus Jakarta Sans, offline) ---- */
+@import url('./fonts.css');
+
+/* ---- Design Tokens ---- */
+:root {
+  --font-sans: 'Inter', 'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif;
+  --font-mono: ui-monospace, 'SF Mono', monospace;
+
+  --glass-light: rgba(255, 255, 255, 0.55);
+  --glass-light-border: rgba(255, 255, 255, 0.8);
+  --glass-dark: rgba(24, 24, 27, 0.55);
+  --glass-dark-border: rgba(255, 255, 255, 0.08);
+
+  --color-bg: #f3f4f6;
+  --color-text: #27272a;
+  --color-muted: #71717a;
+  --color-primary: #18181b;
+  --color-primary-fg: #ffffff;
+
+  --radius-sm: 0.625rem;
+  --radius-md: 0.875rem;
+  --radius-lg: 1.25rem;
+  --radius-xl: 1.5rem;
+  --radius-2xl: 2rem;
+}
+
+.dark {
+  --color-bg: #09090b;
+  --color-text: #f4f4f5;
+  --color-muted: #a1a1aa;
+  --color-primary: #fafafa;
+  --color-primary-fg: #18181b;
+}
+
+/* ---- Base ---- */
+html { scroll-behavior: smooth; }
+body {
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ---- Liquid Glassmorphism Core Effect ---- */
+.glass-panel {
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+}
+
+.light .glass-panel,
+html:not(.dark) .glass-panel,
+body:not(.dark) .glass-panel {
+  background-color: rgba(255, 255, 255, 0.55);
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.05),
+              inset 0 1px 1px 0 rgba(255, 255, 255, 0.9);
+}
+
+.dark .glass-panel,
+html.dark .glass-panel,
+body.dark .glass-panel {
+  background-color: rgba(24, 24, 27, 0.55);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.5),
+              inset 0 1px 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+/* Smooth Transition Theme */
+body, div, nav, button, a, input, select, textarea, section, aside, header, main, footer, span, li, table, tr, td, th {
+  transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* ---- Scrollbar ---- */
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.15); border-radius: 9999px; }
+.dark ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); }
+
+/* ---- Selection ---- */
+::selection { background: rgba(0,0,0,0.85); color: #fff; }
+.dark ::selection { background: rgba(255,255,255,0.9); color: #18181b; }
+
+/* ---- Keyframes ---- */
+@keyframes u-fade-in { from{opacity:0} to{opacity:1} }
+@keyframes u-slide-up { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
+@keyframes u-slide-down { from{opacity:0;transform:translateY(-16px)} to{opacity:1;transform:translateY(0)} }
+@keyframes u-scale-in { from{opacity:0;transform:scale(0.95)} to{opacity:1;transform:scale(1)} }
+@keyframes u-spin { to{transform:rotate(360deg)} }
+@keyframes u-toast-in { from{opacity:0;transform:translateY(20px) scale(0.96)} to{opacity:1;transform:translateY(0) scale(1)} }
+@keyframes u-shimmer { 100%{transform:translateX(100%)} }
+
+.anim-fade-in { animation: u-fade-in 0.3s ease-out; }
+.anim-slide-up { animation: u-slide-up 0.3s cubic-bezier(0.16,1,0.3,1); }
+.anim-slide-down { animation: u-slide-down 0.3s cubic-bezier(0.16,1,0.3,1); }
+.anim-scale-in { animation: u-scale-in 0.3s cubic-bezier(0.16,1,0.3,1); }
+.anim-spin { animation: u-spin 1s linear infinite; }
+.anim-toast-in { animation: u-toast-in 0.35s cubic-bezier(0.16,1,0.3,1); }
+
+.u-shimmer { position: relative; overflow: hidden; }
+.u-shimmer::after {
+  content: '';
+  position: absolute; inset: 0; transform: translateX(-100%);
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.35), transparent);
+  animation: u-shimmer 1.5s infinite;
+}
+.dark .u-shimmer::after { background: linear-gradient(90deg, transparent, rgba(255,255,255,0.08), transparent); }

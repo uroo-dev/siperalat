@@ -1,0 +1,2048 @@
+<!DOCTYPE html>
+<html lang="id" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Uroo UI — Inventory & Manajemen Gudang</title>
+  <script src="../../assets/js/tailwind.js"></script>
+  <script src="../../assets/js/lucide.js"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            glass: {
+              light: 'rgba(255, 255, 255, 0.55)',
+              'light-border': 'rgba(255, 255, 255, 0.8)',
+              dark: 'rgba(24, 24, 27, 0.55)',
+              'dark-border': 'rgba(255, 255, 255, 0.08)'
+            }
+          }
+        }
+      }
+    };
+  </script>
+  <link rel="stylesheet" href="../../assets/css/uroo.css">
+  <style>
+    /* Liquid Glassmorphism Core Effect */
+    .glass-panel {
+      backdrop-filter: blur(20px) saturate(180%);
+      -webkit-backdrop-filter: blur(20px) saturate(180%);
+    }
+
+    .light .glass-panel,
+    html:not(.dark) .glass-panel,
+    body:not(.dark) .glass-panel {
+      background-color: rgba(255, 255, 255, 0.55);
+      border: 1px solid rgba(255, 255, 255, 0.8);
+      box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.05),
+                  inset 0 1px 1px 0 rgba(255, 255, 255, 0.9);
+    }
+
+    .dark .glass-panel,
+    html.dark .glass-panel,
+    body.dark .glass-panel {
+      background-color: rgba(24, 24, 27, 0.55);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.5),
+                  inset 0 1px 1px 0 rgba(255, 255, 255, 0.1);
+    }
+
+    /* Smooth Transition Theme */
+    body, div, nav, button, a, input, select, textarea, section, aside, header, main, footer, span, li, table, tr, td, th {
+      transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    #sidebar { width: 16.5rem; transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), width 0.28s cubic-bezier(0.16, 1, 0.3, 1); }
+    #sidebar.collapsed { width: 4.85rem; }
+    #sidebar .nav-label { transition: opacity 0.15s ease, width 0.15s ease; }
+    #sidebar.collapsed .nav-label { opacity: 0; width: 0; overflow: hidden; white-space: nowrap; }
+    #sidebar.collapsed .nav-link { justify-content: center; padding-left: 0; padding-right: 0; }
+    #sidebar.collapsed .group-title { justify-content: center; padding-left: 0; padding-right: 0; text-align: center; }
+    #sidebar.collapsed .nav-text { display: none; }
+    #sidebar.collapsed .logo-text { display: none; }
+    @media (max-width: 1023px) {
+      #sidebar { position: fixed; top: 1rem; bottom: 1rem; left: 1rem; z-index: 50; transform: translateX(-130%); width: 17rem; }
+      #sidebar.open { transform: translateX(0); }
+    }
+
+    .u-view { display: none; opacity: 0; transform: translateY(8px); transition: opacity 0.25s ease, transform 0.25s ease; }
+    .u-view.active { display: block; opacity: 1; transform: translateY(0); }
+
+    .hover-row:hover { background-color: rgba(0, 0, 0, 0.03); }
+    .dark .hover-row:hover { background-color: rgba(255, 255, 255, 0.04); }
+  </style>
+</head>
+<body class="bg-gray-100 dark:bg-zinc-950 text-zinc-800 dark:text-zinc-100 font-sans min-h-screen antialiased p-3 sm:p-4 lg:p-6">
+
+  <!-- Mobile Drawer Overlay -->
+  <div id="overlay" class="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm opacity-0 pointer-events-none transition-opacity duration-300 lg:hidden" onclick="closeDrawer()" aria-hidden="true"></div>
+
+  <!-- Floating Controller Bar -->
+  <div class="fixed top-4 right-6 z-50 flex items-center gap-2 p-1.5 rounded-full glass-panel shadow-2xl">
+    <button onclick="toggleTheme()" class="p-2 rounded-full hover:bg-black/5 dark:hover:bg-white/10 transition" title="Toggle Tema">
+      <i data-lucide="sun" class="w-4 h-4 hidden dark:block text-amber-400"></i>
+      <i data-lucide="moon" class="w-4 h-4 block dark:hidden text-zinc-800"></i>
+    </button>
+  </div>
+
+  <div class="max-w-[1600px] mx-auto lg:flex lg:gap-6 relative min-h-screen">
+
+    <!-- ============================ SIDEBAR ============================ -->
+    <aside id="sidebar" class="glass-panel rounded-3xl p-5 flex flex-col justify-between shrink-0 lg:sticky lg:top-6 lg:h-[calc(100vh-3rem)] z-40">
+      <div class="space-y-6">
+        <!-- Logo Brand -->
+        <div class="flex items-center gap-3 px-2">
+          <div class="w-8 h-8 rounded-xl bg-black dark:bg-white text-white dark:text-black flex items-center justify-center font-black text-lg shadow-sm"><img src="../../assets/img/uroo_ui.png" alt="Uroo UI" class="w-8 h-8 rounded-xl object-cover"></div>
+          <div class="logo-text min-w-0">
+            <div class="flex items-center gap-1.5">
+              <span class="font-bold text-lg tracking-tight text-zinc-900 dark:text-white">Uroo UI</span>
+              <span class="text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-black/5 dark:bg-white/10 text-zinc-700 dark:text-zinc-300">v1.2</span>
+            </div>
+            <p class="text-[10px] font-bold uppercase tracking-[0.16em] text-zinc-500 dark:text-zinc-400">Inventory</p>
+          </div>
+          <button onclick="closeDrawer()" class="ml-auto lg:hidden p-1.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 text-zinc-600 dark:text-zinc-400">
+            <i data-lucide="x" class="w-4 h-4"></i>
+          </button>
+        </div>
+
+        <!-- Navigation Links -->
+        <nav class="space-y-1 overflow-y-auto max-h-[calc(100vh-14rem)] pr-1 sidebar-scroll" aria-label="Menu Inventory">
+          <button onclick="switchView('dashboard')" data-nav="dashboard" class="nav-link w-full flex items-center gap-3 px-3 py-2.5 rounded-2xl text-sm font-medium transition bg-black text-white dark:bg-white dark:text-black shadow-sm">
+            <i data-lucide="layout-dashboard" class="w-4 h-4 shrink-0"></i>
+            <span class="nav-label text-left flex-1">Dashboard</span>
+          </button>
+          <button onclick="switchView('stok')" data-nav="stok" class="nav-link w-full flex items-center gap-3 px-3 py-2.5 rounded-2xl text-sm font-medium transition text-zinc-600 dark:text-zinc-400 hover:bg-black/5 dark:hover:bg-white/5 hover:text-black dark:hover:text-white">
+            <i data-lucide="boxes" class="w-4 h-4 shrink-0"></i>
+            <span class="nav-label text-left flex-1">Stok Barang</span>
+            <span class="nav-text text-[10px] font-bold px-1.5 py-0.5 rounded-md bg-black/5 dark:bg-white/10 text-zinc-600 dark:text-zinc-400">1.842 SKU</span>
+          </button>
+          <button onclick="switchView('penerimaan')" data-nav="penerimaan" class="nav-link w-full flex items-center gap-3 px-3 py-2.5 rounded-2xl text-sm font-medium transition text-zinc-600 dark:text-zinc-400 hover:bg-black/5 dark:hover:bg-white/5 hover:text-black dark:hover:text-white">
+            <i data-lucide="arrow-down-left" class="w-4 h-4 shrink-0"></i>
+            <span class="nav-label text-left flex-1">Barang Masuk (Inbound)</span>
+          </button>
+          <button onclick="switchView('pengiriman')" data-nav="pengiriman" class="nav-link w-full flex items-center gap-3 px-3 py-2.5 rounded-2xl text-sm font-medium transition text-zinc-600 dark:text-zinc-400 hover:bg-black/5 dark:hover:bg-white/5 hover:text-black dark:hover:text-white">
+            <i data-lucide="arrow-up-right" class="w-4 h-4 shrink-0"></i>
+            <span class="nav-label text-left flex-1">Barang Keluar (Outbound)</span>
+          </button>
+          <button onclick="switchView('kategori')" data-nav="kategori" class="nav-link w-full flex items-center gap-3 px-3 py-2.5 rounded-2xl text-sm font-medium transition text-zinc-600 dark:text-zinc-400 hover:bg-black/5 dark:hover:bg-white/5 hover:text-black dark:hover:text-white">
+            <i data-lucide="tag" class="w-4 h-4 shrink-0"></i>
+            <span class="nav-label text-left flex-1">Kategori Barang</span>
+          </button>
+          <button onclick="switchView('pemasok')" data-nav="pemasok" class="nav-link w-full flex items-center gap-3 px-3 py-2.5 rounded-2xl text-sm font-medium transition text-zinc-600 dark:text-zinc-400 hover:bg-black/5 dark:hover:bg-white/5 hover:text-black dark:hover:text-white">
+            <i data-lucide="truck" class="w-4 h-4 shrink-0"></i>
+            <span class="nav-label text-left flex-1">Vendor &amp; Pemasok</span>
+          </button>
+          <button onclick="switchView('gudang')" data-nav="gudang" class="nav-link w-full flex items-center gap-3 px-3 py-2.5 rounded-2xl text-sm font-medium transition text-zinc-600 dark:text-zinc-400 hover:bg-black/5 dark:hover:bg-white/5 hover:text-black dark:hover:text-white">
+            <i data-lucide="warehouse" class="w-4 h-4 shrink-0"></i>
+            <span class="nav-label text-left flex-1">Lokasi Gudang</span>
+          </button>
+          <button onclick="switchView('transfer')" data-nav="transfer" class="nav-link w-full flex items-center gap-3 px-3 py-2.5 rounded-2xl text-sm font-medium transition text-zinc-600 dark:text-zinc-400 hover:bg-black/5 dark:hover:bg-white/5 hover:text-black dark:hover:text-white">
+            <i data-lucide="refresh-cw" class="w-4 h-4 shrink-0"></i>
+            <span class="nav-label text-left flex-1">Transfer Antar Gudang</span>
+          </button>
+          <button onclick="switchView('laporan')" data-nav="laporan" class="nav-link w-full flex items-center gap-3 px-3 py-2.5 rounded-2xl text-sm font-medium transition text-zinc-600 dark:text-zinc-400 hover:bg-black/5 dark:hover:bg-white/5 hover:text-black dark:hover:text-white">
+            <i data-lucide="file-text" class="w-4 h-4 shrink-0"></i>
+            <span class="nav-label text-left flex-1">Laporan Audit Stok</span>
+          </button>
+          <button onclick="switchView('pengaturan')" data-nav="pengaturan" class="nav-link w-full flex items-center gap-3 px-3 py-2.5 rounded-2xl text-sm font-medium transition text-zinc-600 dark:text-zinc-400 hover:bg-black/5 dark:hover:bg-white/5 hover:text-black dark:hover:text-white">
+            <i data-lucide="settings" class="w-4 h-4 shrink-0"></i>
+            <span class="nav-label text-left flex-1">Pengaturan</span>
+          </button>
+        </nav>
+      </div>
+
+      <!-- Warehouse Capacity Card -->
+      <div class="glass-panel p-4 rounded-2xl border border-black/10 dark:border-white/10 text-center relative overflow-hidden mt-4">
+        <div class="flex items-center gap-2.5 justify-center mb-1">
+          <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+          <p class="font-bold text-xs text-zinc-900 dark:text-white">Kapasitas Rak</p>
+        </div>
+        <p class="text-[11px] font-bold text-zinc-700 dark:text-zinc-300">Gudang Utama: 72% Terisi</p>
+      </div>
+    </aside>
+
+    <!-- ============================ MAIN CONTENT ============================ -->
+    <main class="flex-1 min-w-0 space-y-6">
+
+      <!-- TOPBAR -->
+      <header class="glass-panel rounded-3xl p-3 px-6 flex items-center justify-between sticky top-6 z-30">
+        <div class="flex items-center gap-3">
+          <button onclick="openDrawer()" class="lg:hidden p-2 -ml-2 rounded-xl hover:bg-black/5 dark:hover:bg-white/10 text-zinc-700 dark:text-zinc-300">
+            <i data-lucide="menu" class="w-5 h-5"></i>
+          </button>
+          <div class="relative w-64 sm:w-80">
+            <i data-lucide="search" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400"></i>
+            <input type="text" placeholder="Cari barcode, SKU, nama barang, rak..." class="w-full bg-black/5 dark:bg-white/5 border-none rounded-2xl pl-9 pr-10 py-2 text-sm text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-black/20 dark:focus:ring-white/20">
+            <span class="hidden sm:inline-block absolute right-3 top-1/2 -translate-y-1/2 text-[10px] font-mono text-zinc-400 border border-zinc-300 dark:border-zinc-700 px-1.5 py-0.5 rounded-md">⌘K</span>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-4">
+          <button onclick="toast('Stok opname tersinkronisasi barcode scanner','bell')" class="p-2 rounded-2xl hover:bg-black/5 dark:hover:bg-white/5 relative text-zinc-700 dark:text-zinc-300">
+            <i data-lucide="bell" class="w-4 h-4"></i>
+            <span class="w-1.5 h-1.5 bg-black dark:bg-white rounded-full absolute top-2 right-2"></span>
+          </button>
+
+          <div class="h-6 w-[1px] bg-zinc-200 dark:bg-zinc-800"></div>
+
+          <div class="flex items-center gap-3 pl-1">
+            <div class="w-9 h-9 rounded-2xl bg-black dark:bg-white text-white dark:text-black font-extrabold text-xs flex items-center justify-center ring-2 ring-black/10 dark:ring-white/10">HB</div>
+            <div class="text-left hidden sm:block">
+              <p class="text-xs font-bold leading-tight text-zinc-900 dark:text-white">Hendra Basri</p>
+              <p class="text-[10px] text-zinc-500 dark:text-zinc-400">Warehouse Master</p>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <!-- ==================== VIEW 1: DASHBOARD ==================== -->
+      <div id="view-dashboard" class="u-view active space-y-6">
+        <div class="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <h1 class="text-2xl font-bold tracking-tight text-zinc-900 dark:text-white">Dashboard Pergudangan &amp; Stok</h1>
+            <p class="text-xs text-zinc-500 dark:text-zinc-400">Monitoring real-time kuantitas SKU, rotasi barang cepat (fast moving), dan stok kritis.</p>
+          </div>
+          <button onclick="toast('Form penerimaan barang masuk (PO) dibuka','plus')" class="px-4 py-2 rounded-2xl bg-black text-white dark:bg-white dark:text-black text-xs font-semibold flex items-center gap-2 hover:opacity-90 shadow-sm">
+            <i data-lucide="plus" class="w-3.5 h-3.5"></i> Penerimaan Barang
+          </button>
+        </div>
+
+        <!-- 4 Stats Cards -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div class="glass-panel p-5 rounded-3xl space-y-3">
+            <div class="flex justify-between items-start">
+              <span class="text-xs font-medium text-zinc-500 dark:text-zinc-400">Total Nilai Inventaris</span>
+              <div class="p-2 rounded-2xl bg-black/5 dark:bg-white/5 text-zinc-800 dark:text-zinc-200"><i data-lucide="boxes" class="w-4 h-4"></i></div>
+            </div>
+            <p class="text-2xl font-bold tracking-tight text-zinc-900 dark:text-white">Rp 5,82 M</p>
+            <p class="text-[11px] text-zinc-500 dark:text-zinc-400"><span class="text-emerald-600 dark:text-emerald-400 font-semibold">1.842 SKU</span> tercatat aktif</p>
+          </div>
+
+          <div class="glass-panel p-5 rounded-3xl space-y-3">
+            <div class="flex justify-between items-start">
+              <span class="text-xs font-medium text-zinc-500 dark:text-zinc-400">Barang Masuk (Inbound)</span>
+              <div class="p-2 rounded-2xl bg-black/5 dark:bg-white/5 text-zinc-800 dark:text-zinc-200"><i data-lucide="arrow-down-left" class="w-4 h-4"></i></div>
+            </div>
+            <p class="text-2xl font-bold tracking-tight text-zinc-900 dark:text-white">2.418 Unit</p>
+            <p class="text-[11px] text-zinc-500 dark:text-zinc-400"><span class="text-emerald-600 dark:text-emerald-400 font-semibold">18 PO</span> selesai di-check</p>
+          </div>
+
+          <div class="glass-panel p-5 rounded-3xl space-y-3">
+            <div class="flex justify-between items-start">
+              <span class="text-xs font-medium text-zinc-500 dark:text-zinc-400">Barang Keluar (Fulfillment)</span>
+              <div class="p-2 rounded-2xl bg-black/5 dark:bg-white/5 text-zinc-800 dark:text-zinc-200"><i data-lucide="arrow-up-right" class="w-4 h-4"></i></div>
+            </div>
+            <p class="text-2xl font-bold tracking-tight text-zinc-900 dark:text-white">3.120 Unit</p>
+            <p class="text-[11px] text-zinc-500 dark:text-zinc-400"><span class="text-emerald-600 dark:text-emerald-400 font-semibold">100% On-time</span> kirim ke kurir</p>
+          </div>
+
+          <div class="glass-panel p-5 rounded-3xl space-y-3">
+            <div class="flex justify-between items-start">
+              <span class="text-xs font-medium text-zinc-500 dark:text-zinc-400">Peringatan Stok Rendah</span>
+              <div class="p-2 rounded-2xl bg-black/5 dark:bg-white/5 text-zinc-800 dark:text-zinc-200"><i data-lucide="alert-triangle" class="w-4 h-4"></i></div>
+            </div>
+            <p class="text-2xl font-bold tracking-tight text-amber-600 dark:text-amber-400 font-mono">14 SKU</p>
+            <p class="text-[11px] text-zinc-500 dark:text-zinc-400">Di bawah ambang batas minimum</p>
+          </div>
+        </div>
+
+        <!-- Inventory List -->
+        <div class="glass-panel rounded-3xl p-6 space-y-4">
+          <div class="flex items-center justify-between">
+            <div>
+              <h3 class="font-bold text-sm text-zinc-900 dark:text-white">SKU Fast Moving Terkini</h3>
+              <p class="text-xs text-zinc-500 dark:text-zinc-400">Rotasi barang tertinggi di gudang sentral</p>
+            </div>
+            <button onclick="switchView('stok')" class="text-xs font-semibold text-zinc-700 dark:text-zinc-300 hover:underline">Semua SKU →</button>
+          </div>
+
+          <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+              <thead>
+                <tr class="border-b border-black/5 dark:border-white/5 text-[11px] font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">
+                  <th class="pb-3 text-left">Kode SKU &amp; Nama</th>
+                  <th class="pb-3 text-left">Lokasi Rak</th>
+                  <th class="pb-3 text-left">Status Stok</th>
+                  <th class="pb-3 text-right">Sisa Fisik</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-black/5 dark:divide-white/5 font-medium">
+                <tr class="hover-row">
+                  <td class="py-3.5">
+                    <p class="font-bold text-zinc-900 dark:text-white">Air Glass Headset Max</p>
+                    <p class="text-[11px] font-mono text-zinc-500">SKU-AUD-892</p>
+                  </td>
+                  <td class="py-3.5 text-zinc-600 dark:text-zinc-300">Gudang A · Rak 04-B</td>
+                  <td class="py-3.5"><span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-500/15 text-emerald-700 dark:text-emerald-400">Aman</span></td>
+                  <td class="py-3.5 text-right font-mono font-bold text-zinc-900 dark:text-white">428 Unit</td>
+                </tr>
+                <tr class="hover-row">
+                  <td class="py-3.5">
+                    <p class="font-bold text-zinc-900 dark:text-white">Wireless Charger 65W Pro</p>
+                    <p class="text-[11px] font-mono text-zinc-500">SKU-PWR-104</p>
+                  </td>
+                  <td class="py-3.5 text-zinc-600 dark:text-zinc-300">Gudang A · Rak 02-D</td>
+                  <td class="py-3.5"><span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-500/15 text-amber-700 dark:text-amber-400">Hampir Habis</span></td>
+                  <td class="py-3.5 text-right font-mono font-bold text-amber-600 dark:text-amber-400">12 Unit</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==================== VIEW 2: STOK ==================== -->
+      <div id="view-stok" class="u-view space-y-6">
+        <div class="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <h1 class="text-2xl font-bold tracking-tight text-zinc-900 dark:text-white">Stok Barang</h1>
+            <p class="text-xs text-zinc-500 dark:text-zinc-400">Katalog inventaris 1.842 SKU dengan pelacakan batch, lokasi rak, dan ambang min–max.</p>
+          </div>
+          <button onclick="tambahBarang()" class="px-4 py-2 rounded-2xl bg-black text-white dark:bg-white dark:text-black text-xs font-semibold flex items-center gap-2 hover:opacity-90 shadow-sm">
+            <i data-lucide="plus" class="w-3.5 h-3.5"></i> Tambah Barang
+          </button>
+        </div>
+
+        <!-- KPI strip -->
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          <div class="glass-panel p-5 rounded-3xl space-y-3">
+            <div class="flex justify-between items-start">
+              <span class="text-xs font-medium text-zinc-500 dark:text-zinc-400">Total SKU</span>
+              <div class="p-2 rounded-2xl bg-black/5 dark:bg-white/5 text-zinc-800 dark:text-zinc-200"><i data-lucide="boxes" class="w-4 h-4"></i></div>
+            </div>
+            <p class="text-2xl font-bold tracking-tight text-zinc-900 dark:text-white">1.842</p>
+            <p class="text-[11px] text-zinc-500 dark:text-zinc-400"><span class="text-emerald-600 dark:text-emerald-400 font-semibold">+36</span> SKU baru bulan ini</p>
+          </div>
+          <div class="glass-panel p-5 rounded-3xl space-y-3">
+            <div class="flex justify-between items-start">
+              <span class="text-xs font-medium text-zinc-500 dark:text-zinc-400">Nilai Stok (FIFO)</span>
+              <div class="p-2 rounded-2xl bg-black/5 dark:bg-white/5 text-zinc-800 dark:text-zinc-200"><i data-lucide="wallet" class="w-4 h-4"></i></div>
+            </div>
+            <p class="text-2xl font-bold tracking-tight text-zinc-900 dark:text-white">Rp 5,82 M</p>
+            <p class="text-[11px] text-zinc-500 dark:text-zinc-400"><span class="text-emerald-600 dark:text-emerald-400 font-semibold">1,2%</span> naik vs bulan lalu</p>
+          </div>
+          <div class="glass-panel p-5 rounded-3xl space-y-3">
+            <div class="flex justify-between items-start">
+              <span class="text-xs font-medium text-zinc-500 dark:text-zinc-400">Stok Menipis</span>
+              <div class="p-2 rounded-2xl bg-amber-500/15 text-amber-600 dark:text-amber-400"><i data-lucide="alert-triangle" class="w-4 h-4"></i></div>
+            </div>
+            <p class="text-2xl font-bold tracking-tight text-amber-600 dark:text-amber-400 font-mono">14 SKU</p>
+            <p class="text-[11px] text-zinc-500 dark:text-zinc-400">Di bawah ambang minimum</p>
+          </div>
+          <div class="glass-panel p-5 rounded-3xl space-y-3">
+            <div class="flex justify-between items-start">
+              <span class="text-xs font-medium text-zinc-500 dark:text-zinc-400">Stok Habis</span>
+              <div class="p-2 rounded-2xl bg-rose-500/15 text-rose-600 dark:text-rose-400"><i data-lucide="slash" class="w-4 h-4"></i></div>
+            </div>
+            <p class="text-2xl font-bold tracking-tight text-rose-600 dark:text-rose-400 font-mono">6 SKU</p>
+            <p class="text-[11px] text-zinc-500 dark:text-zinc-400">Butuh reorder segera</p>
+          </div>
+        </div>
+
+        <!-- Search + status filter -->
+        <div class="glass-panel rounded-3xl p-4 flex flex-col md:flex-row md:items-center gap-3">
+          <div class="relative flex-1">
+            <i data-lucide="search" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400"></i>
+            <input id="stok-search" oninput="filterStokStatus()" type="text" placeholder="Cari nama barang, SKU, atau barcode..." class="w-full bg-black/5 dark:bg-white/5 border-none rounded-2xl pl-9 pr-4 py-2 text-sm text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-black/20 dark:focus:ring-white/20">
+          </div>
+          <div class="flex items-center gap-2 overflow-x-auto">
+            <button data-s="semua" onclick="filterStokStatus('semua')" class="stok-chip px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap bg-black text-white dark:bg-white dark:text-black">Semua</button>
+            <button data-s="aman" onclick="filterStokStatus('aman')" class="stok-chip px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap bg-black/5 dark:bg-white/10 text-zinc-600 dark:text-zinc-300">Aman</button>
+            <button data-s="menipis" onclick="filterStokStatus('menipis')" class="stok-chip px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap bg-black/5 dark:bg-white/10 text-zinc-600 dark:text-zinc-300">Menipis</button>
+            <button data-s="habis" onclick="filterStokStatus('habis')" class="stok-chip px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap bg-black/5 dark:bg-white/10 text-zinc-600 dark:text-zinc-300">Habis</button>
+          </div>
+        </div>
+
+        <!-- Items table -->
+        <div class="glass-panel rounded-3xl overflow-hidden">
+          <div class="flex items-center justify-between p-5 pb-4">
+            <div>
+              <h3 class="font-bold text-sm text-zinc-900 dark:text-white">Daftar Item &amp; Kuantitas Aktual</h3>
+              <p class="text-xs text-zinc-500 dark:text-zinc-400">Sinkron otomatis dari barcode scanner setiap 5 menit</p>
+            </div>
+            <span class="text-[10px] font-bold px-2 py-1 rounded-lg bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 flex items-center gap-1">
+              <i data-lucide="activity" class="w-3 h-3"></i> LIVE
+            </span>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+              <thead>
+                <tr class="border-y border-black/5 dark:border-white/5 bg-black/[0.02] dark:bg-white/[0.02] text-[11px] font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">
+                  <th class="px-5 py-3 text-left">Barang</th>
+                  <th class="px-5 py-3 text-left">Kategori</th>
+                  <th class="px-5 py-3 text-left">Harga</th>
+                  <th class="px-5 py-3 text-left">Stok</th>
+                  <th class="px-5 py-3 text-left">Gudang</th>
+                  <th class="px-5 py-3 text-left">Status</th>
+                  <th class="px-5 py-3 text-right">Aksi</th>
+                </tr>
+              </thead>
+              <tbody id="stok-tbody" class="divide-y divide-black/5 dark:divide-white/5 font-medium">
+                <tr class="hover-row" data-status="aman">
+                  <td class="px-5 py-3.5">
+                    <div class="flex items-center gap-3">
+                      <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-zinc-200 to-zinc-400 dark:from-zinc-700 dark:to-zinc-900 grid place-items-center shrink-0"><i data-lucide="headphones" class="w-4 h-4 text-zinc-700 dark:text-zinc-300"></i></div>
+                      <div class="min-w-0">
+                        <p class="font-bold text-zinc-900 dark:text-white truncate">AirGlass Headset Max</p>
+                        <p class="text-[11px] font-mono text-zinc-500">SKU-AUD-892</p>
+                      </div>
+                    </div>
+                  </td>
+                  <td class="px-5 py-3.5 text-zinc-600 dark:text-zinc-300">Aksesoris Audio</td>
+                  <td class="px-5 py-3.5 font-mono text-zinc-900 dark:text-white">Rp 899.000</td>
+                  <td class="px-5 py-3.5">
+                    <span class="font-mono font-bold text-zinc-900 dark:text-white">428</span>
+                    <span class="text-[11px] text-zinc-500"> unit</span>
+                  </td>
+                  <td class="px-5 py-3.5 text-zinc-600 dark:text-zinc-300">Gudang A · Rak 04-B</td>
+                  <td class="px-5 py-3.5"><span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold bg-emerald-500/15 text-emerald-700 dark:text-emerald-400"><span class="w-1.5 h-1.5 rounded-full bg-current"></span>Aman</span></td>
+                  <td class="px-5 py-3.5">
+                    <div class="flex items-center gap-1.5 justify-end">
+                      <button onclick="toast('Pergerakan SKU-AUD-892','package-search')" class="p-1.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 text-zinc-500 dark:text-zinc-400" title="Riwayat stok"><i data-lucide="package-search" class="w-3.5 h-3.5"></i></button>
+                      <button onclick="toast('Form edit SKU-AUD-892 dibuka','pencil')" class="p-1.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 text-zinc-500 dark:text-zinc-400" title="Edit"><i data-lucide="pencil" class="w-3.5 h-3.5"></i></button>
+                    </div>
+                  </td>
+                </tr>
+                <tr class="hover-row" data-status="menipis">
+                  <td class="px-5 py-3.5">
+                    <div class="flex items-center gap-3">
+                      <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-amber-200 to-amber-400 dark:from-amber-700 dark:to-amber-900 grid place-items-center shrink-0"><i data-lucide="battery-charging" class="w-4 h-4 text-amber-700 dark:text-amber-300"></i></div>
+                      <div class="min-w-0">
+                        <p class="font-bold text-zinc-900 dark:text-white truncate">Wireless Charger 65W Pro</p>
+                        <p class="text-[11px] font-mono text-zinc-500">SKU-PWR-104</p>
+                      </div>
+                    </div>
+                  </td>
+                  <td class="px-5 py-3.5 text-zinc-600 dark:text-zinc-300">Perangkat Power</td>
+                  <td class="px-5 py-3.5 font-mono text-zinc-900 dark:text-white">Rp 415.000</td>
+                  <td class="px-5 py-3.5">
+                    <span class="font-mono font-bold text-amber-600 dark:text-amber-400">12</span>
+                    <span class="text-[11px] text-zinc-500"> unit</span>
+                    <div class="mt-1.5 h-1 w-20 rounded-full bg-black/5 dark:bg-white/10"><div class="h-1 w-[12%] rounded-full bg-amber-500"></div></div>
+                  </td>
+                  <td class="px-5 py-3.5 text-zinc-600 dark:text-zinc-300">Gudang A · Rak 02-D</td>
+                  <td class="px-5 py-3.5"><span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold bg-amber-500/15 text-amber-700 dark:text-amber-400"><span class="w-1.5 h-1.5 rounded-full bg-current"></span>Menipis</span></td>
+                  <td class="px-5 py-3.5">
+                    <div class="flex items-center gap-1.5 justify-end">
+                      <button onclick="toast('Pergerakan SKU-PWR-104','package-search')" class="p-1.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 text-zinc-500 dark:text-zinc-400" title="Riwayat stok"><i data-lucide="package-search" class="w-3.5 h-3.5"></i></button>
+                      <button onclick="toast('Form edit SKU-PWR-104 dibuka','pencil')" class="p-1.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 text-zinc-500 dark:text-zinc-400" title="Edit"><i data-lucide="pencil" class="w-3.5 h-3.5"></i></button>
+                    </div>
+                  </td>
+                </tr>
+                <tr class="hover-row" data-status="habis">
+                  <td class="px-5 py-3.5">
+                    <div class="flex items-center gap-3">
+                      <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-sky-200 to-sky-400 dark:from-sky-700 dark:to-sky-900 grid place-items-center shrink-0"><i data-lucide="hard-drive" class="w-4 h-4 text-sky-700 dark:text-sky-300"></i></div>
+                      <div class="min-w-0">
+                        <p class="font-bold text-zinc-900 dark:text-white truncate">SSD NVMe 1TB Gen4</p>
+                        <p class="text-[11px] font-mono text-zinc-500">SKU-DGT-331</p>
+                      </div>
+                    </div>
+                  </td>
+                  <td class="px-5 py-3.5 text-zinc-600 dark:text-zinc-300">Komponen Komputer</td>
+                  <td class="px-5 py-3.5 font-mono text-zinc-900 dark:text-white">Rp 1.299.000</td>
+                  <td class="px-5 py-3.5">
+                    <span class="font-mono font-bold text-rose-600 dark:text-rose-400">0</span>
+                    <span class="text-[11px] text-zinc-500"> unit</span>
+                  </td>
+                  <td class="px-5 py-3.5 text-zinc-600 dark:text-zinc-300">Gudang B · Rak 07-C</td>
+                  <td class="px-5 py-3.5"><span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold bg-rose-500/15 text-rose-700 dark:text-rose-400"><span class="w-1.5 h-1.5 rounded-full bg-current"></span>Habis</span></td>
+                  <td class="px-5 py-3.5">
+                    <div class="flex items-center gap-1.5 justify-end">
+                      <button onclick="toast('Pergerakan SKU-DGT-331','package-search')" class="p-1.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 text-zinc-500 dark:text-zinc-400" title="Riwayat stok"><i data-lucide="package-search" class="w-3.5 h-3.5"></i></button>
+                      <button onclick="toast('Form edit SKU-DGT-331 dibuka','pencil')" class="p-1.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 text-zinc-500 dark:text-zinc-400" title="Edit"><i data-lucide="pencil" class="w-3.5 h-3.5"></i></button>
+                    </div>
+                  </td>
+                </tr>
+                <tr class="hover-row" data-status="aman">
+                  <td class="px-5 py-3.5">
+                    <div class="flex items-center gap-3">
+                      <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-zinc-200 to-zinc-400 dark:from-zinc-700 dark:to-zinc-900 grid place-items-center shrink-0"><i data-lucide="keyboard" class="w-4 h-4 text-zinc-700 dark:text-zinc-300"></i></div>
+                      <div class="min-w-0">
+                        <p class="font-bold text-zinc-900 dark:text-white truncate">MechKeys TKL-RGB</p>
+                        <p class="text-[11px] font-mono text-zinc-500">SKU-KBR-210</p>
+                      </div>
+                    </div>
+                  </td>
+                  <td class="px-5 py-3.5 text-zinc-600 dark:text-zinc-300">Perangkat Input</td>
+                  <td class="px-5 py-3.5 font-mono text-zinc-900 dark:text-white">Rp 875.000</td>
+                  <td class="px-5 py-3.5">
+                    <span class="font-mono font-bold text-zinc-900 dark:text-white">156</span>
+                    <span class="text-[11px] text-zinc-500"> unit</span>
+                  </td>
+                  <td class="px-5 py-3.5 text-zinc-600 dark:text-zinc-300">Gudang C · Rak 01-A</td>
+                  <td class="px-5 py-3.5"><span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold bg-emerald-500/15 text-emerald-700 dark:text-emerald-400"><span class="w-1.5 h-1.5 rounded-full bg-current"></span>Aman</span></td>
+                  <td class="px-5 py-3.5">
+                    <div class="flex items-center gap-1.5 justify-end">
+                      <button onclick="toast('Pergerakan SKU-KBR-210','package-search')" class="p-1.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 text-zinc-500 dark:text-zinc-400" title="Riwayat stok"><i data-lucide="package-search" class="w-3.5 h-3.5"></i></button>
+                      <button onclick="toast('Form edit SKU-KBR-210 dibuka','pencil')" class="p-1.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 text-zinc-500 dark:text-zinc-400" title="Edit"><i data-lucide="pencil" class="w-3.5 h-3.5"></i></button>
+                    </div>
+                  </td>
+                </tr>
+                <tr class="hover-row" data-status="menipis">
+                  <td class="px-5 py-3.5">
+                    <div class="flex items-center gap-3">
+                      <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-emerald-200 to-emerald-400 dark:from-emerald-700 dark:to-emerald-900 grid place-items-center shrink-0"><i data-lucide="monitor" class="w-4 h-4 text-emerald-700 dark:text-emerald-300"></i></div>
+                      <div class="min-w-0">
+                        <p class="font-bold text-zinc-900 dark:text-white truncate">LumenView 27" 4K HDR</p>
+                        <p class="text-[11px] font-mono text-zinc-500">SKU-MTR-118</p>
+                      </div>
+                    </div>
+                  </td>
+                  <td class="px-5 py-3.5 text-zinc-600 dark:text-zinc-300">Perangkat Display</td>
+                  <td class="px-5 py-3.5 font-mono text-zinc-900 dark:text-white">Rp 3.250.000</td>
+                  <td class="px-5 py-3.5">
+                    <span class="font-mono font-bold text-amber-600 dark:text-amber-400">7</span>
+                    <span class="text-[11px] text-zinc-500"> unit</span>
+                    <div class="mt-1.5 h-1 w-20 rounded-full bg-black/5 dark:bg-white/10"><div class="h-1 w-[7%] rounded-full bg-amber-500"></div></div>
+                  </td>
+                  <td class="px-5 py-3.5 text-zinc-600 dark:text-zinc-300">Gudang A · Rak 09-B</td>
+                  <td class="px-5 py-3.5"><span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold bg-amber-500/15 text-amber-700 dark:text-amber-400"><span class="w-1.5 h-1.5 rounded-full bg-current"></span>Menipis</span></td>
+                  <td class="px-5 py-3.5">
+                    <div class="flex items-center gap-1.5 justify-end">
+                      <button onclick="toast('Pergerakan SKU-MTR-118','package-search')" class="p-1.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 text-zinc-500 dark:text-zinc-400" title="Riwayat stok"><i data-lucide="package-search" class="w-3.5 h-3.5"></i></button>
+                      <button onclick="toast('Form edit SKU-MTR-118 dibuka','pencil')" class="p-1.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 text-zinc-500 dark:text-zinc-400" title="Edit"><i data-lucide="pencil" class="w-3.5 h-3.5"></i></button>
+                    </div>
+                  </td>
+                </tr>
+                <tr class="hover-row" data-status="aman">
+                  <td class="px-5 py-3.5">
+                    <div class="flex items-center gap-3">
+                      <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-violet-200 to-violet-400 dark:from-violet-700 dark:to-violet-900 grid place-items-center shrink-0"><i data-lucide="cable" class="w-4 h-4 text-violet-700 dark:text-violet-300"></i></div>
+                      <div class="min-w-0">
+                        <p class="font-bold text-zinc-900 dark:text-white truncate">Kabel USB-C Braided 1m</p>
+                        <p class="text-[11px] font-mono text-zinc-500">SKU-CBL-443</p>
+                      </div>
+                    </div>
+                  </td>
+                  <td class="px-5 py-3.5 text-zinc-600 dark:text-zinc-300">Perangkat Power</td>
+                  <td class="px-5 py-3.5 font-mono text-zinc-900 dark:text-white">Rp 89.000</td>
+                  <td class="px-5 py-3.5">
+                    <span class="font-mono font-bold text-zinc-900 dark:text-white">2.140</span>
+                    <span class="text-[11px] text-zinc-500"> unit</span>
+                  </td>
+                  <td class="px-5 py-3.5 text-zinc-600 dark:text-zinc-300">Gudang B · Rak 03-E</td>
+                  <td class="px-5 py-3.5"><span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold bg-emerald-500/15 text-emerald-700 dark:text-emerald-400"><span class="w-1.5 h-1.5 rounded-full bg-current"></span>Aman</span></td>
+                  <td class="px-5 py-3.5">
+                    <div class="flex items-center gap-1.5 justify-end">
+                      <button onclick="toast('Pergerakan SKU-CBL-443','package-search')" class="p-1.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 text-zinc-500 dark:text-zinc-400" title="Riwayat stok"><i data-lucide="package-search" class="w-3.5 h-3.5"></i></button>
+                      <button onclick="toast('Form edit SKU-CBL-443 dibuka','pencil')" class="p-1.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 text-zinc-500 dark:text-zinc-400" title="Edit"><i data-lucide="pencil" class="w-3.5 h-3.5"></i></button>
+                    </div>
+                  </td>
+                </tr>
+                <tr class="hover-row" data-status="habis">
+                  <td class="px-5 py-3.5">
+                    <div class="flex items-center gap-3">
+                      <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-rose-200 to-rose-400 dark:from-rose-700 dark:to-rose-900 grid place-items-center shrink-0"><i data-lucide="video" class="w-4 h-4 text-rose-700 dark:text-rose-300"></i></div>
+                      <div class="min-w-0">
+                        <p class="font-bold text-zinc-900 dark:text-white truncate">WebCam Pro Stream 1080p</p>
+                        <p class="text-[11px] font-mono text-zinc-500">SKU-CAM-076</p>
+                      </div>
+                    </div>
+                  </td>
+                  <td class="px-5 py-3.5 text-zinc-600 dark:text-zinc-300">Aksesoris Audio</td>
+                  <td class="px-5 py-3.5 font-mono text-zinc-900 dark:text-white">Rp 1.150.000</td>
+                  <td class="px-5 py-3.5">
+                    <span class="font-mono font-bold text-rose-600 dark:text-rose-400">0</span>
+                    <span class="text-[11px] text-zinc-500"> unit</span>
+                  </td>
+                  <td class="px-5 py-3.5 text-zinc-600 dark:text-zinc-300">Gudang D · Rak 05-A</td>
+                  <td class="px-5 py-3.5"><span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold bg-rose-500/15 text-rose-700 dark:text-rose-400"><span class="w-1.5 h-1.5 rounded-full bg-current"></span>Habis</span></td>
+                  <td class="px-5 py-3.5">
+                    <div class="flex items-center gap-1.5 justify-end">
+                      <button onclick="toast('Pergerakan SKU-CAM-076','package-search')" class="p-1.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 text-zinc-500 dark:text-zinc-400" title="Riwayat stok"><i data-lucide="package-search" class="w-3.5 h-3.5"></i></button>
+                      <button onclick="toast('Form edit SKU-CAM-076 dibuka','pencil')" class="p-1.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 text-zinc-500 dark:text-zinc-400" title="Edit"><i data-lucide="pencil" class="w-3.5 h-3.5"></i></button>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==================== VIEW 3: PENERIMAAN ==================== -->
+      <div id="view-penerimaan" class="u-view space-y-6">
+        <div class="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <h1 class="text-2xl font-bold tracking-tight text-zinc-900 dark:text-white">Penerimaan Barang Masuk</h1>
+            <p class="text-xs text-zinc-500 dark:text-zinc-400">Pemeriksaan QC, approval purchase order, dan penerbitan GRN (Goods Receipt Note).</p>
+          </div>
+          <button onclick="document.getElementById('penerimaan-form')?.scrollIntoView({behavior:'smooth',block:'center'})" class="px-4 py-2 rounded-2xl bg-black text-white dark:bg-white dark:text-black text-xs font-semibold flex items-center gap-2 hover:opacity-90 shadow-sm">
+            <i data-lucide="arrow-down-to-line" class="w-3.5 h-3.5"></i> Catat Penerimaan
+          </button>
+        </div>
+
+        <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
+          <div class="xl:col-span-2 space-y-6 min-w-0">
+            <!-- KPI strip -->
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+              <div class="glass-panel p-5 rounded-3xl">
+                <span class="text-xs font-medium text-zinc-500 dark:text-zinc-400">PO Diterima</span>
+                <p class="text-2xl font-bold tracking-tight text-zinc-900 dark:text-white mt-1">142</p>
+                <p class="text-[11px] text-zinc-500 dark:text-zinc-400">sepanjang Feb 2026</p>
+              </div>
+              <div class="glass-panel p-5 rounded-3xl">
+                <span class="textxs font-medium text-zinc-500 dark:text-zinc-400">Nilai Barang Masuk</span>
+                <p class="text-2xl font-bold tracking-tight text-zinc-900 dark:text-white mt-1">Rp 1,94 M</p>
+                <p class="text-[11px] text-zinc-500 dark:text-zinc-400"><span class="text-emerald-600 dark:text-emerald-400 font-semibold">8,4%</span> vs periode lalu</p>
+              </div>
+              <div class="glass-panel p-5 rounded-3xl">
+                <span class="text-xs font-medium text-zinc-500 dark:text-zinc-400">Item Diterima</span>
+                <p class="text-2xl font-bold tracking-tight text-zinc-900 dark:text-white mt-1">2.418</p>
+                <p class="text-[11px] text-zinc-500 dark:text-zinc-400">unit lolos QC</p>
+              </div>
+              <div class="glass-panel p-5 rounded-3xl">
+                <span class="text-xs font-medium text-zinc-500 dark:text-zinc-400">Dalam Proses QC</span>
+                <p class="text-2xl font-bold tracking-tight text-amber-600 dark:text-amber-400 font-mono mt-1">7 PO</p>
+                <p class="text-[11px] text-zinc-500 dark:text-zinc-400">butuh inspeksi fisik</p>
+              </div>
+            </div>
+
+            <!-- Filter chips -->
+            <div class="glass-panel rounded-3xl p-4 flex items-center gap-2 overflow-x-auto">
+              <span class="text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider px-1">Filter:</span>
+              <button data-s="semua" onclick="filterPenerimaan('semua')" class="recv-chip px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap bg-black text-white dark:bg-white dark:text-black">Semua</button>
+              <button data-s="diterima" onclick="filterPenerimaan('diterima')" class="recv-chip px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap bg-black/5 dark:bg-white/10 text-zinc-600 dark:text-zinc-300">Diterima</button>
+              <button data-s="proses" onclick="filterPenerimaan('proses')" class="recv-chip px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap bg-black/5 dark:bg-white/10 text-zinc-600 dark:text-zinc-300">Proses QC</button>
+              <button data-s="batal" onclick="filterPenerimaan('batal')" class="recv-chip px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap bg-black/5 dark:bg-white/10 text-zinc-600 dark:text-zinc-300">Dibatalkan</button>
+            </div>
+
+            <!-- Receiving table -->
+            <div class="glass-panel rounded-3xl overflow-hidden">
+              <div class="flex items-center justify-between p-5 pb-4">
+                <div>
+                  <h3 class="font-bold text-sm text-zinc-900 dark:text-white">Riwayat Goods Receipt</h3>
+                  <p class="text-xs text-zinc-500 dark:text-zinc-400">GRN terbaru otomatis masuk ke stok setelah QC lulus</p>
+                </div>
+                <button onclick="toast('Ekspor riwayat penerimaan','file-down')" class="text-xs font-semibold text-zinc-700 dark:text-zinc-300 hover:underline flex items-center gap-1"><i data-lucide="file-down" class="w-3.5 h-3.5"></i> Ekspor</button>
+              </div>
+              <div class="overflow-x-auto">
+                <table class="w-full text-sm">
+                  <thead>
+                    <tr class="border-y border-black/5 dark:border-white/5 bg-black/[0.02] dark:bg-white/[0.02] text-[11px] font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">
+                      <th class="px-5 py-3 text-left">No. PO / Ref</th>
+                      <th class="px-5 py-3 text-left">Supplier</th>
+                      <th class="px-5 py-3 text-left">Tanggal</th>
+                      <th class="px-5 py-3 text-left">Jumlah Item</th>
+                      <th class="px-5 py-3 text-left">Nilai</th>
+                      <th class="px-5 py-3 text-left">Status</th>
+                      <th class="px-5 py-3 text-right">Aksi</th>
+                    </tr>
+                  </thead>
+                  <tbody id="recv-tbody" class="divide-y divide-black/5 dark:divide-white/5 font-medium">
+                    <tr class="hover-row" data-status="diterima">
+                      <td class="px-5 py-3.5"><p class="font-mono font-bold text-zinc-900 dark:text-white">PO-2026-0912</p><p class="text-[11px] font-mono text-zinc-500">GRN-441</p></td>
+                      <td class="px-5 py-3.5"><div class="flex items-center gap-2.5"><div class="w-7 h-7 rounded-lg bg-gradient-to-br from-zinc-700 to-zinc-900 dark:from-zinc-200 dark:to-zinc-500 text-white dark:text-zinc-900 grid place-items-center text-[10px] font-black">SE</div><span class="font-semibold text-zinc-800 dark:text-zinc-200">PT Sinar Elektronik</span></div></td>
+                      <td class="px-5 py-3.5 text-zinc-600 dark:text-zinc-300">12 Feb 2026</td>
+                      <td class="px-5 py-3.5 font-mono text-zinc-900 dark:text-white">6</td>
+                      <td class="px-5 py-3.5 font-mono text-zinc-900 dark:text-white">Rp 412 Jt</td>
+                      <td class="px-5 py-3.5"><span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold bg-emerald-500/15 text-emerald-700 dark:text-emerald-400"><span class="w-1.5 h-1.5 rounded-full bg-current"></span>Diterima</span></td>
+                      <td class="px-5 py-3.5"><div class="flex items-center gap-1.5 justify-end"><button onclick="toast('Buka GRN-441','eye')" class="p-1.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 text-zinc-500 dark:text-zinc-400"><i data-lucide="eye" class="w-3.5 h-3.5"></i></button><button onclick="toast('GRN-441 diarsipkan','archive')" class="p-1.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 text-zinc-500 dark:text-zinc-400"><i data-lucide="archive" class="w-3.5 h-3.5"></i></button></div></td>
+                    </tr>
+                    <tr class="hover-row" data-status="proses">
+                      <td class="px-5 py-3.5"><p class="font-mono font-bold text-zinc-900 dark:text-white">PO-2026-0908</p><p class="text-[11px] font-mono text-zinc-500">Menunggu QC</p></td>
+                      <td class="px-5 py-3.5"><div class="flex items-center gap-2.5"><div class="w-7 h-7 rounded-lg bg-gradient-to-br from-emerald-600 to-emerald-800 dark:from-emerald-300 dark:to-emerald-500 text-white dark:text-emerald-900 grid place-items-center text-[10px] font-black">MJ</div><span class="font-semibold text-zinc-800 dark:text-zinc-200">CV Mekar Jaya Logistik</span></div></td>
+                      <td class="px-5 py-3.5 text-zinc-600 dark:text-zinc-300">11 Feb 2026</td>
+                      <td class="px-5 py-3.5 font-mono text-zinc-900 dark:text-white">12</td>
+                      <td class="px-5 py-3.5 font-mono text-zinc-900 dark:text-white">Rp 128,5 Jt</td>
+                      <td class="px-5 py-3.5"><span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold bg-amber-500/15 text-amber-700 dark:text-amber-400"><span class="w-1.5 h-1.5 rounded-full bg-current"></span>Proses</span></td>
+                      <td class="px-5 py-3.5"><div class="flex items-center gap-1.5 justify-end"><button onclick="toast('Mulai inspeksi QC PO-2026-0908','clipboard-check')" class="p-1.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 text-zinc-500 dark:text-zinc-400"><i data-lucide="clipboard-check" class="w-3.5 h-3.5"></i></button><button onclick="toast('PO-2026-0908 dibatalkan','x-circle')" class="p-1.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 text-rose-500 dark:text-rose-400"><i data-lucide="x-circle" class="w-3.5 h-3.5"></i></button></div></td>
+                    </tr>
+                    <tr class="hover-row" data-status="diterima">
+                      <td class="px-5 py-3.5"><p class="font-mono font-bold text-zinc-900 dark:text-white">PO-2026-0890</p><p class="text-[11px] font-mono text-zinc-500">GRN-436</p></td>
+                      <td class="px-5 py-3.5"><div class="flex items-center gap-2.5"><div class="w-7 h-7 rounded-lg bg-gradient-to-br from-sky-600 to-sky-800 dark:from-sky-300 dark:to-sky-500 text-white dark:text-sky-900 grid place-items-center text-[10px] font-black">BN</div><span class="font-semibold text-zinc-800 dark:text-zinc-200">PT Baja Nusantara Steel</span></div></td>
+                      <td class="px-5 py-3.5 text-zinc-600 dark:text-zinc-300">10 Feb 2026</td>
+                      <td class="px-5 py-3.5 font-mono text-zinc-900 dark:text-white">3</td>
+                      <td class="px-5 py-3.5 font-mono text-zinc-900 dark:text-white">Rp 74,2 Jt</td>
+                      <td class="px-5 py-3.5"><span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold bg-emerald-500/15 text-emerald-700 dark:text-emerald-400"><span class="w-1.5 h-1.5 rounded-full bg-current"></span>Diterima</span></td>
+                      <td class="px-5 py-3.5"><div class="flex items-center gap-1.5 justify-end"><button onclick="toast('Buka GRN-436','eye')" class="p-1.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 text-zinc-500 dark:text-zinc-400"><i data-lucide="eye" class="w-3.5 h-3.5"></i></button><button onclick="toast('GRN-436 diarsipkan','archive')" class="p-1.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 text-zinc-500 dark:text-zinc-400"><i data-lucide="archive" class="w-3.5 h-3.5"></i></button></div></td>
+                    </tr>
+                    <tr class="hover-row" data-status="batal">
+                      <td class="px-5 py-3.5"><p class="font-mono font-bold text-zinc-900 dark:text-white">PO-2026-0867</p><p class="text-[11px] font-mono text-zinc-500">Rejected QC</p></td>
+                      <td class="px-5 py-3.5"><div class="flex items-center gap-2.5"><div class="w-7 h-7 rounded-lg bg-gradient-to-br from-violet-600 to-violet-800 dark:from-violet-300 dark:to-violet-500 text-white dark:text-violet-900 grid place-items-center text-[10px] font-black">TM</div><span class="font-semibold text-zinc-800 dark:text-zinc-200">Toko Grosir Makmur</span></div></td>
+                      <td class="px-5 py-3.5 text-zinc-600 dark:text-zinc-300">09 Feb 2026</td>
+                      <td class="px-5 py-3.5 font-mono text-zinc-900 dark:text-white">8</td>
+                      <td class="px-5 py-3.5 font-mono text-zinc-900 dark:text-white">Rp 21,8 Jt</td>
+                      <td class="px-5 py-3.5"><span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold bg-rose-500/15 text-rose-700 dark:text-rose-400"><span class="w-1.5 h-1.5 rounded-full bg-current"></span>Dibatalkan</span></td>
+                      <td class="px-5 py-3.5"><div class="flex items-center gap-1.5 justify-end"><button onclick="toast('Lihat alasan penolakan PO-2026-0867','message-square')" class="p-1.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 text-zinc-500 dark:text-zinc-400"><i data-lucide="message-square" class="w-3.5 h-3.5"></i></button></div></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- Receiving form card -->
+          <div id="penerimaan-form" class="glass-panel rounded-3xl p-6 space-y-4 h-fit xl:sticky xl:top-32">
+            <div>
+              <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-2xl bg-black/5 dark:bg-white/10 grid place-items-center text-zinc-800 dark:text-zinc-200"><i data-lucide="arrow-down-to-line" class="w-5 h-5"></i></div>
+                <div>
+                  <h3 class="font-bold text-sm text-zinc-900 dark:text-white">Catat Penerimaan</h3>
+                  <p class="text-xs text-zinc-500 dark:text-zinc-400">Daftarkan kedatangan baru &amp; buat GRN otomatis</p>
+                </div>
+              </div>
+            </div>
+            <div class="space-y-3.5">
+              <div>
+                <label class="text-xs font-semibold text-zinc-500 dark:text-zinc-400" for="recv-supplier">Supplier</label>
+                <select id="recv-supplier" class="mt-1.5 w-full h-11 px-3.5 rounded-xl bg-black/5 dark:bg-white/10 border border-black/5 dark:border-white/10 text-sm font-medium outline-none focus:ring-2 ring-zinc-900/10 dark:ring-white/20 appearance-none">
+                  <option>PT Sinar Elektronik</option>
+                  <option>CV Mekar Jaya Logistik</option>
+                  <option>PT Baja Nusantara Steel</option>
+                  <option>Toko Grosir Makmur</option>
+                </select>
+              </div>
+              <div>
+                <label class="text-xs font-semibold text-zinc-500 dark:text-zinc-400" for="recv-date">Tanggal Terima</label>
+                <input id="recv-date" type="date" value="2026-02-12" class="mt-1.5 w-full h-11 px-3.5 rounded-xl bg-black/5 dark:bg-white/10 border border-black/5 dark:border-white/10 text-sm font-medium outline-none focus:ring-2 ring-zinc-900/10 dark:ring-white/20">
+              </div>
+              <div class="grid grid-cols-2 gap-3">
+                <div>
+                  <label class="text-xs font-semibold text-zinc-500 dark:text-zinc-400" for="recv-ref">No. Referensi</label>
+                  <input id="recv-ref" type="text" placeholder="PO-2026-XXXX" class="mt-1.5 w-full h-11 px-3.5 rounded-xl bg-black/5 dark:bg-white/10 border border-black/5 dark:border-white/10 text-sm font-medium outline-none focus:ring-2 ring-zinc-900/10 dark:ring-white/20 placeholder:text-zinc-400">
+                </div>
+                <div>
+                  <label class="text-xs font-semibold text-zinc-500 dark:text-zinc-400" for="recv-qty">Jumlah Item</label>
+                  <input id="recv-qty" type="number" value="1" min="1" class="mt-1.5 w-full h-11 px-3.5 rounded-xl bg-black/5 dark:bg-white/10 border border-black/5 dark:border-white/10 text-sm font-medium outline-none focus:ring-2 ring-zinc-900/10 dark:ring-white/20">
+                </div>
+              </div>
+              <div>
+                <label class="text-xs font-semibold text-zinc-500 dark:text-zinc-400" for="recv-note">Catatan</label>
+                <textarea id="recv-note" rows="2" placeholder="Kondisi barang, batch, no. surat jalan..." class="mt-1.5 w-full px-3.5 py-2.5 rounded-xl bg-black/5 dark:bg-white/10 border border-black/5 dark:border-white/10 text-sm font-medium outline-none focus:ring-2 ring-zinc-900/10 dark:ring-white/20 placeholder:text-zinc-400 resize-none"></textarea>
+              </div>
+            </div>
+            <button onclick="catatPenerimaan()" class="w-full h-11 rounded-xl bg-black text-white dark:bg-white dark:text-black text-sm font-bold flex items-center justify-center gap-2 hover:opacity-90 shadow-sm">
+              <i data-lucide="check-check" class="w-4 h-4"></i> Simpan &amp; Terbitkan GRN
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==================== VIEW 4: PENGIRIMAN ==================== -->
+      <div id="view-pengiriman" class="u-view space-y-6">
+        <div class="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <h1 class="text-2xl font-bold tracking-tight text-zinc-900 dark:text-white">Pengiriman Barang Keluar</h1>
+            <p class="text-xs text-zinc-500 dark:text-zinc-400">Packing, dispatch, serta serah terima ke mitra logistik kurir.</p>
+          </div>
+          <button onclick="toast('Form buat pengiriman baru dibuka','package-plus')" class="px-4 py-2 rounded-2xl bg-black text-white dark:bg-white dark:text-black text-xs font-semibold flex items-center gap-2 hover:opacity-90 shadow-sm">
+            <i data-lucide="package-plus" class="w-3.5 h-3.5"></i> Buat Pengiriman
+          </button>
+        </div>
+
+        <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
+          <div class="xl:col-span-2 space-y-6 min-w-0">
+            <!-- KPI strip -->
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+              <div class="glass-panel p-5 rounded-3xl">
+                <span class="text-xs font-medium text-zinc-500 dark:text-zinc-400">Total Pengiriman</span>
+                <p class="text-2xl font-bold tracking-tight text-zinc-900 dark:text-white mt-1">48</p>
+                <p class="text-[11px] text-zinc-500 dark:text-zinc-400">hari ini · 5.280 unit</p>
+              </div>
+              <div class="glass-panel p-5 rounded-3xl">
+                <span class="text-xs font-medium text-zinc-500 dark:text-zinc-400">Disiapkan</span>
+                <p class="text-2xl font-bold tracking-tight text-sky-600 dark:text-sky-400 font-mono mt-1">5</p>
+                <p class="text-[11px] text-zinc-500 dark:text-zinc-400">di picking zone</p>
+              </div>
+              <div class="glass-panel p-5 rounded-3xl">
+                <span class="text-xs font-medium text-zinc-500 dark:text-zinc-400">Dalam Perjalanan</span>
+                <p class="text-2xl font-bold tracking-tight text-amber-600 dark:text-amber-400 font-mono mt-1">12</p>
+                <p class="text-[11px] text-zinc-500 dark:text-zinc-400">bersama kurir mitra</p>
+              </div>
+              <div class="glass-panel p-5 rounded-3xl">
+                <span class="text-xs font-medium text-zinc-500 dark:text-zinc-400">Terkirim</span>
+                <p class="text-2xl font-bold tracking-tight text-emerald-600 dark:text-emerald-400 font-mono mt-1">31</p>
+                <p class="text-[11px] text-zinc-500 dark:text-zinc-400"><span class="text-emerald-600 dark:text-emerald-400 font-semibold">100%</span> on-time delivery</p>
+              </div>
+            </div>
+
+            <!-- Filter chips -->
+            <div class="glass-panel rounded-3xl p-4 flex items-center gap-2 overflow-x-auto">
+              <span class="text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider px-1">Filter:</span>
+              <button data-s="semua" onclick="filterPengiriman('semua')" class="ship-chip px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap bg-black text-white dark:bg-white dark:text-black">Semua</button>
+              <button data-s="disiapkan" onclick="filterPengiriman('disiapkan')" class="ship-chip px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap bg-black/5 dark:bg-white/10 text-zinc-600 dark:text-zinc-300">Disiapkan</button>
+              <button data-s="dikirim" onclick="filterPengiriman('dikirim')" class="ship-chip px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap bg-black/5 dark:bg-white/10 text-zinc-600 dark:text-zinc-300">Dikirim</button>
+              <button data-s="terkirim" onclick="filterPengiriman('terkirim')" class="ship-chip px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap bg-black/5 dark:bg-white/10 text-zinc-600 dark:text-zinc-300">Terkirim</button>
+            </div>
+
+            <!-- Shipping table -->
+            <div class="glass-panel rounded-3xl overflow-hidden">
+              <div class="overflow-x-auto">
+                <table class="w-full text-sm">
+                  <thead>
+                    <tr class="border-y border-black/5 dark:border-white/5 bg-black/[0.02] dark:bg-white/[0.02] text-[11px] font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">
+                      <th class="px-5 py-3 text-left">ID Pengiriman</th>
+                      <th class="px-5 py-3 text-left">Tujuan / Gudang</th>
+                      <th class="px-5 py-3 text-left">Ref. Order</th>
+                      <th class="px-5 py-3 text-left">Item</th>
+                      <th class="px-5 py-3 text-left">Status</th>
+                      <th class="px-5 py-3 text-right">Aksi</th>
+                    </tr>
+                  </thead>
+                  <tbody id="ship-tbody" class="divide-y divide-black/5 dark:divide-white/5 font-medium">
+                    <tr class="hover-row" data-status="terkirim">
+                      <td class="px-5 py-3.5 font-mono font-bold text-zinc-900 dark:text-white">SHP-90833</td>
+                      <td class="px-5 py-3.5"><p class="font-semibold text-zinc-800 dark:text-zinc-200">Mitra Retail Medan</p><p class="text-[11px] text-zinc-500">Medan, Sumatera Utara</p></td>
+                      <td class="px-5 py-3.5 font-mono text-zinc-600 dark:text-zinc-300">ORD-11398</td>
+                      <td class="px-5 py-3.5 font-mono text-zinc-900 dark:text-white">64</td>
+                      <td class="px-5 py-3.5"><span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold bg-emerald-500/15 text-emerald-700 dark:text-emerald-400"><span class="w-1.5 h-1.5 rounded-full bg-current"></span>Terkirim</span></td>
+                      <td class="px-5 py-3.5"><div class="flex items-center gap-1.5 justify-end"><button onclick="lacakPengiriman('SHP-90833')" class="p-1.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 text-zinc-500 dark:text-zinc-400"><i data-lucide="route" class="w-3.5 h-3.5"></i></button><button onclick="toast('Cetak label SHP-90833','printer')" class="p-1.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 text-zinc-500 dark:text-zinc-400"><i data-lucide="printer" class="w-3.5 h-3.5"></i></button></div></td>
+                    </tr>
+                    <tr class="hover-row" data-status="dikirim">
+                      <td class="px-5 py-3.5 font-mono font-bold text-zinc-900 dark:text-white">SHP-90852</td>
+                      <td class="px-5 py-3.5"><p class="font-semibold text-zinc-800 dark:text-zinc-200">Logistik Jalur Sutra · Cargo</p><p class="text-[11px] text-zinc-500">Gateway Cikarang, Jawa Barat</p></td>
+                      <td class="px-5 py-3.5 font-mono text-zinc-600 dark:text-zinc-300">ORD-11519</td>
+                      <td class="px-5 py-3.5 font-mono text-zinc-900 dark:text-white">96</td>
+                      <td class="px-5 py-3.5"><span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold bg-amber-500/15 text-amber-700 dark:text-amber-400"><span class="w-1.5 h-1.5 rounded-full bg-current"></span>Dikirim</span></td>
+                      <td class="px-5 py-3.5"><div class="flex items-center gap-1.5 justify-end"><button onclick="lacakPengiriman('SHP-90852')" class="p-1.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 text-zinc-500 dark:text-zinc-400"><i data-lucide="route" class="w-3.5 h-3.5"></i></button><button onclick="toast('Cetak label SHP-90852','printer')" class="p-1.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 text-zinc-500 dark:text-zinc-400"><i data-lucide="printer" class="w-3.5 h-3.5"></i></button></div></td>
+                    </tr>
+                    <tr class="hover-row" data-status="dikirim">
+                      <td class="px-5 py-3.5 font-mono font-bold text-zinc-900 dark:text-white">SHP-90847</td>
+                      <td class="px-5 py-3.5"><p class="font-semibold text-zinc-800 dark:text-zinc-200">Toko Sentosa</p><p class="text-[11px] text-zinc-500">Bandung, Jawa Barat</p></td>
+                      <td class="px-5 py-3.5 font-mono text-zinc-600 dark:text-zinc-300">ORD-11503</td>
+                      <td class="px-5 py-3.5 font-mono text-zinc-900 dark:text-white">18</td>
+                      <td class="px-5 py-3.5"><span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold bg-amber-500/15 text-amber-700 dark:text-amber-400"><span class="w-1.5 h-1.5 rounded-full bg-current"></span>Dikirim</span></td>
+                      <td class="px-5 py-3.5"><div class="flex items-center gap-1.5 justify-end"><button onclick="lacakPengiriman('SHP-90847')" class="p-1.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 text-zinc-500 dark:text-zinc-400"><i data-lucide="route" class="w-3.5 h-3.5"></i></button><button onclick="toast('Cetak label SHP-90847','printer')" class="p-1.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 text-zinc-500 dark:text-zinc-400"><i data-lucide="printer" class="w-3.5 h-3.5"></i></button></div></td>
+                    </tr>
+                    <tr class="hover-row" data-status="disiapkan">
+                      <td class="px-5 py-3.5 font-mono font-bold text-zinc-900 dark:text-white">SHP-90849</td>
+                      <td class="px-5 py-3.5"><p class="font-semibold text-zinc-800 dark:text-zinc-200">Gudang B · Surabaya</p><p class="text-[11px] text-zinc-500">Transfer internal · SJTI-8821</p></td>
+                      <td class="px-5 py-3.5 font-mono text-zinc-600 dark:text-zinc-300">TRF-8821</td>
+                      <td class="px-5 py-3.5 font-mono text-zinc-900 dark:text-white">26</td>
+                      <td class="px-5 py-3.5"><span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold bg-sky-500/15 text-sky-700 dark:text-sky-400"><span class="w-1.5 h-1.5 rounded-full bg-current"></span>Disiapkan</span></td>
+                      <td class="px-5 py-3.5"><div class="flex items-center gap-1.5 justify-end"><button onclick="lacakPengiriman('SHP-90849')" class="p-1.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 text-zinc-500 dark:text-zinc-400"><i data-lucide="route" class="w-3.5 h-3.5"></i></button><button onclick="toast('Cetak SJTI-8821','printer')" class="p-1.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 text-zinc-500 dark:text-zinc-400"><i data-lucide="printer" class="w-3.5 h-3.5"></i></button></div></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- In-transit side panel -->
+          <div class="space-y-6">
+            <div class="glass-panel rounded-3xl p-6 h-fit xl:sticky xl:top-32">
+              <div class="flex items-center justify-between mb-4">
+                <div>
+                  <h3 class="font-bold text-sm text-zinc-900 dark:text-white">Sedang Transit</h3>
+                  <p class="text-xs text-zinc-500 dark:text-zinc-400">Update kurir live via API logistik</p>
+                </div>
+                <span class="flex items-center gap-1.5 text-[10px] font-bold px-2 py-1 rounded-lg bg-sky-500/15 text-sky-700 dark:text-sky-400"><span class="w-1.5 h-1.5 rounded-full bg-sky-500 animate-pulse"></span>LIVE</span>
+              </div>
+              <div class="space-y-3">
+                <div class="rounded-2xl bg-black/[0.03] dark:bg-white/[0.04] p-3.5 flex items-center justify-between gap-3">
+                  <div class="min-w-0">
+                    <p class="text-xs font-bold text-zinc-900 dark:text-white">PKG-90852</p>
+                    <p class="text-[11px] text-zinc-500 truncate">Jakarta → Cikarang</p>
+                    <p class="text-[10px] font-mono text-zinc-400 mt-0.5">ETA: 14.20</p>
+                  </div>
+                  <span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-sky-500/15 text-sky-700 dark:text-sky-400">Dalam Rute</span>
+                </div>
+                <div class="rounded-2xl bg-black/[0.03] dark:bg-white/[0.04] p-3.5 flex items-center justify-between gap-3">
+                  <div class="min-w-0">
+                    <p class="text-xs font-bold text-zinc-900 dark:text-white">PKG-90847</p>
+                    <p class="text-[11px] text-zinc-500 truncate">Jakarta → Bandung</p>
+                    <p class="text-[10px] font-mono text-zinc-400 mt-0.5">ETA: 16.05</p>
+                  </div>
+                  <span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-amber-500/15 text-amber-700 dark:text-amber-400">Dilepas ke Kurir</span>
+                </div>
+                <div class="rounded-2xl bg-black/[0.03] dark:bg-white/[0.04] p-3.5 flex items-center justify-between gap-3">
+                  <div class="min-w-0">
+                    <p class="text-xs font-bold text-zinc-900 dark:text-white">PKG-90841</p>
+                    <p class="text-[11px] text-zinc-500 truncate">Jakarta → GMC Sudirman</p>
+                    <p class="text-[10px] font-mono text-zinc-400 mt-0.5">Tiba 11.48</p>
+                  </div>
+                  <span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-500/15 text-emerald-700 dark:text-emerald-400">Terkirim</span>
+                </div>
+              </div>
+              <div class="mt-5 pt-4 border-t border-black/5 dark:border-white/10">
+                <div class="flex items-center justify-between text-[11px] mb-1.5">
+                  <span class="text-zinc-500 dark:text-zinc-400">On-time delivery rate</span>
+                  <span class="font-bold text-zinc-900 dark:text-white">98,6%</span>
+                </div>
+                <div class="h-1.5 rounded-full bg-black/5 dark:bg-white/10"><div class="h-1.5 w-[98%] rounded-full bg-emerald-500"></div></div>
+              </div>
+            </div>
+            <div class="glass-panel rounded-3xl p-5">
+              <h4 class="font-bold text-sm text-zinc-900 dark:text-white mb-3 flex items-center gap-2"><i data-lucide="clipboard-list" class="w-4 h-4 text-zinc-400"></i> Antrean Packing</h4>
+              <div class="space-y-2 text-xs text-zinc-600 dark:text-zinc-300">
+                <div class="flex justify-between"><span>SHP-90854 · Toko Kayana</span><span class="font-mono text-zinc-500">22 item</span></div>
+                <div class="flex justify-between"><span>SHP-90855 · GMC Kelapa Gading</span><span class="font-mono text-zinc-500">9 item</span></div>
+                <div class="flex justify-between"><span>SHP-90856 · Overseas Cargo</span><span class="font-mono text-zinc-500">48 item</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==================== VIEW 5: KATEGORI ==================== -->
+      <div id="view-kategori" class="u-view space-y-6">
+        <div class="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <h1 class="text-2xl font-bold tracking-tight text-zinc-900 dark:text-white">Kategori &amp; Klasifikasi Material</h1>
+            <p class="text-xs text-zinc-500 dark:text-zinc-400">Bahan baku mentah, barang setengah jadi (WIP), dan produk jadi.</p>
+          </div>
+          <button onclick="tambahKategori()" class="px-4 py-2 rounded-2xl bg-black text-white dark:bg-white dark:text-black text-xs font-semibold flex items-center gap-2 hover:opacity-90 shadow-sm">
+            <i data-lucide="folder-plus" class="w-3.5 h-3.5"></i> Tambah Kategori
+          </button>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div class="glass-panel rounded-3xl p-5 space-y-3.5 hover:-translate-y-0.5 transition-transform">
+            <div class="flex items-start justify-between">
+              <div class="w-11 h-11 rounded-2xl bg-gradient-to-br from-zinc-300 to-zinc-500 dark:from-zinc-600 dark:to-zinc-800 grid place-items-center text-zinc-800 dark:text-zinc-200 shadow-sm"><i data-lucide="headphones" class="w-5 h-5"></i></div>
+              <span class="text-[10px] font-bold px-2 py-1 rounded-lg bg-black/5 dark:bg-white/10 text-zinc-600 dark:text-zinc-300">214 SKU</span>
+            </div>
+            <div>
+              <h3 class="font-bold text-sm text-zinc-900 dark:text-white">Aksesoris Audio</h3>
+              <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">Headset, earphone, microphone, dan aksesori suara.</p>
+            </div>
+            <button onclick="toast('Menampilkan 214 SKU pada Aksesoris Audio','tag')" class="text-xs font-semibold text-zinc-700 dark:text-zinc-300 hover:underline flex items-center gap-1">Lihat item <i data-lucide="chevron-right" class="w-3 h-3"></i></button>
+          </div>
+          <div class="glass-panel rounded-3xl p-5 space-y-3.5 hover:-translate-y-0.5 transition-transform">
+            <div class="flex items-start justify-between">
+              <div class="w-11 h-11 rounded-2xl bg-gradient-to-br from-amber-300 to-amber-500 dark:from-amber-500 dark:to-amber-700 grid place-items-center text-amber-800 dark:text-amber-100 shadow-sm"><i data-lucide="battery-charging" class="w-5 h-5"></i></div>
+              <span class="text-[10px] font-bold px-2 py-1 rounded-lg bg-black/5 dark:bg-white/10 text-zinc-600 dark:text-zinc-300">168 SKU</span>
+            </div>
+            <div>
+              <h3 class="font-bold text-sm text-zinc-900 dark:text-white">Perangkat Power</h3>
+              <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">Charger, power bank, kabel, dan adaptor daya.</p>
+            </div>
+            <button onclick="toast('Menampilkan 168 SKU pada Perangkat Power','tag')" class="text-xs font-semibold text-zinc-700 dark:text-zinc-300 hover:underline flex items-center gap-1">Lihat item <i data-lucide="chevron-right" class="w-3 h-3"></i></button>
+          </div>
+          <div class="glass-panel rounded-3xl p-5 space-y-3.5 hover:-translate-y-0.5 transition-transform">
+            <div class="flex items-start justify-between">
+              <div class="w-11 h-11 rounded-2xl bg-gradient-to-br from-sky-300 to-sky-500 dark:from-sky-500 dark:to-sky-700 grid place-items-center text-sky-800 dark:text-sky-100 shadow-sm"><i data-lucide="cpu" class="w-5 h-5"></i></div>
+              <span class="text-[10px] font-bold px-2 py-1 rounded-lg bg-black/5 dark:bg-white/10 text-zinc-600 dark:text-zinc-300">332 SKU</span>
+            </div>
+            <div>
+              <h3 class="font-bold text-sm text-zinc-900 dark:text-white">Komponen Komputer</h3>
+              <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">Prosesor, RAM, storage, dan kartu grafis.</p>
+            </div>
+            <button onclick="toast('Menampilkan 332 SKU pada Komponen Komputer','tag')" class="text-xs font-semibold text-zinc-700 dark:text-zinc-300 hover:underline flex items-center gap-1">Lihat item <i data-lucide="chevron-right" class="w-3 h-3"></i></button>
+          </div>
+          <div class="glass-panel rounded-3xl p-5 space-y-3.5 hover:-translate-y-0.5 transition-transform">
+            <div class="flex items-start justify-between">
+              <div class="w-11 h-11 rounded-2xl bg-gradient-to-br from-emerald-300 to-emerald-500 dark:from-emerald-500 dark:to-emerald-700 grid place-items-center text-emerald-800 dark:text-emerald-100 shadow-sm"><i data-lucide="keyboard" class="w-5 h-5"></i></div>
+              <span class="text-[10px] font-bold px-2 py-1 rounded-lg bg-black/5 dark:bg-white/10 text-zinc-600 dark:text-zinc-300">96 SKU</span>
+            </div>
+            <div>
+              <h3 class="font-bold text-sm text-zinc-900 dark:text-white">Perangkat Input</h3>
+              <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">Keyboard, mouse, dan perangkat penunjuk.</p>
+            </div>
+            <button onclick="toast('Menampilkan 96 SKU pada Perangkat Input','tag')" class="text-xs font-semibold text-zinc-700 dark:text-zinc-300 hover:underline flex items-center gap-1">Lihat item <i data-lucide="chevron-right" class="w-3 h-3"></i></button>
+          </div>
+          <div class="glass-panel rounded-3xl p-5 space-y-3.5 hover:-translate-y-0.5 transition-transform">
+            <div class="flex items-start justify-between">
+              <div class="w-11 h-11 rounded-2xl bg-gradient-to-br from-violet-300 to-violet-500 dark:from-violet-500 dark:to-violet-700 grid place-items-center text-violet-800 dark:text-violet-100 shadow-sm"><i data-lucide="monitor" class="w-5 h-5"></i></div>
+              <span class="text-[10px] font-bold px-2 py-1 rounded-lg bg-black/5 dark:bg-white/10 text-zinc-600 dark:text-zinc-300">74 SKU</span>
+            </div>
+            <div>
+              <h3 class="font-bold text-sm text-zinc-900 dark:text-white">Perangkat Display</h3>
+              <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">Monitor, projector, dan layar digital.</p>
+            </div>
+            <button onclick="toast('Menampilkan 74 SKU pada Perangkat Display','tag')" class="text-xs font-semibold text-zinc-700 dark:text-zinc-300 hover:underline flex items-center gap-1">Lihat item <i data-lucide="chevron-right" class="w-3 h-3"></i></button>
+          </div>
+          <div class="glass-panel rounded-3xl p-5 space-y-3.5 hover:-translate-y-0.5 transition-transform">
+            <div class="flex items-start justify-between">
+              <div class="w-11 h-11 rounded-2xl bg-gradient-to-br from-rose-300 to-rose-500 dark:from-rose-500 dark:to-rose-700 grid place-items-center text-rose-800 dark:text-rose-100 shadow-sm"><i data-lucide="boxes" class="w-5 h-5"></i></div>
+              <span class="text-[10px] font-bold px-2 py-1 rounded-lg bg-black/5 dark:bg-white/10 text-zinc-600 dark:text-zinc-300">958 SKU</span>
+            </div>
+            <div>
+              <h3 class="font-bold text-sm text-zinc-900 dark:text-white">Bahan Baku &amp; WIP</h3>
+              <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">Komponen mentah dan barang setengah jadi produksi.</p>
+            </div>
+            <button onclick="toast('Menampilkan 958 SKU pada Bahan Baku & WIP','tag')" class="text-xs font-semibold text-zinc-700 dark:text-zinc-300 hover:underline flex items-center gap-1">Lihat item <i data-lucide="chevron-right" class="w-3 h-3"></i></button>
+          </div>
+
+          <button onclick="tambahKategori()" class="rounded-3xl border-2 border-dashed border-zinc-300 dark:border-zinc-700 p-5 grid place-items-center text-center hover:border-zinc-500 dark:hover:border-zinc-400 transition-colors group min-h-[170px]">
+            <div>
+              <div class="w-11 h-11 rounded-2xl bg-black/5 dark:bg-white/10 grid place-items-center text-zinc-500 dark:text-zinc-400 mx-auto mb-2 group-hover:bg-black/10 dark:group-hover:bg-white/15 transition-colors"><i data-lucide="plus" class="w-5 h-5"></i></div>
+              <p class="text-sm font-bold text-zinc-700 dark:text-zinc-300">Tambah Kategori</p>
+              <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">Buat grup material baru</p>
+            </div>
+          </button>
+        </div>
+
+        <!-- Items per category -->
+        <div class="glass-panel rounded-3xl overflow-hidden">
+          <div class="p-5 pb-4 flex items-center justify-between">
+            <div>
+              <h3 class="font-bold text-sm text-zinc-900 dark:text-white">Contoh Item per Kategori</h3>
+              <p class="text-xs text-zinc-500 dark:text-zinc-400">Pencacahan cepat sampel SKU aktif tiap grup.</p>
+            </div>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+              <thead>
+                <tr class="border-y border-black/5 dark:border-white/5 bg-black/[0.02] dark:bg-white/[0.02] text-[11px] font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">
+                  <th class="px-5 py-3 text-left">Kategori</th>
+                  <th class="px-5 py-3 text-left">Nama Barang</th>
+                  <th class="px-5 py-3 text-left">SKU</th>
+                  <th class="px-5 py-3 text-left">Stok</th>
+                  <th class="px-5 py-3 text-left">Status</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-black/5 dark:divide-white/5 font-medium">
+                <tr class="hover-row">
+                  <td class="px-5 py-3.5"><span class="px-2.5 py-1 rounded-full text-[11px] font-bold bg-zinc-500/15 text-zinc-700 dark:text-zinc-300">Aksesoris Audio</span></td>
+                  <td class="px-5 py-3.5 font-semibold text-zinc-800 dark:text-zinc-200">AirGlass Headset Max</td>
+                  <td class="px-5 py-3.5 font-mono text-zinc-500">SKU-AUD-892</td>
+                  <td class="px-5 py-3.5 font-mono text-zinc-900 dark:text-white">428 unit</td>
+                  <td class="px-5 py-3.5"><span class="text-[11px] font-bold text-emerald-600 dark:text-emerald-400">Aktif</span></td>
+                </tr>
+                <tr class="hover-row">
+                  <td class="px-5 py-3.5"><span class="px-2.5 py-1 rounded-full text-[11px] font-bold bg-amber-500/15 text-amber-700 dark:text-amber-400">Perangkat Power</span></td>
+                  <td class="px-5 py-3.5 font-semibold text-zinc-800 dark:text-zinc-200">Wireless Charger 65W Pro</td>
+                  <td class="px-5 py-3.5 font-mono text-zinc-500">SKU-PWR-104</td>
+                  <td class="px-5 py-3.5 font-mono text-amber-600 dark:text-amber-400">12 unit</td>
+                  <td class="px-5 py-3.5"><span class="text-[11px] font-bold text-amber-600 dark:text-amber-400">Menipis</span></td>
+                </tr>
+                <tr class="hover-row">
+                  <td class="px-5 py-3.5"><span class="px-2.5 py-1 rounded-full text-[11px] font-bold bg-sky-500/15 text-sky-700 dark:text-sky-400">Komponen Komputer</span></td>
+                  <td class="px-5 py-3.5 font-semibold text-zinc-800 dark:text-zinc-200">SSD NVMe 1TB Gen4</td>
+                  <td class="px-5 py-3.5 font-mono text-zinc-500">SKU-DGT-331</td>
+                  <td class="px-5 py-3.5 font-mono text-rose-600 dark:text-rose-400">0 unit</td>
+                  <td class="px-5 py-3.5"><span class="text-[11px] font-bold text-rose-600 dark:text-rose-400">Nonaktif</span></td>
+                </tr>
+                <tr class="hover-row">
+                  <td class="px-5 py-3.5"><span class="px-2.5 py-1 rounded-full text-[11px] font-bold bg-violet-500/15 text-violet-700 dark:text-violet-400">Perangkat Display</span></td>
+                  <td class="px-5 py-3.5 font-semibold text-zinc-800 dark:text-zinc-200">LumenView 27" 4K HDR</td>
+                  <td class="px-5 py-3.5 font-mono text-zinc-500">SKU-MTR-118</td>
+                  <td class="px-5 py-3.5 font-mono text-amber-600 dark:text-amber-400">7 unit</td>
+                  <td class="px-5 py-3.5"><span class="text-[11px] font-bold text-amber-600 dark:text-amber-400">Menipis</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==================== VIEW 6: PEMASOK ==================== -->
+      <div id="view-pemasok" class="u-view space-y-6">
+        <div class="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <h1 class="text-2xl font-bold tracking-tight text-zinc-900 dark:text-white">Direktori Vendor &amp; Pemasok</h1>
+            <p class="text-xs text-zinc-500 dark:text-zinc-400">Kontrak supplier resmi, SLA pengiriman, dan rating mutu bahan.</p>
+          </div>
+          <button onclick="undangPemasok()" class="px-4 py-2 rounded-2xl bg-black text-white dark:bg-white dark:text-black text-xs font-semibold flex items-center gap-2 hover:opacity-90 shadow-sm">
+            <i data-lucide="user-plus" class="w-3.5 h-3.5"></i> Undang Pemasok
+          </button>
+        </div>
+
+        <!-- KPI strip -->
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          <div class="glass-panel p-5 rounded-3xl space-y-3">
+            <div class="flex justify-between items-start">
+              <span class="text-xs font-medium text-zinc-500 dark:text-zinc-400">Total Pemasok</span>
+              <div class="p-2 rounded-2xl bg-black/5 dark:bg-white/5 text-zinc-800 dark:text-zinc-200"><i data-lucide="users" class="w-4 h-4"></i></div>
+            </div>
+            <p class="text-2xl font-bold tracking-tight text-zinc-900 dark:text-white">46</p>
+            <p class="text-[11px] text-zinc-500 dark:text-zinc-400"><span class="text-emerald-600 dark:text-emerald-400 font-semibold">+3</span> onboarding kuartal ini</p>
+          </div>
+          <div class="glass-panel p-5 rounded-3xl space-y-3">
+            <div class="flex justify-between items-start">
+              <span class="text-xs font-medium text-zinc-500 dark:text-zinc-400">Pemasok Aktif</span>
+              <div class="p-2 rounded-2xl bg-emerald-500/15 text-emerald-600 dark:text-emerald-400"><i data-lucide="badge-check" class="w-4 h-4"></i></div>
+            </div>
+            <p class="text-2xl font-bold tracking-tight text-zinc-900 dark:text-white">38</p>
+            <p class="text-[11px] text-zinc-500 dark:text-zinc-400">punya kontrak berlaku</p>
+          </div>
+          <div class="glass-panel p-5 rounded-3xl space-y-3">
+            <div class="flex justify-between items-start">
+              <span class="text-xs font-medium text-zinc-500 dark:text-zinc-400">Outstanding PO</span>
+              <div class="p-2 rounded-2xl bg-amber-500/15 text-amber-600 dark:text-amber-400"><i data-lucide="file-text" class="w-4 h-4"></i></div>
+            </div>
+            <p class="text-2xl font-bold tracking-tight text-amber-600 dark:text-amber-400 font-mono">9 PO</p>
+            <p class="text-[11px] text-zinc-500 dark:text-zinc-400">terbuka &gt; 7 hari</p>
+          </div>
+          <div class="glass-panel p-5 rounded-3xl space-y-3">
+            <div class="flex justify-between items-start">
+              <span class="text-xs font-medium text-zinc-500 dark:text-zinc-400">Nilai Pembelian 2026</span>
+              <div class="p-2 rounded-2xl bg-black/5 dark:bg-white/5 text-zinc-800 dark:text-zinc-200"><i data-lucide="banknote" class="w-4 h-4"></i></div>
+            </div>
+            <p class="text-2xl font-bold tracking-tight text-zinc-900 dark:text-white">Rp 8,4 M</p>
+            <p class="text-[11px] text-zinc-500 dark:text-zinc-400">dari 142 PO selesai</p>
+          </div>
+        </div>
+
+        <!-- Suppliers table -->
+        <div class="glass-panel rounded-3xl overflow-hidden">
+          <div class="p-5 pb-4 flex items-center justify-between">
+            <div>
+              <h3 class="font-bold text-sm text-zinc-900 dark:text-white">Daftar Pemasok &amp; SLA</h3>
+              <p class="text-xs text-zinc-500 dark:text-zinc-400">Rating otomatis dari performa OTD per kontrak.</p>
+            </div>
+            <div class="flex items-center gap-2">
+              <button data-s="semua" onclick="filterPemasok('semua')" class="sup-chip px-3 py-1.5 rounded-xl text-xs font-semibold bg-black text-white dark:bg-white dark:text-black">Semua</button>
+              <button data-s="aktif" onclick="filterPemasok('aktif')" class="sup-chip px-3 py-1.5 rounded-xl text-xs font-semibold bg-black/5 dark:bg-white/10 text-zinc-600 dark:text-zinc-300">Aktif</button>
+              <button data-s="nonaktif" onclick="filterPemasok('nonaktif')" class="sup-chip px-3 py-1.5 rounded-xl text-xs font-semibold bg-black/5 dark:bg-white/10 text-zinc-600 dark:text-zinc-300">Nonaktif</button>
+            </div>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+              <thead>
+                <tr class="border-y border-black/5 dark:border-white/5 bg-black/[0.02] dark:bg-white/[0.02] text-[11px] font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">
+                  <th class="px-5 py-3 text-left">Pemasok</th>
+                  <th class="px-5 py-3 text-left">Kontak</th>
+                  <th class="px-5 py-3 text-left">Kategori</th>
+                  <th class="px-5 py-3 text-left">Nilai Pembelian</th>
+                  <th class="px-5 py-3 text-left">Lead Time</th>
+                  <th class="px-5 py-3 text-left">Status</th>
+                  <th class="px-5 py-3 text-right">Aksi</th>
+                </tr>
+              </thead>
+              <tbody id="sup-tbody" class="divide-y divide-black/5 dark:divide-white/5 font-medium">
+                <tr class="hover-row" data-status="aktif">
+                  <td class="px-5 py-3.5"><div class="flex items-center gap-3"><div class="w-9 h-9 rounded-xl bg-gradient-to-br from-zinc-700 to-zinc-900 dark:from-zinc-200 dark:to-zinc-500 text-white dark:text-zinc-900 grid place-items-center text-xs font-black">SE</div><div><p class="font-bold text-zinc-900 dark:text-white">PT Sinar Elektronik</p><p class="text-[11px] text-zinc-500">Importir &amp; distributor</p></div></div></td>
+                  <td class="px-5 py-3.5"><p class="text-xs text-zinc-700 dark:text-zinc-200">sinar@stele.id</p><p class="text-[10px] font-mono text-zinc-400">+62 21 5089 2210</p></td>
+                  <td class="px-5 py-3.5 text-zinc-600 dark:text-zinc-300">Komponen Komputer</td>
+                  <td class="px-5 py-3.5 font-mono text-zinc-900 dark:text-white">Rp 2,1 M</td>
+                  <td class="px-5 py-3.5"><span class="px-2.5 py-1 rounded-full text-[11px] font-bold bg-emerald-500/15 text-emerald-700 dark:text-emerald-400">7 hari</span></td>
+                  <td class="px-5 py-3.5"><span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold bg-emerald-500/15 text-emerald-700 dark:text-emerald-400"><span class="w-1.5 h-1.5 rounded-full bg-current"></span>Aktif</span></td>
+                  <td class="px-5 py-3.5"><div class="flex items-center gap-1.5 justify-end"><button onclick="toast('Buka profil PT Sinar Elektronik','building-2')" class="p-1.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 text-zinc-500 dark:text-zinc-400"><i data-lucide="building-2" class="w-3.5 h-3.5"></i></button><button onclick="toast('Buat PO untuk PT Sinar Elektronik','file-plus')" class="p-1.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 text-zinc-500 dark:text-zinc-400"><i data-lucide="file-plus" class="w-3.5 h-3.5"></i></button></div></td>
+                </tr>
+                <tr class="hover-row" data-status="aktif">
+                  <td class="px-5 py-3.5"><div class="flex items-center gap-3"><div class="w-9 h-9 rounded-xl bg-gradient-to-br from-emerald-600 to-emerald-800 dark:from-emerald-300 dark:to-emerald-500 text-white dark:text-emerald-900 grid place-items-center text-xs font-black">MJ</div><div><p class="font-bold text-zinc-900 dark:text-white">CV Mekar Jaya Logistik</p><p class="text-[11px] text-zinc-500">3PL &amp; freight forwarder</p></div></div></td>
+                  <td class="px-5 py-3.5"><p class="text-xs text-zinc-700 dark:text-zinc-200">ops@mekarjaya.co.id</p><p class="text-[10px] font-mono text-zinc-400">+62 31 7058 998</p></td>
+                  <td class="px-5 py-3.5 text-zinc-600 dark:text-zinc-300">Material WIP</td>
+                  <td class="px-5 py-3.5 font-mono text-zinc-900 dark:text-white">Rp 980 Jt</td>
+                  <td class="px-5 py-3.5"><span class="px-2.5 py-1 rounded-full text-[11px] font-bold bg-emerald-500/15 text-emerald-700 dark:text-emerald-400">5 hari</span></td>
+                  <td class="px-5 py-3.5"><span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold bg-emerald-500/15 text-emerald-700 dark:text-emerald-400"><span class="w-1.5 h-1.5 rounded-full bg-current"></span>Aktif</span></td>
+                  <td class="px-5 py-3.5"><div class="flex items-center gap-1.5 justify-end"><button onclick="toast('Buka profil CV Mekar Jaya Logistik','building-2')" class="p-1.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 text-zinc-500 dark:text-zinc-400"><i data-lucide="building-2" class="w-3.5 h-3.5"></i></button><button onclick="toast('Buat PO untuk CV Mekar Jaya Logistik','file-plus')" class="p-1.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 text-zinc-500 dark:text-zinc-400"><i data-lucide="file-plus" class="w-3.5 h-3.5"></i></button></div></td>
+                </tr>
+                <tr class="hover-row" data-status="aktif">
+                  <td class="px-5 py-3.5"><div class="flex items-center gap-3"><div class="w-9 h-9 rounded-xl bg-gradient-to-br from-sky-600 to-sky-800 dark:from-sky-300 dark:to-sky-500 text-white dark:text-sky-900 grid place-items-center text-xs font-black">BN</div><div><p class="font-bold text-zinc-900 dark:text-white">PT Baja Nusantara Steel</p><p class="text-[11px] text-zinc-500">Pabrikan material logam</p></div></div></td>
+                  <td class="px-5 py-3.5"><p class="text-xs text-zinc-700 dark:text-zinc-200">sales@bajanusantara.co.id</p><p class="text-[10px] font-mono text-zinc-400">+62 21 2333 4455</p></td>
+                  <td class="px-5 py-3.5 text-zinc-600 dark:text-zinc-300">Bahan Baku</td>
+                  <td class="px-5 py-3.5 font-mono text-zinc-900 dark:text-white">Rp 1,6 M</td>
+                  <td class="px-5 py-3.5"><span class="px-2.5 py-1 rounded-full text-[11px] font-bold bg-amber-500/15 text-amber-700 dark:text-amber-400">14 hari</span></td>
+                  <td class="px-5 py-3.5"><span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold bg-emerald-500/15 text-emerald-700 dark:text-emerald-400"><span class="w-1.5 h-1.5 rounded-full bg-current"></span>Aktif</span></td>
+                  <td class="px-5 py-3.5"><div class="flex items-center gap-1.5 justify-end"><button onclick="toast('Buka profil PT Baja Nusantara Steel','building-2')" class="p-1.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 text-zinc-500 dark:text-zinc-400"><i data-lucide="building-2" class="w-3.5 h-3.5"></i></button><button onclick="toast('Buat PO untuk PT Baja Nusantara Steel','file-plus')" class="p-1.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 text-zinc-500 dark:text-zinc-400"><i data-lucide="file-plus" class="w-3.5 h-3.5"></i></button></div></td>
+                </tr>
+                <tr class="hover-row" data-status="nonaktif">
+                  <td class="px-5 py-3.5"><div class="flex items-center gap-3"><div class="w-9 h-9 rounded-xl bg-gradient-to-br from-zinc-400 to-zinc-600 dark:from-zinc-400 dark:to-zinc-600 text-white grid place-items-center text-xs font-black">TM</div><div><p class="font-bold text-zinc-900 dark:text-white">Toko Grosir Makmur</p><p class="text-[11px] text-zinc-500">Grosir &amp; reseller</p></div></div></td>
+                  <td class="px-5 py-3.5"><p class="text-xs text-zinc-700 dark:text-zinc-200">admin@tg-makmur.com</p><p class="text-[10px] font-mono text-zinc-400">+62 22 4811 230</p></td>
+                  <td class="px-5 py-3.5 text-zinc-600 dark:text-zinc-300">Perangkat Input</td>
+                  <td class="px-5 py-3.5 font-mono text-zinc-900 dark:text-white">Rp 340 Jt</td>
+                  <td class="px-5 py-3.5"><span class="px-2.5 py-1 rounded-full text-[11px] font-bold bg-zinc-500/15 text-zinc-600 dark:text-zinc-300">3 hari</span></td>
+                  <td class="px-5 py-3.5"><span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold bg-zinc-500/15 text-zinc-600 dark:text-zinc-300"><span class="w-1.5 h-1.5 rounded-full bg-current"></span>Nonaktif</span></td>
+                  <td class="px-5 py-3.5"><div class="flex items-center gap-1.5 justify-end"><button onclick="toast('Buka profil Toko Grosir Makmur','building-2')" class="p-1.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 text-zinc-500 dark:text-zinc-400"><i data-lucide="building-2" class="w-3.5 h-3.5"></i></button><button onclick="toast('Aktifkan kembali Toko Grosir Makmur','rotate-ccw')" class="p-1.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 text-zinc-500 dark:text-zinc-400"><i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i></button></div></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==================== VIEW 7: GUDANG ==================== -->
+      <div id="view-gudang" class="u-view space-y-6">
+        <div class="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <h1 class="text-2xl font-bold tracking-tight text-zinc-900 dark:text-white">Master Lokasi &amp; Denah Gudang</h1>
+            <p class="text-xs text-zinc-500 dark:text-zinc-400">Kapasitas, utilisasi area, dan status operasional tiap cabang.</p>
+          </div>
+          <button onclick="tambahGudang()" class="px-4 py-2 rounded-2xl bg-black text-white dark:bg-white dark:text-black text-xs font-semibold flex items-center gap-2 hover:opacity-90 shadow-sm">
+            <i data-lucide="plus" class="w-3.5 h-3.5"></i> Tambah Gudang
+          </button>
+        </div>
+
+        <!-- KPI strip -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div class="glass-panel p-5 rounded-3xl space-y-3">
+            <div class="flex justify-between items-start">
+              <span class="text-xs font-medium text-zinc-500 dark:text-zinc-400">Total Gudang</span>
+              <div class="p-2 rounded-2xl bg-black/5 dark:bg-white/5 text-zinc-800 dark:text-zinc-200"><i data-lucide="warehouse" class="w-4 h-4"></i></div>
+            </div>
+            <p class="text-2xl font-bold tracking-tight text-zinc-900 dark:text-white">4 Lokasi</p>
+            <p class="text-[11px] text-zinc-500 dark:text-zinc-400">3 kota · 1 gateway cargo</p>
+          </div>
+          <div class="glass-panel p-5 rounded-3xl space-y-3">
+            <div class="flex justify-between items-start">
+              <span class="text-xs font-medium text-zinc-500 dark:text-zinc-400">Total Kapasitas</span>
+              <div class="p-2 rounded-2xl bg-black/5 dark:bg-white/5 text-zinc-800 dark:text-zinc-200"><i data-lucide="ruler" class="w-4 h-4"></i></div>
+            </div>
+            <p class="text-2xl font-bold tracking-tight text-zinc-900 dark:text-white">18.000 m²</p>
+            <p class="text-[11px] text-zinc-500 dark:text-zinc-400">area penyimpanan aktif</p>
+          </div>
+          <div class="glass-panel p-5 rounded-3xl space-y-3">
+            <div class="flex justify-between items-start">
+              <span class="text-xs font-medium text-zinc-500 dark:text-zinc-400">Kapasitas Terpakai</span>
+              <div class="p-2 rounded-2xl bg-amber-500/15 text-amber-600 dark:text-amber-400"><i data-lucide="gauge" class="w-4 h-4"></i></div>
+            </div>
+            <p class="text-2xl font-bold tracking-tight text-amber-600 dark:text-amber-400 font-mono">12.440 m² · 69%</p>
+            <p class="text-[11px] text-zinc-500 dark:text-zinc-400">sisa 5.560 m² masih kosong</p>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
+          <div class="xl:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-4 min-w-0">
+            <div class="glass-panel rounded-3xl p-5 space-y-4">
+              <div class="flex items-start justify-between gap-3">
+                <div class="flex items-center gap-3">
+                  <div class="w-10 h-10 rounded-2xl bg-gradient-to-br from-zinc-600 to-zinc-900 dark:from-zinc-200 dark:to-zinc-600 text-white dark:text-zinc-900 grid place-items-center font-black text-sm">A</div>
+                  <div>
+                    <p class="font-bold text-sm text-zinc-900 dark:text-white">Gudang A</p>
+                    <p class="text-[11px] text-zinc-500 dark:text-zinc-400">Jakarta Sentral · KSH-JKT</p>
+                  </div>
+                </div>
+                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/15 text-emerald-700 dark:text-emerald-400"><span class="w-1.5 h-1.5 rounded-full bg-current"></span>Aktif</span>
+              </div>
+              <div>
+                <div class="flex items-center justify-between text-[11px] mb-1.5">
+                  <span class="text-zinc-500 dark:text-zinc-400">Kapasitas terpakai</span>
+                  <span class="font-bold text-zinc-900 dark:text-white">6.000 / 8.400 m²</span>
+                </div>
+                <div class="h-1.5 rounded-full bg-black/5 dark:bg-white/10"><div class="h-1.5 w-[72%] rounded-full bg-amber-500"></div></div>
+                <p class="text-[11px] text-zinc-500 mt-2">842 SKU · 124 rak aktif</p>
+              </div>
+              <button onclick="toast('Kontrol Gudang A dibuka','sliders-horizontal')" class="text-xs font-semibold text-zinc-700 dark:text-zinc-300 hover:underline flex items-center gap-1">Kelola denah <i data-lucide="chevron-right" class="w-3 h-3"></i></button>
+            </div>
+            <div class="glass-panel rounded-3xl p-5 space-y-4">
+              <div class="flex items-start justify-between gap-3">
+                <div class="flex items-center gap-3">
+                  <div class="w-10 h-10 rounded-2xl bg-gradient-to-br from-emerald-500 to-emerald-800 dark:from-emerald-300 dark:to-emerald-500 text-white dark:text-emerald-900 grid place-items-center font-black text-sm">B</div>
+                  <div>
+                    <p class="font-bold text-sm text-zinc-900 dark:text-white">Gudang B</p>
+                    <p class="text-[11px] text-zinc-500 dark:text-zinc-400">Surabaya Timur · KSH-SBY</p>
+                  </div>
+                </div>
+                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/15 text-emerald-700 dark:text-emerald-400"><span class="w-1.5 h-1.5 rounded-full bg-current"></span>Aktif</span>
+              </div>
+              <div>
+                <div class="flex items-center justify-between text-[11px] mb-1.5">
+                  <span class="text-zinc-500 dark:text-zinc-400">Kapasitas terpakai</span>
+                  <span class="font-bold text-zinc-900 dark:text-white">3.100 / 4.000 m²</span>
+                </div>
+                <div class="h-1.5 rounded-full bg-black/5 dark:bg-white/10"><div class="h-1.5 w-[78%] rounded-full bg-amber-500"></div></div>
+                <p class="text-[11px] text-zinc-500 mt-2">516 SKU · 61 rak aktif</p>
+              </div>
+              <button onclick="toast('Kontrol Gudang B dibuka','sliders-horizontal')" class="text-xs font-semibold text-zinc-700 dark:text-zinc-300 hover:underline flex items-center gap-1">Kelola denah <i data-lucide="chevron-right" class="w-3 h-3"></i></button>
+            </div>
+            <div class="glass-panel rounded-3xl p-5 space-y-4">
+              <div class="flex items-start justify-between gap-3">
+                <div class="flex items-center gap-3">
+                  <div class="w-10 h-10 rounded-2xl bg-gradient-to-br from-sky-500 to-sky-800 dark:from-sky-300 dark:to-sky-500 text-white dark:text-sky-900 grid place-items-center font-black text-sm">C</div>
+                  <div>
+                    <p class="font-bold text-sm text-zinc-900 dark:text-white">Gudang C</p>
+                    <p class="text-[11px] text-zinc-500 dark:text-zinc-400">Bandung Kopo · KSH-BDG</p>
+                  </div>
+                </div>
+                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/15 text-emerald-700 dark:text-emerald-400"><span class="w-1.5 h-1.5 rounded-full bg-current"></span>Aktif</span>
+              </div>
+              <div>
+                <div class="flex items-center justify-between text-[11px] mb-1.5">
+                  <span class="text-zinc-500 dark:text-zinc-400">Kapasitas terpakai</span>
+                  <span class="font-bold text-zinc-900 dark:text-white">1.900 / 3.200 m²</span>
+                </div>
+                <div class="h-1.5 rounded-full bg-black/5 dark:bg-white/10"><div class="h-1.5 w-[59%] rounded-full bg-emerald-500"></div></div>
+                <p class="text-[11px] text-zinc-500 mt-2">289 SKU · 42 rak aktif</p>
+              </div>
+              <button onclick="toast('Kontrol Gudang C dibuka','sliders-horizontal')" class="text-xs font-semibold text-zinc-700 dark:text-zinc-300 hover:underline flex items-center gap-1">Kelola denah <i data-lucide="chevron-right" class="w-3 h-3"></i></button>
+            </div>
+            <div class="glass-panel rounded-3xl p-5 space-y-4">
+              <div class="flex items-start justify-between gap-3">
+                <div class="flex items-center gap-3">
+                  <div class="w-10 h-10 rounded-2xl bg-gradient-to-br from-violet-500 to-violet-800 dark:from-violet-300 dark:to-violet-500 text-white dark:text-violet-900 grid place-items-center font-black text-sm">D</div>
+                  <div>
+                    <p class="font-bold text-sm text-zinc-900 dark:text-white">Gudang D</p>
+                    <p class="text-[11px] text-zinc-500 dark:text-zinc-400">Gateway Medan · KSH-MDN</p>
+                  </div>
+                </div>
+                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/15 text-emerald-700 dark:text-emerald-400"><span class="w-1.5 h-1.5 rounded-full bg-current"></span>Aktif</span>
+              </div>
+              <div>
+                <div class="flex items-center justify-between text-[11px] mb-1.5">
+                  <span class="text-zinc-500 dark:text-zinc-400">Kapasitas terpakai</span>
+                  <span class="font-bold text-zinc-900 dark:text-white">1.440 / 2.400 m²</span>
+                </div>
+                <div class="h-1.5 rounded-full bg-black/5 dark:bg-white/10"><div class="h-1.5 w-[60%] rounded-full bg-emerald-500"></div></div>
+                <p class="text-[11px] text-zinc-500 mt-2">195 SKU · 28 rak aktif</p>
+              </div>
+              <button onclick="toast('Kontrol Gudang D dibuka','sliders-horizontal')" class="text-xs font-semibold text-zinc-700 dark:text-zinc-300 hover:underline flex items-center gap-1">Kelola denah <i data-lucide="chevron-right" class="w-3 h-3"></i></button>
+            </div>
+          </div>
+
+          <!-- Capacity donut -->
+          <div class="glass-panel rounded-3xl p-6 h-fit xl:sticky xl:top-32 space-y-4">
+            <div class="flex items-center justify-between">
+              <div>
+                <h3 class="font-bold text-sm text-zinc-900 dark:text-white">Distribusi Kapasitas</h3>
+                <p class="text-xs text-zinc-500 dark:text-zinc-400">Utilisasi ruang per lokasi</p>
+              </div>
+              <span class="text-[10px] font-bold px-2 py-1 rounded-lg bg-black/5 dark:bg-white/10 text-zinc-600 dark:text-zinc-300">Feb 2026</span>
+            </div>
+            <div class="relative w-52 h-52 mx-auto">
+              <svg viewBox="0 0 160 160" class="w-full h-full -rotate-90">
+                <circle cx="80" cy="80" r="56" fill="none" stroke="currentColor" stroke-opacity="0.08" stroke-width="14"/>
+                <circle cx="80" cy="80" r="56" fill="none" stroke="#52525b" stroke-width="14" stroke-dasharray="117.29 351.86" stroke-dashoffset="0" stroke-linecap="butt"/>
+                <circle cx="80" cy="80" r="56" fill="none" stroke="#10b981" stroke-width="14" stroke-dasharray="60.6 351.86" stroke-dashoffset="-117.29" stroke-linecap="butt"/>
+                <circle cx="80" cy="80" r="56" fill="none" stroke="#0ea5e9" stroke-width="14" stroke-dasharray="37.14 351.86" stroke-dashoffset="-177.89" stroke-linecap="butt"/>
+                <circle cx="80" cy="80" r="56" fill="none" stroke="#f59e0b" stroke-width="14" stroke-dasharray="28.15 351.86" stroke-dashoffset="-215.03" stroke-linecap="butt"/>
+              </svg>
+              <div class="absolute inset-0 grid place-items-center">
+                <div class="text-center">
+                  <p class="text-3xl font-black text-zinc-900 dark:text-white">69%</p>
+                  <p class="text-[10px] font-semibold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">Terisi</p>
+                </div>
+              </div>
+            </div>
+            <div class="space-y-2.5">
+              <div class="flex items-center justify-between text-xs"><span class="flex items-center gap-2 text-zinc-600 dark:text-zinc-300"><span class="w-2.5 h-2.5 rounded-full bg-[#52525b]"></span>Gudang A · Jakarta</span><span class="font-bold font-mono text-zinc-900 dark:text-white">72%</span></div>
+              <div class="flex items-center justify-between text-xs"><span class="flex items-center gap-2 text-zinc-600 dark:text-zinc-300"><span class="w-2.5 h-2.5 rounded-full bg-[#10b981]"></span>Gudang B · Surabaya</span><span class="font-bold font-mono text-zinc-900 dark:text-white">78%</span></div>
+              <div class="flex items-center justify-between text-xs"><span class="flex items-center gap-2 text-zinc-600 dark:text-zinc-300"><span class="w-2.5 h-2.5 rounded-full bg-[#0ea5e9]"></span>Gudang C · Bandung</span><span class="font-bold font-mono text-zinc-900 dark:text-white">59%</span></div>
+              <div class="flex items-center justify-between text-xs"><span class="flex items-center gap-2 text-zinc-600 dark:text-zinc-300"><span class="w-2.5 h-2.5 rounded-full bg-[#f59e0b]"></span>Gudang D · Medan</span><span class="font-bold font-mono text-zinc-900 dark:text-white">60%</span></div>
+            </div>
+            <div class="mt-1 pt-4 border-t border-black/5 dark:border-white/10">
+              <p class="text-xs font-bold text-zinc-900 dark:text-white mb-2.5 flex items-center gap-1.5"><i data-lucide="alert-triangle" class="w-3.5 h-3.5 text-amber-500"></i> Hampir penuh</p>
+              <div class="space-y-2 text-xs text-zinc-600 dark:text-zinc-300">
+                <div class="flex justify-between"><span>Gudang B · zona palletise</span><span class="font-mono font-bold text-amber-600 dark:text-amber-400">88%</span></div>
+                <div class="flex justify-between"><span>Gudang A · rak 01–05</span><span class="font-mono font-bold text-amber-600 dark:text-amber-400">81%</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==================== VIEW 8: TRANSFER ==================== -->
+      <div id="view-transfer" class="u-view space-y-6">
+        <div class="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <h1 class="text-2xl font-bold tracking-tight text-zinc-900 dark:text-white">Transfer Antar Gudang</h1>
+            <p class="text-xs text-zinc-500 dark:text-zinc-400">Surat Jalan Transfer Internal (SJTI) antar cabang dengan audit trail otomatis.</p>
+          </div>
+          <button onclick="document.getElementById('transfer-form')?.scrollIntoView({behavior:'smooth',block:'center'})" class="px-4 py-2 rounded-2xl bg-black text-white dark:bg-white dark:text-black text-xs font-semibold flex items-center gap-2 hover:opacity-90 shadow-sm">
+            <i data-lucide="arrow-left-right" class="w-3.5 h-3.5"></i> Buat Transfer
+          </button>
+        </div>
+
+        <!-- KPI strip -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div class="glass-panel p-5 rounded-3xl space-y-3">
+            <div class="flex justify-between items-start">
+              <span class="text-xs font-medium text-zinc-500 dark:text-zinc-400">Transfer Aktif</span>
+              <div class="p-2 rounded-2xl bg-sky-500/15 text-sky-600 dark:text-sky-400"><i data-lucide="route" class="w-4 h-4"></i></div>
+            </div>
+            <p class="text-2xl font-bold tracking-tight text-zinc-900 dark:text-white">6</p>
+            <p class="text-[11px] text-zinc-500 dark:text-zinc-400">sedang berjalan hari ini</p>
+          </div>
+          <div class="glass-panel p-5 rounded-3xl space-y-3">
+            <div class="flex justify-between items-start">
+              <span class="text-xs font-medium text-zinc-500 dark:text-zinc-400">Selesai Bulan Ini</span>
+              <div class="p-2 rounded-2xl bg-emerald-500/15 text-emerald-600 dark:text-emerald-400"><i data-lucide="check-check" class="w-4 h-4"></i></div>
+            </div>
+            <p class="text-2xl font-bold tracking-tight text-zinc-900 dark:text-white">23</p>
+            <p class="text-[11px] text-zinc-500 dark:text-zinc-400">selisih stok 0% (akurat)</p>
+          </div>
+          <div class="glass-panel p-5 rounded-3xl space-y-3">
+            <div class="flex justify-between items-start">
+              <span class="text-xs font-medium text-zinc-500 dark:text-zinc-400">Nilai Barang Dipindah</span>
+              <div class="p-2 rounded-2xl bg-black/5 dark:bg-white/5 text-zinc-800 dark:text-zinc-200"><i data-lucide="scale" class="w-4 h-4"></i></div>
+            </div>
+            <p class="text-2xl font-bold tracking-tight text-zinc-900 dark:text-white">Rp 1,2 M</p>
+            <p class="text-[11px] text-zinc-500 dark:text-zinc-400">rata-rata 62 item/transfer</p>
+          </div>
+        </div>
+
+        <!-- Transfer table -->
+        <div class="glass-panel rounded-3xl overflow-hidden">
+          <div class="p-5 pb-4 flex items-center justify-between">
+            <div>
+              <h3 class="font-bold text-sm text-zinc-900 dark:text-white">Riwayat Mutasi SJTI</h3>
+              <p class="text-xs text-zinc-500 dark:text-zinc-400">Setiap perpindahan tercatat di log audit stok.</p>
+            </div>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+              <thead>
+                <tr class="border-y border-black/5 dark:border-white/5 bg-black/[0.02] dark:bg-white/[0.02] text-[11px] font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">
+                  <th class="px-5 py-3 text-left">ID</th>
+                  <th class="px-5 py-3 text-left">Rute Transfer</th>
+                  <th class="px-5 py-3 text-left">Item</th>
+                  <th class="px-5 py-3 text-left">Tanggal</th>
+                  <th class="px-5 py-3 text-left">Status</th>
+                  <th class="px-5 py-3 text-right">Aksi</th>
+                </tr>
+              </thead>
+              <tbody id="trf-tbody" class="divide-y divide-black/5 dark:divide-white/5 font-medium">
+                <tr class="hover-row" data-status="dikirim">
+                  <td class="px-5 py-3.5 font-mono font-bold text-zinc-900 dark:text-white">TRF-2026-0083</td>
+                  <td class="px-5 py-3.5">
+                    <div class="flex items-center gap-2 whitespace-nowrap">
+                      <span class="px-2 py-0.5 rounded-lg bg-black/5 dark:bg-white/10 text-[11px] font-bold text-zinc-600 dark:text-zinc-300">Gudang A</span>
+                      <i data-lucide="arrow-right" class="w-3.5 h-3.5 text-zinc-400"></i>
+                      <span class="px-2 py-0.5 rounded-lg bg-emerald-500/15 text-[11px] font-bold text-emerald-700 dark:text-emerald-400">Gudang B</span>
+                    </div>
+                  </td>
+                  <td class="px-5 py-3.5"><p class="text-xs font-semibold text-zinc-800 dark:text-zinc-200">SSD NVMe, Keyboard, Kabel</p><p class="text-[11px] font-mono text-zinc-500">12 item</p></td>
+                  <td class="px-5 py-3.5 text-zinc-600 dark:text-zinc-300">12 Feb 2026</td>
+                  <td class="px-5 py-3.5"><span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold bg-amber-500/15 text-amber-700 dark:text-amber-400"><span class="w-1.5 h-1.5 rounded-full bg-current"></span>Dikirim</span></td>
+                  <td class="px-5 py-3.5"><div class="flex items-center gap-1.5 justify-end"><button onclick="toast('Cetak SJTI TRF-2026-0083','file-down')" class="p-1.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 text-zinc-500 dark:text-zinc-400"><i data-lucide="file-down" class="w-3.5 h-3.5"></i></button><button onclick="toast('TRF-2026-0083 ditandai diterima','package-check')" class="p-1.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 text-zinc-500 dark:text-zinc-400"><i data-lucide="package-check" class="w-3.5 h-3.5"></i></button></div></td>
+                </tr>
+                <tr class="hover-row" data-status="proses">
+                  <td class="px-5 py-3.5 font-mono font-bold text-zinc-900 dark:text-white">TRF-2026-0079</td>
+                  <td class="px-5 py-3.5">
+                    <div class="flex items-center gap-2 whitespace-nowrap">
+                      <span class="px-2 py-0.5 rounded-lg bg-black/5 dark:bg-white/10 text-[11px] font-bold text-zinc-600 dark:text-zinc-300">Gudang B</span>
+                      <i data-lucide="arrow-right" class="w-3.5 h-3.5 text-zinc-400"></i>
+                      <span class="px-2 py-0.5 rounded-lg bg-sky-500/15 text-[11px] font-bold text-sky-700 dark:text-sky-400">Gudang C</span>
+                    </div>
+                  </td>
+                  <td class="px-5 py-3.5"><p class="text-xs font-semibold text-zinc-800 dark:text-zinc-200">Monitor 27" 4K</p><p class="text-[11px] font-mono text-zinc-500">6 item</p></td>
+                  <td class="px-5 py-3.5 text-zinc-600 dark:text-zinc-300">12 Feb 2026</td>
+                  <td class="px-5 py-3.5"><span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold bg-sky-500/15 text-sky-700 dark:text-sky-400"><span class="w-1.5 h-1.5 rounded-full bg-current"></span>Proses</span></td>
+                  <td class="px-5 py-3.5"><div class="flex items-center gap-1.5 justify-end"><button onclick="toast('Cetak SJTI TRF-2026-0079','file-down')" class="p-1.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 text-zinc-500 dark:text-zinc-400"><i data-lucide="file-down" class="w-3.5 h-3.5"></i></button><button onclick="toast('TRF-2026-0079 dibatalkan','x-circle')" class="p-1.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 text-rose-500 dark:text-rose-400"><i data-lucide="x-circle" class="w-3.5 h-3.5"></i></button></div></td>
+                </tr>
+                <tr class="hover-row" data-status="selesai">
+                  <td class="px-5 py-3.5 font-mono font-bold text-zinc-900 dark:text-white">TRF-2026-0071</td>
+                  <td class="px-5 py-3.5">
+                    <div class="flex items-center gap-2 whitespace-nowrap">
+                      <span class="px-2 py-0.5 rounded-lg bg-black/5 dark:bg-white/10 text-[11px] font-bold text-zinc-600 dark:text-zinc-300">Gudang A</span>
+                      <i data-lucide="arrow-right" class="w-3.5 h-3.5 text-zinc-400"></i>
+                      <span class="px-2 py-0.5 rounded-lg bg-violet-500/15 text-[11px] font-bold text-violet-700 dark:text-violet-400">Gudang D</span>
+                    </div>
+                  </td>
+                  <td class="px-5 py-3.5"><p class="text-xs font-semibold text-zinc-800 dark:text-zinc-200">Headset, WebCam, Charger</p><p class="text-[11px] font-mono text-zinc-500">24 item</p></td>
+                  <td class="px-5 py-3.5 text-zinc-600 dark:text-zinc-300">10 Feb 2026</td>
+                  <td class="px-5 py-3.5"><span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold bg-emerald-500/15 text-emerald-700 dark:text-emerald-400"><span class="w-1.5 h-1.5 rounded-full bg-current"></span>Selesai</span></td>
+                  <td class="px-5 py-3.5"><div class="flex items-center gap-1.5 justify-end"><button onclick="toast('Cetak SJTI TRF-2026-0071','file-down')" class="p-1.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 text-zinc-500 dark:text-zinc-400"><i data-lucide="file-down" class="w-3.5 h-3.5"></i></button></div></td>
+                </tr>
+                <tr class="hover-row" data-status="batal">
+                  <td class="px-5 py-3.5 font-mono font-bold text-zinc-900 dark:text-white">TRF-2026-0068</td>
+                  <td class="px-5 py-3.5">
+                    <div class="flex items-center gap-2 whitespace-nowrap">
+                      <span class="px-2 py-0.5 rounded-lg bg-black/5 dark:bg-white/10 text-[11px] font-bold text-zinc-600 dark:text-zinc-300">Gudang C</span>
+                      <i data-lucide="arrow-right" class="w-3.5 h-3.5 text-zinc-400"></i>
+                      <span class="px-2 py-0.5 rounded-lg bg-zinc-500/15 text-[11px] font-bold text-zinc-600 dark:text-zinc-300">Gudang A</span>
+                    </div>
+                  </td>
+                  <td class="px-5 py-3.5"><p class="text-xs font-semibold text-zinc-800 dark:text-zinc-200">Keyboard TKL</p><p class="text-[11px] font-mono text-zinc-500">4 item</p></td>
+                  <td class="px-5 py-3.5 text-zinc-600 dark:text-zinc-300">09 Feb 2026</td>
+                  <td class="px-5 py-3.5"><span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold bg-rose-500/15 text-rose-700 dark:text-rose-400"><span class="w-1.5 h-1.5 rounded-full bg-current"></span>Dibatalkan</span></td>
+                  <td class="px-5 py-3.5"><div class="flex items-center gap-1.5 justify-end"><button onclick="toast('Lihat alasan pembatalan TRF-2026-0068','message-square')" class="p-1.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 text-zinc-500 dark:text-zinc-400"><i data-lucide="message-square" class="w-3.5 h-3.5"></i></button></div></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
+          <!-- Create transfer form -->
+          <div id="transfer-form" class="glass-panel rounded-3xl p-6 space-y-4 xl:col-span-2">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-2xl bg-black/5 dark:bg-white/10 grid place-items-center text-zinc-800 dark:text-zinc-200"><i data-lucide="arrow-left-right" class="w-5 h-5"></i></div>
+              <div>
+                <h3 class="font-bold text-sm text-zinc-900 dark:text-white">Buat Transfer Baru</h3>
+                <p class="text-xs text-zinc-500 dark:text-zinc-400">Pilih asal–tujuan; sistem membuat SJTI &amp; menunggu persetujuan.</p>
+              </div>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+              <div>
+                <label class="text-xs font-semibold text-zinc-500 dark:text-zinc-400" for="trf-dari">Dari Gudang</label>
+                <select id="trf-dari" class="mt-1.5 w-full h-11 px-3.5 rounded-xl bg-black/5 dark:bg-white/10 border border-black/5 dark:border-white/10 text-sm font-medium outline-none focus:ring-2 ring-zinc-900/10 dark:ring-white/20 appearance-none">
+                  <option>Gudang A · Jakarta</option>
+                  <option>Gudang B · Surabaya</option>
+                  <option>Gudang C · Bandung</option>
+                  <option>Gudang D · Medan</option>
+                </select>
+              </div>
+              <div>
+                <label class="text-xs font-semibold text-zinc-500 dark:text-zinc-400" for="trf-ke">Ke Gudang</label>
+                <select id="trf-ke" class="mt-1.5 w-full h-11 px-3.5 rounded-xl bg-black/5 dark:bg-white/10 border border-black/5 dark:border-white/10 text-sm font-medium outline-none focus:ring-2 ring-zinc-900/10 dark:ring-white/20 appearance-none">
+                  <option>Gudang B · Surabaya</option>
+                  <option>Gudang A · Jakarta</option>
+                  <option>Gudang C · Bandung</option>
+                  <option>Gudang D · Medan</option>
+                </select>
+              </div>
+              <div>
+                <label class="text-xs font-semibold text-zinc-500 dark:text-zinc-400" for="trf-item">Deskripsi Item</label>
+                <input id="trf-item" type="text" placeholder="cth: SSD NVMe 1TB Gen4, 10 pcs" class="mt-1.5 w-full h-11 px-3.5 rounded-xl bg-black/5 dark:bg-white/10 border border-black/5 dark:border-white/10 text-sm font-medium outline-none focus:ring-2 ring-zinc-900/10 dark:ring-white/20 placeholder:text-zinc-400">
+              </div>
+              <div>
+                <label class="text-xs font-semibold text-zinc-500 dark:text-zinc-400" for="trf-qty">Jumlah Item</label>
+                <input id="trf-qty" type="number" value="1" min="1" class="mt-1.5 w-full h-11 px-3.5 rounded-xl bg-black/5 dark:bg-white/10 border border-black/5 dark:border-white/10 text-sm font-medium outline-none focus:ring-2 ring-zinc-900/10 dark:ring-white/20">
+              </div>
+              <div>
+                <label class="text-xs font-semibold text-zinc-500 dark:text-zinc-400" for="trf-date">Tanggal Rencana</label>
+                <input id="trf-date" type="date" value="2026-02-13" class="mt-1.5 w-full h-11 px-3.5 rounded-xl bg-black/5 dark:bg-white/10 border border-black/5 dark:border-white/10 text-sm font-medium outline-none focus:ring-2 ring-zinc-900/10 dark:ring-white/20">
+              </div>
+              <div class="flex items-end">
+                <button onclick="buatTransfer()" class="w-full h-11 rounded-xl bg-black text-white dark:bg-white dark:text-black text-sm font-bold flex items-center justify-center gap-2 hover:opacity-90 shadow-sm">
+                  <i data-lucide="send" class="w-4 h-4"></i> Ajukan Transfer
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Approval queue -->
+          <div class="glass-panel rounded-3xl p-6 space-y-3.5 h-fit">
+            <div class="flex items-center justify-between">
+              <h4 class="font-bold text-sm text-zinc-900 dark:text-white flex items-center gap-2"><i data-lucide="clipboard-check" class="w-4 h-4 text-zinc-400"></i> Menunggu Persetujuan</h4>
+              <span class="text-[10px] font-bold px-2 py-1 rounded-lg bg-amber-500/15 text-amber-700 dark:text-amber-400">3</span>
+            </div>
+            <div class="space-y-2.5">
+              <div class="rounded-2xl bg-black/[0.03] dark:bg-white/[0.04] p-3.5">
+                <p class="text-xs font-bold text-zinc-900 dark:text-white">TRF-2026-0084</p>
+                <p class="text-[11px] text-zinc-500 mt-0.5">A → C · 18 item · nilai Rp 412 Jt</p>
+                <div class="flex items-center gap-1.5 mt-2">
+                  <button onclick="toast('TRF-2026-0084 disetujui','check-check')" class="flex-1 h-8 rounded-lg bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 text-[11px] font-bold hover:bg-emerald-500/25"><i data-lucide="check" class="w-3 h-3 inline"></i> Setujui</button>
+                  <button onclick="toast('TRF-2026-0084 ditolak','x-circle')" class="h-8 px-3 rounded-lg bg-rose-500/15 text-rose-700 dark:text-rose-400 text-[11px] font-bold hover:bg-rose-500/25"><i data-lucide="x" class="w-3 h-3 inline"></i></button>
+                </div>
+              </div>
+              <div class="rounded-2xl bg-black/[0.03] dark:bg-white/[0.04] p-3.5">
+                <p class="text-xs font-bold text-zinc-900 dark:text-white">TRF-2026-0085</p>
+                <p class="text-[11px] text-zinc-500 mt-0.5">B → D · 9 item · nilai Rp 96 Jt</p>
+                <div class="flex items-center gap-1.5 mt-2">
+                  <button onclick="toast('TRF-2026-0085 disetujui','check-check')" class="flex-1 h-8 rounded-lg bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 text-[11px] font-bold hover:bg-emerald-500/25"><i data-lucide="check" class="w-3 h-3 inline"></i> Setujui</button>
+                  <button onclick="toast('TRF-2026-0085 ditolak','x-circle')" class="h-8 px-3 rounded-lg bg-rose-500/15 text-rose-700 dark:text-rose-400 text-[11px] font-bold hover:bg-rose-500/25"><i data-lucide="x" class="w-3 h-3 inline"></i></button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==================== VIEW 9: LAPORAN ==================== -->
+      <div id="view-laporan" class="u-view space-y-6">
+        <div class="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <h1 class="text-2xl font-bold tracking-tight text-zinc-900 dark:text-white">Laporan Audit Stok &amp; Persediaan</h1>
+            <p class="text-xs text-zinc-500 dark:text-zinc-400">Rekap periodik, tren nilai persediaan, dan jadwal otomatisasi distribusi.</p>
+          </div>
+          <div class="glass-panel rounded-2xl p-1.5 flex items-center gap-1 bg-black/5 dark:bg-white/10">
+            <button data-p="minggu" onclick="setPeriode('minggu')" class="periode-chip px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-black text-white dark:bg-white dark:text-black">Minggu</button>
+            <button data-p="bulan" onclick="setPeriode('bulan')" class="periode-chip px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-transparent text-zinc-600 dark:text-zinc-300">Bulan</button>
+            <button data-p="kuartal" onclick="setPeriode('kuartal')" class="periode-chip px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-transparent text-zinc-600 dark:text-zinc-300">Kuartal</button>
+            <button data-p="tahun" onclick="setPeriode('tahun')" class="periode-chip px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-transparent text-zinc-600 dark:text-zinc-300">Tahun</button>
+          </div>
+        </div>
+
+        <!-- Report cards -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div class="glass-panel rounded-3xl p-5 space-y-4">
+            <div class="flex items-start justify-between">
+              <div class="w-10 h-10 rounded-2xl bg-black/5 dark:bg-white/10 grid place-items-center text-zinc-800 dark:text-zinc-200"><i data-lucide="boxes" class="w-5 h-5"></i></div>
+              <span class="text-[10px] font-bold px-2 py-1 rounded-lg bg-black/5 dark:bg-white/10 text-zinc-600 dark:text-zinc-300">Per SKU &amp; Rak</span>
+            </div>
+            <div>
+              <h3 class="font-bold text-sm text-zinc-900 dark:text-white">Laporan Stok</h3>
+              <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">Sisa stok per SKU, lokasi rak, dan nilai FIFO.</p>
+            </div>
+            <svg viewBox="0 0 120 40" preserveAspectRatio="none" class="w-full h-12">
+              <defs><linearGradient id="sp-stok" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#18181b" stop-opacity="0.25"/><stop offset="100%" stop-color="#18181b" stop-opacity="0"/></linearGradient></defs>
+              <path d="M0 32 L14 26 L27 30 L40 20 L53 23 L66 15 L80 19 L94 10 L108 13 L120 6 V40 H0 Z" fill="url(#sp-stok)"/>
+              <polyline points="0,32 14,26 27,30 40,20 53,23 66,15 80,19 94,10 108,13 120,6" fill="none" stroke="#18181b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <circle cx="120" cy="6" r="2.5" fill="#18181b"/>
+            </svg>
+            <div class="flex items-center justify-between text-xs">
+              <div><p class="text-zinc-500 dark:text-zinc-400">SKU tercatat</p><p class="font-bold text-zinc-900 dark:text-white">1.842</p></div>
+              <div class="text-right"><p class="text-zinc-500 dark:text-zinc-400">Total unit</p><p class="font-bold text-zinc-900 dark:text-white">6.200</p></div>
+            </div>
+            <div class="flex items-center gap-2 pt-1 border-t border-black/5 dark:border-white/10">
+              <button onclick="unduhLaporan('stok','CSV')" class="flex-1 h-9 rounded-xl bg-black/5 dark:bg-white/10 text-xs font-bold text-zinc-700 dark:text-zinc-200 hover:bg-black/10 dark:hover:bg-white/15"><i data-lucide="file-down" class="w-3.5 h-3.5 inline mr-1"></i> Unduh CSV</button>
+              <button onclick="unduhLaporan('stok','PDF')" class="flex-1 h-9 rounded-xl bg-black text-white dark:bg-white dark:text-black text-xs font-bold hover:opacity-90"><i data-lucide="printer" class="w-3.5 h-3.5 inline mr-1"></i> Unduh PDF</button>
+            </div>
+          </div>
+
+          <div class="glass-panel rounded-3xl p-5 space-y-4">
+            <div class="flex items-start justify-between">
+              <div class="w-10 h-10 rounded-2xl bg-emerald-500/15 grid place-items-center text-emerald-700 dark:text-emerald-400"><i data-lucide="trending-up" class="w-5 h-5"></i></div>
+              <span class="text-[10px] font-bold px-2 py-1 rounded-lg bg-black/5 dark:bg-white/10 text-zinc-600 dark:text-zinc-300">Inbound / Outbound</span>
+            </div>
+            <div>
+              <h3 class="font-bold text-sm text-zinc-900 dark:text-white">Pergerakan Barang</h3>
+              <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">Volume barang keluar &amp; masuk per periode.</p>
+            </div>
+            <svg viewBox="0 0 120 40" preserveAspectRatio="none" class="w-full h-12">
+              <defs><linearGradient id="sp-gerak" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#10b981" stop-opacity="0.25"/><stop offset="100%" stop-color="#10b981" stop-opacity="0"/></linearGradient></defs>
+              <path d="M0 34 L13 30 L26 33 L38 24 L52 27 L65 18 L78 22 L92 12 L106 16 L120 8 V40 H0 Z" fill="url(#sp-gerak)"/>
+              <polyline points="0,34 13,30 26,33 38,24 52,27 65,18 78,22 92,12 106,16 120,8" fill="none" stroke="#10b981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <circle cx="120" cy="8" r="2.5" fill="#10b981"/>
+            </svg>
+            <div class="flex items-center justify-between text-xs">
+              <div><p class="text-zinc-500 dark:text-zinc-400">Barang masuk</p><p class="font-bold text-zinc-900 dark:text-white">2.418 unit</p></div>
+              <div class="text-right"><p class="text-zinc-500 dark:text-zinc-400">Barang keluar</p><p class="font-bold text-zinc-900 dark:text-white">3.120 unit</p></div>
+            </div>
+            <div class="flex items-center gap-2 pt-1 border-t border-black/5 dark:border-white/10">
+              <button onclick="unduhLaporan('pergerakan','CSV')" class="flex-1 h-9 rounded-xl bg-black/5 dark:bg-white/10 text-xs font-bold text-zinc-700 dark:text-zinc-200 hover:bg-black/10 dark:hover:bg-white/15"><i data-lucide="file-down" class="w-3.5 h-3.5 inline mr-1"></i> Unduh CSV</button>
+              <button onclick="unduhLaporan('pergerakan','PDF')" class="flex-1 h-9 rounded-xl bg-black text-white dark:bg-white dark:text-black text-xs font-bold hover:opacity-90"><i data-lucide="printer" class="w-3.5 h-3.5 inline mr-1"></i> Unduh PDF</button>
+            </div>
+          </div>
+
+          <div class="glass-panel rounded-3xl p-5 space-y-4">
+            <div class="flex items-start justify-between">
+              <div class="w-10 h-10 rounded-2xl bg-sky-500/15 grid place-items-center text-sky-700 dark:text-sky-400"><i data-lucide="pie-chart" class="w-5 h-5"></i></div>
+              <span class="text-[10px] font-bold px-2 py-1 rounded-lg bg-black/5 dark:bg-white/10 text-zinc-600 dark:text-zinc-300">Valuasi FIFO</span>
+            </div>
+            <div>
+              <h3 class="font-bold text-sm text-zinc-900 dark:text-white">Nilai Persediaan</h3>
+              <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">Valuasi moneter seluruh inventaris aktif.</p>
+            </div>
+            <svg viewBox="0 0 120 40" preserveAspectRatio="none" class="w-full h-12">
+              <defs><linearGradient id="sp-nilai" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#0ea5e9" stop-opacity="0.25"/><stop offset="100%" stop-color="#0ea5e9" stop-opacity="0"/></linearGradient></defs>
+              <path d="M0 30 L14 28 L27 24 L40 26 L53 20 L66 16 L80 18 L94 11 L108 9 L120 12 V40 H0 Z" fill="url(#sp-nilai)"/>
+              <polyline points="0,30 14,28 27,24 40,26 53,20 66,16 80,18 94,11 108,9 120,12" fill="none" stroke="#0ea5e9" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <circle cx="120" cy="12" r="2.5" fill="#0ea5e9"/>
+            </svg>
+            <div class="flex items-center justify-between text-xs">
+              <div><p class="text-zinc-500 dark:text-zinc-400">Nilai total</p><p class="font-bold text-zinc-900 dark:text-white">Rp 5,82 M</p></div>
+              <div class="text-right"><p class="text-zinc-500 dark:text-zinc-400">Trend</p><p class="font-bold text-emerald-600 dark:text-emerald-400">+1,2%</p></div>
+            </div>
+            <div class="flex items-center gap-2 pt-1 border-t border-black/5 dark:border-white/10">
+              <button onclick="unduhLaporan('nilai','CSV')" class="flex-1 h-9 rounded-xl bg-black/5 dark:bg-white/10 text-xs font-bold text-zinc-700 dark:text-zinc-200 hover:bg-black/10 dark:hover:bg-white/15"><i data-lucide="file-down" class="w-3.5 h-3.5 inline mr-1"></i> Unduh CSV</button>
+              <button onclick="unduhLaporan('nilai','PDF')" class="flex-1 h-9 rounded-xl bg-black text-white dark:bg-white dark:text-black text-xs font-bold hover:opacity-90"><i data-lucide="printer" class="w-3.5 h-3.5 inline mr-1"></i> Unduh PDF</button>
+            </div>
+          </div>
+
+          <div class="glass-panel rounded-3xl p-5 space-y-4">
+            <div class="flex items-start justify-between">
+              <div class="w-10 h-10 rounded-2xl bg-amber-500/15 grid place-items-center text-amber-700 dark:text-amber-400"><i data-lucide="truck" class="w-5 h-5"></i></div>
+              <span class="text-[10px] font-bold px-2 py-1 rounded-lg bg-black/5 dark:bg-white/10 text-zinc-600 dark:text-zinc-300">OTD &amp; SLA</span>
+            </div>
+            <div>
+              <h3 class="font-bold text-sm text-zinc-900 dark:text-white">Kinerja Pemasok</h3>
+              <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">On-time delivery dan lead time per vendor.</p>
+            </div>
+            <svg viewBox="0 0 120 40" preserveAspectRatio="none" class="w-full h-12">
+              <defs><linearGradient id="sp-pmk" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#f59e0b" stop-opacity="0.25"/><stop offset="100%" stop-color="#f59e0b" stop-opacity="0"/></linearGradient></defs>
+              <path d="M0 30 L14 32 L27 28 L40 25 L53 26 L66 20 L80 17 L94 19 L108 11 L120 9 V40 H0 Z" fill="url(#sp-pmk)"/>
+              <polyline points="0,30 14,32 27,28 40,25 53,26 66,20 80,17 94,19 108,11 120,9" fill="none" stroke="#f59e0b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <circle cx="120" cy="9" r="2.5" fill="#f59e0b"/>
+            </svg>
+            <div class="flex items-center justify-between text-xs">
+              <div><p class="text-zinc-500 dark:text-zinc-400">On-time rate</p><p class="font-bold text-zinc-900 dark:text-white">92,5%</p></div>
+              <div class="text-right"><p class="text-zinc-500 dark:text-zinc-400">Rata-rata lead time</p><p class="font-bold text-zinc-900 dark:text-white">7,3 hari</p></div>
+            </div>
+            <div class="flex items-center gap-2 pt-1 border-t border-black/5 dark:border-white/10">
+              <button onclick="unduhLaporan('pemasok','CSV')" class="flex-1 h-9 rounded-xl bg-black/5 dark:bg-white/10 text-xs font-bold text-zinc-700 dark:text-zinc-200 hover:bg-black/10 dark:hover:bg-white/15"><i data-lucide="file-down" class="w-3.5 h-3.5 inline mr-1"></i> Unduh CSV</button>
+              <button onclick="unduhLaporan('pemasok','PDF')" class="flex-1 h-9 rounded-xl bg-black text-white dark:bg-white dark:text-black text-xs font-bold hover:opacity-90"><i data-lucide="printer" class="w-3.5 h-3.5 inline mr-1"></i> Unduh PDF</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Schedule panel -->
+        <div class="glass-panel rounded-3xl p-6">
+          <div class="flex items-center justify-between flex-wrap gap-3">
+            <div>
+              <h3 class="font-bold text-sm text-zinc-900 dark:text-white flex items-center gap-2"><i data-lucide="calendar-clock" class="w-4 h-4 text-zinc-400"></i> Jadwal Laporan Otomatis</h3>
+              <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">Laporan siap dikirim ke email tim secara berkala.</p>
+            </div>
+            <button onclick="simpanJadwal()" class="px-4 py-2 rounded-xl bg-black text-white dark:bg-white dark:text-black text-xs font-bold hover:opacity-90"><i data-lucide="save" class="w-3.5 h-3.5 inline mr-1"></i> Simpan Jadwal</button>
+          </div>
+          <div class="mt-5 grid grid-cols-1 lg:grid-cols-3 gap-4">
+            <div class="rounded-2xl bg-black/[0.03] dark:bg-white/[0.04] p-4 flex items-center justify-between gap-3">
+              <div>
+                <p class="text-sm font-bold text-zinc-900 dark:text-white">Laporan Stok Harian</p>
+                <p class="text-[11px] text-zinc-500">Setiap hari pukul 06.00 WIB</p>
+              </div>
+              <label class="relative inline-flex items-center cursor-pointer">
+                <input type="checkbox" class="sr-only peer" checked>
+                <span class="w-10 h-6 bg-black/10 dark:bg-white/10 rounded-full peer-checked:bg-emerald-500 after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:w-5 after:h-5 after:rounded-full after:bg-white after:transition-all peer-checked:after:translate-x-4"></span>
+              </label>
+            </div>
+            <div class="rounded-2xl bg-black/[0.03] dark:bg-white/[0.04] p-4 flex items-center justify-between gap-3">
+              <div>
+                <p class="text-sm font-bold text-zinc-900 dark:text-white">Nilai Persediaan Mingguan</p>
+                <p class="text-[11px] text-zinc-500">Setiap Senin, 08.00 WIB</p>
+              </div>
+              <label class="relative inline-flex items-center cursor-pointer">
+                <input type="checkbox" class="sr-only peer" checked>
+                <span class="w-10 h-6 bg-black/10 dark:bg-white/10 rounded-full peer-checked:bg-emerald-500 after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:w-5 after:h-5 after:rounded-full after:bg-white after:transition-all peer-checked:after:translate-x-4"></span>
+              </label>
+            </div>
+            <div class="rounded-2xl bg-black/[0.03] dark:bg-white/[0.04] p-4 flex items-center justify-between gap-3">
+              <div>
+                <p class="text-sm font-bold text-zinc-900 dark:text-white">Rekonsiliasi Bulanan</p>
+                <p class="text-[11px] text-zinc-500">Tanggal 1 setiap bulan</p>
+              </div>
+              <label class="relative inline-flex items-center cursor-pointer">
+                <input type="checkbox" class="sr-only peer">
+                <span class="w-10 h-6 bg-black/10 dark:bg-white/10 rounded-full peer-checked:bg-emerald-500 after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:w-5 after:h-5 after:rounded-full after:bg-white after:transition-all peer-checked:after:translate-x-4"></span>
+              </label>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==================== VIEW 10: PENGATURAN ==================== -->
+      <div id="view-pengaturan" class="u-view space-y-6">
+        <div>
+          <h1 class="text-2xl font-bold tracking-tight text-zinc-900 dark:text-white">Pengaturan</h1>
+          <p class="text-xs text-zinc-500 dark:text-zinc-400">Konfigurasi workspace, lokalisasi, dan preferensi tampilan.</p>
+        </div>
+
+        <div class="flex flex-col lg:flex-row gap-6 items-start">
+          <!-- Settings sidebar nav -->
+          <aside class="w-full lg:w-60 shrink-0">
+            <div class="glass-panel rounded-3xl p-3 lg:sticky lg:top-32">
+              <p class="px-3 py-2 text-[10px] font-bold uppercase tracking-[0.18em] text-zinc-400 dark:text-zinc-500">Pengaturan</p>
+              <nav class="space-y-1">
+                <button class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-bold bg-black text-white dark:bg-white dark:text-black shadow-sm"><i data-lucide="sliders-horizontal" class="w-[18px] h-[18px]"></i> Umum</button>
+                <button onclick="toast('Halaman Penagihan hanya tersedia pada halaman penuh','credit-card')" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-bold text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-50 hover:bg-black/5 dark:hover:bg-white/10"><i data-lucide="credit-card" class="w-[18px] h-[18px]"></i> Penagihan</button>
+                <button onclick="toast('Halaman Notifikasi hanya tersedia pada halaman penuh','bell')" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-bold text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-50 hover:bg-black/5 dark:hover:bg-white/10"><i data-lucide="bell" class="w-[18px] h-[18px]"></i> Notifikasi</button>
+                <button onclick="toast('Halaman Tim hanya tersedia pada halaman penuh','users')" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-bold text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-50 hover:bg-black/5 dark:hover:bg-white/10"><i data-lucide="users" class="w-[18px] h-[18px]"></i> Tim</button>
+              </nav>
+              <div class="mt-3 pt-3 border-t border-black/5 dark:border-white/10">
+                <div class="flex items-center gap-2.5 px-3 py-2">
+                  <div class="w-7 h-7 rounded-lg bg-black dark:bg-white text-white dark:text-black grid place-items-center text-[10px] font-black">HB</div>
+                  <span class="text-xs font-bold text-zinc-700 dark:text-zinc-200">Hendra Basri</span>
+                </div>
+              </div>
+            </div>
+          </aside>
+
+          <!-- Settings content -->
+          <div class="flex-1 min-w-0 space-y-4 w-full">
+            <div class="glass-panel rounded-3xl p-6">
+              <h2 class="font-bold tracking-tight text-zinc-900 dark:text-white">Workspace</h2>
+              <p class="text-sm text-zinc-500 dark:text-zinc-400 mt-1">Nama workspace tampil di seluruh produk dan email.</p>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-5">
+                <div>
+                  <label class="text-xs font-semibold text-zinc-500 dark:text-zinc-400" for="ws-name">Nama Workspace</label>
+                  <input id="ws-name" value="PT Nusantara Digital Kreatif" class="mt-1.5 w-full h-11 px-3.5 rounded-xl bg-black/5 dark:bg-white/10 border border-black/5 dark:border-white/10 text-sm font-medium outline-none focus:ring-2 ring-zinc-900/10 dark:ring-white/20">
+                </div>
+                <div>
+                  <label class="text-xs font-semibold text-zinc-500 dark:text-zinc-400" for="ws-sub">Subdomain</label>
+                  <div class="mt-1.5 flex items-center h-11 rounded-xl bg-black/5 dark:bg-white/10 border border-black/5 dark:border-white/10 overflow-hidden focus-within:ring-2 ring-zinc-900/10 dark:ring-white/20">
+                    <span class="px-3.5 text-sm text-zinc-400 font-medium">https://</span>
+                    <input id="ws-sub" value="nusantara" class="flex-1 min-w-0 bg-transparent text-sm font-medium outline-none pr-1"> <span class="pr-3.5 text-sm text-zinc-400 font-medium">.uroo.dev</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="glass-panel rounded-3xl p-6">
+              <h2 class="font-bold tracking-tight text-zinc-900 dark:text-white">Lokalisasi</h2>
+              <p class="text-sm text-zinc-500 dark:text-zinc-400 mt-1">Bahasa dan zona waktu untuk seluruh anggota workspace.</p>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-5">
+                <div>
+                  <label class="text-xs font-semibold text-zinc-500 dark:text-zinc-400" for="lang">Bahasa Antarmuka</label>
+                  <select id="lang" class="mt-1.5 w-full h-11 px-3.5 rounded-xl bg-black/5 dark:bg-white/10 border border-black/5 dark:border-white/10 text-sm font-medium outline-none focus:ring-2 ring-zinc-900/10 dark:ring-white/20 appearance-none">
+                    <option value="id" selected>Bahasa Indonesia</option>
+                    <option value="en">English</option>
+                    <option value="ja">日本語</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="text-xs font-semibold text-zinc-500 dark:text-zinc-400" for="tz">Zona Waktu</label>
+                  <select id="tz" class="mt-1.5 w-full h-11 px-3.5 rounded-xl bg-black/5 dark:bg-white/10 border border-black/5 dark:border-white/10 text-sm font-medium outline-none focus:ring-2 ring-zinc-900/10 dark:ring-white/20 appearance-none">
+                    <option value="wib" selected>Asia/Jakarta (WIB) - UTC+7</option>
+                    <option value="wita">Asia/Makassar (WITA) - UTC+8</option>
+                    <option value="wit">Asia/Jayapura (WIT) - UTC+9</option>
+                    <option value="singapore">Asia/Singapore - UTC+8</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="text-xs font-semibold text-zinc-500 dark:text-zinc-400" for="date-format">Format Tanggal</label>
+                  <select id="date-format" class="mt-1.5 w-full h-11 px-3.5 rounded-xl bg-black/5 dark:bg-white/10 border border-black/5 dark:border-white/10 text-sm font-medium outline-none focus:ring-2 ring-zinc-900/10 dark:ring-white/20 appearance-none">
+                    <option selected>DD/MM/YYYY</option>
+                    <option>MM/DD/YYYY</option>
+                    <option>YYYY-MM-DD</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="text-xs font-semibold text-zinc-500 dark:text-zinc-400" for="currency">Mata Uang</label>
+                  <select id="currency" class="mt-1.5 w-full h-11 px-3.5 rounded-xl bg-black/5 dark:bg-white/10 border border-black/5 dark:border-white/10 text-sm font-medium outline-none focus:ring-2 ring-zinc-900/10 dark:ring-white/20 appearance-none">
+                    <option selected>IDR - Rupiah Indonesia (Rp)</option>
+                    <option>USD - US Dollar ($)</option>
+                    <option>SGD - Dolar Singapura (S$)</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <div class="glass-panel rounded-3xl p-6">
+              <h2 class="font-bold tracking-tight text-zinc-900 dark:text-white">Tampilan</h2>
+              <p class="text-sm text-zinc-500 dark:text-zinc-400 mt-1">Pilih tema default untuk antarmuka Anda.</p>
+              <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-5">
+                <button class="appearance-card relative cursor-pointer rounded-2xl border-2 border-transparent p-4 text-left transition-colors bg-black/5 dark:bg-white/10" data-appearance="light" onclick="selectAppearance('light')">
+                  <span class="appearance-check absolute top-3 right-3 w-5 h-5 rounded-full border-2 border-zinc-300 dark:border-zinc-600 grid place-items-center"><span class="w-2.5 h-2.5 rounded-full bg-zinc-900 dark:bg-zinc-50 opacity-0 transition-opacity"></span></span>
+                  <span class="flex items-center justify-between">
+                    <span class="grid place-items-center w-11 h-11 rounded-xl bg-white text-zinc-900 shadow"><i data-lucide="sun" class="w-5 h-5"></i></span>
+                  </span>
+                  <p class="mt-3 font-bold text-sm text-zinc-900 dark:text-white">Terang</p>
+                  <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">Antarmuka cerah dan bersih</p>
+                </button>
+                <button class="appearance-card relative cursor-pointer rounded-2xl border-2 border-transparent p-4 text-left transition-colors bg-black/5 dark:bg-white/10" data-appearance="dark" onclick="selectAppearance('dark')">
+                  <span class="appearance-check absolute top-3 right-3 w-5 h-5 rounded-full border-2 border-zinc-300 dark:border-zinc-600 grid place-items-center"><span class="w-2.5 h-2.5 rounded-full bg-zinc-900 dark:bg-zinc-50 opacity-0 transition-opacity"></span></span>
+                  <span class="grid place-items-center w-11 h-11 rounded-xl bg-zinc-900 text-white shadow"><i data-lucide="moon" class="w-5 h-5"></i></span>
+                  <p class="mt-3 font-bold text-sm text-zinc-900 dark:text-white">Gelap</p>
+                  <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">Kontras tinggi, hemat daya</p>
+                </button>
+                <button class="appearance-card relative cursor-pointer rounded-2xl border-2 border-transparent p-4 text-left transition-colors bg-black/5 dark:bg-white/10" data-appearance="system" onclick="selectAppearance('system')">
+                  <span class="appearance-check absolute top-3 right-3 w-5 h-5 rounded-full border-2 border-zinc-300 dark:border-zinc-600 grid place-items-center"><span class="w-2.5 h-2.5 rounded-full bg-zinc-900 dark:bg-zinc-50 opacity-0 transition-opacity"></span></span>
+                  <span class="grid place-items-center w-11 h-11 rounded-xl bg-gradient-to-br from-zinc-100 to-zinc-700 text-zinc-900 shadow"><i data-lucide="monitor" class="w-5 h-5"></i></span>
+                  <p class="mt-3 font-bold text-sm text-zinc-900 dark:text-white">Sistem</p>
+                  <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">Ikuti pengaturan perangkat</p>
+                </button>
+              </div>
+            </div>
+
+            <div class="flex justify-end">
+              <button onclick="saveGeneral()" class="inline-flex items-center gap-2 px-6 py-3 rounded-2xl bg-black text-white dark:bg-white dark:text-black text-sm font-bold hover:opacity-90 shadow-sm">
+                <i data-lucide="save" class="w-4 h-4"></i> Simpan Perubahan
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <!-- ==================== JAVASCRIPT CORE ==================== -->
+  <script>
+    (function initTheme() {
+      const saved = localStorage.getItem('uroo-theme');
+      if (saved === 'dark' || (!saved && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+        document.documentElement.classList.add('dark');
+        document.documentElement.classList.remove('light');
+        document.body.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+        document.documentElement.classList.add('light');
+        document.body.classList.remove('dark');
+      }
+    })();
+
+    function toggleTheme() {
+      const isDark = document.documentElement.classList.toggle('dark');
+      document.body.classList.toggle('dark', isDark);
+      if (!isDark) {
+        document.documentElement.classList.add('light');
+        document.body.classList.add('light');
+      } else {
+        document.documentElement.classList.remove('light');
+        document.body.classList.remove('light');
+      }
+      try { localStorage.setItem('uroo-theme', isDark ? 'dark' : 'light'); } catch (e) {}
+      lucide.createIcons();
+    }
+
+    const sidebar = document.getElementById('sidebar');
+    function openDrawer() {
+      sidebar.classList.add('open');
+      document.getElementById('overlay').classList.remove('opacity-0', 'pointer-events-none');
+    }
+    function closeDrawer() {
+      sidebar.classList.remove('open');
+      document.getElementById('overlay').classList.add('opacity-0', 'pointer-events-none');
+    }
+
+    function toast(msg, type) {
+      const t = document.createElement('div');
+      t.className = 'fixed bottom-5 right-5 z-[90] glass-panel rounded-2xl px-4 py-3 text-sm font-semibold shadow-2xl anim-toast-in flex items-center gap-2.5 pointer-events-none max-w-sm text-zinc-900 dark:text-zinc-100';
+      t.innerHTML = '<i data-lucide="' + (type || 'check-circle') + '" class="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0"></i><span>' + msg + '</span>';
+      document.body.appendChild(t);
+      lucide.createIcons();
+      setTimeout(() => {
+        t.style.opacity = '0';
+        setTimeout(() => t.remove(), 300);
+      }, 2400);
+    }
+
+    const VIEWS = ['dashboard', 'stok', 'penerimaan', 'pengiriman', 'kategori', 'pemasok', 'gudang', 'transfer', 'laporan', 'pengaturan'];
+
+    function switchView(viewId, updateHash = true) {
+      if (!VIEWS.includes(viewId)) viewId = 'dashboard';
+
+      document.querySelectorAll('.u-view').forEach(el => el.classList.remove('active'));
+      const target = document.getElementById('view-' + viewId);
+      if (target) target.classList.add('active');
+
+      document.querySelectorAll('.nav-link').forEach(btn => {
+        const nav = btn.getAttribute('data-nav');
+        if (nav === viewId) {
+          btn.className = 'nav-link w-full flex items-center gap-3 px-3 py-2.5 rounded-2xl text-sm font-medium transition bg-black text-white dark:bg-white dark:text-black shadow-sm';
+        } else {
+          btn.className = 'nav-link w-full flex items-center gap-3 px-3 py-2.5 rounded-2xl text-sm font-medium transition text-zinc-600 dark:text-zinc-400 hover:bg-black/5 dark:hover:bg-white/5 hover:text-black dark:hover:text-white';
+        }
+      });
+
+      if (updateHash && window.location.hash !== '#' + viewId) {
+        window.location.hash = viewId;
+      }
+
+      closeDrawer();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      lucide.createIcons();
+    }
+
+    window.addEventListener('hashchange', () => {
+      const hash = window.location.hash.replace('#', '');
+      if (hash && VIEWS.includes(hash)) switchView(hash, false);
+    });
+
+    document.addEventListener('DOMContentLoaded', () => {
+      lucide.createIcons();
+      const initialHash = window.location.hash.replace('#', '');
+      if (initialHash && VIEWS.includes(initialHash)) switchView(initialHash, false);
+      else switchView('dashboard', false);
+    });
+
+    /* ==================== PER-VIEW JS ==================== */
+
+    // --- STOK ---
+    function setChipGroup(groupClass, key, val) {
+      document.querySelectorAll(groupClass).forEach(c => {
+        const on = c.dataset[key] === val;
+        c.classList.toggle('bg-black', on);
+        c.classList.toggle('text-white', on);
+        c.classList.toggle('dark:bg-white', on);
+        c.classList.toggle('dark:text-black', on);
+        c.classList.toggle('bg-black/5', !on);
+        c.classList.toggle('dark:bg-white/10', !on);
+        c.classList.toggle('text-zinc-600', !on);
+        c.classList.toggle('dark:text-zinc-300', !on);
+      });
+    }
+    function filterStokStatus(stat) {
+      const q = (document.getElementById('stok-search')?.value || '').trim().toLowerCase();
+      const s = stat || 'semua';
+      setChipGroup('#view-stok .stok-chip', 's', s);
+      document.querySelectorAll('#view-stok tbody tr[data-status]').forEach(r => {
+        const matched = (s === 'semua' || r.dataset.status === s) &&
+          (!q || r.textContent.toLowerCase().indexOf(q) !== -1);
+        r.style.display = matched ? '' : 'none';
+      });
+    }
+    function tambahBarang() {
+      toast('Form penambahan item baru dibuka', 'plus');
+    }
+
+    // --- PENERIMAAN ---
+    function filterPenerimaan(stat) {
+      setChipGroup('#view-penerimaan .recv-chip', 's', stat);
+      document.querySelectorAll('#view-penerimaan tbody tr[data-status]').forEach(r => {
+        r.style.display = (stat === 'semua' || r.dataset.status === stat) ? '' : 'none';
+      });
+    }
+    function catatPenerimaan() {
+      const supplier = document.getElementById('recv-supplier').value;
+      const date = document.getElementById('recv-date').value || 'Hari ini';
+      const ref = (document.getElementById('recv-ref').value || 'PO-AUTO-' + Date.now().toString().slice(-4)).trim();
+      const qty = parseInt(document.getElementById('recv-qty').value, 10) || 1;
+      if (!supplier) { toast('Pilih supplier terlebih dahulu', 'alert-triangle'); return; }
+      const tbody = document.getElementById('recv-tbody');
+      const tr = document.createElement('tr');
+      tr.className = 'hover-row';
+      tr.setAttribute('data-status', 'proses');
+      tr.innerHTML =
+        '<td class="px-5 py-3.5"><p class="font-mono font-bold text-zinc-900 dark:text-white">' + ref + '</p><p class="text-[11px] font-mono text-zinc-500">Menunggu QC</p></td>' +
+        '<td class="px-5 py-3.5"><div class="flex items-center gap-2.5"><div class="w-7 h-7 rounded-lg bg-gradient-to-br from-zinc-700 to-zinc-900 dark:from-zinc-200 dark:to-zinc-500 text-white dark:text-zinc-900 grid place-items-center text-[10px] font-black">' + supplier.replace(/\b(\w)/g, m => m.toUpperCase()).split(' ').slice(0, 2).map(w => w[0]).join('') + '</div><span class="font-semibold text-zinc-800 dark:text-zinc-200">' + supplier + '</span></div></td>' +
+        '<td class="px-5 py-3.5 text-zinc-600 dark:text-zinc-300">' + date + '</td>' +
+        '<td class="px-5 py-3.5 font-mono text-zinc-900 dark:text-white">' + qty + '</td>' +
+        '<td class="px-5 py-3.5 font-mono text-zinc-500">—</td>' +
+        '<td class="px-5 py-3.5"><span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold bg-amber-500/15 text-amber-700 dark:text-amber-400"><span class="w-1.5 h-1.5 rounded-full bg-current"></span>Proses</span></td>' +
+        '<td class="px-5 py-3.5"><div class="flex items-center gap-1.5 justify-end"><button class="p-1.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 text-zinc-500 dark:text-zinc-400"><i data-lucide="clipboard-check" class="w-3.5 h-3.5"></i></button></div></td>';
+      tbody.insertBefore(tr, tbody.firstChild);
+      document.getElementById('recv-ref').value = '';
+      document.getElementById('recv-qty').value = '1';
+      document.getElementById('recv-note').value = '';
+      lucide.createIcons();
+      toast('GRN untuk ' + supplier + ' diterbitkan', 'check-check');
+    }
+
+    // --- PENGIRIMAN ---
+    function filterPengiriman(stat) {
+      setChipGroup('#view-pengiriman .ship-chip', 's', stat);
+      document.querySelectorAll('#view-pengiriman tbody tr[data-status]').forEach(r => {
+        r.style.display = (stat === 'semua' || r.dataset.status === stat) ? '' : 'none';
+      });
+    }
+    function lacakPengiriman(ref) {
+      toast('Lacak resi ' + ref + ': di rute menuju tujuan', 'route');
+    }
+
+    // --- KATEGORI ---
+    function tambahKategori() {
+      toast('Form tambah kategori dibuka', 'folder-plus');
+    }
+
+    // --- PEMASOK ---
+    function filterPemasok(stat) {
+      setChipGroup('#view-pemasok .sup-chip', 's', stat);
+      document.querySelectorAll('#sup-tbody tr[data-status]').forEach(r => {
+        r.style.display = (stat === 'semua' || r.dataset.status === stat) ? '' : 'none';
+      });
+    }
+    function undangPemasok() {
+      toast('Undangan kolaborasi dikirim ke pemasok baru', 'user-plus');
+    }
+
+    // --- GUDANG ---
+    function tambahGudang() {
+      toast('Form pendaftaran lokasi gudang baru dibuka', 'warehouse');
+    }
+
+    // --- TRANSFER ---
+    function buatTransfer() {
+      const dari = document.getElementById('trf-dari').value;
+      const ke = document.getElementById('trf-ke').value;
+      const item = (document.getElementById('trf-item').value || 'Transfer stok').trim();
+      const qty = parseInt(document.getElementById('trf-qty').value, 10) || 1;
+      if (dari === ke) { toast('Gudang asal dan tujuan tidak boleh sama', 'alert-triangle'); return; }
+      const tbody = document.getElementById('trf-tbody');
+      const ref = 'TRF-2026-0' + (90 + (tbody.querySelectorAll('tr').length + 1));
+      const tr = document.createElement('tr');
+      tr.className = 'hover-row';
+      tr.setAttribute('data-status', 'proses');
+      tr.innerHTML =
+        '<td class="px-5 py-3.5 font-mono font-bold text-zinc-900 dark:text-white">' + ref + '</td>' +
+        '<td class="px-5 py-3.5"><div class="flex items-center gap-2 whitespace-nowrap"><span class="px-2 py-0.5 rounded-lg bg-black/5 dark:bg-white/10 text-[11px] font-bold text-zinc-600 dark:text-zinc-300">' + dari + '</span><i data-lucide="arrow-right" class="w-3.5 h-3.5 text-zinc-400"></i><span class="px-2 py-0.5 rounded-lg bg-sky-500/15 text-[11px] font-bold text-sky-700 dark:text-sky-400">' + ke + '</span></div></td>' +
+        '<td class="px-5 py-3.5"><p class="text-xs font-semibold text-zinc-800 dark:text-zinc-200">' + item + '</p><p class="text-[11px] font-mono text-zinc-500">' + qty + ' item</p></td>' +
+        '<td class="px-5 py-3.5 text-zinc-600 dark:text-zinc-300">' + (document.getElementById('trf-date').value || 'Hari ini') + '</td>' +
+        '<td class="px-5 py-3.5"><span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold bg-sky-500/15 text-sky-700 dark:text-sky-400"><span class="w-1.5 h-1.5 rounded-full bg-current"></span>Proses</span></td>' +
+        '<td class="px-5 py-3.5"><div class="flex items-center gap-1.5 justify-end"><button class="p-1.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 text-zinc-500 dark:text-zinc-400"><i data-lucide="file-down" class="w-3.5 h-3.5"></i></button></div></td>';
+      tbody.insertBefore(tr, tbody.firstChild);
+      document.getElementById('trf-item').value = '';
+      document.getElementById('trf-qty').value = '1';
+      lucide.createIcons();
+      toast('Transfer ' + ref + ' dibuat & menunggu persetujuan', 'send');
+    }
+
+    // --- LAPORAN ---
+    function setPeriode(periode) {
+      setChipGroup('#view-laporan .periode-chip', 'p', periode);
+      toast('Periode laporan diubah ke ' + periode, 'calendar');
+    }
+    function unduhLaporan(nama, tipe) {
+      toast('Laporan ' + nama + ' diekspor ke ' + tipe, 'file-down');
+    }
+    function simpanJadwal() {
+      toast('Jadwal laporan otomatis disimpan', 'save');
+    }
+
+    // --- PENGATURAN ---
+    let selectedAppearance = 'light';
+    function renderAppearance() {
+      document.querySelectorAll('.appearance-card').forEach(card => {
+        const on = card.dataset.appearance === selectedAppearance;
+        card.classList.toggle('selected', on);
+        card.classList.toggle('border-zinc-900', on);
+        card.classList.toggle('dark:border-zinc-50', on);
+        card.classList.toggle('ring-2', on);
+        card.classList.toggle('ring-zinc-900/10', on);
+        card.classList.toggle('dark:ring-white/20', on);
+        const dot = card.querySelector('.appearance-check span');
+        if (dot) dot.classList.toggle('opacity-0', !on);
+      });
+    }
+    function selectAppearance(v) {
+      selectedAppearance = v;
+      renderAppearance();
+    }
+    function saveGeneral() {
+      const ws = (document.getElementById('ws-name')?.value || '').trim();
+      if (!ws) { toast('Nama workspace tidak boleh kosong', 'alert-triangle'); return; }
+      toast('Pengaturan gudang berhasil disimpan', 'save');
+    }
+    renderAppearance();
+  </script>
+<script src="../../assets/js/uroo-nav.js"></script>
+</body>
+</html>

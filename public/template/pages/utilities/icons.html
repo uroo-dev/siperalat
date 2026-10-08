@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="id" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Uroo UI — Icons</title>
+  <script src="../../assets/js/tailwind.js"></script>
+  <script src="../../assets/js/lucide.js"></script>
+  <script>
+    tailwind.config = { darkMode: 'class', theme: { extend: { colors: { glass: {
+      light: 'rgba(255,255,255,0.65)', 'light-border': 'rgba(255,255,255,0.8)',
+      dark: 'rgba(18,18,20,0.65)', 'dark-border': 'rgba(255,255,255,0.1)'
+    } } } } };
+  </script>
+  <link rel="stylesheet" href="../../assets/css/uroo.css">
+  <style>
+    .u-bg{position:fixed;inset:0;z-index:-10;transition:opacity .35s ease}
+    .u-bg-light{background:linear-gradient(135deg,#dfe3ea,#f4f4f5)}
+    .u-bg-dark{background:linear-gradient(135deg,#0a0a0b,#1a1a1e);opacity:0}
+    body.dark .u-bg-light{opacity:0}
+    body.dark .u-bg-dark{opacity:1}
+    .u-glow{position:fixed;border-radius:9999px;filter:blur(90px);z-index:-9;pointer-events:none;background:rgba(0,0,0,0.06);transition:background-color .35s ease}
+    body.dark .u-glow{background:rgba(255,255,255,0.05)}
+    .u-glow-1{width:420px;height:420px;top:-140px;left:-140px}
+    .u-glow-2{width:520px;height:520px;bottom:-200px;right:-140px}
+
+    .icon-tile{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.55rem;padding:1rem .4rem;border-radius:1rem;background:rgba(0,0,0,.035);border:1px solid rgba(0,0,0,.05);font-size:.6rem;color:#71717a;cursor:pointer;transition:background-color .18s ease,transform .18s ease,border-color .18s ease;position:relative;user-select:none}
+    body.dark .icon-tile{background:rgba(255,255,255,.03);border-color:rgba(255,255,255,.06)}
+    .icon-tile:hover{background:rgba(0,0,0,.07);border-color:rgba(0,0,0,.12);transform:translateY(-2px)}
+    body.dark .icon-tile:hover{background:rgba(255,255,255,.07);border-color:rgba(255,255,255,.14)}
+    .icon-tile .nm{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-align:center}
+    .icon-tile .cp{position:absolute;top:-8px;right:-6px;font-size:.55rem;font-weight:800;padding:2px 6px;border-radius:999px;background:#18181b;color:#fafafa;opacity:0;transform:translateY(2px);transition:opacity .15s ease,transform .15s ease}
+    body.dark .icon-tile .cp{background:#fafafa;color:#18181b}
+    .icon-tile.is-copied .cp{opacity:1;transform:none}
+
+    .grp-title{position:sticky;top:0;z-index:5;backdrop-filter:blur(10px)}
+  </style>
+</head>
+<body class="min-h-screen font-sans antialiased text-zinc-800 dark:text-zinc-100">
+  <script>(function initTheme(){var saved=null;try{saved=localStorage.getItem('uroo-theme')}catch(e){};var dark=(saved==='dark')||(!saved&&window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches);var de=document.documentElement;if(dark){de.classList.add('dark');de.classList.remove('light');if(document.body){document.body.classList.add('dark');document.body.classList.remove('light');}}else{de.classList.remove('dark');de.classList.add('light');if(document.body){document.body.classList.remove('dark');document.body.classList.add('light');}}})();</script>
+  <div class="u-bg u-bg-light" aria-hidden="true"></div>
+  <div class="u-bg u-bg-dark" aria-hidden="true"></div>
+  <div class="u-glow u-glow-1" aria-hidden="true"></div>
+  <div class="u-glow u-glow-2" aria-hidden="true"></div>
+
+  <button onclick="toggleTheme()" class="fixed top-4 right-4 z-50 p-2 rounded-full glass-panel shadow-2xl" title="Toggle tema">
+    <i data-lucide="sun" class="w-4 h-4 hidden dark:block"></i>
+    <i data-lucide="moon" class="w-4 h-4 block dark:hidden"></i>
+  </button>
+
+  <main class="max-w-6xl mx-auto px-5 py-10 space-y-6">
+    <header class="glass-panel rounded-3xl p-6 sm:p-8">
+      <span class="inline-flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-1 rounded-full bg-black/5 dark:bg-white/5 mb-3">
+        <i data-lucide="sparkles" class="w-3 h-3"></i> Icons
+      </span>
+      <h1 class="text-3xl font-extrabold tracking-tight">Lucide Icons</h1>
+      <p class="text-sm text-zinc-500 dark:text-zinc-400 mt-1">Semua <span id="icoCount">2044</span> ikon Lucide dimuat lokal, dikelompokkan per kategori. Klik ikon untuk menyalin kodenya.</p>
+    </header>
+
+    <section class="glass-panel rounded-3xl p-5 sm:p-6">
+      <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-zinc-400 dark:text-zinc-500 mb-4">Contoh Penggunaan</p>
+      <pre class="font-mono text-xs bg-black/5 dark:bg-white/5 rounded-xl p-4 overflow-auto">&lt;i data-lucide="settings" class="w-4 h-4"&gt;&lt;/i&gt;
+&lt;script&gt;lucide.createIcons();&lt;/script&gt;</pre>
+    </section>
+
+    <section class="glass-panel rounded-3xl p-5 sm:p-6">
+      <div class="flex flex-wrap items-center gap-3">
+        <div class="relative flex-1 min-w-[220px]">
+          <i data-lucide="search" class="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-400"></i>
+          <input id="iconSearch" oninput="filterIcons(this.value)" type="text" placeholder="Cari ikon (mis. arrow, user, settings)..." autofocus class="w-full bg-black/5 dark:bg-white/5 rounded-xl pl-10 pr-9 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-black/20 dark:focus:ring-white/20">
+          <button onclick="document.getElementById('iconSearch').value=''; filterIcons(''); document.getElementById('iconSearch').focus()" class="absolute right-1.5 top-1/2 -translate-y-1/2 p-1 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 hidden" id="iconClear"><i data-lucide="x" class="w-3.5 h-3.5"></i></button>
+        </div>
+        <span class="text-xs text-zinc-500 dark:text-zinc-400" id="icoResult"></span>
+        <button onclick="copyAllVisible()" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-black text-white dark:bg-white dark:text-black text-sm font-bold hover:opacity-90 shadow-lg"><i data-lucide="clipboard-copy" class="w-4 h-4"></i> Salin terlihat</button>
+      </div>
+    </section>
+
+    <section id="iconGroups" class="space-y-6"></section>
+    <div id="iconEmpty" class="hidden glass-panel rounded-3xl p-12 text-center">
+      <i data-lucide="search-x" class="w-10 h-10 mx-auto mb-3 text-zinc-400"></i>
+      <p class="text-sm font-semibold text-zinc-500 dark:text-zinc-400">Tidak ada ikon yang cocok dengan pencarian.</p>
+    </div>
+  </main>
+
+  <script>
+    lucide.createIcons();
+    function toggleTheme(){const h=document.documentElement,b=document.body;h.classList.toggle('dark');b.classList.toggle('dark');try{localStorage.setItem('uroo-theme',b.classList.contains('dark')?'dark':'light')}catch(e){} lucide.createIcons();}
+  </script>
+  <script src="../../assets/js/uroo-icons.js"></script>
+  <script>
+    var ALL = (window.UrooIcons && window.UrooIcons.groups) || [];
+    var countEl = document.getElementById('icoCount');
+    if (countEl && window.UrooIcons) countEl.textContent = window.UrooIcons.count;
+
+    function tile(name){
+      return '<div class="icon-tile" onclick="copyIcon(this)" data-name="'+name+'" title="klik untuk salin">'+
+        '<i data-lucide="'+name+'" class="w-5 h-5"></i>'+
+        '<span class="nm">'+name+'</span><span class="cp">Disalin</span></div>';
+    }
+
+    function render(groups){
+      var box = document.getElementById('iconGroups');
+      var html = '';
+      groups.forEach(function(g){
+        html += '<div class="grp"><div class="grp-title glass-panel rounded-2xl px-4 py-2.5 mb-3 flex items-center justify-between">'+
+          '<h2 class="text-[11px] font-bold uppercase tracking-[0.14em] text-zinc-500 dark:text-zinc-400">'+
+          '<i data-lucide="folder" style="width:13px;height:13px;display:inline-block;vertical-align:-2px;margin-right:6px"></i>'+g.name+'</h2>'+
+          '<span class="text-[11px] font-bold text-zinc-400 dark:text-zinc-500">'+g.icons.length+'</span></div>'+
+          '<div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-7 gap-2.5">'+
+          g.icons.map(tile).join('')+'</div></div>';
+      });
+      box.innerHTML = html;
+      if (window.lucide) lucide.createIcons();
+    }
+
+    function filterIcons(q){
+      q=(q||'').trim().toLowerCase();
+      var cs=document.getElementById('iconClear');
+      if(cs) cs.classList.toggle('hidden', !q);
+      if(!q){ render(ALL); document.getElementById('iconEmpty').classList.add('hidden'); setResult(ALL.reduce(function(n,g){return n+g.icons.length;},0)); return; }
+      var matched = [];
+      ALL.forEach(function(g){
+        var hit = g.icons.filter(function(n){ return n.indexOf(q)!==-1; });
+        if(hit.length) matched.push({name:g.name, icons:hit});
+      });
+      render(matched);
+      var total = matched.reduce(function(n,g){return n+g.icons.length;},0);
+      document.getElementById('iconEmpty').classList.toggle('hidden', total>0);
+      setResult(total);
+    }
+    function setResult(n){ document.getElementById('icoResult').textContent = n + ' ikon'; }
+
+    function copyIcon(el){
+      var name=el.getAttribute('data-name');
+      var snippet='<i data-lucide="'+name+'" class="w-4 h-4"></i>';
+      copySnippet(snippet, el);
+    }
+    function copyAllVisible(){
+      var names=[].map.call(document.querySelectorAll('#iconGroups .icon-tile'), function(t){return t.getAttribute('data-name');});
+      var snippet=names.map(function(n){return '<i data-lucide="'+n+'"></i>';}).join('\n');
+      copySnippet(snippet, document.querySelector('#iconGroups'));
+    }
+    function copySnippet(txt, ref){
+      function copy(){
+        if(navigator.clipboard && navigator.clipboard.writeText){ return navigator.clipboard.writeText(txt); }
+        var ta=document.createElement('textarea'); ta.value=txt; ta.style.position='fixed'; ta.style.opacity='0'; document.body.appendChild(ta); ta.select();
+        try{document.execCommand('copy');}catch(e){} document.body.removeChild(ta); return Promise.resolve();
+      }
+      copy().then(function(){ flash(ref); });
+    }
+    function flash(ref){
+      if(!ref) return;
+      var t=ref.classList.contains('icon-tile')?ref:null;
+      if(t){ t.classList.add('is-copied'); setTimeout(function(){t.classList.remove('is-copied');},900); return; }
+      ref.style.boxShadow='0 0 0 2px rgba(16,185,129,.5)';
+      setTimeout(function(){ ref.style.boxShadow=''; },700);
+    }
+
+    render(ALL);
+    setResult(ALL.reduce(function(n,g){return n+g.icons.length;},0));
+  </script>
+  <script src="../../assets/js/uroo-nav.js"></script>
+</body>
+</html>

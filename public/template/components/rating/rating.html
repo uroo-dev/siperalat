@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="id" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Uroo UI - Rating</title>
+  <script src="../../assets/js/tailwind.js"></script>
+  <script src="../../assets/js/lucide.js"></script>
+  <script>tailwind.config={darkMode:'class',theme:{extend:{colors:{glass:{light:'rgba(255,255,255,0.65)','light-border':'rgba(255,255,255,0.8)',dark:'rgba(18,18,20,0.65)','dark-border':'rgba(255,255,255,0.1)'}}}}}</script>
+  <link rel="stylesheet" href="../../assets/css/uroo.css">
+  <style>
+    .u-bg{position:fixed;inset:0;z-index:-10;transition:opacity .35s ease}
+    .u-bg-light{background:linear-gradient(135deg,#dfe3ea,#f4f4f5)}
+    .u-bg-dark{background:linear-gradient(135deg,#0a0a0b,#1a1a1e);opacity:0}
+    body.dark .u-bg-light{opacity:0}
+    body.dark .u-bg-dark{opacity:1}
+    .u-glow{position:fixed;border-radius:9999px;filter:blur(90px);z-index:-9;pointer-events:none;transition:background-color .35s ease;background:rgba(0,0,0,0.06)}
+    body.dark .u-glow{background:rgba(255,255,255,0.05)}
+    .u-glow-1{width:420px;height:420px;top:-140px;left:-140px}
+    .u-glow-2{width:520px;height:520px;bottom:-200px;right:-140px}
+    .u-glow-3{width:300px;height:300px;top:42%;left:58%}
+    body:not(.dark) .icon-sun{display:none}
+    body.dark .icon-moon{display:none}
+    .u-stars{display:inline-flex;align-items:center;gap:.25rem;line-height:0}
+    .u-star{position:relative;display:inline-flex;cursor:pointer;color:rgba(0,0,0,.16);transition:color .12s ease,transform .12s ease}
+    body.dark .u-star{color:rgba(255,255,255,.22)}
+    .u-star:hover{transform:scale(1.1)}
+    .u-star .u-star-fill{position:absolute;inset:0;overflow:hidden;color:currentColor}
+    .u-star.u-on{color:#1c1917}
+    body.dark .u-star.u-on{color:#fafafa}
+    .u-star.u-ro{cursor:default}
+    .u-star.u-ro:hover{transform:none}
+    .u-hover .u-star{color:rgba(24,24,27,.55)}
+    body.dark .u-hover .u-star{color:rgba(250,250,250,.6)}
+    .u-hover .u-star.u-ho{color:#1c1917}
+    body.dark .u-hover .u-star.u-ho{color:#fafafa}
+    .u-bar{height:6px;border-radius:9999px;background:rgba(0,0,0,.1);overflow:hidden}
+    body.dark .u-bar{background:rgba(255,255,255,.12)}
+    .u-bar>span{display:block;height:100%;background:linear-gradient(90deg,#1c1917,#44403c);border-radius:9999px;transition:width .4s ease}
+    body.dark .u-bar>span{background:linear-gradient(90deg,#fafafa,#a1a1aa)}
+    .u-btn{transition:background-color .2s ease,transform .1s ease}
+    .u-btn:active{transform:scale(.97)}
+  </style>
+</head>
+<body class="min-h-screen p-6 font-sans antialiased text-zinc-800 dark:text-zinc-100">
+  <script>(function initTheme(){var saved=null;try{saved=localStorage.getItem('uroo-theme')}catch(e){};var dark=(saved==='dark')||(!saved&&window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches);var de=document.documentElement;if(dark){de.classList.add('dark');de.classList.remove('light');if(document.body){document.body.classList.add('dark');document.body.classList.remove('light');}}else{de.classList.remove('dark');de.classList.add('light');if(document.body){document.body.classList.remove('dark');document.body.classList.add('light');}}})();</script>
+<div class="u-bg u-bg-light" aria-hidden="true"></div>
+<div class="u-bg u-bg-dark" aria-hidden="true"></div>
+<div class="u-glow u-glow-1" aria-hidden="true"></div>
+<div class="u-glow u-glow-2" aria-hidden="true"></div>
+<div class="u-glow u-glow-3" aria-hidden="true"></div>
+
+<button onclick="toggleTheme()" aria-label="Ganti tema" title="Ganti tema"
+  class="fixed top-6 right-6 z-50 glass-panel rounded-full p-2.5 text-zinc-600 dark:text-zinc-200 hover:scale-110 transition-transform">
+  <i data-lucide="sun" class="icon-sun w-5 h-5"></i>
+  <i data-lucide="moon" class="icon-moon w-5 h-5"></i>
+</button>
+
+<main class="relative max-w-6xl mx-auto pt-16 pb-24">
+
+  <div class="relative z-10">
+    <header class="mb-10">
+      <p class="text-[11px] font-bold uppercase tracking-[0.2em] text-zinc-400 dark:text-zinc-500">Uroo UI / Rating</p>
+      <h1 class="mt-2 text-3xl md:text-4xl font-extrabold tracking-tight text-zinc-900 dark:text-white">Rating</h1>
+      <p class="mt-3 max-w-2xl text-sm leading-relaxed text-zinc-500 dark:text-zinc-400">
+        Penilaian bintang interaktif dengan hover dan klik, varian setengah bintang,
+        mode hanya-baca, serta pilihan ukuran. Label dinamis memperbarui keterangan sesuai pilihan Anda.
+      </p>
+    </header>
+
+    <section class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+      <div data-copy class="glass-panel rounded-3xl p-6 md:p-7">
+        <div class="flex items-center gap-3 mb-6">
+          <span class="h-5 w-1 rounded-full bg-zinc-900 dark:bg-zinc-100"></span>
+          <h2 class="text-lg font-bold text-zinc-900 dark:text-white">Interaktif</h2>
+        </div>
+        <p class="text-xs text-zinc-400 dark:text-zinc-500 mb-4 -mt-2">Arahkan dan klik untuk menilai pengalaman</p>
+        <div class="flex items-center gap-4">
+          <div class="u-stars u-inter" data-uroo-rate data-size="36" data-value="4"></div>
+          <span class="text-sm font-bold text-zinc-900 dark:text-white" id="interLabel">4</span>
+        </div>
+        <div class="mt-6 flex flex-wrap items-center gap-3">
+          <span class="inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-xs font-semibold bg-black/5 dark:bg-white/10 text-zinc-700 dark:text-zinc-200" id="interChip">Sangat Baik</span>
+          <span class="text-xs text-zinc-400 dark:text-zinc-500">Klik untuk memilih, arahkan untuk pratinjau</span>
+        </div>
+      </div>
+
+      <div data-copy class="glass-panel rounded-3xl p-6 md:p-7">
+        <div class="flex items-center gap-3 mb-6">
+          <span class="h-5 w-1 rounded-full bg-zinc-900 dark:bg-zinc-100"></span>
+          <h2 class="text-lg font-bold text-zinc-900 dark:text-white">Setengah Bintang</h2>
+        </div>
+        <p class="text-xs text-zinc-400 dark:text-zinc-500 mb-4 -mt-2">Klik separuh kiri untuk nilai .5</p>
+        <div class="flex items-center gap-4">
+          <div class="u-stars u-half" data-uroo-rate data-half="1" data-size="34" data-value="3.5"></div>
+          <span class="text-sm font-bold text-zinc-900 dark:text-white" id="halfLabel">3.5</span>
+        </div>
+        <div class="mt-6 flex items-center gap-2 text-zinc-400 dark:text-zinc-500">
+          <button id="halfMinus" class="u-btn inline-flex items-center justify-center w-8 h-8 rounded-full bg-black/5 dark:bg-white/10 hover:bg-black/10 dark:hover:bg-white/15">
+            <i data-lucide="minus" class="w-4 h-4"></i>
+          </button>
+          <button id="halfPlus" class="u-btn inline-flex items-center justify-center w-8 h-8 rounded-full bg-black/5 dark:bg-white/10 hover:bg-black/10 dark:hover:bg-white/15">
+            <i data-lucide="plus" class="w-4 h-4"></i>
+          </button>
+          <span class="text-xs ml-1">Naik/turunkan nilai sebesar 0.5</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+      <div data-copy class="glass-panel rounded-3xl p-6 md:p-7">
+        <div class="flex items-center gap-3 mb-6">
+          <span class="h-5 w-1 rounded-full bg-zinc-900 dark:bg-zinc-100"></span>
+          <h2 class="text-lg font-bold text-zinc-900 dark:text-white">Hanya Baca</h2>
+        </div>
+        <p class="text-xs text-zinc-400 dark:text-zinc-500 mb-4 -mt-2">Menampilkan nilai tanpa interaksi</p>
+        <div class="space-y-5">
+          <div class="flex items-center gap-4">
+            <div class="u-stars" data-uroo-rate data-ro="1" data-size="26" data-value="5"></div>
+            <span class="text-xs text-zinc-400 dark:text-zinc-500">5.0 - Luar Biasa</span>
+          </div>
+          <div class="flex items-center gap-4">
+            <div class="u-stars" data-uroo-rate data-ro="1" data-size="26" data-value="4.5"></div>
+            <span class="text-xs text-zinc-400 dark:text-zinc-500">4.5 - Sangat Baik</span>
+          </div>
+          <div class="flex items-center gap-4">
+            <div class="u-stars" data-uroo-rate data-ro="1" data-size="26" data-value="3.5"></div>
+            <span class="text-xs text-zinc-400 dark:text-zinc-500">3.5 - Cukup</span>
+          </div>
+          <div class="flex items-center gap-4">
+            <div class="u-stars" data-uroo-rate data-ro="1" data-size="26" data-value="2"></div>
+            <span class="text-xs text-zinc-400 dark:text-zinc-500">2.0 - Kurang</span>
+          </div>
+        </div>
+      </div>
+
+      <div data-copy class="glass-panel rounded-3xl p-6 md:p-7">
+        <div class="flex items-center gap-3 mb-6">
+          <span class="h-5 w-1 rounded-full bg-zinc-900 dark:bg-zinc-100"></span>
+          <h2 class="text-lg font-bold text-zinc-900 dark:text-white">Varian Ukuran</h2>
+        </div>
+        <div class="space-y-5">
+          <div class="flex items-center justify-between gap-4">
+            <span class="text-xs text-zinc-400 dark:text-zinc-500 w-16">Kecil</span>
+            <div class="u-stars" data-uroo-rate data-ro="1" data-size="18" data-value="4"></div>
+          </div>
+          <div class="flex items-center justify-between gap-4">
+            <span class="text-xs text-zinc-400 dark:text-zinc-500 w-16">Sedang</span>
+            <div class="u-stars" data-uroo-rate data-ro="1" data-size="26" data-value="4"></div>
+          </div>
+          <div class="flex items-center justify-between gap-4">
+            <span class="text-xs text-zinc-400 dark:text-zinc-500 w-16">Besar</span>
+            <div class="u-stars" data-uroo-rate data-ro="1" data-size="38" data-value="4"></div>
+          </div>
+          <div class="flex items-center justify-between gap-4">
+            <span class="text-xs text-zinc-400 dark:text-zinc-500 w-16">Ekstra</span>
+            <div class="u-stars" data-uroo-rate data-ro="1" data-size="48" data-value="4"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div data-copy class="glass-panel rounded-3xl p-6 md:p-7">
+        <div class="flex items-center gap-3 mb-5">
+          <span class="h-5 w-1 rounded-full bg-zinc-900 dark:bg-zinc-100"></span>
+          <h2 class="text-lg font-bold text-zinc-900 dark:text-white">Ringkasan Ulasan</h2>
+        </div>
+        <div class="flex items-end gap-5">
+          <div class="text-center">
+            <p class="text-5xl font-extrabold tracking-tight text-zinc-900 dark:text-white">4.3</p>
+            <div class="u-stars mt-2" data-uroo-rate data-ro="1" data-size="18" data-value="4.5"></div>
+            <p class="mt-1 text-xs text-zinc-400 dark:text-zinc-500">1.284 ulasan</p>
+          </div>
+          <div class="flex-1 space-y-2">
+            <div class="flex items-center gap-3">
+              <span class="text-xs text-zinc-500 w-8">5</span>
+              <div class="u-bar flex-1"><span data-w="80"></span></div>
+              <span class="text-xs text-zinc-400 w-8 text-right">80%</span>
+            </div>
+            <div class="flex items-center gap-3">
+              <span class="text-xs text-zinc-500 w-8">4</span>
+              <div class="u-bar flex-1"><span data-w="12"></span></div>
+              <span class="text-xs text-zinc-400 w-8 text-right">12%</span>
+            </div>
+            <div class="flex items-center gap-3">
+              <span class="text-xs text-zinc-500 w-8">3</span>
+              <div class="u-bar flex-1"><span data-w="4"></span></div>
+              <span class="text-xs text-zinc-400 w-8 text-right">4%</span>
+            </div>
+            <div class="flex items-center gap-3">
+              <span class="text-xs text-zinc-500 w-8">2</span>
+              <div class="u-bar flex-1"><span data-w="2"></span></div>
+              <span class="text-xs text-zinc-400 w-8 text-right">2%</span>
+            </div>
+            <div class="flex items-center gap-3">
+              <span class="text-xs text-zinc-500 w-8">1</span>
+              <div class="u-bar flex-1"><span data-w="2"></span></div>
+              <span class="text-xs text-zinc-400 w-8 text-right">2%</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div data-copy class="glass-panel rounded-3xl p-6 md:p-7">
+        <div class="flex items-center gap-3 mb-5">
+          <span class="h-5 w-1 rounded-full bg-zinc-900 dark:bg-zinc-100"></span>
+          <h2 class="text-lg font-bold text-zinc-900 dark:text-white">Beri Penilaian</h2>
+        </div>
+        <p class="text-xs text-zinc-400 dark:text-zinc-500 mb-4 -mt-2">Bagaimana pengalaman Anda dengan Uroo UI?</p>
+        <div class="flex items-center gap-4">
+          <div class="u-stars" data-uroo-rate data-size="30" data-value="0" id="submitRate"></div>
+          <span class="text-sm font-bold text-zinc-900 dark:text-white" id="submitVal">0</span>
+        </div>
+        <textarea id="feedback" rows="2" placeholder="Tulis ulasan Anda di sini..."
+          class="mt-5 w-full rounded-2xl bg-black/[0.03] dark:bg-white/[0.04] border border-black/10 dark:border-white/15 px-4 py-3 text-sm outline-none focus:border-zinc-800 dark:focus:border-zinc-200 resize-none transition-colors"></textarea>
+        <button id="sendRate" class="u-btn mt-4 inline-flex items-center gap-2 rounded-full bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900 px-5 py-2.5 text-sm font-semibold" disabled>
+          <i data-lucide="send" class="w-4 h-4"></i> Kirim Ulasan
+        </button>
+      </div>
+    </section>
+  </div>
+</main>
+
+<script>
+  lucide.createIcons();
+  function toggleTheme(){const h=document.documentElement,b=document.body;h.classList.toggle('dark');b.classList.toggle('dark');try{localStorage.setItem('uroo-theme',b.classList.contains('dark')?'dark':'light')}catch(e){};lucide.createIcons();}
+
+  var LABELS = {0:'Pilih Nilai',0.5:'Sangat Kurang',1:'Kurang',1.5:'Cukup Kurang',2:'Cukup',2.5:'Cukup Baik',3:'Baik',3.5:'Bagus',4:'Sangat Baik',4.5:'Luar Biasa',5:'Sempurna'};
+
+  function makeStars(el){
+    var size = parseInt(el.getAttribute('data-size')||'26',10)||26;
+    var half = el.getAttribute('data-half')==='1';
+    var value = parseFloat(el.getAttribute('data-value')||'0')||0;
+    var ro = el.getAttribute('data-ro')==='1';
+    var stars = parseInt(el.getAttribute('data-max')||'5',10)||5;
+    el._val = value; el._size = size; el._half = half; el._stars = stars;
+    el.innerHTML = '';
+    for(var i=1;i<=stars;i++){
+      var s = document.createElement('span');
+      s.className = 'u-star' + (ro?' u-ro':'');
+      s.style.fontSize = size+'px';
+      s.setAttribute('aria-label','Bintang '+i);
+      var full = document.createElement('span');
+      full.className = 'u-star-fill';
+      full.style.width='0%'; full.style.color='inherit';
+      if(!ro){
+        var left = document.createElement('span');
+        left.className='u-star-half u-star-left'; left.style.cssText='position:absolute;inset:0;width:50%;cursor:pointer';
+        var right = document.createElement('span');
+        right.className='u-star-half u-star-right'; right.style.cssText='position:absolute;inset:0;width:50%;left:50%;cursor:pointer';
+        left.onclick=function(e){e.stopPropagation();pick(el,i-0.5);};
+        right.onclick=function(e){e.stopPropagation();pick(el,i);};
+        if(!half){ right.onclick=function(e){e.stopPropagation();pick(el,i);}; left.onclick=function(e){e.stopPropagation();pick(el,i);}; }
+        s.onmouseenter=function(){preview(el,(half&&i>1)?i-0.5:i);};
+      }
+      s.appendChild(full);
+      if(!ro){ s.appendChild(left); s.appendChild(right); }
+      el.appendChild(s);
+    }
+    paint(el);
+  }
+
+  function paint(el){
+    var frac = el._value!==undefined?el._value:el._val;
+    var children = el.querySelectorAll('.u-star');
+    children.forEach(function(s,idx){
+      var idxv = idx+1;
+      s.classList.remove('u-on','u-ho');
+      var fill = s.querySelector('.u-star-fill');
+      if(!fill) return;
+      if(frac>=idxv){ fill.style.width='100%'; s.classList.add('u-on'); }
+      else if(frac>idxv-1){ fill.style.width=Math.round(((frac-(idxv-1))*100))+'%'; s.classList.add('u-on'); }
+      else { fill.style.width='0%'; }
+    });
+  }
+
+  function preview(el,val){
+    el._ho = val;
+    el.classList.add('u-hover');
+    el.querySelectorAll('.u-star').forEach(function(s,idx){
+      s.classList.toggle('u-ho', (idx+1)<=Math.ceil(val));
+    });
+  }
+  function unhover(el){
+    el.classList.remove('u-hover');
+    el.querySelectorAll('.u-star').forEach(function(s){s.classList.remove('u-ho');});
+  }
+  function pick(el,val){
+    el._value = val;
+    el.setAttribute('data-value',val);
+    paint(el); unhover(el);
+    var cb = el.getAttribute('data-onchange');
+    if(cb && window[cb]) window[cb](el,val);
+  }
+
+  document.querySelectorAll('[data-uroo-rate]').forEach(makeStars);
+  document.querySelectorAll('[data-uroo-rate]:not([data-ro="1"])').forEach(function(el){
+    el.addEventListener('mouseleave',function(){ if(el._ho!==undefined && el._ho!==el._value){unhover(el);} });
+  });
+
+  var inter = document.querySelector('.u-inter');
+  inter.setAttribute('data-onchange','labelInter');
+  function labelInter(el,val){
+    document.getElementById('interLabel').textContent = String(val);
+    document.getElementById('interChip').textContent = LABELS[val]||String(val);
+  }
+  labelInter(inter, parseFloat(inter.getAttribute('data-value')));
+
+  var halfEl = document.querySelector('.u-half');
+  halfEl.setAttribute('data-onchange','labelHalf');
+  function labelHalf(el,val){
+    document.getElementById('halfLabel').textContent = String(val);
+  }
+  labelHalf(halfEl, parseFloat(halfEl.getAttribute('data-value'))||0);
+  document.getElementById('halfMinus').onclick=function(){
+    var v=Math.max(0, halfEl._value-0.5); pick(halfEl,v);
+  };
+  document.getElementById('halfPlus').onclick=function(){
+    var v=Math.min(5, halfEl._value+0.5); pick(halfEl,v);
+  };
+
+  document.querySelectorAll('.u-bar [data-w]').forEach(function(b){
+    b.style.width = b.getAttribute('data-w')+'%';
+  });
+
+  var submit = document.getElementById('submitRate');
+  submit.setAttribute('data-onchange','labelSubmit');
+  function labelSubmit(el,val){ document.getElementById('submitVal').textContent=String(val); }
+  labelSubmit(submit, 0);
+  var fb=document.getElementById('feedback'), sendBtn=document.getElementById('sendRate');
+  function gate(){ sendBtn.disabled = !(submit._value>0 || fb.value.trim()); }
+  fb.addEventListener('input', gate);
+  sendBtn.addEventListener('click', function(){
+    var n=document.createElement('div');
+    n.className='fixed bottom-6 left-1/2 -translate-x-1/2 z-[60] glass-panel rounded-full px-5 py-3 text-sm font-semibold anim-toast-in flex items-center gap-2';
+    n.innerHTML='<i data-lucide="check" class="w-4 h-4"></i><span>Ulasan terkirim, bintang '+submit._value+'</span>';
+    document.body.appendChild(n); lucide.createIcons();
+    setTimeout(function(){n.style.cssText+=';opacity:0;transition:opacity .4s ease';},2400);
+    setTimeout(function(){n.remove();},2900);
+    submit._value=0; paint(submit); document.getElementById('submitVal').textContent='0';
+    fb.value=''; gate();
+  });
+</script>
+<script src="../../assets/js/uroo-copy.js"></script>
+<script src="../../assets/js/uroo-nav.js"></script>
+</body>
+</html>

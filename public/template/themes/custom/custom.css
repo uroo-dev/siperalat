@@ -1,0 +1,50 @@
+/* ============================================================
+   UROO UI - Theme: Custom
+   A custom accent theme (teal/graphite brand) built on the
+   same glass tokens. Include this LAST to override defaults.
+   Apply with class `custom` on <html>/<body>.
+   ============================================================ */
+
+html.custom body,
+body.custom {
+  /* Canvas */
+  --u-canvas: linear-gradient(135deg, #0f172a, #134e4a);
+
+  /* Brand accents (teal-leaning cool glass) */
+  --u-primary: #2dd4bf;
+  --u-primary-fg: #042f2e;
+  --u-accent: #14b8a6;
+  --u-accent-soft: rgba(45, 212, 191, 0.14);
+
+  /* Surfaces */
+  --u-glass-bg: rgba(15, 118, 110, 0.22);
+  --u-glass-border: rgba(45, 212, 191, 0.25);
+  --u-glass-inset: rgba(255, 255, 255, 0.08);
+
+  /* Text */
+  --u-text: #ecfeff;
+  --u-text-muted: #99f6e4;
+  --u-text-subtle: #5eead4;
+
+  /* Accent shadow */
+  --u-shadow-glass: 0 20px 40px -15px rgba(0, 0, 0, 0.6),
+                    inset 0 1px 0 0 rgba(255, 255, 255, 0.12);
+}
+
+html.custom .glass-panel {
+  background-color: var(--u-glass-bg);
+  border: 1px solid var(--u-glass-border);
+  box-shadow: var(--u-shadow-glass);
+}
+
+/* Accent buttons under custom theme */
+html.custom .btn-primary,
+body.custom .btn-primary {
+  background-color: var(--u-primary);
+  color: var(--u-primary-fg);
+}
+
+/* Accent glow for custom theme */
+html.custom .u-glow {
+  background: rgba(45, 212, 191, 0.14);
+}

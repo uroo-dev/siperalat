@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="id" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Uroo UI - Tree</title>
+  <script src="../../assets/js/tailwind.js"></script>
+  <script src="../../assets/js/lucide.js"></script>
+  <script>tailwind.config={darkMode:'class',theme:{extend:{colors:{glass:{light:'rgba(255,255,255,0.65)','light-border':'rgba(255,255,255,0.8)',dark:'rgba(18,18,20,0.65)','dark-border':'rgba(255,255,255,0.1)'}}}}}</script>
+  <link rel="stylesheet" href="../../assets/css/uroo.css">
+  <style>
+    .u-bg{position:fixed;inset:0;z-index:-10;transition:opacity .35s ease}
+    .u-bg-light{background:linear-gradient(135deg,#dfe3ea,#f4f4f5)}
+    .u-bg-dark{background:linear-gradient(135deg,#0a0a0b,#1a1a1e);opacity:0}
+    body.dark .u-bg-light{opacity:0}
+    body.dark .u-bg-dark{opacity:1}
+    .u-glow{position:fixed;border-radius:9999px;filter:blur(90px);z-index:-9;pointer-events:none;transition:background-color .35s ease;background:rgba(0,0,0,0.06)}
+    body.dark .u-glow{background:rgba(255,255,255,0.05)}
+    .u-glow-1{width:420px;height:420px;top:-140px;left:-140px}
+    .u-glow-2{width:520px;height:520px;bottom:-200px;right:-140px}
+    .u-glow-3{width:300px;height:300px;top:42%;left:58%}
+
+    .u-mini{display:inline-flex;align-items:center;gap:0.375rem;border-radius:0.625rem;border:1px solid rgba(24,24,27,0.16);background:rgba(255,255,255,0.7);padding:0.375rem 0.8125rem;font-size:0.75rem;font-weight:600;color:#3f3f46;cursor:pointer;transition:all .2s ease;}
+    .u-mini:hover{border-color:rgba(24,24,27,0.4);}
+    .dark .u-mini{border-color:rgba(255,255,255,0.16);background:rgba(255,255,255,0.06);color:#d4d4d8;}
+    .dark .u-mini:hover{border-color:rgba(255,255,255,0.4);}
+
+    .u-tree{list-style:none;margin:0;padding:0;}
+    .u-tree-item{list-style:none;margin:0;}
+    .u-tree-children{display:none;margin-left:0.75rem;padding-left:1.25rem;border-left:1px solid rgba(24,24,27,0.18);}
+    .dark .u-tree-children{border-left-color:rgba(255,255,255,0.2);}
+    .u-tree-children--dot{border-left-style:dashed;border-left-width:1.5px;}
+    .u-tree-item.open > .u-tree-children{display:block;}
+
+    .u-tree-row{display:flex;align-items:center;gap:0.375rem;min-height:2.125rem;padding:0.3125rem 0.5rem;border-radius:0.625rem;cursor:pointer;transition:background-color .15s ease;}
+    .u-tree-row:hover{background:rgba(24,24,27,0.05);}
+    .dark .u-tree-row:hover{background:rgba(255,255,255,0.06);}
+    .u-tree-row.is-selected{background:#18181b;}
+    .dark .u-tree-row.is-selected{background:#fafafa;}
+    .u-tree-row.is-selected .u-tree-name{color:#fafafa;}
+    .u-tree-row.is-selected > .u-tree-ic{color:#fafafa;}
+    .u-tree-row.is-selected > .u-tree-chev{color:#fafafa;}
+    .dark .u-tree-row.is-selected .u-tree-name{color:#18181b;}
+    .dark .u-tree-row.is-selected > .u-tree-ic{color:#18181b;}
+    .dark .u-tree-row.is-selected > .u-tree-chev{color:#18181b;}
+
+    .u-tree-chev{width:1.375rem;height:1.375rem;display:flex;align-items:center;justify-content:center;flex:none;border:0;background:transparent;border-radius:0.375rem;color:rgba(24,24,27,0.42);cursor:pointer;}
+    .u-tree-chev .lucide{width:0.875rem;height:0.875rem;transition:transform .2s ease;}
+    .u-tree-item.open > .u-tree-row > .u-tree-chev .lucide{transform:rotate(90deg);}
+    .u-tree-chev--ghost{visibility:hidden;pointer-events:none;}
+    .dark .u-tree-chev{color:rgba(255,255,255,0.5);}
+
+    .u-tree-ic{width:1rem;height:1rem;flex:none;color:rgba(24,24,27,0.55);}
+    .dark .u-tree-ic{color:rgba(255,255,255,0.6);}
+    .u-tree-name{font-size:0.8125rem;font-weight:500;color:#27272a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+    .dark .u-tree-name{color:#d4d4d8;}
+    .u-tree-meta{margin-left:auto;flex:none;font-size:0.6875rem;color:rgba(24,24,27,0.42);}
+    .dark .u-tree-meta{color:rgba(255,255,255,0.42);}
+
+    .u-bar{display:flex;align-items:center;gap:0.625rem;margin-top:1rem;border-radius:0.75rem;border:1px solid rgba(24,24,27,0.12);background:rgba(255,255,255,0.55);padding:0.625rem 0.875rem;font-size:0.75rem;color:rgba(24,24,27,0.65);}
+    .dark .u-bar{border-color:rgba(255,255,255,0.12);background:rgba(255,255,255,0.04);color:rgba(255,255,255,0.6);}
+    .u-bar .lucide{width:0.9375rem;height:0.9375rem;flex:none;}
+
+    .u-tchk{position:relative;display:inline-flex;width:1.125rem;height:1.125rem;flex:none;}
+    .u-tchk input{position:absolute;inset:0;opacity:0;z-index:2;cursor:pointer;}
+    .u-tchk-box{position:relative;display:flex;align-items:center;justify-content:center;width:1.125rem;height:1.125rem;border-radius:0.375rem;border:1.5px solid rgba(24,24,27,0.28);background:rgba(255,255,255,0.6);transition:background-color .15s ease,border-color .15s ease;}
+    .dark .u-tchk-box{background:rgba(255,255,255,0.06);border-color:rgba(255,255,255,0.28);}
+    .u-tchk-box .lucide{position:absolute;width:0.75rem;height:0.75rem;opacity:0;transform:scale(0.4);transition:opacity .15s ease,transform .15s ease;}
+    .u-tchk-box .ic-check{color:#fafafa;}
+    .u-tchk-box .ic-minus{color:#fafafa;}
+    .dark .u-tchk-box .ic-check,.dark .u-tchk-box .ic-minus{color:#18181b;}
+    .u-tchk input:checked + .u-tchk-box{background:#18181b;border-color:#18181b;}
+    .u-tchk input:indeterminate + .u-tchk-box{background:#71717a;border-color:#71717a;}
+    .dark .u-tchk input:checked + .u-tchk-box{background:#fafafa;border-color:#fafafa;}
+    .dark .u-tchk input:indeterminate + .u-tchk-box{background:#a1a1aa;border-color:#a1a1aa;}
+    .u-tchk input:checked + .u-tchk-box .ic-check{opacity:1;transform:scale(1);}
+    .u-tchk input:indeterminate + .u-tchk-box .ic-minus{opacity:1;transform:scale(1);}
+    .u-tchk input:focus-visible + .u-tchk-box{box-shadow:0 0 0 3px rgba(24,24,27,0.18);}
+    .dark .u-tchk input:focus-visible + .u-tchk-box{box-shadow:0 0 0 3px rgba(255,255,255,0.2);}
+  </style>
+</head>
+<body class="min-h-screen p-6 font-sans antialiased text-zinc-800 dark:text-zinc-100">
+  <script>(function initTheme(){var saved=null;try{saved=localStorage.getItem('uroo-theme')}catch(e){};var dark=(saved==='dark')||(!saved&&window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches);var de=document.documentElement;if(dark){de.classList.add('dark');de.classList.remove('light');if(document.body){document.body.classList.add('dark');document.body.classList.remove('light');}}else{de.classList.remove('dark');de.classList.add('light');if(document.body){document.body.classList.remove('dark');document.body.classList.add('light');}}})();</script>
+  <div class="u-bg u-bg-light" aria-hidden="true"></div>
+  <div class="u-bg u-bg-dark" aria-hidden="true"></div>
+  <div class="u-glow u-glow-1" aria-hidden="true"></div>
+  <div class="u-glow u-glow-2" aria-hidden="true"></div>
+  <div class="u-glow u-glow-3" aria-hidden="true"></div>
+
+  <div class="relative mx-auto max-w-6xl">
+    <header class="relative mb-10">
+      <p class="text-xs font-semibold uppercase tracking-[0.25em] text-zinc-500 dark:text-zinc-500">Uroo UI - Komponen</p>
+      <h1 class="mt-2 text-3xl font-bold tracking-tight md:text-4xl">Tree</h1>
+      <p class="mt-3 max-w-2xl text-sm leading-relaxed text-zinc-500 dark:text-zinc-400">Pohon data berlapis dengan simpul yang dapat dilipat, ikon folder dan berkas, garis lekuk, pemilihan, serta kotak centang bertingkat.</p>
+    </header>
+
+    <main class="relative grid gap-6 md:grid-cols-2">
+
+      <section data-copy class="glass-panel rounded-2xl p-6 md:p-8">
+        <div class="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <p class="text-xs font-semibold uppercase tracking-[0.2em] text-zinc-500 dark:text-zinc-500">Variasi - Jelajah berkas</p>
+            <p class="th mt-1 modal-note">Klik baris untuk memilih, panah untuk melipat.</p>
+          </div>
+          <div class="flex gap-2">
+            <button type="button" class="u-mini" onclick="setAll(true)">Buka semua</button>
+            <button type="button" class="u-mini" onclick="setAll(false)">Lipat semua</button>
+          </div>
+        </div>
+        <div class="mt-4 max-h-[24rem] overflow-y-auto pr-1" id="treeExplorer">
+          <ul class="u-tree" role="tree">
+            <li class="u-tree-item has-kids open" role="treeitem" aria-expanded="true">
+              <div class="u-tree-row">
+                <button type="button" class="u-tree-chev" aria-label="Perluas atau lipat"><i data-lucide="chevron-right"></i></button>
+                <i data-lucide="folder" class="u-tree-ic" data-folder></i>
+                <span class="u-tree-name">website-uroo</span>
+                <span class="u-tree-meta">proyek</span>
+              </div>
+              <ul class="u-tree-children">
+                <li class="u-tree-item has-kids open" role="treeitem" aria-expanded="true">
+                  <div class="u-tree-row">
+                    <button type="button" class="u-tree-chev" aria-label="Perluas atau lipat"><i data-lucide="chevron-right"></i></button>
+                    <i data-lucide="folder" class="u-tree-ic" data-folder></i>
+                    <span class="u-tree-name">src</span>
+                  </div>
+                  <ul class="u-tree-children">
+                    <li class="u-tree-item has-kids">
+                      <div class="u-tree-row">
+                        <button type="button" class="u-tree-chev" aria-label="Perluas atau lipat"><i data-lucide="chevron-right"></i></button>
+                        <i data-lucide="folder" class="u-tree-ic" data-folder></i>
+                        <span class="u-tree-name">komponen</span>
+                      </div>
+                      <ul class="u-tree-children">
+                        <li class="u-tree-item">
+                          <div class="u-tree-row">
+                            <span class="u-tree-chev u-tree-chev--ghost"><i data-lucide="chevron-right"></i></span>
+                            <i data-lucide="file-code" class="u-tree-ic"></i>
+                            <span class="u-tree-name">button.html</span>
+                          </div>
+                        </li>
+                        <li class="u-tree-item">
+                          <div class="u-tree-row">
+                            <span class="u-tree-chev u-tree-chev--ghost"><i data-lucide="chevron-right"></i></span>
+                            <i data-lucide="file-code" class="u-tree-ic"></i>
+                            <span class="u-tree-name">toast.html</span>
+                          </div>
+                        </li>
+                      </ul>
+                    </li>
+                    <li class="u-tree-item has-kids">
+                      <div class="u-tree-row">
+                        <button type="button" class="u-tree-chev" aria-label="Perluas atau lipat"><i data-lucide="chevron-right"></i></button>
+                        <i data-lucide="folder" class="u-tree-ic" data-folder></i>
+                        <span class="u-tree-name">utils</span>
+                      </div>
+                      <ul class="u-tree-children">
+                        <li class="u-tree-item">
+                          <div class="u-tree-row">
+                            <span class="u-tree-chev u-tree-chev--ghost"><i data-lucide="chevron-right"></i></span>
+                            <i data-lucide="file-code" class="u-tree-ic"></i>
+                            <span class="u-tree-name">format.js</span>
+                          </div>
+                        </li>
+                        <li class="u-tree-item">
+                          <div class="u-tree-row">
+                            <span class="u-tree-chev u-tree-chev--ghost"><i data-lucide="chevron-right"></i></span>
+                            <i data-lucide="file-code" class="u-tree-ic"></i>
+                            <span class="u-tree-name">api.js</span>
+                          </div>
+                        </li>
+                      </ul>
+                    </li>
+                  </ul>
+                </li>
+                <li class="u-tree-item has-kids open" role="treeitem" aria-expanded="true">
+                  <div class="u-tree-row">
+                    <button type="button" class="u-tree-chev" aria-label="Perluas atau lipat"><i data-lucide="chevron-right"></i></button>
+                    <i data-lucide="folder" class="u-tree-ic" data-folder></i>
+                    <span class="u-tree-name">public</span>
+                  </div>
+                  <ul class="u-tree-children">
+                    <li class="u-tree-item">
+                      <div class="u-tree-row">
+                        <span class="u-tree-chev u-tree-chev--ghost"><i data-lucide="chevron-right"></i></span>
+                        <i data-lucide="file-image" class="u-tree-ic"></i>
+                        <span class="u-tree-name">logo-dark.svg</span>
+                      </div>
+                    </li>
+                    <li class="u-tree-item">
+                      <div class="u-tree-row">
+                        <span class="u-tree-chev u-tree-chev--ghost"><i data-lucide="chevron-right"></i></span>
+                        <i data-lucide="file-image" class="u-tree-ic"></i>
+                        <span class="u-tree-name">cover.png</span>
+                      </div>
+                    </li>
+                  </ul>
+                </li>
+                <li class="u-tree-item has-kids">
+                  <div class="u-tree-row">
+                    <button type="button" class="u-tree-chev" aria-label="Perluas atau lipat"><i data-lucide="chevron-right"></i></button>
+                    <i data-lucide="folder" class="u-tree-ic" data-folder></i>
+                    <span class="u-tree-name">docs</span>
+                  </div>
+                  <ul class="u-tree-children">
+                    <li class="u-tree-item">
+                      <div class="u-tree-row">
+                        <span class="u-tree-chev u-tree-chev--ghost"><i data-lucide="chevron-right"></i></span>
+                        <i data-lucide="file-text" class="u-tree-ic"></i>
+                        <span class="u-tree-name">panduan.md</span>
+                      </div>
+                    </li>
+                  </ul>
+                </li>
+                <li class="u-tree-item">
+                  <div class="u-tree-row">
+                    <span class="u-tree-chev u-tree-chev--ghost"><i data-lucide="chevron-right"></i></span>
+                    <i data-lucide="file-json" class="u-tree-ic"></i>
+                    <span class="u-tree-name">package.json</span>
+                  </div>
+                </li>
+                <li class="u-tree-item">
+                  <div class="u-tree-row">
+                    <span class="u-tree-chev u-tree-chev--ghost"><i data-lucide="chevron-right"></i></span>
+                    <i data-lucide="file-text" class="u-tree-ic"></i>
+                    <span class="u-tree-name">README.md</span>
+                  </div>
+                </li>
+              </ul>
+            </li>
+          </ul>
+        </div>
+        <div class="u-bar"><i data-lucide="folder-search"></i><span id="selPath">&nbsp;</span></div>
+      </section>
+
+      <section data-copy class="glass-panel rounded-2xl p-6 md:p-8">
+        <p class="text-xs font-semibold uppercase tracking-[0.2em] text-zinc-500 dark:text-zinc-500">Variasi - Kotak centang bertingkat</p>
+        <p class="th mt-1 modal-note">Memilih folder otomatis menandai seluruh turunannya.</p>
+        <div class="mt-4 max-h-[24rem] overflow-y-auto pr-1" id="treeCek">
+          <ul class="u-tree" role="tree">
+            <li class="u-tree-item has-kids open" role="treeitem" aria-expanded="true">
+              <div class="u-tree-row">
+                <button type="button" class="u-tree-chev" aria-label="Perluas atau lipat"><i data-lucide="chevron-right"></i></button>
+                <label class="u-tchk">
+                  <input type="checkbox" id="chkRoot">
+                  <span class="u-tchk-box"><i data-lucide="check" class="ic-check"></i><i data-lucide="minus" class="ic-minus"></i></span>
+                </label>
+                <i data-lucide="folder" class="u-tree-ic" data-folder></i>
+                <span class="u-tree-name">proyek-ui</span>
+              </div>
+              <ul class="u-tree-children">
+                <li class="u-tree-item has-kids open" role="treeitem" aria-expanded="true">
+                  <div class="u-tree-row">
+                    <button type="button" class="u-tree-chev" aria-label="Perluas atau lipat"><i data-lucide="chevron-right"></i></button>
+                    <label class="u-tchk">
+                      <input type="checkbox" id="chkSrc">
+                      <span class="u-tchk-box"><i data-lucide="check" class="ic-check"></i><i data-lucide="minus" class="ic-minus"></i></span>
+                    </label>
+                    <i data-lucide="folder" class="u-tree-ic" data-folder></i>
+                    <span class="u-tree-name">sumber</span>
+                  </div>
+                  <ul class="u-tree-children">
+                    <li class="u-tree-item has-kids open" role="treeitem" aria-expanded="true">
+                      <div class="u-tree-row">
+                        <button type="button" class="u-tree-chev" aria-label="Perluas atau lipat"><i data-lucide="chevron-right"></i></button>
+                        <label class="u-tchk">
+                          <input type="checkbox" id="chkKomponen">
+                          <span class="u-tchk-box"><i data-lucide="check" class="ic-check"></i><i data-lucide="minus" class="ic-minus"></i></span>
+                        </label>
+                        <i data-lucide="folder" class="u-tree-ic" data-folder></i>
+                        <span class="u-tree-name">komponen</span>
+                      </div>
+                      <ul class="u-tree-children">
+                        <li class="u-tree-item">
+                          <div class="u-tree-row">
+                            <span class="u-tree-chev u-tree-chev--ghost"><i data-lucide="chevron-right"></i></span>
+                            <label class="u-tchk">
+                              <input type="checkbox" id="chkButton" data-leaf="1" checked>
+                              <span class="u-tchk-box"><i data-lucide="check" class="ic-check"></i><i data-lucide="minus" class="ic-minus"></i></span>
+                            </label>
+                            <i data-lucide="file-code" class="u-tree-ic"></i>
+                            <span class="u-tree-name">Button.tsx</span>
+                          </div>
+                        </li>
+                        <li class="u-tree-item">
+                          <div class="u-tree-row">
+                            <span class="u-tree-chev u-tree-chev--ghost"><i data-lucide="chevron-right"></i></span>
+                            <label class="u-tchk">
+                              <input type="checkbox" id="chkCard" data-leaf="1">
+                              <span class="u-tchk-box"><i data-lucide="check" class="ic-check"></i><i data-lucide="minus" class="ic-minus"></i></span>
+                            </label>
+                            <i data-lucide="file-code" class="u-tree-ic"></i>
+                            <span class="u-tree-name">Card.tsx</span>
+                          </div>
+                        </li>
+                        <li class="u-tree-item">
+                          <div class="u-tree-row">
+                            <span class="u-tree-chev u-tree-chev--ghost"><i data-lucide="chevron-right"></i></span>
+                            <label class="u-tchk">
+                              <input type="checkbox" id="chkToast" data-leaf="1" checked>
+                              <span class="u-tchk-box"><i data-lucide="check" class="ic-check"></i><i data-lucide="minus" class="ic-minus"></i></span>
+                            </label>
+                            <i data-lucide="file-code" class="u-tree-ic"></i>
+                            <span class="u-tree-name">Toast.tsx</span>
+                          </div>
+                        </li>
+                      </ul>
+                    </li>
+                    <li class="u-tree-item has-kids">
+                      <div class="u-tree-row">
+                        <button type="button" class="u-tree-chev" aria-label="Perluas atau lipat"><i data-lucide="chevron-right"></i></button>
+                        <label class="u-tchk">
+                          <input type="checkbox" id="chkHalaman">
+                          <span class="u-tchk-box"><i data-lucide="check" class="ic-check"></i><i data-lucide="minus" class="ic-minus"></i></span>
+                        </label>
+                        <i data-lucide="folder" class="u-tree-ic" data-folder></i>
+                        <span class="u-tree-name">halaman</span>
+                      </div>
+                      <ul class="u-tree-children">
+                        <li class="u-tree-item">
+                          <div class="u-tree-row">
+                            <span class="u-tree-chev u-tree-chev--ghost"><i data-lucide="chevron-right"></i></span>
+                            <label class="u-tchk">
+                              <input type="checkbox" id="chkBeranda" data-leaf="1">
+                              <span class="u-tchk-box"><i data-lucide="check" class="ic-check"></i><i data-lucide="minus" class="ic-minus"></i></span>
+                            </label>
+                            <i data-lucide="file-code" class="u-tree-ic"></i>
+                            <span class="u-tree-name">Beranda.tsx</span>
+                          </div>
+                        </li>
+                        <li class="u-tree-item">
+                          <div class="u-tree-row">
+                            <span class="u-tree-chev u-tree-chev--ghost"><i data-lucide="chevron-right"></i></span>
+                            <label class="u-tchk">
+                              <input type="checkbox" id="chkGaleri" data-leaf="1">
+                              <span class="u-tchk-box"><i data-lucide="check" class="ic-check"></i><i data-lucide="minus" class="ic-minus"></i></span>
+                            </label>
+                            <i data-lucide="file-code" class="u-tree-ic"></i>
+                            <span class="u-tree-name">Galeri.tsx</span>
+                          </div>
+                        </li>
+                      </ul>
+                    </li>
+                  </ul>
+                </li>
+                <li class="u-tree-item has-kids open" role="treeitem" aria-expanded="true">
+                  <div class="u-tree-row">
+                    <button type="button" class="u-tree-chev" aria-label="Perluas atau lipat"><i data-lucide="chevron-right"></i></button>
+                    <label class="u-tchk">
+                      <input type="checkbox" id="chkPublik">
+                      <span class="u-tchk-box"><i data-lucide="check" class="ic-check"></i><i data-lucide="minus" class="ic-minus"></i></span>
+                    </label>
+                    <i data-lucide="folder" class="u-tree-ic" data-folder></i>
+                    <span class="u-tree-name">publik</span>
+                  </div>
+                  <ul class="u-tree-children">
+                    <li class="u-tree-item">
+                      <div class="u-tree-row">
+                        <span class="u-tree-chev u-tree-chev--ghost"><i data-lucide="chevron-right"></i></span>
+                        <label class="u-tchk">
+                          <input type="checkbox" id="chkLogo" data-leaf="1">
+                          <span class="u-tchk-box"><i data-lucide="check" class="ic-check"></i><i data-lucide="minus" class="ic-minus"></i></span>
+                        </label>
+                        <i data-lucide="file-image" class="u-tree-ic"></i>
+                        <span class="u-tree-name">logo.svg</span>
+                      </div>
+                    </li>
+                  </ul>
+                </li>
+                <li class="u-tree-item">
+                  <div class="u-tree-row">
+                    <span class="u-tree-chev u-tree-chev--ghost"><i data-lucide="chevron-right"></i></span>
+                    <label class="u-tchk">
+                      <input type="checkbox" id="chkPackage" data-leaf="1">
+                      <span class="u-tchk-box"><i data-lucide="check" class="ic-check"></i><i data-lucide="minus" class="ic-minus"></i></span>
+                    </label>
+                    <i data-lucide="file-json" class="u-tree-ic"></i>
+                    <span class="u-tree-name">package.json</span>
+                  </div>
+                </li>
+              </ul>
+            </li>
+          </ul>
+        </div>
+        <div class="u-bar"><i data-lucide="list-checks"></i><span id="chkCount">2 berkas dipilih</span></div>
+      </section>
+
+      <section data-copy class="glass-panel rounded-2xl p-6 md:p-8">
+        <p class="text-xs font-semibold uppercase tracking-[0.2em] text-zinc-500 dark:text-zinc-500">Variasi - Garis lekuk kustom</p>
+        <p class="th mt-1 modal-note">Garis putus-putus menandai hirarki tanpa mengandalkan kotak centang.</p>
+        <div class="mt-4" id="treeDocs">
+          <ul class="u-tree" role="tree">
+            <li class="u-tree-item has-kids open" role="treeitem" aria-expanded="true">
+              <div class="u-tree-row">
+                <button type="button" class="u-tree-chev" aria-label="Perluas atau lipat"><i data-lucide="chevron-right"></i></button>
+                <i data-lucide="folder" class="u-tree-ic" data-folder></i>
+                <span class="u-tree-name">modul-pelatihan</span>
+                <span class="u-tree-meta">8 item</span>
+              </div>
+              <ul class="u-tree-children u-tree-children--dot">
+                <li class="u-tree-item has-kids open" role="treeitem" aria-expanded="true">
+                  <div class="u-tree-row">
+                    <button type="button" class="u-tree-chev" aria-label="Perluas atau lipat"><i data-lucide="chevron-right"></i></button>
+                    <i data-lucide="folder" class="u-tree-ic" data-folder></i>
+                    <span class="u-tree-name">bab-1-pengenalan</span>
+                  </div>
+                  <ul class="u-tree-children u-tree-children--dot">
+                    <li class="u-tree-item">
+                      <div class="u-tree-row">
+                        <span class="u-tree-chev u-tree-chev--ghost"><i data-lucide="chevron-right"></i></span>
+                        <i data-lucide="file-text" class="u-tree-ic"></i>
+                        <span class="u-tree-name">materi.md</span>
+                      </div>
+                    </li>
+                    <li class="u-tree-item has-kids">
+                      <div class="u-tree-row">
+                        <button type="button" class="u-tree-chev" aria-label="Perluas atau lipat"><i data-lucide="chevron-right"></i></button>
+                        <i data-lucide="folder" class="u-tree-ic" data-folder></i>
+                        <span class="u-tree-name">latihan</span>
+                      </div>
+                      <ul class="u-tree-children u-tree-children--dot">
+                        <li class="u-tree-item">
+                          <div class="u-tree-row">
+                            <span class="u-tree-chev u-tree-chev--ghost"><i data-lucide="chevron-right"></i></span>
+                            <i data-lucide="file-text" class="u-tree-ic"></i>
+                            <span class="u-tree-name">soal-1.md</span>
+                          </div>
+                        </li>
+                        <li class="u-tree-item">
+                          <div class="u-tree-row">
+                            <span class="u-tree-chev u-tree-chev--ghost"><i data-lucide="chevron-right"></i></span>
+                            <i data-lucide="file-text" class="u-tree-ic"></i>
+                            <span class="u-tree-name">soal-2.md</span>
+                          </div>
+                        </li>
+                      </ul>
+                    </li>
+                  </ul>
+                </li>
+                <li class="u-tree-item has-kids open" role="treeitem" aria-expanded="true">
+                  <div class="u-tree-row">
+                    <button type="button" class="u-tree-chev" aria-label="Perluas atau lipat"><i data-lucide="chevron-right"></i></button>
+                    <i data-lucide="folder" class="u-tree-ic" data-folder></i>
+                    <span class="u-tree-name">bab-2-lanjutan</span>
+                  </div>
+                  <ul class="u-tree-children u-tree-children--dot">
+                    <li class="u-tree-item">
+                      <div class="u-tree-row">
+                        <span class="u-tree-chev u-tree-chev--ghost"><i data-lucide="chevron-right"></i></span>
+                        <i data-lucide="file-text" class="u-tree-ic"></i>
+                        <span class="u-tree-name">studi-kasus.md</span>
+                      </div>
+                    </li>
+                    <li class="u-tree-item">
+                      <div class="u-tree-row">
+                        <span class="u-tree-chev u-tree-chev--ghost"><i data-lucide="chevron-right"></i></span>
+                        <i data-lucide="file-text" class="u-tree-ic"></i>
+                        <span class="u-tree-name">tugas-akhir.md</span>
+                      </div>
+                    </li>
+                  </ul>
+                </li>
+                <li class="u-tree-item">
+                  <div class="u-tree-row">
+                    <span class="u-tree-chev u-tree-chev--ghost"><i data-lucide="chevron-right"></i></span>
+                    <i data-lucide="file-text" class="u-tree-ic"></i>
+                    <span class="u-tree-name">jadwal.md</span>
+                  </div>
+                </li>
+              </ul>
+            </li>
+          </ul>
+        </div>
+        <div class="u-bar"><i data-lucide="git-branch"></i><span id="selPath2">&nbsp;</span></div>
+      </section>
+    </main>
+
+    <footer class="relative mt-12 flex items-center justify-between border-t border-zinc-400/30 py-6 text-xs text-zinc-500 dark:border-white/10 dark:text-zinc-500">
+      <span>Uroo UI - Glassmorphism monokrom</span>
+      <span id="year"></span>
+    </footer>
+  </div>
+
+  <button onclick="toggleTheme()" class="glass-panel fixed right-4 top-4 z-50 inline-flex items-center justify-center rounded-full p-2.5" aria-label="Ganti tema">
+    <i data-lucide="sun" class="h-5 w-5 text-zinc-700 dark:hidden"></i>
+    <i data-lucide="moon" class="hidden h-5 w-5 text-zinc-200 dark:block"></i>
+  </button>
+
+  <script>
+    lucide.createIcons();
+    function toggleTheme(){const h=document.documentElement,b=document.body;h.classList.toggle('dark');b.classList.toggle('dark');try{localStorage.setItem('uroo-theme',b.classList.contains('dark')?'dark':'light')}catch(e){};lucide.createIcons();}
+    (function(){if(document.documentElement.classList.contains('dark')){document.body.classList.add('dark');}else{document.body.classList.remove('dark');}})();
+    document.getElementById('year').textContent = 'Uroo Dev - ' + new Date().getFullYear();
+
+    function applyFolderIc(li, isOpen){
+      var ic = li.querySelector(':scope > .u-tree-row > .u-tree-ic[data-folder]');
+      if(ic){
+        ic.setAttribute('data-lucide', isOpen ? 'folder-open' : 'folder');
+      }
+    }
+
+    function toggleNode(btn){
+      var li = btn.closest('.u-tree-item');
+      var isOpen = li.classList.contains('open');
+      li.classList.toggle('open', !isOpen);
+      li.setAttribute('aria-expanded', String(!isOpen));
+      applyFolderIc(li, !isOpen);
+      lucide.createIcons();
+    }
+
+    document.querySelectorAll('.u-tree-chev').forEach(function(btn){
+      btn.addEventListener('click', function(e){
+        e.stopPropagation();
+        toggleNode(btn);
+      });
+    });
+
+    function selectNode(row, outEl){
+      document.querySelectorAll('.u-tree-row.is-selected').forEach(function(r){ r.classList.remove('is-selected'); });
+      row.classList.add('is-selected');
+      var names = [];
+      var cur = row.closest('.u-tree-item');
+      while(cur){
+        var nm = cur.querySelector(':scope > .u-tree-row > .u-tree-name');
+        if(nm){ names.unshift(nm.textContent); }
+        cur = cur.parentElement ? cur.parentElement.closest('.u-tree-item') : null;
+      }
+      outEl.textContent = 'Dibuka: ' + names.join(' / ');
+    }
+
+    document.querySelectorAll('#treeExplorer .u-tree-row, #treeDocs .u-tree-row').forEach(function(row){
+      row.addEventListener('click', function(e){
+        if(e.target.closest('.u-tree-chev') || e.target.closest('.u-tchk')) return;
+        var out = row.closest('section') ? sectionOut(row) : null;
+        selectNode(row, out);
+      });
+    });
+
+    function sectionOut(row){
+      var sec = row.closest('section');
+      if(!sec) return null;
+      return sec.querySelector('.u-bar span.idx') || sec.querySelector('.u-bar span');
+    }
+
+    function setAll(open){
+      document.querySelectorAll('#treeExplorer .u-tree-item.has-kids').forEach(function(li){
+        li.classList.toggle('open', open);
+        li.setAttribute('aria-expanded', String(open));
+        applyFolderIc(li, open);
+      });
+      lucide.createIcons();
+    }
+
+    function syncFromChild(li){
+      if(!li) return;
+      var input = li.querySelector(':scope > .u-tree-row > .u-tchk input');
+      if(!input) return;
+      var kids = li.querySelectorAll(':scope > .u-tree-children > .u-tree-item > .u-tree-row > .u-tchk input');
+      if(!kids.length){ return; }
+      var on = Array.prototype.filter.call(kids, function(k){ return k.checked; }).length;
+      input.checked = (on === kids.length);
+      input.indeterminate = (on > 0 && on < kids.length);
+    }
+
+    function setDesc(li, val){
+      li.querySelectorAll(':scope > .u-tree-children input[type="checkbox"]').forEach(function(c){
+        c.checked = val;
+        c.indeterminate = false;
+      });
+    }
+
+    document.querySelectorAll('#treeCek .u-tchk input').forEach(function(inp){
+      inp.addEventListener('change', function(){
+        var li = inp.closest('.u-tree-item');
+        if(li){
+          setDesc(li, inp.checked);
+          inp.checked = inp.checked;
+          var cur = li.parentElement ? li.parentElement.closest('.u-tree-item') : null;
+          while(cur){
+            syncFromChild(cur);
+            cur = cur.parentElement ? cur.parentElement.closest('.u-tree-item') : null;
+          }
+        }
+        updateCheckCount();
+      });
+    });
+
+    function updateCheckCount(){
+      var n = document.querySelectorAll('#treeCek input[type="checkbox"][data-leaf="1"]:checked').length;
+      var el = document.getElementById('chkCount');
+      if(el){ el.textContent = n + ' berkas dipilih'; }
+    }
+
+    (function(){
+      document.querySelectorAll('#treeCek .u-tree-item.has-kids.open').forEach(function(li){ applyFolderIc(li, true); });
+      document.querySelectorAll('#treeExplorer .u-tree-item.open, #treeDocs .u-tree-item.open').forEach(function(li){ applyFolderIc(li, true); });
+      var root = document.getElementById('chkRoot').closest('.u-tree-item');
+      var chain = [root];
+      var srcItem = document.getElementById('chkSrc').closest('.u-tree-item');
+      var komp = document.getElementById('chkKomponen').closest('.u-tree-item');
+      [komp, srcItem, root].forEach(function(li){ syncFromChild(li); });
+      lucide.createIcons();
+      updateCheckCount();
+      document.getElementById('selPath').textContent = 'Dibuka: website-uroo';
+      document.getElementById('selPath2').textContent = 'Dibuka: modul-pelatihan';
+    })();
+  </script>
+<script src="../../assets/js/uroo-copy.js"></script>
+<script src="../../assets/js/uroo-nav.js"></script>
+</body>
+</html>

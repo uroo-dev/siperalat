@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="id" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Uroo UI - Switch</title>
+  <script src="../../assets/js/tailwind.js"></script>
+  <script src="../../assets/js/lucide.js"></script>
+  <script>tailwind.config={darkMode:'class',theme:{extend:{colors:{glass:{light:'rgba(255,255,255,0.65)','light-border':'rgba(255,255,255,0.8)',dark:'rgba(18,18,20,0.65)','dark-border':'rgba(255,255,255,0.1)'}}}}}</script>
+  <link rel="stylesheet" href="../../assets/css/uroo.css">
+  <style>
+    .u-bg{position:fixed;inset:0;z-index:-10;transition:opacity .35s ease}
+    .u-bg-light{background:linear-gradient(135deg,#dfe3ea,#f4f4f5)}
+    .u-bg-dark{background:linear-gradient(135deg,#0a0a0b,#1a1a1e);opacity:0}
+    body.dark .u-bg-light{opacity:0}
+    body.dark .u-bg-dark{opacity:1}
+    .u-glow{position:fixed;border-radius:9999px;filter:blur(90px);z-index:-9;pointer-events:none;transition:background-color .35s ease;background:rgba(0,0,0,0.06)}
+    body.dark .u-glow{background:rgba(255,255,255,0.05)}
+    .u-glow-1{width:420px;height:420px;top:-140px;left:-140px}
+    .u-glow-2{width:520px;height:520px;bottom:-200px;right:-140px}
+    .u-glow-3{width:300px;height:300px;top:42%;left:58%}
+
+    /* ---- Switch primitives ---- */
+    .u-switch{position:relative;display:inline-flex;align-items:center;flex:none;border-radius:9999px;cursor:pointer;background:rgba(0,0,0,.14);transition:background-color .25s ease;border:none;padding:0}
+    body.dark .u-switch{background:rgba(255,255,255,.18)}
+    .u-switch.on{background:#18181b}
+    body.dark .u-switch.on{background:#fafafa}
+    .u-switch:disabled{cursor:not-allowed;opacity:.55;background:rgba(0,0,0,.1)}
+    body.dark .u-switch:disabled{background:rgba(255,255,255,.1)}
+    .u-switch .knob{position:absolute;top:50%;transform:translateY(-50%);left:2px;background:#fff;border-radius:9999px;box-shadow:0 1px 3px rgba(0,0,0,.3);transition:left .22s cubic-bezier(.16,1,.3,1),width .22s cubic-bezier(.16,1,.3,1)}
+    .u-switch.sm{width:34px;height:20px}
+    .u-switch.sm .knob{width:16px;height:16px}
+    .u-switch.sm.on .knob{left:16px}
+    .u-switch.md{width:44px;height:25px}
+    .u-switch.md .knob{width:21px;height:21px}
+    .u-switch.md.on .knob{left:21px}
+    .u-switch.lg{width:56px;height:31px}
+    .u-switch.lg .knob{width:27px;height:27px}
+    .u-switch.lg.on .knob{left:27px}
+
+    /* colored */
+    .u-switch.success.on{background:#10b981}
+    .u-switch.danger.on{background:#ef4444}
+    .u-switch.warn.on{background:#f59e0b}
+    .u-switch.info.on{background:#3b82f6}
+
+    .u-switch-row{display:flex;align-items:center;gap:.9rem;padding:.9rem 1rem;border-radius:1rem;background:rgba(255,255,255,.45);border:1px solid rgba(0,0,0,.07)}
+    body.dark .u-switch-row{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07)}
+    .u-switch-row .sw-ico{flex:none;width:2.4rem;height:2.4rem;border-radius:.8rem;display:grid;place-items:center;color:rgba(255,255,255,.85);background:linear-gradient(135deg,#52525b,#18181b)}
+  </style>
+</head>
+<body class="min-h-screen p-6 font-sans antialiased text-zinc-800 dark:text-zinc-100">
+  <script>(function initTheme(){var saved=null;try{saved=localStorage.getItem('uroo-theme')}catch(e){};var dark=(saved==='dark')||(!saved&&window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches);var de=document.documentElement;if(dark){de.classList.add('dark');de.classList.remove('light');if(document.body){document.body.classList.add('dark');document.body.classList.remove('light');}}else{de.classList.remove('dark');de.classList.add('light');if(document.body){document.body.classList.remove('dark');document.body.classList.add('light');}}})();</script>
+  <div class="u-bg u-bg-light" aria-hidden="true"></div>
+  <div class="u-bg u-bg-dark" aria-hidden="true"></div>
+  <div class="u-glow u-glow-1" aria-hidden="true"></div>
+  <div class="u-glow u-glow-2" aria-hidden="true"></div>
+  <div class="u-glow u-glow-3" aria-hidden="true"></div>
+
+  <main class="relative z-10 mx-auto max-w-4xl">
+
+    <header class="mb-10">
+      <div class="flex items-center gap-4">
+        <div class="glass-panel rounded-2xl p-3 shadow-2xl">
+          <i data-lucide="toggle-left" class="w-6 h-6"></i>
+        </div>
+        <div>
+          <p class="text-[11px] font-bold uppercase tracking-[0.2em] text-zinc-400 dark:text-zinc-500">Uroo UI - Komponen Input</p>
+          <h1 class="text-2xl md:text-4xl font-bold tracking-tight">Switch</h1>
+        </div>
+      </div>
+      <p class="mt-4 max-w-2xl text-sm leading-relaxed text-zinc-500 dark:text-zinc-400">
+        Saklar alih untuk beralih antara dua kondisi. Mendukung tiga ukuran,
+        status mati atau aktif bawaan, nonaktif, dengan label, warna kustom, dan knob beranimasi.
+      </p>
+    </header>
+
+    <div class="grid gap-8">
+
+      <section data-copy class="glass-panel rounded-2xl shadow-2xl p-6 md:p-8 anim-fade-in">
+        <header class="mb-6 flex flex-wrap items-end justify-between gap-3">
+          <div>
+            <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-zinc-400 dark:text-zinc-500">Demo 01 - Status Bawaan</p>
+            <h2 class="mt-1 text-lg font-bold tracking-tight">Mati dan Aktif</h2>
+          </div>
+          <p class="text-xs text-zinc-500 dark:text-zinc-400">Klik untuk mengalihkan kondisi</p>
+        </header>
+        <div class="flex flex-wrap items-center gap-6">
+          <label class="flex items-center gap-3 cursor-pointer">
+            <span class="u-switch md"><span class="knob"></span></span>
+            <span class="text-sm font-medium">Notifikasi mati</span>
+          </label>
+          <label class="flex items-center gap-3 cursor-pointer">
+            <span class="u-switch md on"><span class="knob"></span></span>
+            <span class="text-sm font-medium">Notifikasi aktif</span>
+          </label>
+        </div>
+      </section>
+
+      <section data-copy class="glass-panel rounded-2xl shadow-2xl p-6 md:p-8 anim-fade-in">
+        <header class="mb-6 flex flex-wrap items-end justify-between gap-3">
+          <div>
+            <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-zinc-400 dark:text-zinc-500">Demo 02 - Nonaktif</p>
+            <h2 class="mt-1 text-lg font-bold tracking-tight">Kondisi Nonaktif</h2>
+          </div>
+          <p class="text-xs text-zinc-500 dark:text-zinc-400">Tidak dapat diklik</p>
+        </header>
+        <div class="flex flex-wrap items-center gap-6">
+          <label class="flex items-center gap-3 cursor-not-allowed">
+            <span class="u-switch md" style="background:rgba(0,0,0,.1)"><span class="knob"></span></span>
+            <span class="text-sm font-medium text-zinc-400">Fitur ditangguhkan</span>
+          </label>
+          <label class="flex items-center gap-3 cursor-not-allowed">
+            <span class="u-switch md on" style="background:#a1a1aa"><span class="knob"></span></span>
+            <span class="text-sm font-medium text-zinc-400">Terkunci dalam mode demo</span>
+          </label>
+        </div>
+      </section>
+
+      <section data-copy class="glass-panel rounded-2xl shadow-2xl p-6 md:p-8 anim-fade-in">
+        <header class="mb-6 flex flex-wrap items-end justify-between gap-3">
+          <div>
+            <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-zinc-400 dark:text-zinc-500">Demo 03 - Ukuran</p>
+            <h2 class="mt-1 text-lg font-bold tracking-tight">Tiga Ukuran</h2>
+          </div>
+          <p class="text-xs text-zinc-500 dark:text-zinc-400">Kecil, sedang, dan besar</p>
+        </header>
+        <div class="u-switch-row">
+          <span class="sw-ico"><i data-lucide="smartphone" class="w-5 h-5"></i></span>
+          <div class="flex-1 text-sm font-semibold">Kecil (sm)</div>
+          <span class="u-switch sm on"><span class="knob"></span></span>
+        </div>
+        <div class="u-switch-row mt-3">
+          <span class="sw-ico"><i data-lucide="tablet" class="w-5 h-5"></i></span>
+          <div class="flex-1 text-sm font-semibold">Sedang (md)</div>
+          <span class="u-switch md on"><span class="knob"></span></span>
+        </div>
+        <div class="u-switch-row mt-3">
+          <span class="sw-ico"><i data-lucide="monitor" class="w-5 h-5"></i></span>
+          <div class="flex-1 text-sm font-semibold">Besar (lg)</div>
+          <span class="u-switch lg on"><span class="knob"></span></span>
+        </div>
+      </section>
+
+      <section data-copy class="glass-panel rounded-2xl shadow-2xl p-6 md:p-8 anim-fade-in">
+        <header class="mb-6 flex flex-wrap items-end justify-between gap-3">
+          <div>
+            <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-zinc-400 dark:text-zinc-500">Demo 04 - Dengan Label</p>
+            <h2 class="mt-1 text-lg font-bold tracking-tight">Preferensi Pengaturan</h2>
+          </div>
+          <p class="text-xs text-zinc-500 dark:text-zinc-400">Saklar dengan keterangan status</p>
+        </header>
+        <div class="space-y-3">
+          <div class="u-switch-row">
+            <span class="sw-ico"><i data-lucide="bell" class="w-5 h-5"></i></span>
+            <div class="flex-1">
+              <p class="text-sm font-semibold">Pemberitahuan push</p>
+              <p class="text-xs text-zinc-500 dark:text-zinc-400">Terima kiriman real-time ke perangkat</p>
+            </div>
+            <span class="u-switch md on" data-labeled="push"><span class="knob"></span></span>
+          </div>
+          <div class="u-switch-row">
+            <span class="sw-ico"><i data-lucide="email" class="w-5 h-5"></i></span>
+            <div class="flex-1">
+              <p class="text-sm font-semibold">Ringkasan email</p>
+              <p class="text-xs text-zinc-500 dark:text-zinc-400">Laporan mingguan aktivitas akun</p>
+            </div>
+            <span class="u-switch md" data-labeled="email"><span class="knob"></span></span>
+          </div>
+          <div class="u-switch-row">
+            <span class="sw-ico"><i data-lucide="shield" class="w-5 h-5"></i></span>
+            <div class="flex-1">
+              <p class="text-sm font-semibold">Autentikasi dua faktor</p>
+              <p class="text-xs text-zinc-500 dark:text-zinc-400">Lindungi akun dengan kode sekali pakai</p>
+            </div>
+            <span class="u-switch md on success" data-labeled="2fa"><span class="knob"></span></span>
+          </div>
+        </div>
+        <p id="label-status" class="mt-4 text-xs text-zinc-500 dark:text-zinc-400"></p>
+      </section>
+
+      <section data-copy class="glass-panel rounded-2xl shadow-2xl p-6 md:p-8 anim-fade-in">
+        <header class="mb-6 flex flex-wrap items-end justify-between gap-3">
+          <div>
+            <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-zinc-400 dark:text-zinc-500">Demo 05 - Warna Kustom</p>
+            <h2 class="mt-1 text-lg font-bold tracking-tight">Aksen Berwarna</h2>
+          </div>
+          <p class="text-xs text-zinc-500 dark:text-zinc-400">Hijau, amber, biru, dan merah</p>
+        </header>
+        <div class="flex flex-wrap items-end gap-6">
+          <div class="flex flex-col items-center gap-2">
+            <span class="u-switch md on success"><span class="knob"></span></span>
+            <span class="text-xs text-zinc-500">Berhasil</span>
+          </div>
+          <div class="flex flex-col items-center gap-2">
+            <span class="u-switch md on warn"><span class="knob"></span></span>
+            <span class="text-xs text-zinc-500">Perhatian</span>
+          </div>
+          <div class="flex flex-col items-center gap-2">
+            <span class="u-switch md on info"><span class="knob"></span></span>
+            <span class="text-xs text-zinc-500">Info</span>
+          </div>
+          <div class="flex flex-col items-center gap-2">
+            <span class="u-switch md on danger"><span class="knob"></span></span>
+            <span class="text-xs text-zinc-500">Bahaya</span>
+          </div>
+        </div>
+      </section>
+
+      <section data-copy class="glass-panel rounded-2xl shadow-2xl p-6 md:p-8 anim-fade-in">
+        <header class="mb-6 flex flex-wrap items-end justify-between gap-3">
+          <div>
+            <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-zinc-400 dark:text-zinc-500">Demo 06 - Knob Beranimasi</p>
+            <h2 class="mt-1 text-lg font-bold tracking-tight">Pergeseran Halus</h2>
+          </div>
+          <p class="text-xs text-zinc-500 dark:text-zinc-400">Tampilan besar, perpindahan mulus</p>
+        </header>
+        <div class="flex flex-wrap items-center gap-8">
+          <span class="u-switch lg"><span class="knob"></span></span>
+          <span class="u-switch lg on"><span class="knob"></span></span>
+          <span class="u-switch lg on success"><span class="knob"></span></span>
+          <p class="text-sm text-zinc-500 dark:text-zinc-400" id="knob-status">Status: Mati</p>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <button onclick="toggleTheme()" class="fixed top-4 right-4 z-50 p-2 rounded-full glass-panel shadow-2xl" title="Toggle theme">
+    <i data-lucide="sun" class="w-4 h-4 hidden dark:block"></i>
+    <i data-lucide="moon" class="w-4 h-4 block dark:hidden"></i>
+  </button>
+
+  <script>
+  lucide.createIcons();
+  function toggleTheme(){const b=document.body;const h=document.documentElement;b.classList.toggle('dark');h.classList.toggle('dark');const saved=b.classList.contains('dark')?'dark':'light';try{localStorage.setItem('uroo-theme',saved)}catch(e){};lucide.createIcons();}
+
+  /* All interactive switches */
+  var labelMap = {
+    'push': 'Notifikasi push',
+    'email': 'Ringkasan email',
+    '2fa': 'Autentikasi dua faktor'
+  };
+  var labelStatus = document.getElementById('label-status');
+
+  document.querySelectorAll('.u-switch:not(:disabled)').forEach(function(sw){
+    sw.addEventListener('click', function(){
+      this.classList.toggle('on');
+      var labeled = this.getAttribute('data-labeled');
+      if(labeled){
+        labelStatus.textContent = labelMap[labeled] + ' sekarang ' + (this.classList.contains('on') ? 'AKTIF' : 'MATI') + '.';
+      }
+    });
+  });
+
+  /* Knob status for demo 06 */
+  var knobStatus = document.getElementById('knob-status');
+  document.querySelectorAll('.u-switch.lg').forEach(function(sw){
+    sw.addEventListener('click', function(){
+      knobStatus.textContent = 'Status: ' + (this.classList.contains('on') ? 'Aktif' : 'Mati');
+    });
+  });
+  </script>
+<script src="../../assets/js/uroo-copy.js"></script>
+<script src="../../assets/js/uroo-nav.js"></script>
+</body>
+</html>

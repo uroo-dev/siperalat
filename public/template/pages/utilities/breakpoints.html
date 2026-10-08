@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="id" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Uroo UI — Foundation: Breakpoints</title>
+  <script src="../../assets/js/tailwind.js"></script>
+  <script src="../../assets/js/lucide.js"></script>
+  <script>
+    tailwind.config = { darkMode: 'class', theme: { extend: { colors: { glass: {
+      light: 'rgba(255,255,255,0.65)', 'light-border': 'rgba(255,255,255,0.8)',
+      dark: 'rgba(18,18,20,0.65)', 'dark-border': 'rgba(255,255,255,0.1)'
+    } } } } };
+  </script>
+  <link rel="stylesheet" href="../../assets/css/uroo.css">
+  <style>
+    .u-bg{position:fixed;inset:0;z-index:-10;transition:opacity .35s ease}
+    .u-bg-light{background:linear-gradient(135deg,#dfe3ea,#f4f4f5)}
+    .u-bg-dark{background:linear-gradient(135deg,#0a0a0b,#1a1a1e);opacity:0}
+    body.dark .u-bg-light{opacity:0}
+    body.dark .u-bg-dark{opacity:1}
+    .u-glow{position:fixed;border-radius:9999px;filter:blur(90px);z-index:-9;pointer-events:none;background:rgba(0,0,0,0.06);transition:background-color .35s ease}
+    body.dark .u-glow{background:rgba(255,255,255,0.05)}
+    .u-glow-1{width:420px;height:420px;top:-140px;left:-140px}
+    .u-glow-2{width:520px;height:520px;bottom:-200px;right:-140px}
+    .bp{display:flex;align-items:center;gap:1rem;padding:.9rem 1.1rem;border-radius:.9rem;background:rgba(0,0,0,0.04);border:1px solid rgba(0,0,0,0.06)}
+    body.dark .bp{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08)}
+    .bp-name{flex:none;width:7rem;font-weight:700}
+  </style>
+</head>
+<body class="min-h-screen font-sans antialiased text-zinc-800 dark:text-zinc-100">
+  <script>(function initTheme(){var saved=null;try{saved=localStorage.getItem('uroo-theme')}catch(e){};var dark=(saved==='dark')||(!saved&&window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches);var de=document.documentElement;if(dark){de.classList.add('dark');de.classList.remove('light');if(document.body){document.body.classList.add('dark');document.body.classList.remove('light');}}else{de.classList.remove('dark');de.classList.add('light');if(document.body){document.body.classList.remove('dark');document.body.classList.add('light');}}})();</script>
+  <div class="u-bg u-bg-light" aria-hidden="true"></div>
+  <div class="u-bg u-bg-dark" aria-hidden="true"></div>
+  <div class="u-glow u-glow-1" aria-hidden="true"></div>
+  <div class="u-glow u-glow-2" aria-hidden="true"></div>
+
+  <button onclick="toggleTheme()" class="fixed top-4 right-4 z-50 p-2 rounded-full glass-panel shadow-2xl" title="Toggle tema">
+    <i data-lucide="sun" class="w-4 h-4 hidden dark:block"></i>
+    <i data-lucide="moon" class="w-4 h-4 block dark:hidden"></i>
+  </button>
+
+  <main class="max-w-3xl mx-auto px-5 py-10 space-y-6">
+
+    <header class="glass-panel rounded-3xl p-6 sm:p-8">
+      <span class="inline-flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-1 rounded-full bg-black/5 dark:bg-white/5 mb-3">
+        <i data-lucide="monitor" class="w-3 h-3"></i> Foundation
+      </span>
+      <h1 class="text-3xl font-extrabold tracking-tight">Breakpoints</h1>
+      <p class="text-sm text-zinc-500 dark:text-zinc-400 mt-1">Titik henti responsif mobile-first Uroo UI.</p>
+    </header>
+
+    <section class="glass-panel rounded-3xl p-6 sm:p-8 space-y-3">
+      <div class="bp"><span class="bp-name">sm</span><span class="flex-1 text-xs font-mono text-zinc-500">min-width: 640px</span><span class="text-xs">≥ 640px</span></div>
+      <div class="bp"><span class="bp-name">md</span><span class="flex-1 text-xs font-mono text-zinc-500">min-width: 768px</span><span class="text-xs">≥ 768px</span></div>
+      <div class="bp"><span class="bp-name">lg</span><span class="flex-1 text-xs font-mono text-zinc-500">min-width: 1024px</span><span class="text-xs">≥ 1024px</span></div>
+      <div class="bp"><span class="bp-name">xl</span><span class="flex-1 text-xs font-mono text-zinc-500">min-width: 1280px</span><span class="text-xs">≥ 1280px</span></div>
+      <div class="bp"><span class="bp-name">2xl</span><span class="flex-1 text-xs font-mono text-zinc-500">min-width: 1536px</span><span class="text-xs">≥ 1536px</span></div>
+    </section>
+
+    <section class="glass-panel rounded-3xl p-6 sm:p-8" data-copy data-lang="html">
+      <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-zinc-400 dark:text-zinc-500 mb-4">Contoh Responsif Langsung</p>
+      <div class="rounded-xl border-2 border-dashed border-zinc-400/40 dark:border-zinc-500/40 p-5 text-center text-sm">
+        <span class="text-base font-bold sm:hidden">Ukuran HP</span>
+        <span class="text-base font-bold hidden sm:block md:hidden">Ukuran Tablet (sm)</span>
+        <span class="text-base font-bold hidden md:block lg:hidden">Ukuran Laptop (md)</span>
+        <span class="text-base font-bold hidden lg:block">Ukuran Desktop (lg+)</span>
+        <p class="text-xs text-zinc-500 mt-1">Ubah lebar jendela untuk melihat perubahannya.</p>
+      </div>
+      <div class="grid gap-3 mt-4 grid-cols-2 md:grid-cols-4">
+        <div class="rounded-lg bg-black/5 dark:bg-white/5 py-4 text-center text-xs">1 <span class="md:hidden">/ 2</span></div>
+        <div class="rounded-lg bg-black/5 dark:bg-white/5 py-4 text-center text-xs">2</div>
+        <div class="rounded-lg bg-black/5 dark:bg-white/5 py-4 text-center text-xs">3</div>
+        <div class="rounded-lg bg-black/5 dark:bg-white/5 py-4 text-center text-xs">4</div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    lucide.createIcons();
+    function toggleTheme() {
+      const h = document.documentElement, b = document.body;
+      h.classList.toggle('dark'); b.classList.toggle('dark');
+      try { localStorage.setItem('uroo-theme', b.classList.contains('dark') ? 'dark' : 'light'); } catch (e) {}
+      lucide.createIcons();
+    }
+  </script>
+  <script src="../../assets/js/uroo-copy.js"></script>
+<script src="../../assets/js/uroo-nav.js"></script>
+</body>
+</html>

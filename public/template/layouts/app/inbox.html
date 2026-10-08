@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="id" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Uroo UI - Inbox</title>
+  <script src="../../assets/js/tailwind.js"></script>
+  <script src="../../assets/js/lucide.js"></script>
+  <script>tailwind.config={darkMode:'class',theme:{extend:{colors:{glass:{light:'rgba(255,255,255,0.65)','light-border':'rgba(255,255,255,0.8)',dark:'rgba(18,18,20,0.65)','dark-border':'rgba(255,255,255,0.1)'}}}}}</script>
+  <link rel="stylesheet" href="../../assets/css/uroo.css">
+  <style>
+    .u-bg{position:fixed;inset:0;z-index:-10;transition:opacity .35s ease}
+    .u-bg-light{background:linear-gradient(135deg,#dfe3ea,#f4f4f5)}
+    .u-bg-dark{background:linear-gradient(135deg,#0a0a0b,#1a1a1e);opacity:0}
+    body.dark .u-bg-light{opacity:0}
+    body.dark .u-bg-dark{opacity:1}
+    .u-glow{position:fixed;border-radius:9999px;filter:blur(90px);z-index:-9;pointer-events:none;background:rgba(0,0,0,0.06);transition:background-color .35s ease}
+    body.dark .u-glow{background:rgba(255,255,255,0.05)}
+    .u-glow-1{width:420px;height:420px;top:-140px;left:-140px}
+    .u-glow-2{width:520px;height:520px;bottom:-200px;right:-140px}
+    .u-glow-3{width:300px;height:300px;top:42%;left:58%}
+    #sidebar{width:16rem;transition:transform .28s cubic-bezier(.16,1,.3,1),width .28s cubic-bezier(.16,1,.3,1)}
+    #sidebar.collapsed{width:4.75rem}
+    #sidebar .nav-label{transition:opacity .15s ease,width .15s ease}
+    #sidebar.collapsed .nav-label{opacity:0;width:0;overflow:hidden;white-space:nowrap}
+    #sidebar.collapsed .nav-link{justify-content:center;padding-left:0;padding-right:0}
+    #sidebar.collapsed .group-title{justify-content:center;padding-left:0;padding-right:0}
+    #sidebar.collapsed .nav-text{display:none}
+    #sidebar.collapsed .logo-text{display:none}
+    #sidebar .badge-dot{transition:opacity .15s}
+    #sidebar.collapsed .badge-dot{opacity:0}
+    @media (max-width:767px){
+      #sidebar{position:fixed;top:1rem;bottom:1rem;left:1rem;z-index:50;transform:translateX(-130%);}
+      #sidebar.open{transform:translateX(0);}
+    }
+    :root{--u-chart:#18181b;--u-chart-mid:#71717a}
+    .dark{--u-chart:#fafafa;--u-chart-mid:#a1a1aa}
+    .msg-row{transition:background-color .2s ease}
+  </style>
+</head>
+<body class="min-h-screen font-sans antialiased text-zinc-800 dark:text-zinc-100">
+  <script>(function initTheme(){var saved=null;try{saved=localStorage.getItem('uroo-theme')}catch(e){};var dark=(saved==='dark')||(!saved&&window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches);var de=document.documentElement;if(dark){de.classList.add('dark');de.classList.remove('light');if(document.body){document.body.classList.add('dark');document.body.classList.remove('light');}}else{de.classList.remove('dark');de.classList.add('light');if(document.body){document.body.classList.remove('dark');document.body.classList.add('light');}}})();</script>
+  <div class="u-bg u-bg-light" aria-hidden="true"></div>
+  <div class="u-bg u-bg-dark" aria-hidden="true"></div>
+  <div class="u-glow u-glow-1" aria-hidden="true"></div>
+  <div class="u-glow u-glow-2" aria-hidden="true"></div>
+  <div class="u-glow u-glow-3" aria-hidden="true"></div>
+
+  <div id="overlay" class="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm opacity-0 pointer-events-none transition-opacity duration-300 md:hidden" onclick="closeDrawer()"></div>
+
+  <div class="md:flex md:gap-4 md:p-4 min-h-screen">
+    <aside id="sidebar" class="glass-panel rounded-2xl flex flex-col overflow-hidden shrink-0 md:sticky md:top-4 md:h-[calc(100vh-2rem)]">
+      <div class="flex items-center gap-3 px-5 h-16 border-b border-black/5 dark:border-white/10 shrink-0">
+        <img src="../../assets/img/uroo_ui.png" alt="Uroo UI" class="w-9 h-9 rounded-xl object-cover shadow-lg shrink-0">
+        <div class="logo-text min-w-0">
+          <p class="font-extrabold text-[15px] leading-none tracking-tight">Uroo UI</p>
+          <p class="mt-0.5 text-[10px] font-semibold uppercase tracking-[0.18em] text-zinc-400 dark:text-zinc-500">Aplikasi</p>
+        </div>
+        <button onclick="closeDrawer()" class="ml-auto md:hidden p-1.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/10"><i data-lucide="x" class="w-4 h-4"></i></button>
+        <button onclick="toggleSidebar()" class="hidden md:block ml-auto p-1.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 text-zinc-400"><i data-lucide="panel-left-close" class="w-4 h-4"></i></button>
+      </div>
+
+      <nav class="flex-1 overflow-y-auto px-3 py-4 space-y-6">
+        <div>
+          <p class="group-title flex items-center nav-label px-3 mb-2 text-[10px] font-bold uppercase tracking-[0.18em] text-zinc-400 dark:text-zinc-500">Menu Utama</p>
+          <div class="space-y-1">
+            <a href="beranda.html" class="nav-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-50 hover:bg-black/5 dark:hover:bg-white/10"><i data-lucide="layout-dashboard" class="w-[18px] h-[18px] shrink-0"></i><span class="nav-label">Beranda</span></a>
+            <a href="app.html" class="nav-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-50 hover:bg-black/5 dark:hover:bg-white/10"><i data-lucide="folder" class="w-[18px] h-[18px] shrink-0"></i><span class="nav-label">Proyek</span></a>
+            <a href="inbox.html" class="nav-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold bg-zinc-900 text-zinc-50 dark:bg-zinc-50 dark:text-zinc-900 shadow-lg"><i data-lucide="inbox" class="w-[18px] h-[18px] shrink-0"></i><span class="nav-label">Inbox</span></a>
+            <a href="kalender.html" class="nav-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-50 hover:bg-black/5 dark:hover:bg-white/10"><i data-lucide="calendar" class="w-[18px] h-[18px] shrink-0"></i><span class="nav-label">Kalender</span></a>
+          </div>
+        </div>
+        <div>
+          <p class="group-title flex items-center nav-label px-3 mb-2 text-[10px] font-bold uppercase tracking-[0.18em] text-zinc-400 dark:text-zinc-500">Ruang Kerja</p>
+          <div class="space-y-1">
+            <a href="tim.html" class="nav-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-50 hover:bg-black/5 dark:hover:bg-white/10"><i data-lucide="users" class="w-[18px] h-[18px] shrink-0"></i><span class="nav-label">Tim</span></a>
+            <a href="diskusi.html" class="nav-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-50 hover:bg-black/5 dark:hover:bg-white/10"><i data-lucide="message-square" class="w-[18px] h-[18px] shrink-0"></i><span class="nav-label">Diskusi</span></a>
+            <a href="analitik.html" class="nav-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-50 hover:bg-black/5 dark:hover:bg-white/10"><i data-lucide="bar-chart-3" class="w-[18px] h-[18px] shrink-0"></i><span class="nav-label">Analitik</span></a>
+          </div>
+        </div>
+        <div>
+          <p class="group-title flex items-center nav-label px-3 mb-2 text-[10px] font-bold uppercase tracking-[0.18em] text-zinc-400 dark:text-zinc-500">Source</p>
+          <div class="space-y-1">
+            <a href="dokumen.html" class="nav-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-50 hover:bg-black/5 dark:hover:bg-white/10"><i data-lucide="file-text" class="w-[18px] h-[18px] shrink-0"></i><span class="nav-label">Dokumen</span></a>
+            <a href="aset-media.html" class="nav-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-50 hover:bg-black/5 dark:hover:bg-white/10"><i data-lucide="image" class="w-[18px] h-[18px] shrink-0"></i><span class="nav-label">Aset Media</span></a>
+            <a href="pengaturan.html" class="nav-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-50 hover:bg-black/5 dark:hover:bg-white/10"><i data-lucide="settings" class="w-[18px] h-[18px] shrink-0"></i><span class="nav-label">Pengaturan</span></a>
+          </div>
+        </div>
+      </nav>
+
+      <div class="p-3 border-t border-black/5 dark:border-white/10 shrink-0">
+        <button class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-50 hover:bg-black/5 dark:hover:bg-white/10">
+          <span class="grid place-items-center w-8 h-8 rounded-full bg-gradient-to-br from-zinc-500 to-zinc-800 dark:from-zinc-300 dark:to-zinc-600 text-white dark:text-zinc-900 text-xs font-bold shrink-0">DB</span>
+          <span class="nav-label text-left min-w-0">
+            <span class="block font-bold text-[13px] leading-tight">Dita Baskoro</span>
+            <span class="block text-[11px] font-normal text-zinc-400 leading-tight">Administrator</span>
+          </span>
+        </button>
+      </div>
+    </aside>
+
+      <!-- CONTENT -->
+      <main class="flex-1 py-6 min-w-0">
+        <div class="mb-6 flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <p class="text-[11px] font-bold uppercase tracking-[0.2em] text-zinc-400 dark:text-zinc-500">Menu Utama / Inbox</p>
+            <h1 class="text-2xl md:text-3xl font-bold tracking-tight mt-1">Inbox</h1>
+            <p class="mt-1 text-sm text-zinc-500 dark:text-zinc-400">Pesan, percakapan, dan lampiran dari seluruh ruang kerja.</p>
+          </div>
+          <button onclick="toast('Editor pesan baru dibuka','pen-square')" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-zinc-900 dark:bg-zinc-50 text-zinc-50 dark:text-zinc-900 text-sm font-bold hover:opacity-90 shadow-lg"><i data-lucide="pen-square" class="w-4 h-4"></i> Tulis Pesan</button>
+        </div>
+
+        <div class="mb-4 flex flex-wrap items-center gap-2">
+          <button data-filter="semua" onclick="setFilter('semua')" class="filter-pill inline-flex items-center gap-2 px-3.5 h-9 rounded-xl text-sm font-bold bg-zinc-900 text-zinc-50 dark:bg-zinc-50 dark:text-zinc-900 shadow-lg">Semua <span class="text-[10px] font-extrabold opacity-70">8</span></button>
+          <button data-filter="belum" onclick="setFilter('belum')" class="filter-pill inline-flex items-center gap-2 px-3.5 h-9 rounded-xl text-sm font-semibold text-zinc-500 dark:text-zinc-400 hover:bg-black/5 dark:hover:bg-white/10"><span class="w-1.5 h-1.5 rounded-full bg-sky-500"></span>Belum Dibaca <span class="text-[10px] font-extrabold opacity-70">3</span></button>
+          <button data-filter="berkas" onclick="setFilter('berkas')" class="filter-pill inline-flex items-center gap-2 px-3.5 h-9 rounded-xl text-sm font-semibold text-zinc-500 dark:text-zinc-400 hover:bg-black/5 dark:hover:bg-white/10"><i data-lucide="paperclip" class="w-3.5 h-3.5"></i>Berkas <span class="text-[10px] font-extrabold opacity-70">3</span></button>
+          <button data-filter="terkirim" onclick="setFilter('terkirim')" class="filter-pill inline-flex items-center gap-2 px-3.5 h-9 rounded-xl text-sm font-semibold text-zinc-500 dark:text-zinc-400 hover:bg-black/5 dark:hover:bg-white/10"><i data-lucide="send" class="w-3.5 h-3.5"></i>Terkirim <span class="text-[10px] font-extrabold opacity-70">1</span></button>
+          <button onclick="toast('Kotak masuk disegarkan','refresh-cw')" class="ml-auto p-2.5 rounded-xl bg-black/5 dark:bg-white/10 text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-50"><i data-lucide="refresh-cw" class="w-4 h-4"></i></button>
+        </div>
+
+        <div class="grid grid-cols-1 xl:grid-cols-3 gap-4">
+          <div class="xl:col-span-2 glass-panel rounded-2xl overflow-hidden">
+            <div class="px-4 py-3 border-b border-black/5 dark:border-white/10 flex items-center gap-3">
+              <label class="flex-1 flex items-center gap-2 h-10 px-3.5 rounded-xl bg-black/5 dark:bg-white/10 text-sm text-zinc-400">
+                <i data-lucide="search" class="w-4 h-4 shrink-0"></i>
+                <input id="msgSearch" oninput="searchMsgs()" type="text" placeholder="Cari pengirim atau subjek…" class="flex-1 min-w-0 bg-transparent outline-none text-sm font-medium text-zinc-700 dark:text-zinc-200">
+              </label>
+            </div>
+            <div class="divide-y divide-black/5 dark:divide-white/10 max-h-[520px] overflow-y-auto">
+              <a href="#" onclick="openMsg(0);return false" data-filter="x" data-unread="1" data-cat="masuk" data-search="andi wijaya revisi desain landing page" class="msg-row flex items-start gap-3 px-4 py-3.5">
+                <span class="grid place-items-center w-10 h-10 rounded-full bg-gradient-to-br from-sky-400 to-indigo-600 text-white text-xs font-bold shrink-0">AW</span>
+                <span class="flex-1 min-w-0">
+                  <span class="flex items-center justify-between gap-2">
+                    <span class="font-bold text-sm truncate">Andi Wijaya</span>
+                    <span class="text-[11px] font-semibold text-zinc-400 shrink-0">09.24</span>
+                  </span>
+                  <span class="block text-sm font-semibold truncate mt-0.5">Revisi desain landing page</span>
+                  <span class="block text-xs text-zinc-500 dark:text-zinc-400 truncate mt-0.5">Sudah saya rombak bagian hero dan grid fitur sesuai catatan…</span>
+                </span>
+                <span class="w-2 h-2 rounded-full bg-sky-500 shrink-0 mt-2"></span>
+              </a>
+              <a href="#" onclick="openMsg(1);return false" data-unread="1" data-cat="masuk" data-search="sistem uroo undangan rapat sprint review" class="msg-row flex items-start gap-3 px-4 py-3.5">
+                <span class="grid place-items-center w-10 h-10 rounded-full bg-zinc-400 dark:bg-zinc-500 text-white dark:text-zinc-900 text-xs font-bold shrink-0">SR</span>
+                <span class="flex-1 min-w-0">
+                  <span class="flex items-center justify-between gap-2">
+                    <span class="font-bold text-sm truncate">Sistem Uroo</span>
+                    <span class="text-[11px] font-semibold text-zinc-400 shrink-0">09.02</span>
+                  </span>
+                  <span class="block text-sm font-semibold truncate mt-0.5">Undangan rapat: Sprint Review</span>
+                  <span class="block text-xs text-zinc-500 dark:text-zinc-400 truncate mt-0.5">Anda diundang ke acara Sprint Review — hari ini pukul 14.00 WIB.</span>
+                </span>
+                <span class="w-2 h-2 rounded-full bg-sky-500 shrink-0 mt-2"></span>
+              </a>
+              <a href="#" onclick="openMsg(2);return false" data-unread="0" data-cat="berkas" data-search="citra ayu file siap integrasi" class="msg-row flex items-start gap-3 px-4 py-3.5">
+                <span class="grid place-items-center w-10 h-10 rounded-full bg-gradient-to-br from-rose-400 to-orange-500 text-white text-xs font-bold shrink-0">CA</span>
+                <span class="flex-1 min-w-0">
+                  <span class="flex items-center justify-between gap-2">
+                    <span class="font-bold text-sm truncate">Citra Ayu</span>
+                    <span class="text-[11px] font-semibold text-zinc-400 shrink-0">08.47</span>
+                  </span>
+                  <span class="block text-sm font-semibold truncate mt-0.5">File siap integrasi</span>
+                  <span class="block text-xs text-zinc-500 dark:text-zinc-400 truncate mt-0.5">Paket komponen sudah saya kirim sebagai arsip terlampir…</span>
+                </span>
+              </a>
+              <a href="#" onclick="openMsg(3);return false" data-unread="1" data-cat="masuk" data-search="bima nugraha kendala saat deploy staging" class="msg-row flex items-start gap-3 px-4 py-3.5">
+                <span class="grid place-items-center w-10 h-10 rounded-full bg-gradient-to-br from-emerald-400 to-teal-600 text-white text-xs font-bold shrink-0">BN</span>
+                <span class="flex-1 min-w-0">
+                  <span class="flex items-center justify-between gap-2">
+                    <span class="font-bold text-sm truncate">Bima Nugraha</span>
+                    <span class="text-[11px] font-semibold text-zinc-400 shrink-0">08.15</span>
+                  </span>
+                  <span class="block text-sm font-semibold truncate mt-0.5">Kendala saat deploy staging</span>
+                  <span class="block text-xs text-zinc-500 dark:text-zinc-400 truncate mt-0.5">Variabel lingkungan tidak terbaca di pipeline terbaru…</span>
+                </span>
+                <span class="w-2 h-2 rounded-full bg-sky-500 shrink-0 mt-2"></span>
+              </a>
+              <a href="#" onclick="openMsg(4);return false" data-unread="0" data-cat="masuk" data-search="dewi lestari konfirmasi jadwal presentasi" class="msg-row flex items-start gap-3 px-4 py-3.5">
+                <span class="grid place-items-center w-10 h-10 rounded-full bg-gradient-to-br from-violet-400 to-purple-600 text-white text-xs font-bold shrink-0">DL</span>
+                <span class="flex-1 min-w-0">
+                  <span class="flex items-center justify-between gap-2">
+                    <span class="font-bold text-sm truncate">Dewi Lestari</span>
+                    <span class="text-[11px] font-semibold text-zinc-400 shrink-0">07.58</span>
+                  </span>
+                  <span class="block text-sm font-semibold truncate mt-0.5">Konfirmasi jadwal presentasi</span>
+                  <span class="block text-xs text-zinc-500 dark:text-zinc-400 truncate mt-0.5">Mohon konfirmasi slot demo klien di kalender minggu ini…</span>
+                </span>
+              </a>
+              <a href="#" onclick="openMsg(5);return false" data-unread="0" data-cat="berkas" data-search="gilang ramadhan ringkasan pemantauan malam" class="msg-row flex items-start gap-3 px-4 py-3.5">
+                <span class="grid place-items-center w-10 h-10 rounded-full bg-gradient-to-br from-amber-400 to-orange-600 text-white text-xs font-bold shrink-0">GR</span>
+                <span class="flex-1 min-w-0">
+                  <span class="flex items-center justify-between gap-2">
+                    <span class="font-bold text-sm truncate">Gilang Ramadhan</span>
+                    <span class="text-[11px] font-semibold text-zinc-400 shrink-0">07.30</span>
+                  </span>
+                  <span class="block text-sm font-semibold truncate mt-0.5">Ringkasan pemantauan malam</span>
+                  <span class="block text-xs text-zinc-500 dark:text-zinc-400 truncate mt-0.5">Log deploy dan metrik uptime semalam terlampir…</span>
+                </span>
+              </a>
+              <a href="#" onclick="openMsg(6);return false" data-unread="0" data-cat="masuk" data-search="salsabila zahra naskah kampanye edisi september" class="msg-row flex items-start gap-3 px-4 py-3.5">
+                <span class="grid place-items-center w-10 h-10 rounded-full bg-gradient-to-br from-pink-400 to-rose-600 text-white text-xs font-bold shrink-0">SZ</span>
+                <span class="flex-1 min-w-0">
+                  <span class="flex items-center justify-between gap-2">
+                    <span class="font-bold text-sm truncate">Salsabila Zahra</span>
+                    <span class="text-[11px] font-semibold text-zinc-400 shrink-0">Kemarin</span>
+                  </span>
+                  <span class="block text-sm font-semibold truncate mt-0.5">Naskah kampanye edisi September</span>
+                  <span class="block text-xs text-zinc-500 dark:text-zinc-400 truncate mt-0.5">Draf headline dan call-to-action siap untuk review tim…</span>
+                </span>
+              </a>
+              <a href="#" onclick="openMsg(7);return false" data-unread="0" data-cat="terkirim" data-search="dita baskoro nota internal aturan rapat baru" class="msg-row flex items-start gap-3 px-4 py-3.5">
+                <span class="grid place-items-center w-10 h-10 rounded-full bg-gradient-to-br from-zinc-400 to-zinc-700 dark:from-zinc-300 dark:to-zinc-600 text-white dark:text-zinc-900 text-xs font-bold shrink-0">DB</span>
+                <span class="flex-1 min-w-0">
+                  <span class="flex items-center justify-between gap-2">
+                    <span class="font-bold text-sm truncate">Dita Baskoro</span>
+                    <span class="text-[11px] font-semibold text-zinc-400 shrink-0">Kemarin</span>
+                  </span>
+                  <span class="block text-sm font-semibold truncate mt-0.5">Nota internal: aturan rapat baru</span>
+                  <span class="block text-xs text-zinc-500 dark:text-zinc-400 truncate mt-0.5">Dikirim ke semua anggota — mohon dibaca sebelum agenda…</span>
+                </span>
+              </a>
+            </div>
+          </div>
+
+          <div class="glass-panel rounded-2xl overflow-hidden xl:sticky xl:top-4 flex flex-col">
+            <div class="px-5 py-4 border-b border-black/5 dark:border-white/10 flex items-center gap-3">
+              <span class="grid place-items-center w-9 h-9 rounded-full bg-gradient-to-br from-sky-400 to-indigo-600 text-white text-xs font-bold shrink-0">AW</span>
+              <div class="min-w-0 flex-1">
+                <p id="rpFrom" class="font-bold text-sm truncate">Andi Wijaya</p>
+                <p id="rpRole" class="text-[11px] font-semibold text-zinc-400 truncate">Desainer Senior</p>
+              </div>
+              <span id="rpTime" class="text-[11px] font-semibold text-zinc-400 shrink-0">09:24</span>
+            </div>
+            <div class="flex-1 px-5 py-4 overflow-y-auto max-h-[430px]">
+              <h2 id="rpSubject" class="font-bold tracking-tight text-lg leading-snug">Revisi desain landing page</h2>
+              <div id="rpBody" class="mt-3 space-y-3"></div>
+              <div id="rpAtt" class="mt-4 flex flex-wrap gap-2"></div>
+            </div>
+            <div class="px-5 py-3.5 border-t border-black/5 dark:border-white/10 flex items-center gap-2">
+              <button onclick="toast('Pesan dibalas','check-circle')" class="flex-1 inline-flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl bg-zinc-900 dark:bg-zinc-50 text-zinc-50 dark:text-zinc-900 text-sm font-bold hover:opacity-90 shadow-lg"><i data-lucide="reply" class="w-4 h-4"></i> Balas</button>
+              <button onclick="toast('Pesan diteruskan','forward')" class="p-2.5 rounded-xl bg-black/5 dark:bg-white/10 text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-50"><i data-lucide="forward" class="w-4 h-4"></i></button>
+              <button onclick="toast('Pesan diarsipkan','archive')" class="p-2.5 rounded-xl bg-black/5 dark:bg-white/10 text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-50"><i data-lucide="archive" class="w-4 h-4"></i></button>
+            </div>
+          </div>
+        </div>
+
+        <p class="mt-4 text-xs text-zinc-400 text-center">Isi pesan adalah data simulasi untuk demo desain Uroo UI.</p>
+      </main>
+    </div>
+  </div>
+
+  <button onclick="toggleTheme()" class="fixed top-5 right-5 z-[80] p-2.5 rounded-full glass-panel shadow-2xl text-zinc-600 dark:text-zinc-300 md:top-[1.6rem] md:right-[1.6rem]">
+    <i data-lucide="moon" class="w-4 h-4 hidden dark:block"></i>
+    <i data-lucide="sun" class="w-4 h-4 block dark:hidden"></i>
+  </button>
+
+  <script>
+    lucide.createIcons();
+    function toggleTheme(){document.documentElement.classList.toggle('dark');document.body.classList.toggle('dark');try{localStorage.setItem('uroo-theme',document.documentElement.classList.contains('dark')?'dark':'light')}catch(e){};lucide.createIcons();}
+    const sidebar=document.getElementById('sidebar');
+    function toggleSidebar(){
+      if(window.innerWidth>=768){sidebar.classList.toggle('collapsed');}
+      else{sidebar.classList.toggle('open');document.getElementById('overlay').classList.toggle('opacity-0',!sidebar.classList.contains('open'));document.getElementById('overlay').classList.toggle('pointer-events-none',!sidebar.classList.contains('open'));}
+    }
+    function openDrawer(){sidebar.classList.add('open');document.getElementById('overlay').classList.remove('opacity-0','pointer-events-none');}
+    function closeDrawer(){sidebar.classList.remove('open');document.getElementById('overlay').classList.add('opacity-0','pointer-events-none');}
+
+    function toast(msg,type){
+      const t=document.createElement('div');
+      t.className='fixed bottom-5 right-5 z-[85] glass-panel rounded-xl px-4 py-3 text-sm font-semibold shadow-2xl anim-toast-in flex items-center gap-2.5 pointer-events-none max-w-sm';
+      t.innerHTML='<i data-lucide="'+(type||'check-circle')+'" class="w-4 h-4 shrink-0"></i><span>'+msg+'</span>';
+      document.body.appendChild(t);lucide.createIcons();
+      setTimeout(()=>{t.style.opacity='0';t.style.transition='opacity .3s';setTimeout(()=>t.remove(),320)},2600);
+    }
+
+    const messages=[
+      {from:'Andi Wijaya',init:'AW',role:'Desainer Senior',subject:'Revisi desain landing page',at:'09:24',body:['Bagian hero dan grid fitur sudah saya rombak sesuai catatan rapat kemarin.','CTA sekarang jauh lebih jelas dan jaraknya rapat dengan teks pendukung.','Silakan dicek dulu sebelum demo ke klien. Kalau masih ada yang kurang pas, tinggal balas pesan ini.'],att:[{n:'landing-revisi.fig',s:'6,4 MB'}]},
+      {from:'Sistem Uroo',init:'SR',role:'Notifikasi Otomatis',subject:'Undangan rapat: Sprint Review',at:'09:02',body:['Anda diundang ke acara Sprint Review di Ruang Sunter, hari ini pukul 14.00 WIB.','Agenda: demo progres sprint, pembahasan blokir, dan rencana kerja pekan depan.','Terima undangan ini melalui kalender agar otomatis tersinkron ke jadwal Anda.'],att:[{n:'sprint-review.ics',s:'2 KB'}]},
+      {from:'Citra Ayu',init:'CA',role:'Frontend Engineer',subject:'File siap integrasi',at:'08:47',body:['Halo, paket komponen antarmuka untuk modul proyek sudah saya rapiin.','Semua berkas bentuknya arsip zip supaya tidak pecah saat diunduh.','Kalau ada versi terbaru, kabari saya sebelum digabung ke branch utama.'],att:[{n:'komponen-modul-proyek.zip',s:'12,4 MB'}]},
+      {from:'Bima Nugraha',init:'BN',role:'Backend Engineer',subject:'Kendala saat deploy staging',at:'08:15',body:['Tadi pagi deploy ke staging gagal dua kali.','Ternyata variabel lingkungan yang baru tidak terbaca oleh pipeline karena salah penulisan nama.','Sudah saya perbaiki dan sekarang proses berjalan normal.'],att:[]},
+      {from:'Dewi Lestari',init:'DL',role:'Product Manager',subject:'Konfirmasi jadwal presentasi',at:'07:58',body:['Mohon konfirmasi slot demo klien di kalender untuk minggu ini.','Klien menyediakan waktu Senin atau Rabu sore. Pilih salah satu dan tandai kehadiran Anda.'],att:[]},
+      {from:'Gilang Ramadhan',init:'GR',role:'DevOps Engineer',subject:'Ringkasan pemantauan malam',at:'07:30',body:['Semalam semua layanan stabil, tidak ada lonjakan error yang berarti.','Uptime 99,97% dengan puncak beban di jam 21.00–22.00.','Log deploy dan metrik terlampir di berkas untuk arsip.'],att:[{n:'log-deploy-malam.log',s:'1,9 MB'}]},
+      {from:'Salsabila Zahra',init:'SZ',role:'Content Strategist',subject:'Naskah kampanye edisi September',at:'Kemarin, 16.20',body:['Draf kampanye September sudah jadi dan menunggu review tim.','Fokus tema bulan ini: kolaborasi antar-divisi.','Kalau disetujui, saya lanjut ke produksi visual bersama tim desain.'],att:[{n:'naskah-september.pdf',s:'820 KB'}]},
+      {from:'Dita Baskoro',init:'DB',role:'Administrator',subject:'Nota internal: aturan rapat baru',at:'Kemarin, 14.05',body:['Untuk efektivitas waktu, mulai pekan depan setiap rapat wajib menyertakan agenda tertulis.','Durasi maksimal 45 menit dan notulensi dibagikan di diskusi resmi ruang kerja.','Terima kasih atas kerja samanya.'],att:[]}
+    ];
+
+    function attChip(a){
+      return '<span class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-black/5 dark:bg-white/10 text-xs font-semibold"><i data-lucide="paperclip" class="w-3.5 h-3.5 text-zinc-400 shrink-0"></i>'+a.n+' <span class="text-zinc-400 font-bold">'+a.s+'</span></span>';
+    }
+
+    function openMsg(i){
+      const m=messages[i];
+      const rows=document.querySelectorAll('.msg-row');
+      rows.forEach((r,j)=>{r.classList.toggle('bg-black/5',j===i);r.classList.toggle('dark:bg-white/10',j===i);});
+      if(rows[i].dataset.unread==='1'){rows[i].dataset.unread='0';const d=rows[i].querySelector('.bg-sky-500');if(d)d.remove();}
+      document.getElementById('rpFrom').textContent=m.from;
+      document.getElementById('rpRole').textContent=m.role;
+      document.getElementById('rpTime').textContent=m.at;
+      document.getElementById('rpSubject').textContent=m.subject;
+      document.getElementById('rpBody').innerHTML=m.body.map(p=>'<p class="text-sm leading-relaxed text-zinc-600 dark:text-zinc-300">'+p+'</p>').join('');
+      const aw=document.getElementById('rpAtt');
+      aw.innerHTML=m.att.length?m.att.map(attChip).join(''):'<span class="text-xs font-semibold text-zinc-400">Tanpa lampiran</span>';
+      lucide.createIcons();
+    }
+
+    let curF='semua';
+    function setFilter(k){
+      curF=k;
+      document.querySelectorAll('.filter-pill').forEach(p=>{
+        const on=p.dataset.filter===k;
+        p.classList.toggle('bg-zinc-900',on);p.classList.toggle('text-zinc-50',on);
+        p.classList.toggle('dark:bg-zinc-50',on);p.classList.toggle('dark:text-zinc-900',on);
+        p.classList.toggle('shadow-lg',on);
+        p.classList.toggle('text-zinc-500',!on);p.classList.toggle('dark:text-zinc-400',!on);
+        p.classList.toggle('hover:bg-black/5',!on);p.classList.toggle('dark:hover:bg-white/10',!on);
+      });
+      updateList();
+    }
+
+    function matchRow(r,q){
+      if(q&&!((r.dataset.search||'').indexOf(q)>=0))return false;
+      if(curF==='belum')return r.dataset.unread==='1';
+      if(curF==='berkas')return r.dataset.cat==='berkas';
+      if(curF==='terkirim')return r.dataset.cat==='terkirim';
+      return true;
+    }
+    function updateList(){
+      const q=(document.getElementById('msgSearch').value||'').trim().toLowerCase();
+      document.querySelectorAll('.msg-row').forEach(r=>{r.style.display=matchRow(r,q)?'':'none';});
+    }
+    function searchMsgs(){updateList();}
+
+    openMsg(0);
+  </script>
+<script src="../../assets/js/uroo-nav.js"></script>
+</body>
+</html>

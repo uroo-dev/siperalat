@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="id" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard - Admin</title>
+  <script src="../../assets/js/tailwind.js"></script>
+  <script src="../../assets/js/lucide.js"></script>
+  <script>tailwind.config={darkMode:'class',theme:{extend:{colors:{glass:{light:'rgba(255,255,255,0.65)','light-border':'rgba(255,255,255,0.8)',dark:'rgba(18,18,20,0.65)','dark-border':'rgba(255,255,255,0.1)'}}}}}</script>
+  <link rel="stylesheet" href="../../assets/css/uroo.css">
+  <style>
+    .u-bg{position:fixed;inset:0;z-index:-10;transition:opacity .35s ease}
+    .u-bg-light{background:linear-gradient(135deg,#dfe3ea,#f4f4f5)}
+    .u-bg-dark{background:linear-gradient(135deg,#0a0a0b,#1a1a1e);opacity:0}
+    body.dark .u-bg-light{opacity:0}
+    body.dark .u-bg-dark{opacity:1}
+    .u-glow{position:fixed;border-radius:9999px;filter:blur(90px);z-index:-9;pointer-events:none;background:rgba(0,0,0,0.06);transition:background-color .35s ease}
+    body.dark .u-glow{background:rgba(255,255,255,0.05)}
+    .u-glow-1{width:420px;height:420px;top:-140px;left:-140px}
+    .u-glow-2{width:520px;height:520px;bottom:-200px;right:-140px}
+    .u-glow-3{width:300px;height:300px;top:42%;left:58%}
+    #sidebar{width:16rem;transition:transform .28s cubic-bezier(.16,1,.3,1),width .28s cubic-bezier(.16,1,.3,1)}
+    #sidebar.collapsed{width:4.75rem}
+    #sidebar .nav-label{transition:opacity .15s ease,width .15s ease}
+    #sidebar.collapsed .nav-label{opacity:0;width:0;overflow:hidden;white-space:nowrap}
+    #sidebar.collapsed .nav-link{justify-content:center;padding-left:0;padding-right:0}
+    #sidebar.collapsed .group-title{justify-content:center;padding-left:0;padding-right:0}
+    #sidebar.collapsed .nav-text{display:none}
+    #sidebar.collapsed .logo-text{display:none}
+    #sidebar .badge-dot{transition:opacity .15s}
+    #sidebar.collapsed .badge-dot{opacity:0}
+    @media (max-width:767px){
+      #sidebar{position:fixed;top:1rem;bottom:1rem;left:1rem;z-index:50;transform:translateX(-130%);}
+      #sidebar.open{transform:translateX(0);}
+    }
+    :root{--u-chart:#18181b;--u-chart-mid:#71717a}
+    .dark{--u-chart:#fafafa;--u-chart-mid:#a1a1aa}
+  </style>
+</head>
+<body class="min-h-screen font-sans antialiased text-zinc-800 dark:text-zinc-100">
+  <script>(function initTheme(){var saved=null;try{saved=localStorage.getItem('uroo-theme')}catch(e){};var dark=(saved==='dark')||(!saved&&window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches);var de=document.documentElement;if(dark){de.classList.add('dark');de.classList.remove('light');if(document.body){document.body.classList.add('dark');document.body.classList.remove('light');}}else{de.classList.remove('dark');de.classList.add('light');if(document.body){document.body.classList.remove('dark');document.body.classList.add('light');}}})();</script>
+  <div class="u-bg u-bg-light" aria-hidden="true"></div>
+  <div class="u-bg u-bg-dark" aria-hidden="true"></div>
+  <div class="u-glow u-glow-1" aria-hidden="true"></div>
+  <div class="u-glow u-glow-2" aria-hidden="true"></div>
+  <div class="u-glow u-glow-3" aria-hidden="true"></div>
+
+  <div id="overlay" class="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm opacity-0 pointer-events-none transition-opacity duration-300 md:hidden" onclick="closeDrawer()"></div>
+
+  <div class="md:flex md:gap-4 md:p-4 min-h-screen">
+    <aside id="sidebar" class="glass-panel rounded-2xl flex flex-col overflow-hidden shrink-0 md:sticky md:top-4 md:h-[calc(100vh-2rem)]">
+      <div class="flex items-center gap-3 px-5 h-16 border-b border-black/5 dark:border-white/10 shrink-0">
+        <img src="../../assets/img/uroo_ui.png" alt="Uroo UI" class="w-9 h-9 rounded-xl object-cover shadow-lg shrink-0">
+        <div class="logo-text min-w-0">
+          <p class="font-extrabold text-[15px] leading-none tracking-tight">Uroo UI</p>
+          <p class="mt-0.5 text-[10px] font-semibold uppercase tracking-[0.18em] text-zinc-400 dark:text-zinc-500">Admin</p>
+        </div>
+        <button onclick="closeDrawer()" class="ml-auto md:hidden p-1.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/10"><i data-lucide="x" class="w-4 h-4"></i></button>
+        <button onclick="toggleSidebar()" class="hidden md:block ml-auto p-1.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 text-zinc-400"><i data-lucide="panel-left-close" class="w-4 h-4"></i></button>
+      </div>
+
+      <nav class="flex-1 overflow-y-auto px-3 py-4 space-y-6">
+        <div>
+          <p class="group-title flex items-center nav-label px-3 mb-2 text-[10px] font-bold uppercase tracking-[0.18em] text-zinc-400 dark:text-zinc-500">Utama</p>
+          <div class="space-y-1">
+            <a href="admin.html" class="nav-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold bg-zinc-900 text-zinc-50 dark:bg-zinc-50 dark:text-zinc-900 shadow-lg"><i data-lucide="layout-dashboard" class="w-[18px] h-[18px] shrink-0"></i><span class="nav-label">Dashboard</span></a>
+            <a href="pengguna.html" class="nav-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-50 hover:bg-black/5 dark:hover:bg-white/10"><i data-lucide="users" class="w-[18px] h-[18px] shrink-0"></i><span class="nav-label">Pengguna</span></a>
+            <a href="peran.html" class="nav-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-50 hover:bg-black/5 dark:hover:bg-white/10"><i data-lucide="user-cog" class="w-[18px] h-[18px] shrink-0"></i><span class="nav-label">Peran</span></a>
+            <a href="pengaturan.html" class="nav-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-50 hover:bg-black/5 dark:hover:bg-white/10"><i data-lucide="settings" class="w-[18px] h-[18px] shrink-0"></i><span class="nav-label">Pengaturan</span></a>
+          </div>
+        </div>
+        <div>
+          <p class="group-title flex items-center nav-label px-3 mb-2 text-[10px] font-bold uppercase tracking-[0.18em] text-zinc-400 dark:text-zinc-500">Manajemen</p>
+          <div class="space-y-1">
+            <a href="transaksi.html" class="nav-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-50 hover:bg-black/5 dark:hover:bg-white/10"><i data-lucide="file-text" class="w-[18px] h-[18px] shrink-0"></i><span class="nav-label">Transaksi</span></a>
+            <a href="produk.html" class="nav-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-50 hover:bg-black/5 dark:hover:bg-white/10"><i data-lucide="tag" class="w-[18px] h-[18px] shrink-0"></i><span class="nav-label">Produk</span></a>
+            <a href="pembayaran.html" class="nav-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-50 hover:bg-black/5 dark:hover:bg-white/10"><i data-lucide="credit-card" class="w-[18px] h-[18px] shrink-0"></i><span class="nav-label">Pembayaran</span></a>
+          </div>
+        </div>
+        <div>
+          <p class="group-title flex items-center nav-label px-3 mb-2 text-[10px] font-bold uppercase tracking-[0.18em] text-zinc-400 dark:text-zinc-500">Sistem</p>
+          <div class="space-y-1">
+            <a href="log-aktivitas.html" class="nav-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-50 hover:bg-black/5 dark:hover:bg-white/10"><i data-lucide="activity" class="w-[18px] h-[18px] shrink-0"></i><span class="nav-label">Log Aktivitas</span></a>
+            <a href="keamanan.html" class="nav-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-50 hover:bg-black/5 dark:hover:bg-white/10"><i data-lucide="server" class="w-[18px] h-[18px] shrink-0"></i><span class="nav-label">Keamanan</span></a>
+          </div>
+        </div>
+      </nav>
+
+      <div class="p-3 border-t border-black/5 dark:border-white/10 shrink-0">
+        <button class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-50 hover:bg-black/5 dark:hover:bg-white/10">
+          <span class="grid place-items-center w-8 h-8 rounded-full bg-gradient-to-br from-zinc-500 to-zinc-800 dark:from-zinc-300 dark:to-zinc-600 text-white dark:text-zinc-900 text-xs font-bold shrink-0">DB</span>
+          <span class="nav-label text-left min-w-0">
+            <span class="block font-bold text-[13px] leading-tight">Dita Baskoro</span>
+            <span class="block text-[11px] font-normal text-zinc-400 leading-tight">Administrator</span>
+          </span>
+        </button>
+      </div>
+    </aside>
+
+      <!-- CONTENT -->
+      <main class="flex-1 py-6 min-w-0">
+        <div class="mb-6 flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <p class="text-[11px] font-bold uppercase tracking-[0.2em] text-zinc-400 dark:text-zinc-500">Panel Admin / Ringkasan</p>
+            <h1 class="text-2xl md:text-3xl font-bold tracking-tight mt-1">Dashboard Manajemen</h1>
+            <p class="mt-1 text-sm text-zinc-500 dark:text-zinc-400">Ringkasan pengguna, transaksi, dan operasional platform Anda.</p>
+          </div>
+          <button onclick="toast('Form pengguna baru dibuka','user-plus')" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-zinc-900 dark:bg-zinc-50 text-zinc-50 dark:text-zinc-900 text-sm font-bold hover:opacity-90 shadow-lg"><i data-lucide="plus" class="w-4 h-4"></i> Tambah Pengguna</button>
+        </div>
+
+        <!-- Stat cards -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 mb-6">
+          <div class="glass-panel rounded-2xl p-5">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-semibold text-zinc-500 dark:text-zinc-400">Total Pengguna</span>
+              <span class="grid place-items-center w-9 h-9 rounded-xl bg-black/5 dark:bg-white/10 text-zinc-600 dark:text-zinc-300"><i data-lucide="users" class="w-4 h-4"></i></span>
+            </div>
+            <p class="mt-3 text-3xl font-extrabold tracking-tight">24.890</p>
+            <p class="mt-1 text-xs font-semibold text-emerald-600 dark:text-emerald-400 inline-flex items-center gap-1"><i data-lucide="trending-up" class="w-3.5 h-3.5"></i> +8,4%</p>
+          </div>
+          <div class="glass-panel rounded-2xl p-5">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-semibold text-zinc-500 dark:text-zinc-400">Pendapatan</span>
+              <span class="grid place-items-center w-9 h-9 rounded-xl bg-emerald-500/15 text-emerald-600 dark:text-emerald-400"><i data-lucide="wallet" class="w-4 h-4"></i></span>
+            </div>
+            <p class="mt-3 text-3xl font-extrabold tracking-tight">Rp 1,2jt</p>
+            <p class="mt-1 text-xs font-semibold text-emerald-600 dark:text-emerald-400 inline-flex items-center gap-1"><i data-lucide="trending-up" class="w-3.5 h-3.5"></i> +12,1%</p>
+          </div>
+          <div class="glass-panel rounded-2xl p-5">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-semibold text-zinc-500 dark:text-zinc-400">Transaksi</span>
+              <span class="grid place-items-center w-9 h-9 rounded-xl bg-sky-500/15 text-sky-600 dark:text-sky-400"><i data-lucide="shopping-cart" class="w-4 h-4"></i></span>
+            </div>
+            <p class="mt-3 text-3xl font-extrabold tracking-tight">8.142</p>
+            <p class="mt-1 text-xs font-semibold text-emerald-600 dark:text-emerald-400 inline-flex items-center gap-1"><i data-lucide="trending-up" class="w-3.5 h-3.5"></i> +5,6%</p>
+          </div>
+          <div class="glass-panel rounded-2xl p-5">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-semibold text-zinc-500 dark:text-zinc-400">Tiket Terbuka</span>
+              <span class="grid place-items-center w-9 h-9 rounded-xl bg-amber-500/15 text-amber-600 dark:text-amber-400"><i data-lucide="life-buoy" class="w-4 h-4"></i></span>
+            </div>
+            <p class="mt-3 text-3xl font-extrabold tracking-tight">47</p>
+            <p class="mt-1 text-xs font-semibold text-amber-600 dark:text-amber-400">13 butuh perhatian</p>
+          </div>
+        </div>
+
+        <!-- Quick actions -->
+        <div class="mb-6">
+          <h2 class="font-bold tracking-tight mb-4">Aksi Cepat</h2>
+          <div class="grid grid-cols-2 md:grid-cols-4 xl:grid-cols-6 gap-3">
+            <button onclick="toast('Membuka pengguna baru','user-plus')" class="glass-panel rounded-2xl p-4 flex flex-col items-start gap-2 text-left hover:opacity-90 transition-opacity">
+              <span class="grid place-items-center w-9 h-9 rounded-xl bg-zinc-900 dark:bg-zinc-50 text-zinc-50 dark:text-zinc-900"><i data-lucide="user-plus" class="w-4 h-4"></i></span>
+              <span class="text-xs font-bold">Pengguna Baru</span>
+            </button>
+            <button onclick="toast('Membuka form produk','package')" class="glass-panel rounded-2xl p-4 flex flex-col items-start gap-2 text-left hover:opacity-90 transition-opacity">
+              <span class="grid place-items-center w-9 h-9 rounded-xl bg-emerald-500/15 text-emerald-600 dark:text-emerald-400"><i data-lucide="package" class="w-4 h-4"></i></span>
+              <span class="text-xs font-bold">Tambah Produk</span>
+            </button>
+            <button onclick="toast('Membuka laporan','file-text')" class="glass-panel rounded-2xl p-4 flex flex-col items-start gap-2 text-left hover:opacity-90 transition-opacity">
+              <span class="grid place-items-center w-9 h-9 rounded-xl bg-sky-500/15 text-sky-600 dark:text-sky-400"><i data-lucide="file-text" class="w-4 h-4"></i></span>
+              <span class="text-xs font-bold">Laporan</span>
+            </button>
+            <button onclick="toast('Membuka pengaturan pembayaran','credit-card')" class="glass-panel rounded-2xl p-4 flex flex-col items-start gap-2 text-left hover:opacity-90 transition-opacity">
+              <span class="grid place-items-center w-9 h-9 rounded-xl bg-amber-500/15 text-amber-600 dark:text-amber-400"><i data-lucide="credit-card" class="w-4 h-4"></i></span>
+              <span class="text-xs font-bold">Pembayaran</span>
+            </button>
+            <button onclick="toast('Membuka log keamanan','shield-check')" class="glass-panel rounded-2xl p-4 flex flex-col items-start gap-2 text-left hover:opacity-90 transition-opacity">
+              <span class="grid place-items-center w-9 h-9 rounded-xl bg-rose-500/15 text-rose-500"><i data-lucide="shield-check" class="w-4 h-4"></i></span>
+              <span class="text-xs font-bold">Keamanan</span>
+            </button>
+            <button onclick="toast('Membuka pengaturan sistem','settings')" class="glass-panel rounded-2xl p-4 flex flex-col items-start gap-2 text-left hover:opacity-90 transition-opacity">
+              <span class="grid place-items-center w-9 h-9 rounded-xl bg-zinc-500/15 text-zinc-600 dark:text-zinc-300"><i data-lucide="settings" class="w-4 h-4"></i></span>
+              <span class="text-xs font-bold">Pengaturan</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- User table + activity -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+          <div class="glass-panel rounded-2xl overflow-hidden lg:col-span-2">
+            <div class="px-5 py-4 border-b border-black/5 dark:border-white/10 flex flex-wrap items-center justify-between gap-2">
+              <h2 class="font-bold tracking-tight">Daftar Pengguna</h2>
+              <div class="flex items-center gap-1.5 text-xs font-semibold">
+                <button class="px-2.5 py-1.5 rounded-lg bg-zinc-900 dark:bg-zinc-50 text-zinc-50 dark:text-zinc-900">Semua</button>
+                <button class="px-2.5 py-1.5 rounded-lg text-zinc-500 dark:text-zinc-400 hover:bg-black/5 dark:hover:bg-white/10">Aktif</button>
+                <button class="px-2.5 py-1.5 rounded-lg text-zinc-500 dark:text-zinc-400 hover:bg-black/5 dark:hover:bg-white/10">Menunggu</button>
+              </div>
+            </div>
+            <div class="overflow-x-auto">
+              <table class="w-full text-sm min-w-[520px]">
+                <thead><tr class="text-left text-[11px] uppercase tracking-wide text-zinc-400 dark:text-zinc-500 border-b border-black/5 dark:border-white/10 bg-black/5 dark:bg-white/5">
+                  <th class="px-5 py-3 font-bold">Nama</th><th class="px-5 py-3 font-bold">Peran</th><th class="px-5 py-3 font-bold">Status</th><th class="px-5 py-3 font-bold text-right">Aksi</th>
+                </tr></thead>
+                <tbody class="divide-y divide-black/5 dark:divide-white/5">
+                  <tr><td class="px-5 py-3"><div class="flex items-center gap-2.5"><span class="grid place-items-center w-8 h-8 rounded-full bg-zinc-200 dark:bg-zinc-700 text-xs font-bold">RD</span><span class="font-semibold">Rina Dewi</span></div></td><td class="px-5 py-3 text-zinc-500 dark:text-zinc-400">Editor</td><td class="px-5 py-3"><span class="text-[11px] font-bold px-2 py-1 rounded-full bg-emerald-500/15 text-emerald-600 dark:text-emerald-400">Aktif</span></td><td class="px-5 py-3 text-right"><button class="p-1.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/10"><i data-lucide="more-horizontal" class="w-4 h-4"></i></button></td></tr>
+                  <tr><td class="px-5 py-3"><div class="flex items-center gap-2.5"><span class="grid place-items-center w-8 h-8 rounded-full bg-zinc-200 dark:bg-zinc-700 text-xs font-bold">DK</span><span class="font-semibold">Doni Kusuma</span></div></td><td class="px-5 py-3 text-zinc-500 dark:text-zinc-400">Manajer</td><td class="px-5 py-3"><span class="text-[11px] font-bold px-2 py-1 rounded-full bg-emerald-500/15 text-emerald-600 dark:text-emerald-400">Aktif</span></td><td class="px-5 py-3 text-right"><button class="p-1.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/10"><i data-lucide="more-horizontal" class="w-4 h-4"></i></button></td></tr>
+                  <tr><td class="px-5 py-3"><div class="flex items-center gap-2.5"><span class="grid place-items-center w-8 h-8 rounded-full bg-zinc-200 dark:bg-zinc-700 text-xs font-bold">SW</span><span class="font-semibold">Sri Wahyuni</span></div></td><td class="px-5 py-3 text-zinc-500 dark:text-zinc-400">Anggota</td><td class="px-5 py-3"><span class="text-[11px] font-bold px-2 py-1 rounded-full bg-amber-500/15 text-amber-600 dark:text-amber-400">Menunggu</span></td><td class="px-5 py-3 text-right"><button class="p-1.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/10"><i data-lucide="more-horizontal" class="w-4 h-4"></i></button></td></tr>
+                  <tr><td class="px-5 py-3"><div class="flex items-center gap-2.5"><span class="grid place-items-center w-8 h-8 rounded-full bg-zinc-200 dark:bg-zinc-700 text-xs font-bold">AP</span><span class="font-semibold">Andi Pratama</span></div></td><td class="px-5 py-3 text-zinc-500 dark:text-zinc-400">Editor</td><td class="px-5 py-3"><span class="text-[11px] font-bold px-2 py-1 rounded-full bg-rose-500/15 text-rose-500">Nonaktif</span></td><td class="px-5 py-3 text-right"><button class="p-1.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/10"><i data-lucide="more-horizontal" class="w-4 h-4"></i></button></td></tr>
+                  <tr><td class="px-5 py-3"><div class="flex items-center gap-2.5"><span class="grid place-items-center w-8 h-8 rounded-full bg-zinc-200 dark:bg-zinc-700 text-xs font-bold">MH</span><span class="font-semibold">Maya Handayani</span></div></td><td class="px-5 py-3 text-zinc-500 dark:text-zinc-400">Manajer</td><td class="px-5 py-3"><span class="text-[11px] font-bold px-2 py-1 rounded-full bg-emerald-500/15 text-emerald-600 dark:text-emerald-400">Aktif</span></td><td class="px-5 py-3 text-right"><button class="p-1.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/10"><i data-lucide="more-horizontal" class="w-4 h-4"></i></button></td></tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="flex items-center justify-between mt-4 pt-3 px-5 pb-4 border-t border-black/5 dark:border-white/10">
+              <p class="text-xs text-zinc-500 dark:text-zinc-400">Menampilkan 5 dari 128 pengguna</p>
+              <div class="flex gap-1.5">
+                <button class="w-8 h-8 rounded-lg bg-black/5 dark:bg-white/10 text-xs font-bold">1</button>
+                <button class="w-8 h-8 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 text-xs font-bold">2</button>
+                <button class="w-8 h-8 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 text-xs font-bold">3</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="glass-panel rounded-2xl p-5">
+            <div class="flex items-center justify-between mb-4">
+              <h2 class="font-bold tracking-tight">Aktivitas</h2>
+              <i data-lucide="activity" class="w-5 h-5 text-zinc-400"></i>
+            </div>
+            <div class="space-y-4">
+              <div class="flex gap-3"><span class="grid place-items-center w-8 h-8 rounded-full bg-zinc-900 dark:bg-zinc-50 text-zinc-50 dark:text-zinc-900 shrink-0"><i data-lucide="user-plus" class="w-3.5 h-3.5"></i></span><div class="min-w-0"><p class="text-xs font-semibold">Rina bergabung</p><p class="text-[11px] text-zinc-400 mt-0.5">5 menit lalu</p></div></div>
+              <div class="flex gap-3"><span class="grid place-items-center w-8 h-8 rounded-full bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 shrink-0"><i data-lucide="check-circle" class="w-3.5 h-3.5"></i></span><div class="min-w-0"><p class="text-xs font-semibold">Tiket #104 ditutup</p><p class="text-[11px] text-zinc-400 mt-0.5">28 menit lalu</p></div></div>
+              <div class="flex gap-3"><span class="grid place-items-center w-8 h-8 rounded-full bg-sky-500/15 text-sky-600 dark:text-sky-400 shrink-0"><i data-lucide="credit-card" class="w-3.5 h-3.5"></i></span><div class="min-w-0"><p class="text-xs font-semibold">Pembayaran diterima</p><p class="text-[11px] text-zinc-400 mt-0.5">1 jam lalu</p></div></div>
+              <div class="flex gap-3"><span class="grid place-items-center w-8 h-8 rounded-full bg-amber-500/15 text-amber-600 dark:text-amber-400 shrink-0"><i data-lucide="shield-alert" class="w-3.5 h-3.5"></i></span><div class="min-w-0"><p class="text-xs font-semibold">Percobaan login diblokir</p><p class="text-[11px] text-zinc-400 mt-0.5">2 jam lalu</p></div></div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <button onclick="toggleTheme()" class="fixed top-5 right-5 z-[80] p-2.5 rounded-full glass-panel shadow-2xl text-zinc-600 dark:text-zinc-300 md:top-[1.6rem] md:right-[1.6rem]">
+    <i data-lucide="moon" class="w-4 h-4 hidden dark:block"></i>
+    <i data-lucide="sun" class="w-4 h-4 block dark:hidden"></i>
+  </button>
+
+  <script>
+    lucide.createIcons();
+    function toggleTheme(){document.documentElement.classList.toggle('dark');document.body.classList.toggle('dark');try{localStorage.setItem('uroo-theme',document.documentElement.classList.contains('dark')?'dark':'light')}catch(e){};lucide.createIcons();}
+    const sidebar=document.getElementById('sidebar');
+    function toggleSidebar(){
+      if(window.innerWidth>=768){sidebar.classList.toggle('collapsed');}
+      else{sidebar.classList.toggle('open');document.getElementById('overlay').classList.toggle('opacity-0',!sidebar.classList.contains('open'));document.getElementById('overlay').classList.toggle('pointer-events-none',!sidebar.classList.contains('open'));}
+    }
+    function openDrawer(){sidebar.classList.add('open');document.getElementById('overlay').classList.remove('opacity-0','pointer-events-none');}
+    function closeDrawer(){sidebar.classList.remove('open');document.getElementById('overlay').classList.add('opacity-0','pointer-events-none');}
+    function toast(msg,type){
+      const t=document.createElement('div');
+      t.className='fixed bottom-5 right-5 z-[85] glass-panel rounded-xl px-4 py-3 text-sm font-semibold shadow-2xl anim-toast-in flex items-center gap-2.5 pointer-events-none max-w-sm';
+      t.innerHTML='<i data-lucide="'+(type||'check-circle')+'" class="w-4 h-4 shrink-0"></i><span>'+msg+'</span>';
+      document.body.appendChild(t);lucide.createIcons();
+      setTimeout(()=>{t.style.opacity='0';t.style.transition='opacity .3s';setTimeout(()=>t.remove(),320)},2600);
+    }
+  </script>
+<script src="../../assets/js/uroo-nav.js"></script>
+</body>
+</html>

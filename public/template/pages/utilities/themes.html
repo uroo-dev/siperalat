@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="id" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Uroo UI — Theme: Light / Dark / Custom</title>
+  <script src="../../assets/js/tailwind.js"></script>
+  <script src="../../assets/js/lucide.js"></script>
+  <script>
+    tailwind.config = { darkMode: 'class', theme: { extend: { colors: { glass: {
+      light: 'rgba(255,255,255,0.65)', 'light-border': 'rgba(255,255,255,0.8)',
+      dark: 'rgba(18,18,20,0.65)', 'dark-border': 'rgba(255,255,255,0.1)'
+    } } } } };
+  </script>
+  <link rel="stylesheet" href="../../assets/css/uroo.css">
+  <style>
+    html.custom .u-bg-light, html.custom .u-bg-dark { opacity:0; display:none }
+    html.custom .u-bg-custom { background:linear-gradient(135deg,#0f172a,#134e4a) !important; opacity:1 !important }
+    .u-bg{position:fixed;inset:0;z-index:-10;transition:opacity .35s ease}
+    .u-bg-light{background:linear-gradient(135deg,#dfe3ea,#f4f4f5)}
+    .u-bg-dark{background:linear-gradient(135deg,#0a0a0b,#1a1a1e);opacity:0}
+    .u-bg-custom{background:linear-gradient(135deg,#0f172a,#134e4a);opacity:0}
+    body.dark .u-bg-light{opacity:0}
+    body.dark .u-bg-dark{opacity:1}
+    .u-glow{position:fixed;border-radius:9999px;filter:blur(90px);z-index:-9;pointer-events:none;background:rgba(0,0,0,0.06);transition:background-color .35s ease}
+    body.dark .u-glow{background:rgba(255,255,255,0.05)}
+    .u-glow-1{width:420px;height:420px;top:-140px;left:-140px}
+    .u-glow-2{width:520px;height:520px;bottom:-200px;right:-140px}
+    .tok{display:grid;grid-template-columns:1fr auto;gap:.2rem .6rem;align-items:center;padding:.55rem .7rem;border-radius:.7rem;font-size:.7rem;border:1px solid rgba(0,0,0,.06)}
+    body.dark .tok{border-color:rgba(255,255,255,.08)}
+    .tok b{font-weight:600}
+    .tok code{font-family:ui-monospace,monospace;color:#71717a}
+  </style>
+</head>
+<body class="min-h-screen font-sans antialiased text-zinc-800 dark:text-zinc-100">
+  <script>(function initTheme(){var s=null;try{s=localStorage.getItem('uroo-theme')}catch(e){}var de=document.documentElement;if(s==='custom'){de.classList.add('custom','dark');de.classList.remove('light');}else{var dark=(s==='dark')||(!s&&window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches);de.classList.remove('custom');if(dark){de.classList.add('dark');de.classList.remove('light');if(document.body){document.body.classList.add('dark');document.body.classList.remove('light');}}else{de.classList.remove('dark');de.classList.add('light');if(document.body){document.body.classList.remove('dark');document.body.classList.add('light');}}}})();</script>
+  <div class="u-bg u-bg-light" aria-hidden="true"></div>
+  <div class="u-bg u-bg-dark" aria-hidden="true"></div>
+  <div class="u-bg u-bg-custom" aria-hidden="true"></div>
+  <div class="u-glow u-glow-1" aria-hidden="true"></div>
+  <div class="u-glow u-glow-2" aria-hidden="true"></div>
+
+  <button onclick="toggleTheme()" class="fixed top-4 right-4 z-50 p-2 rounded-full glass-panel shadow-2xl" title="Toggle terang/gelap">
+    <i data-lucide="sun" class="w-4 h-4 hidden dark:block" id="ic-dark-sun"></i>
+    <i data-lucide="moon" class="w-4 h-4 block dark:hidden" id="ic-dark-moon"></i>
+  </button>
+
+  <main class="max-w-5xl mx-auto px-5 py-10 space-y-6">
+
+    <header class="glass-panel rounded-3xl p-6 sm:p-8">
+      <span class="inline-flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-1 rounded-full bg-black/5 dark:bg-white/5 mb-3">
+        <i data-lucide="sun-moon" class="w-3 h-3"></i> Foundation · Theme
+      </span>
+      <h1 class="text-3xl font-extrabold tracking-tight">Tema: Light · Dark · Custom</h1>
+      <p class="text-sm text-zinc-500 dark:text-zinc-400 mt-1">Tiga tema pada mesin glass yang sama — preview langsung, salin token-nya.</p>
+
+      <div class="flex flex-wrap gap-2 mt-5">
+        <button onclick="setTheme('light')" class="px-4 py-2 rounded-xl text-sm font-semibold glass-panel shadow hover:scale-105 transition-transform">☀ Light</button>
+        <button onclick="setTheme('dark')" class="px-4 py-2 rounded-xl text-sm font-semibold glass-panel shadow hover:scale-105 transition-transform">🌙 Dark</button>
+        <button onclick="setTheme('custom')" class="px-4 py-2 rounded-xl text-sm font-semibold glass-panel shadow hover:scale-105 transition-transform">🌀 Custom</button>
+      </div>
+    </header>
+
+    <!-- Light -->
+    <section class="glass-panel rounded-3xl p-6 sm:p-8" data-copy>
+      <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-zinc-400 dark:text-zinc-500 mb-3">Theme · Light</p>
+      <div class="rounded-2xl border border-dashed border-zinc-300/60 dark:border-zinc-600/50 p-5">
+        <div class="rounded-xl p-5" style="background:rgba(255,255,255,0.55);border:1px solid rgba(255,255,255,0.8);box-shadow:0 20px 40px -15px rgba(0,0,0,.05)">
+          <p class="font-bold text-[#18181b]">Kanvas terang</p>
+          <p class="text-xs text-[#71717a] mt-0.5">--u-glass-bg: rgba(255,255,255,0.55)</p>
+        </div>
+        <div class="grid grid-cols-4 gap-2 mt-3 text-center text-[10px]">
+          <div class="rounded-lg py-3 font-semibold text-white" style="background:#18181b">primary #18181b</div>
+          <div class="rounded-lg py-3 font-semibold" style="background:#fafafa;border:1px solid #ddd">surface #fafafa</div>
+          <div class="rounded-lg py-3 font-semibold text-white" style="background:#2dd4bf">accent #2dd4bf</div>
+          <div class="rounded-lg py-3 font-semibold text-[#18181b]" style="background:#e4e4e7">muted #71717a</div>
+        </div>
+      </div>
+      <div class="grid sm:grid-cols-2 gap-2 mt-4">
+        <div class="tok"><b>Canvas</b><code>#dfe3ea → #f4f4f5</code></div>
+        <div class="tok"><b>Glass inset</b><code>rgba(255,255,255,0.9)</code></div>
+        <div class="tok"><b>Text</b><code>#18181b</code></div>
+        <div class="tok"><b>Text muted</b><code>#71717a</code></div>
+      </div>
+    </section>
+
+    <!-- Dark -->
+    <section class="glass-panel rounded-3xl p-6 sm:p-8" data-copy>
+      <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-zinc-400 dark:text-zinc-500 mb-3">Theme · Dark</p>
+      <div class="rounded-2xl border border-dashed border-zinc-300/60 dark:border-zinc-600/50 p-5">
+        <div class="rounded-xl p-5" style="background:rgba(24,24,27,0.55);border:1px solid rgba(255,255,255,0.08);box-shadow:0 20px 40px -15px rgba(0,0,0,.5);color:#fafafa">
+          <p class="font-bold">Kanvas gelap</p>
+          <p class="text-xs text-[#a1a1aa] mt-0.5">--u-glass-bg: rgba(24,24,27,0.55)</p>
+        </div>
+        <div class="grid grid-cols-4 gap-2 mt-3 text-center text-[10px]">
+          <div class="rounded-lg py-3 font-semibold text-black bg-[#fafafa]">primary #fafafa</div>
+          <div class="rounded-lg py-3 font-semibold text-white" style="background:#18181b;border:1px solid #333">fg #18181b</div>
+          <div class="rounded-lg py-3 font-semibold text-[#042f2e]" style="background:#2dd4bf">accent #2dd4bf</div>
+          <div class="rounded-lg py-3 font-semibold text-white" style="background:#3f3f46">muted #a1a1aa</div>
+        </div>
+      </div>
+      <div class="grid sm:grid-cols-2 gap-2 mt-4">
+        <div class="tok"><b>Canvas</b><code>#0a0a0b → #1a1a1e</code></div>
+        <div class="tok"><b>Glass border</b><code>rgba(255,255,255,0.08)</code></div>
+        <div class="tok"><b>Text</b><code>#fafafa</code></div>
+        <div class="tok"><b>Text subtle</b><code>#71717a</code></div>
+      </div>
+    </section>
+
+    <!-- Custom -->
+    <section class="glass-panel rounded-3xl p-6 sm:p-8" data-copy>
+      <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-zinc-400 dark:text-zinc-500 mb-3">Theme · Custom (Teal/Graphite)</p>
+      <div class="rounded-2xl border border-dashed border-zinc-300/60 dark:border-zinc-600/50 p-5">
+        <div class="rounded-xl p-5" style="background:rgba(15,118,110,0.22);border:1px solid rgba(45,212,191,0.25);box-shadow:0 20px 40px -15px rgba(0,0,0,.6);color:#ecfeff">
+          <p class="font-bold">Kanvas teal</p>
+          <p class="text-xs text-[#99f6e4] mt-0.5">--u-glass-bg: rgba(15,118,110,0.22)</p>
+        </div>
+        <div class="grid grid-cols-4 gap-2 mt-3 text-center text-[10px]">
+          <div class="rounded-lg py-3 font-semibold text-[#042f2e]" style="background:#2dd4bf">primary #2dd4bf</div>
+          <div class="rounded-lg py-3 font-semibold text-[#042f2e]" style="background:#14b8a6">accent #14b8a6</div>
+          <div class="rounded-lg py-3 font-semibold text-[#ecfeff]" style="background:#0f172a;border:1px solid #1e293b">base #0f172a</div>
+          <div class="rounded-lg py-3 font-semibold text-[#042f2e]" style="background:#5eead4">subtle #5eead4</div>
+        </div>
+      </div>
+      <div class="grid sm:grid-cols-2 gap-2 mt-4">
+        <div class="tok"><b>Canvas</b><code>#0f172a → #134e4a</code></div>
+        <div class="tok"><b>Glass border</b><code>rgba(45,212,191,0.25)</code></div>
+        <div class="tok"><b>Text</b><code>#ecfeff</code></div>
+        <div class="tok"><b>Primary fg</b><code>#042f2e</code></div>
+      </div>
+    </section>
+
+    <!-- Tokens reference -->
+    <section class="glass-panel rounded-3xl p-6 sm:p-8" data-copy data-lang="css">
+      <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-zinc-400 dark:text-zinc-500 mb-3">Token Inti (Dark)</p>
+      <div class="grid sm:grid-cols-2 gap-2 font-mono text-xs">
+        <div class="tok"><b>--u-canvas</b><code>linear-gradient(135deg,#0a0a0b,#1a1a1e)</code></div>
+        <div class="tok"><b>--u-glass-inset</b><code>rgba(255,255,255,0.1)</code></div>
+        <div class="tok"><b>--u-text-muted</b><code>#a1a1aa</code></div>
+        <div class="tok"><b>--u-primary</b><code>#fafafa</code></div>
+        <div class="tok"><b>--u-accent</b><code>#2dd4bf</code></div>
+        <div class="tok"><b>--u-shadow-glass</b><code>0 20px 40px -15px rgba(0,0,0,.5)</code></div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    function applyClass(cls){
+      var h=document.documentElement, b=document.body;
+      h.classList.remove('light','dark','custom');
+      b.classList.remove('dark','light');
+      if(cls==='light'){ h.classList.add('light'); }
+      else if(cls==='custom'){ h.classList.add('custom','dark'); b.classList.add('dark'); }
+      else { h.classList.add('dark'); b.classList.add('dark'); }
+      if(window.lucide) lucide.createIcons();
+    }
+    function setTheme(t){ applyClass(t); try{ localStorage.setItem('uroo-theme', t); }catch(e){} }
+    function toggleTheme(){
+      var d=document.documentElement.classList.contains('dark');
+      setTheme(d?'light':'dark');
+    }
+    lucide.createIcons();
+  </script>
+  <script src="../../assets/js/uroo-copy.js"></script>
+<script src="../../assets/js/uroo-nav.js"></script>
+</body>
+</html>

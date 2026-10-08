@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="id" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Uroo UI - Keranjang Belanja</title>
+  <script src="../../assets/js/tailwind.js"></script>
+  <script src="../../assets/js/lucide.js"></script>
+  <script>tailwind.config={darkMode:'class',theme:{extend:{colors:{glass:{light:'rgba(255,255,255,0.65)','light-border':'rgba(255,255,255,0.8)',dark:'rgba(18,18,20,0.65)','dark-border':'rgba(255,255,255,0.1)'}}}}}</script>
+  <link rel="stylesheet" href="../../assets/css/uroo.css">
+  <style>
+    .u-bg{position:fixed;inset:0;z-index:-10;transition:opacity .35s ease}
+    .u-bg-light{background:linear-gradient(135deg,#dfe3ea,#f4f4f5)}
+    .u-bg-dark{background:linear-gradient(135deg,#0a0a0b,#1a1a1e);opacity:0}
+    body.dark .u-bg-light{opacity:0}
+    body.dark .u-bg-dark{opacity:1}
+    .u-glow{position:fixed;border-radius:9999px;filter:blur(90px);z-index:-9;pointer-events:none;transition:background-color .35s ease;background:rgba(0,0,0,0.06)}
+    body.dark .u-glow{background:rgba(255,255,255,0.05)}
+    .u-glow-1{width:420px;height:420px;top:-140px;left:-140px}
+    .u-glow-2{width:520px;height:520px;bottom:-200px;right:-140px}
+    .u-glow-3{width:300px;height:300px;top:42%;left:58%}
+
+    html{background:#e7e8ec}
+    html.dark{background:#0a0a0c}
+    body:not(.dark) .u-ic-sun{display:none}
+    body.dark .u-ic-moon{display:none}
+
+    .u-btn{transition:transform .2s ease,box-shadow .2s ease,background-color .2s ease}
+    .u-btn:hover{transform:translateY(-1px)}
+    .u-btn:active{transform:scale(.96)}
+
+    .u-search{width:100%;height:42px;border-radius:9999px;background:rgba(255,255,255,.55);border:1px solid rgba(24,24,27,.10);color:#18181b;font-size:13px;padding:0 18px 0 18px;outline:none;transition:border-color .2s ease,box-shadow .2s ease}
+    body.dark .u-search{background:rgba(255,255,255,.05);border-color:rgba(255,255,255,.12);color:#f4f4f5}
+    .u-search::placeholder{color:#a1a1aa}
+    .u-search:focus{border-color:rgba(24,24,27,.45);box-shadow:0 0 0 4px rgba(24,24,27,.08)}
+    body.dark .u-search:focus{border-color:rgba(255,255,255,.5);box-shadow:0 0 0 4px rgba(255,255,255,.08)}
+
+    .u-stepper{display:inline-flex;align-items:center;height:38px;border-radius:9999px;border:1px solid rgba(24,24,27,.12);background:rgba(255,255,255,.55);overflow:hidden}
+    body.dark .u-stepper{border-color:rgba(255,255,255,.12);background:rgba(255,255,255,.05)}
+    .u-stepper button{width:34px;height:100%;display:inline-flex;align-items:center;justify-content:center;color:#52525b;transition:color .2s ease,background-color .2s ease}
+    body.dark .u-stepper button{color:#a1a1aa}
+    .u-stepper button:hover{background:rgba(24,24,27,.06)}
+    body.dark .u-stepper button:hover{background:rgba(255,255,255,.08)}
+    .u-stepper input{width:38px;height:100%;text-align:center;font-weight:800;font-size:13px;background:transparent;color:#18181b;outline:none;-moz-appearance:textfield}
+    .u-stepper input::-webkit-outer-spin-button,.u-stepper input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+    body.dark .u-stepper input{color:#f4f4f5}
+
+    .u-rowline{transition:opacity .35s ease,transform .35s ease}
+    .u-rowline.u-gone{opacity:0;transform:translateX(24px);pointer-events:none}
+  </style>
+</head>
+<body class="min-h-screen font-sans antialiased text-zinc-800 dark dark:text-zinc-100">
+  <script>(function initTheme(){var saved=null;try{saved=localStorage.getItem('uroo-theme')}catch(e){};var dark=(saved==='dark')||(!saved&&window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches);var de=document.documentElement;if(dark){de.classList.add('dark');de.classList.remove('light');if(document.body){document.body.classList.add('dark');document.body.classList.remove('light');}}else{de.classList.remove('dark');de.classList.add('light');if(document.body){document.body.classList.remove('dark');document.body.classList.add('light');}}})();</script>
+
+
+<div class="u-bg u-bg-light"></div>
+<div class="u-bg u-bg-dark"></div>
+<div class="u-glow u-glow-1"></div>
+<div class="u-glow u-glow-2"></div>
+<div class="u-glow u-glow-3"></div>
+
+<button onclick="toggleTheme()" aria-label="Ganti tema" title="Ganti tema"
+  class="fixed top-4 right-4 z-50 glass-panel rounded-full p-2.5 text-zinc-600 dark:text-zinc-200 hover:scale-110 transition-transform">
+  <i data-lucide="sun" class="u-ic-sun w-5 h-5"></i>
+  <i data-lucide="moon" class="u-ic-moon w-5 h-5"></i>
+</button>
+
+<header class="sticky top-0 z-40 glass-panel rounded-none border-x-0 border-t-0">
+  <div class="max-w-7xl mx-auto h-16 px-4 sm:px-8 pr-16 flex items-center gap-4">
+    <a href="catalog.html" class="inline-flex items-center gap-2.5 shrink-0">
+      <span class="inline-flex items-center justify-center w-9 h-9 rounded-2xl bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900">
+        <i data-lucide="layers" class="w-5 h-5"></i>
+      </span>
+      <span class="hidden sm:block text-lg font-extrabold tracking-tight text-zinc-900 dark:text-white">Uroo Goods</span>
+    </a>
+    <nav class="hidden md:flex items-center gap-6 text-sm font-semibold text-zinc-500 dark:text-zinc-400 shrink-0">
+      <a href="catalog.html" class="hover:text-zinc-900 dark:hover:text-white transition-colors">Katalog</a>
+      <a href="#" onclick="event.preventDefault()" class="hover:text-zinc-900 dark:hover:text-white transition-colors">Penawaran</a>
+      <a href="order-tracking.html" class="hover:text-zinc-900 dark:hover:text-white transition-colors">Lacak Pesanan</a>
+    </nav>
+    <a href="cart.html" class="relative ml-auto shrink-0 inline-flex items-center justify-center w-11 h-11 rounded-full glass-panel text-zinc-700 dark:text-zinc-100 hover:scale-105 transition-transform" aria-label="Keranjang belanja">
+      <i data-lucide="shopping-cart" class="w-5 h-5"></i>
+      <span id="navCount" class="absolute -top-1.5 -right-1.5 inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 rounded-full bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900 text-[11px] font-extrabold">3</span>
+    </a>
+  </div>
+</header>
+
+<main class="relative max-w-7xl mx-auto px-4 sm:px-8 pt-10 pb-24">
+  <ol class="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-widest text-zinc-400 dark:text-zinc-500">
+    <li><a href="catalog.html" class="hover:text-zinc-900 dark:hover:text-zinc-100">Beranda</a></li>
+    <li><i data-lucide="chevron-right" class="w-3 h-3"></i></li>
+    <li class="text-zinc-700 dark:text-zinc-200">Keranjang Belanja</li>
+  </ol>
+
+  <div class="flex items-center justify-between gap-4 mt-3">
+    <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight text-zinc-900 dark:text-white">Keranjang Belanja</h1>
+    <button id="clearBtn" class="text-sm font-bold text-zinc-500 dark:text-zinc-400 inline-flex items-center gap-1.5 hover:text-red-600 dark:hover:text-red-400 transition-colors">
+      <i data-lucide="trash-2" class="w-4 h-4"></i> Kosongkan
+    </button>
+  </div>
+
+  <div class="mt-8 grid lg:grid-cols-3 gap-6">
+
+    <!-- Line items -->
+    <div class="lg:col-span-2 space-y-4" id="itemsCol"></div>
+
+    <!-- Summary -->
+    <aside id="summaryCol" class="lg:sticky lg:top-24 self-start">
+      <div class="glass-panel rounded-3xl p-6">
+        <h2 class="text-lg font-extrabold tracking-tight text-zinc-900 dark:text-white">Ringkasan Belanja</h2>
+
+        <div class="mt-5 flex items-center gap-2.5">
+          <div class="relative flex-1">
+            <i data-lucide="tag" class="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-400 pointer-events-none"></i>
+            <input id="promoInput" type="text" class="u-search" placeholder="Masukkan kode promo" aria-label="Kode promo">
+          </div>
+          <button id="promoBtn" class="u-btn shrink-0 inline-flex items-center justify-center rounded-full bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900 px-5 py-2.5 text-xs font-bold">Pakai</button>
+        </div>
+        <div id="promoApplied" class="hidden mt-3 flex items-center justify-between gap-2 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 px-4 py-2.5 text-xs font-bold text-emerald-700 dark:text-emerald-300 anim-scale-in">
+          <span class="inline-flex items-center gap-1.5"><i data-lucide="check" class="w-3.5 h-3.5"></i> Kode <span id="promoCodeLabel"></span> aktif</span>
+          <button id="promoRemove" class="hover:opacity-70 transition-opacity" aria-label="Hapus promo"><i data-lucide="x" class="w-3.5 h-3.5"></i></button>
+        </div>
+
+        <div class="mt-5 space-y-3.5 text-sm">
+          <div class="flex items-center justify-between">
+            <span class="text-zinc-500 dark:text-zinc-400">Subtotal (<span id="countLabel">3</span> barang)</span>
+            <span id="subtotalVal" class="font-bold text-zinc-900 dark:text-white">Rp 0</span>
+          </div>
+          <div class="flex items-center justify-between">
+            <span class="text-zinc-500 dark:text-zinc-400">Ongkir (JNE Reguler)</span>
+            <span id="shipVal" class="font-bold text-zinc-900 dark:text-white">Rp 0</span>
+          </div>
+          <div id="discRow" class="hidden flex items-center justify-between">
+            <span class="text-zinc-500 dark:text-zinc-400">Diskon promo</span>
+            <span id="discVal" class="font-bold text-emerald-600 dark:text-emerald-400">-Rp 0</span>
+          </div>
+          <div class="pt-4 border-t border-zinc-900/10 dark:border-white/10 flex items-center justify-between text-base">
+            <span class="font-bold text-zinc-900 dark:text-white">Total</span>
+            <span id="totalVal" class="text-xl font-extrabold tracking-tight text-zinc-900 dark:text-white">Rp 0</span>
+          </div>
+        </div>
+
+        <button id="checkoutBtn" class="u-btn mt-6 w-full inline-flex items-center justify-center gap-2 rounded-full bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900 px-5 py-3.5 text-sm font-bold hover:shadow-lg">
+          Lanjut ke Pembayaran
+          <i data-lucide="arrow-right" class="w-4 h-4"></i>
+        </button>
+        <a href="catalog.html" class="mt-4 block text-center text-[13px] font-bold text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors">
+          <i data-lucide="arrow-left" class="inline w-3.5 h-3.5 -mt-0.5"></i> Lanjut belanja
+        </a>
+
+        <div class="mt-6 pt-5 border-t border-zinc-900/10 dark:border-white/10 flex items-center gap-3 text-[11px] text-zinc-400 dark:text-zinc-500">
+          <i data-lucide="shield-check" class="w-4 h-4 shrink-0"></i>
+          Transaksi Anda aman dan terlindungi Uroo Protection.
+        </div>
+      </div>
+    </aside>
+  </div>
+
+  <!-- Empty state -->
+  <div id="emptyState" class="hidden mt-6 glass-panel rounded-3xl py-20 px-6 text-center anim-scale-in">
+    <span class="inline-flex items-center justify-center w-16 h-16 rounded-3xl bg-zinc-900/5 dark:bg-white/10 text-zinc-400 dark:text-zinc-500">
+      <i data-lucide="shopping-cart" class="w-8 h-8"></i>
+    </span>
+    <h3 class="mt-5 text-lg font-bold text-zinc-900 dark:text-white">Keranjang Anda kosong</h3>
+    <p class="mt-2 text-sm text-zinc-500 dark:text-zinc-400">Yuk, temukan produk favorit Anda dari koleksi terbaik kami.</p>
+    <a href="catalog.html" class="u-btn mt-6 inline-flex items-center gap-2 rounded-full bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900 px-6 py-3 text-sm font-bold hover:shadow-lg">
+      <i data-lucide="layout-grid" class="w-4 h-4"></i> Mulai Belanja
+    </a>
+  </div>
+</main>
+
+<script>
+  lucide.createIcons();
+  function toggleTheme(){const h=document.documentElement,b=document.body;h.classList.toggle('dark');b.classList.toggle('dark');try{localStorage.setItem('uroo-theme',b.classList.contains('dark')?'dark':'light')}catch(e){};lucide.createIcons();}
+
+  var toastT;
+  function toast(msg){
+    var t=document.createElement('div');
+    t.className='fixed bottom-6 left-1/2 -translate-x-1/2 z-[60] glass-panel rounded-full px-5 py-3 flex items-center gap-2.5 text-sm font-semibold anim-toast-in';
+    t.innerHTML='<i data-lucide="check" class="w-4 h-4"></i><span>'+msg+'</span>';
+    document.body.appendChild(t);
+    lucide.createIcons();
+    setTimeout(function(){t.style.cssText+=';opacity:0;transition:opacity .4s ease'},2400);
+    setTimeout(function(){t.remove()},2900);
+  }
+  function toastBad(msg){
+    var t=document.createElement('div');
+    t.className='fixed bottom-6 left-1/2 -translate-x-1/2 z-[60] glass-panel rounded-full px-5 py-3 flex items-center gap-2.5 text-sm font-semibold anim-toast-in';
+    t.innerHTML='<i data-lucide="info" class="w-4 h-4"></i><span>'+msg+'</span>';
+    document.body.appendChild(t);
+    lucide.createIcons();
+    setTimeout(function(){t.style.cssText+=';opacity:0;transition:opacity .4s ease'},2400);
+    setTimeout(function(){t.remove()},2900);
+  }
+
+  var GRADS=['from-zinc-200 via-zinc-300 to-zinc-400 dark:from-zinc-700 dark:via-zinc-800 dark:to-zinc-600',
+             'from-zinc-300 via-zinc-400 to-zinc-600 dark:from-zinc-800 dark:via-zinc-700 dark:to-zinc-900',
+             'from-zinc-100 via-zinc-300 to-zinc-500 dark:from-zinc-600 dark:via-zinc-800 dark:to-zinc-950'];
+
+  var ITEMS=[
+    {id:0,name:'Headphone Studio Aero',variant:'Hitam · One Size',price:1290000,qty:1,icon:'headphones',grad:0,link:'product-details.html'},
+    {id:1,name:'Tas Kulit Garut',variant:'Cokelat · Tas Selempang',price:780000,qty:1,icon:'shopping-bag',grad:1,link:'product-details.html'},
+    {id:2,name:'Serum Glow Vitamin C',variant:'30 ml',price:165000,qty:1,icon:'droplets',grad:2,link:'product-details.html'}
+  ];
+  var OGKIR=25000;
+  var promo=null;
+  var FREE_OGKIR=750000;
+
+  function fmtRp(n){return 'Rp '+n.toLocaleString('id-ID')}
+  function totalUnits(){return ITEMS.reduce(function(a,i){return a+i.qty},0)}
+
+  function lineHTML(item,i){
+    return ''+
+    '<div class="u-rowline glass-panel rounded-3xl p-5 sm:p-6 flex gap-5">'+
+      '<a href="'+item.link+'" class="shrink-0 w-24 h-24 sm:w-28 sm:h-28 rounded-2xl overflow-hidden bg-gradient-to-br '+GRADS[item.grad%GRADS.length]+' flex items-center justify-center">'+
+        '<span class="inline-flex items-center justify-center w-10 h-10 rounded-xl bg-white/40 backdrop-blur-md text-zinc-800 dark:bg-black/30 dark:text-zinc-100"><i data-lucide="'+item.icon+'" class="w-5 h-5"></i></span>'+
+      '</a>'+
+      '<div class="flex-1 min-w-0">'+
+        '<div class="flex items-start justify-between gap-3">'+
+          '<div class="min-w-0">'+
+            '<a href="'+item.link+'" class="text-[15px] font-bold leading-snug text-zinc-900 dark:text-white hover:underline">'+item.name+'</a>'+
+            '<p class="mt-1 text-xs text-zinc-400 dark:text-zinc-500">'+item.variant+'</p>'+
+          '</div>'+
+          '<button data-remove="'+item.id+'" class="shrink-0 w-8 h-8 rounded-full inline-flex items-center justify-center text-zinc-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-500/10 transition-colors" aria-label="Hapus '+item.name+'" title="Hapus">'+
+            '<i data-lucide="trash-2" class="w-4 h-4"></i>'+
+          '</button>'+
+        '</div>'+
+        '<div class="mt-4 flex flex-wrap items-center justify-between gap-4">'+
+          '<div class="u-stepper">'+
+            '<button type="button" data-dec="'+item.id+'" aria-label="Kurangi jumlah"><i data-lucide="minus" class="w-3.5 h-3.5"></i></button>'+
+            '<input type="number" value="'+item.qty+'" min="1" max="10" data-qty="'+item.id+'" aria-label="Jumlah '+item.name+'">'+
+            '<button type="button" data-inc="'+item.id+'" aria-label="Tambah jumlah"><i data-lucide="plus" class="w-3.5 h-3.5"></i></button>'+
+          '</div>'+
+          '<div class="text-right">'+
+            '<p id="itemPrice-'+item.id+'" class="text-[15px] font-extrabold tracking-tight text-zinc-900 dark:text-white leading-none">'+fmtRp(item.price*item.qty)+'</p>'+
+          '</div>'+
+        '</div>'+
+      '</div>'+
+    '</div>';
+  }
+
+  function renderItems(){
+    var col=document.getElementById('itemsCol');
+    var hasItems=ITEMS.length>0;
+    document.getElementById('itemsCol').style.display=hasItems?'':'none';
+    document.getElementById('summaryCol').style.display=hasItems?'':'none';
+    document.getElementById('emptyState').classList.toggle('hidden',hasItems);
+    document.getElementById('clearBtn').style.visibility=hasItems?'visible':'hidden';
+    if(!hasItems)return;
+    col.innerHTML=ITEMS.map(lineHTML).join('');
+    document.getElementById('navCount').textContent=totalUnits();
+    lucide.createIcons();
+    bindItems();
+    recalc();
+  }
+
+  function bindItems(){
+    document.querySelectorAll('[data-remove]').forEach(function(b){
+      b.addEventListener('click',function(){
+        var id=parseInt(this.getAttribute('data-remove'),10);
+        var row=this.closest('.u-rowline');
+        row.classList.add('u-gone');
+        setTimeout(function(){
+          ITEMS=ITEMS.filter(function(it){return it.id!==id});
+          renderItems();
+          toast('Produk dihapus dari keranjang');
+        },300);
+      });
+    });
+    document.querySelectorAll('[data-inc]').forEach(function(b){
+      b.addEventListener('click',function(){
+        var id=parseInt(this.getAttribute('data-inc'),10);
+        var it=ITEMS.find(function(x){return x.id===id});
+        it.qty=Math.min(10,it.qty+1);
+        updateLine(id);
+      });
+    });
+    document.querySelectorAll('[data-dec]').forEach(function(b){
+      b.addEventListener('click',function(){
+        var id=parseInt(this.getAttribute('data-dec'),10);
+        var it=ITEMS.find(function(x){return x.id===id});
+        if(it.qty>1){it.qty--;updateLine(id);}
+      });
+    });
+    document.querySelectorAll('[data-qty]').forEach(function(inp){
+      inp.addEventListener('change',function(){
+        var id=parseInt(this.getAttribute('data-qty'),10);
+        var it=ITEMS.find(function(x){return x.id===id});
+        var v=parseInt(this.value,10);
+        it.qty=Math.max(1,Math.min(10,isNaN(v)?1:v));
+        updateLine(id);
+      });
+    });
+  }
+
+  function updateLine(id){
+    var it=ITEMS.find(function(x){return x.id===id});
+    var inp=document.querySelector('[data-qty="'+id+'"]');
+    inp.value=it.qty;
+    document.getElementById('itemPrice-'+id).textContent=fmtRp(it.price*it.qty);
+    document.getElementById('navCount').textContent=totalUnits();
+    recalc();
+  }
+
+  var PROMOS={'UROO10':0.10,'HEMAT50K':50000,'GRATISH':null};
+  function appliedDiscount(){
+    if(!promo)return 0;
+    var sub=ITEMS.reduce(function(a,i){return a+i.price*i.qty},0);
+    var rule=PROMOS[promo.code];
+    if(typeof rule==='number'){
+      return rule<100?Math.round(sub*rule):Math.min(rule,sub);
+    }
+    return sub>=FREE_OGKIR?sub:0;
+  }
+  function freeOngkir(){
+    if(promo&&PROMOS[promo.code]===null)return true;
+    var sub=ITEMS.reduce(function(a,i){return a+i.price*i.qty},0);
+    return sub>=FREE_OGKIR;
+  }
+
+  function recalc(){
+    var sub=ITEMS.reduce(function(a,i){return a+i.price*i.qty},0);
+    var disc=appliedDiscount();
+    var ship=freeOngkir()?0:OGKIR;
+    var total=sub-disc+ship;
+    document.getElementById('countLabel').textContent=totalUnits();
+    document.getElementById('subtotalVal').textContent=fmtRp(sub);
+    document.getElementById('shipVal').textContent=ship===0?'Gratis':fmtRp(ship);
+    document.getElementById('shipVal').classList.toggle('text-emerald-600',ship===0);
+    document.getElementById('shipVal').classList.toggle('dark:text-emerald-400',ship===0);
+    var dr=document.getElementById('discRow');
+    dr.classList.toggle('hidden',disc===0);
+    document.getElementById('discVal').textContent='-'+fmtRp(disc);
+    document.getElementById('totalVal').textContent=fmtRp(total);
+  }
+
+  document.getElementById('promoBtn').addEventListener('click',function(){
+    var code=document.getElementById('promoInput').value.trim().toUpperCase();
+    if(!code){toastBad('Masukkan kode promo terlebih dahulu');return;}
+    if(!PROMOS[code]){toastBad('Kode promo "'+code+'" tidak valid');return;}
+    promo={code:code};
+    document.getElementById('promoInput').value='';
+    document.getElementById('promoCodeLabel').textContent=code;
+    document.getElementById('promoApplied').classList.remove('hidden');
+    recalc();
+    toast('Kode promo '+code+' berhasil diterapkan');
+  });
+
+  document.getElementById('promoRemove').addEventListener('click',function(){
+    promo=null;
+    document.getElementById('promoApplied').classList.add('hidden');
+    recalc();
+  });
+
+  document.getElementById('clearBtn').addEventListener('click',function(){
+    if(!ITEMS.length)return;
+    ITEMS=[];
+    renderItems();
+    toast('Keranjang dikosongkan');
+  });
+
+  document.getElementById('checkoutBtn').addEventListener('click',function(){
+    if(!ITEMS.length)return;
+    window.location.href='checkout.html';
+  });
+
+  renderItems();
+</script>
+<script src="../../assets/js/uroo-nav.js"></script>
+</body>
+</html>

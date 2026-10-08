@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="id" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Uroo UI - 500 Server Error</title>
+  <script src="../../assets/js/tailwind.js"></script>
+  <script src="../../assets/js/lucide.js"></script>
+  <script>tailwind.config={darkMode:'class',theme:{extend:{colors:{glass:{light:'rgba(255,255,255,0.65)','light-border':'rgba(255,255,255,0.8)',dark:'rgba(18,18,20,0.65)','dark-border':'rgba(255,255,255,0.1)'}}}}}</script>
+  <link rel="stylesheet" href="../../assets/css/uroo.css">
+  <style>
+    .u-bg{position:fixed;inset:0;z-index:-10;transition:opacity .35s ease}
+    .u-bg-light{background:linear-gradient(135deg,#dfe3ea,#f4f4f5)}
+    .u-bg-dark{background:linear-gradient(135deg,#0a0a0b,#1a1a1e);opacity:0}
+    body.dark .u-bg-light{opacity:0}
+    body.dark .u-bg-dark{opacity:1}
+    .u-glow{position:fixed;border-radius:9999px;filter:blur(90px);z-index:-9;pointer-events:none;background:rgba(0,0,0,0.06);transition:background-color .35s ease}
+    body.dark .u-glow{background:rgba(255,255,255,0.05)}
+    .u-glow-1{width:420px;height:420px;top:-140px;left:-140px}
+    .u-glow-2{width:520px;height:520px;bottom:-200px;right:-140px}
+    .u-glow-3{width:300px;height:300px;top:42%;left:58%}
+    .trace-mono{font-family:var(--font-mono)}
+  </style>
+</head>
+<body class="min-h-screen font-sans antialiased text-zinc-800 dark:text-zinc-100">
+  <script>(function initTheme(){var saved=null;try{saved=localStorage.getItem('uroo-theme')}catch(e){};var dark=(saved==='dark')||(!saved&&window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches);var de=document.documentElement;if(dark){de.classList.add('dark');de.classList.remove('light');if(document.body){document.body.classList.add('dark');document.body.classList.remove('light');}}else{de.classList.remove('dark');de.classList.add('light');if(document.body){document.body.classList.remove('dark');document.body.classList.add('light');}}})();</script>
+
+  <div class="u-bg u-bg-light"></div>
+  <div class="u-bg u-bg-dark"></div>
+  <div class="u-glow u-glow-1"></div>
+  <div class="u-glow u-glow-2"></div>
+  <div class="u-glow u-glow-3"></div>
+
+  <button onclick="toggleTheme()" class="glass-panel fixed right-4 top-4 z-50 inline-flex items-center justify-center rounded-full p-2.5" aria-label="Ganti tema">
+    <i data-lucide="sun" class="h-5 w-5 text-zinc-700 dark:hidden"></i>
+    <i data-lucide="moon" class="hidden h-5 w-5 text-zinc-200 dark:block"></i>
+  </button>
+
+  <div id="bugModal" class="fixed inset-0 z-[70] hidden items-center justify-center p-4">
+    <div class="absolute inset-0 bg-zinc-900/40 backdrop-blur-sm dark:bg-black/60" onclick="closeBugModal()"></div>
+    <div class="glass-panel anim-scale-in relative w-full max-w-md rounded-2xl p-6 md:p-8">
+      <div class="flex items-start justify-between">
+        <div>
+          <h3 class="text-lg font-semibold">Laporkan masalah</h3>
+          <p class="mt-1 text-sm text-zinc-500 dark:text-zinc-400">Bantu kami memperbaiki kesalahan ini dengan mengirim detail di bawah.</p>
+        </div>
+        <button onclick="closeBugModal()" class="rounded-lg p-1.5 text-zinc-500 hover:bg-zinc-900/5 dark:text-zinc-400 dark:hover:bg-white/10">
+          <i data-lucide="x" class="h-5 w-5"></i>
+        </button>
+      </div>
+      <form onsubmit="submitBug(event)" class="mt-6 space-y-4">
+        <div>
+          <label class="mb-1.5 block text-xs font-medium text-zinc-600 dark:text-zinc-300">Alamat email Anda</label>
+          <input id="bugEmail" type="email" required placeholder="nama@perusahaan.id"
+            class="glass-panel w-full rounded-xl px-4 py-2.5 text-sm outline-none placeholder:text-zinc-400 dark:placeholder:text-zinc-500">
+        </div>
+        <div>
+          <label class="mb-1.5 block text-xs font-medium text-zinc-600 dark:text-zinc-300">Deskripsi masalah</label>
+          <textarea id="bugDesc" required rows="4" placeholder="Jelaskan apa yang Anda lakukan saat kesalahan muncul..."
+            class="glass-panel w-full resize-none rounded-xl px-4 py-2.5 text-sm outline-none placeholder:text-zinc-400 dark:placeholder:text-zinc-500"></textarea>
+        </div>
+        <div class="flex items-center gap-3 pt-1">
+          <button type="button" onclick="closeBugModal()" class="glass-panel inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium text-zinc-600 transition-colors hover:bg-white/70 dark:text-zinc-300 dark:hover:bg-white/5">
+            Batal
+          </button>
+          <button type="submit" class="inline-flex flex-1 items-center justify-center gap-2 rounded-xl bg-zinc-900 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-zinc-700 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-white">
+            <i data-lucide="send" class="h-4 w-4"></i>Kirim laporan
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <main class="relative mx-auto flex min-h-screen max-w-4xl flex-col items-center justify-center px-6 py-16 text-center">
+    <div class="glass-panel anim-slide-up w-full rounded-3xl p-8 md:p-12">
+      <div class="mx-auto mb-8 flex h-20 w-20 items-center justify-center rounded-3xl border border-zinc-200/80 bg-white/70 dark:border-white/10 dark:bg-zinc-800/70">
+        <i data-lucide="server-crash" class="h-9 w-9 text-zinc-600 dark:text-zinc-200"></i>
+      </div>
+
+      <p class="text-xs font-semibold uppercase tracking-[0.3em] text-zinc-500 dark:text-zinc-500">Error 500</p>
+      <h1 class="mt-4 text-4xl font-black tracking-tight text-zinc-900 dark:text-zinc-50 md:text-5xl">
+        Terjadi kesalahan di server kami
+      </h1>
+      <p class="mx-auto mt-3 max-w-md text-sm leading-relaxed text-zinc-500 dark:text-zinc-400">
+        Server kami sedang kesulitan memproses permintaan Anda. Kami telah diberitahu,
+        namun Anda dapat membantu kami melacak masalah lebih cepat dengan melaporkannya.
+      </p>
+
+      <div class="mx-auto mt-8 max-w-xl overflow-hidden rounded-xl border border-zinc-200/80 bg-white/60 text-left dark:border-white/10 dark:bg-zinc-950/60">
+        <div class="flex items-center gap-2 border-b border-zinc-200/70 px-4 py-2 dark:border-white/10">
+          <span class="h-2.5 w-2.5 rounded-full bg-red-500/70"></span>
+          <span class="h-2.5 w-2.5 rounded-full bg-amber-400/70"></span>
+          <span class="h-2.5 w-2.5 rounded-full bg-emerald-500/70"></span>
+          <span class="ml-2 text-xs font-medium text-zinc-500 dark:text-zinc-400">trace.log</span>
+        </div>
+        <pre class="trace-mono overflow-x-auto px-4 py-4 text-xs leading-relaxed text-zinc-600 dark:text-zinc-300"><span class="text-zinc-400">[30/Agu/2026:08:42:11]</span> GET /dashboard/
+<span class="text-red-500">PHP Fatal error:</span> Uncaught TypeError:
+  Argument 1 passed to App\Services\OrderService::total()
+  must be of the type array, null given
+<span class="text-zinc-400">  #0</span> /var/www/uroo/app/Http/Controllers/CheckoutController.php:42
+<span class="text-zinc-400">  #1</span> /var/www/uroo/routes/web.php:118
+<span class="text-zinc-400">  #2</span> /var/www/uroo/public/index.php:37</pre>
+      </div>
+
+      <div class="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
+        <button onclick="retryRequest()" class="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-zinc-900 px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-zinc-700 sm:w-auto dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-white">
+          <i data-lucide="refresh-cw" class="h-4 w-4"></i>Coba lagi
+        </button>
+        <button onclick="openBugModal()" class="glass-panel inline-flex w-full items-center justify-center gap-2 rounded-xl px-6 py-3 text-sm font-semibold text-zinc-700 transition-colors hover:bg-white/70 sm:w-auto dark:text-zinc-200 dark:hover:bg-white/5">
+          <i data-lucide="bug" class="h-4 w-4"></i>Laporkan bug
+        </button>
+        <a href="../../index.html" class="inline-flex w-full items-center justify-center gap-2 rounded-xl px-6 py-3 text-sm font-semibold text-zinc-500 transition-colors hover:text-zinc-800 sm:w-auto dark:text-zinc-500 dark:hover:text-zinc-100">
+          <i data-lucide="arrow-left" class="h-4 w-4"></i>Kembali ke beranda
+        </a>
+      </div>
+    </div>
+
+    <footer class="relative mt-8 flex flex-col items-center gap-2 text-xs text-zinc-500 dark:text-zinc-500 sm:flex-row sm:gap-6">
+      <span>Uroo UI - Kesalahan server</span>
+      <span class="hidden h-3 w-px bg-zinc-400/40 sm:block dark:bg-white/10"></span>
+      <span class="inline-flex items-center gap-1.5"><span class="h-2 w-2 rounded-full bg-amber-400"></span>Status: Gangguan parsial</span>
+      <span class="hidden h-3 w-px bg-zinc-400/40 sm:block dark:bg-white/10"></span>
+      <span id="year"></span>
+    </footer>
+  </main>
+
+  <script>
+    lucide.createIcons();
+    function toggleTheme(){const h=document.documentElement,b=document.body;h.classList.toggle('dark');b.classList.toggle('dark');try{localStorage.setItem('uroo-theme',h.classList.contains('dark')?'dark':'light')}catch(e){};lucide.createIcons();}
+    document.getElementById('year').textContent = 'Uroo Dev - ' + new Date().getFullYear();
+
+    function retryRequest(){
+      const btn=document.querySelector('[onclick="retryRequest()"]');
+      const spin=document.createElement('span');
+      spin.className='anim-spin';
+      spin.innerHTML='<i data-lucide="loader-2" class="h-4 w-4"></i>';
+      btn.disabled=true;
+      btn.classList.add('opacity-70');
+      btn.prepend(spin);
+      lucide.createIcons();
+      setTimeout(()=>{btn.disabled=false;btn.classList.remove('opacity-70');spin.remove();showToast('Permintaan masih gagal. Coba lagi beberapa saat atau laporkan bug.');},1800);
+    }
+    function openBugModal(){
+      document.getElementById('bugModal').classList.remove('hidden');
+      document.getElementById('bugModal').classList.add('flex');
+    }
+    function closeBugModal(){
+      document.getElementById('bugModal').classList.add('hidden');
+      document.getElementById('bugModal').classList.remove('flex');
+    }
+    function submitBug(e){
+      e.preventDefault();
+      closeBugModal();
+      document.getElementById('bugEmail').value='';
+      document.getElementById('bugDesc').value='';
+      showToast('Laporan bug terkirim. Terima kasih atas bantuan Anda!');
+    }
+    function showToast(msg){
+      const t=document.createElement('div');
+      t.className='glass-panel anim-toast-in fixed bottom-6 left-1/2 z-[80] -translate-x-1/2 rounded-xl px-4 py-3 text-sm font-medium text-zinc-800 dark:text-zinc-100';
+      t.textContent=msg;
+      document.body.appendChild(t);
+      setTimeout(()=>{t.style.transition='all .3s';t.style.opacity='0';t.style.transform='translate(-50%,8px)';setTimeout(()=>t.remove(),320);},2400);
+    }
+  </script>
+<script src="../../assets/js/uroo-nav.js"></script>
+</body>
+</html>

@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="id" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Uroo UI - Empty State</title>
+  <script src="../../assets/js/tailwind.js"></script>
+  <script src="../../assets/js/lucide.js"></script>
+  <script>tailwind.config={darkMode:'class',theme:{extend:{colors:{glass:{light:'rgba(255,255,255,0.65)','light-border':'rgba(255,255,255,0.8)',dark:'rgba(18,18,20,0.65)','dark-border':'rgba(255,255,255,0.1)'}}}}}</script>
+  <link rel="stylesheet" href="../../assets/css/uroo.css">
+</head>
+<body class="min-h-screen p-6 font-sans antialiased text-zinc-800 dark:text-zinc-100" style="background:linear-gradient(135deg,#dfe3ea,#f4f4f5)">
+  <script>(function initTheme(){var saved=null;try{saved=localStorage.getItem('uroo-theme')}catch(e){};var dark=(saved==='dark')||(!saved&&window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches);var de=document.documentElement;if(dark){de.classList.add('dark');de.classList.remove('light');if(document.body){document.body.classList.add('dark');document.body.classList.remove('light');}}else{de.classList.remove('dark');de.classList.add('light');if(document.body){document.body.classList.remove('dark');document.body.classList.add('light');}}})();</script>
+  <div class="relative mx-auto max-w-6xl">
+    <div class="pointer-events-none absolute -top-24 -left-28 h-96 w-96 rounded-full bg-zinc-500/30 dark:bg-zinc-300/10 blur-[110px]"></div>
+    <div class="pointer-events-none absolute right-0 top-1/3 h-[26rem] w-[26rem] rounded-full bg-zinc-300/50 dark:bg-zinc-500/10 blur-[120px]"></div>
+    <div class="pointer-events-none absolute -bottom-16 left-1/3 h-80 w-80 rounded-full bg-white/70 dark:bg-white/5 blur-[100px]"></div>
+
+    <header class="relative mb-10">
+      <p class="text-xs font-semibold uppercase tracking-[0.25em] text-zinc-500 dark:text-zinc-500">Uroo UI - Komponen</p>
+      <h1 class="mt-2 text-3xl font-bold tracking-tight md:text-4xl">Empty State</h1>
+      <p class="mt-3 max-w-2xl text-sm leading-relaxed text-zinc-500 dark:text-zinc-400">Tampilan ketika sebuah halaman atau daftar belum memiliki data. Berbagai variasi empty state ditampilkan dalam kartu kaca berikut.</p>
+    </header>
+
+    <main class="relative grid gap-6 md:grid-cols-2">
+
+      <section data-copy class="glass-panel flex flex-col rounded-2xl p-6 md:p-8">
+        <div class="flex items-center justify-between">
+          <p class="text-xs font-semibold uppercase tracking-[0.2em] text-zinc-500 dark:text-zinc-500">Variasi - Dengan ikon</p>
+          <button onclick="clearInbox()" class="inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-medium text-zinc-500 hover:bg-zinc-900/5 dark:text-zinc-400 dark:hover:bg-white/10">
+            <i data-lucide="x" class="h-3.5 w-3.5"></i>Kosongkan
+          </button>
+        </div>
+        <div id="inboxEmpty" class="flex grow flex-col items-center justify-center px-4 py-14 text-center">
+          <div class="mb-5 flex h-14 w-14 items-center justify-center rounded-2xl border border-zinc-200/80 bg-white/70 dark:border-white/10 dark:bg-zinc-800/70">
+            <i data-lucide="inbox" class="h-6 w-6 text-zinc-500 dark:text-zinc-400"></i>
+          </div>
+          <h3 class="text-base font-semibold">Kotak masuk kosong</h3>
+          <p class="mt-1.5 max-w-sm text-sm leading-relaxed text-zinc-500 dark:text-zinc-400">Belum ada pesan masuk. Pesan dari rekan tim dan sistem akan tampil di sini.</p>
+          <button onclick="addInboxMessage()" class="mt-6 inline-flex items-center gap-2 rounded-xl bg-zinc-900 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-zinc-700 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-white">
+            <i data-lucide="plus" class="h-4 w-4"></i>Buat pesan baru
+          </button>
+        </div>
+        <div id="inboxList" class="hidden grow space-y-3 pt-6"></div>
+      </section>
+
+      <section data-copy class="glass-panel flex flex-col rounded-2xl p-6 md:p-8">
+        <p class="text-xs font-semibold uppercase tracking-[0.2em] text-zinc-500 dark:text-zinc-500">Variasi - Ilustrasi</p>
+        <div class="flex grow flex-col items-center justify-center px-4 py-14 text-center">
+          <div class="relative mb-6 h-24 w-24">
+            <div class="absolute inset-0 flex translate-x-3 translate-y-2 rotate-6 items-center justify-center rounded-2xl border border-zinc-200/70 bg-white/60 dark:border-white/10 dark:bg-zinc-800/50">
+              <i data-lucide="file-text" class="h-8 w-8 text-zinc-400 dark:text-zinc-500"></i>
+            </div>
+            <div class="absolute inset-0 flex -translate-x-1 -translate-y-1 -rotate-6 items-center justify-center rounded-2xl border border-zinc-200/80 bg-white/80 dark:border-white/10 dark:bg-zinc-800/80">
+              <i data-lucide="folder-open" class="h-8 w-8 text-zinc-600 dark:text-zinc-300"></i>
+            </div>
+          </div>
+          <h3 class="text-base font-semibold">Belum ada proyek</h3>
+          <p class="mt-1.5 max-w-sm text-sm leading-relaxed text-zinc-500 dark:text-zinc-400">Semua draf dan kolaborasi proyek Anda akan muncul di area ini setelah dibuat.</p>
+          <button onclick="showToast('Formulir pembuatan proyek dibuka.')" class="mt-6 inline-flex items-center gap-2 rounded-xl bg-zinc-900 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-zinc-700 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-white">
+            <i data-lucide="folder" class="h-4 w-4"></i>Mulai proyek pertama
+          </button>
+        </div>
+      </section>
+
+      <section data-copy class="glass-panel flex flex-col rounded-2xl p-6 md:p-8">
+        <p class="text-xs font-semibold uppercase tracking-[0.2em] text-zinc-500 dark:text-zinc-500">Variasi - Tombol aksi</p>
+        <div class="flex grow flex-col items-center justify-center px-4 py-14 text-center">
+          <div class="mb-5 flex h-14 w-14 items-center justify-center rounded-full border border-zinc-200/80 bg-white/70 dark:border-white/10 dark:bg-zinc-800/70">
+            <i data-lucide="shopping-bag" class="h-6 w-6 text-zinc-500 dark:text-zinc-400"></i>
+          </div>
+          <h3 class="text-base font-semibold">Keranjang belanja masih kosong</h3>
+          <p class="mt-1.5 max-w-sm text-sm leading-relaxed text-zinc-500 dark:text-zinc-400">Temukan produk dan layanan digital terbaik untuk mengisi keranjang Anda.</p>
+          <button onclick="showToast('Mengarahkan ke katalog produk.')" class="mt-6 inline-flex items-center gap-2 rounded-xl bg-zinc-900 px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-zinc-700 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-white">
+            <i data-lucide="arrow-right" class="h-4 w-4"></i>Mulai belanja
+          </button>
+        </div>
+      </section>
+
+      <section data-copy class="glass-panel flex flex-col items-center justify-center rounded-2xl p-6 py-16 text-center md:p-8">
+        <p class="mb-6 w-full text-xs font-semibold uppercase tracking-[0.2em] text-zinc-500 dark:text-zinc-500">Variasi - Hanya teks</p>
+        <div class="flex w-full grow flex-col items-center justify-center px-4">
+          <h3 class="text-base font-semibold">Tidak ada notifikasi</h3>
+          <p class="mt-1.5 max-w-sm text-sm leading-relaxed text-zinc-500 dark:text-zinc-400">Aktivitas baru dari grup, pesan langsung, dan pembaruan sistem akan dicatat di panel ini.</p>
+        </div>
+      </section>
+    </main>
+
+    <footer class="relative mt-12 flex items-center justify-between border-t border-zinc-400/30 py-6 text-xs text-zinc-500 dark:border-white/10 dark:text-zinc-500">
+      <span>Uroo UI - Glassmorphism monokrom</span>
+      <span id="year"></span>
+    </footer>
+  </div>
+
+  <button onclick="toggleTheme()" class="glass-panel fixed right-4 top-4 z-50 inline-flex items-center justify-center rounded-full p-2.5" aria-label="Ganti tema">
+    <i data-lucide="sun" class="h-5 w-5 text-zinc-700 dark:hidden"></i>
+    <i data-lucide="moon" class="hidden h-5 w-5 text-zinc-200 dark:block"></i>
+  </button>
+
+  <script>
+    lucide.createIcons();
+    function toggleTheme(){const h=document.documentElement,b=document.body;h.classList.toggle('dark');b.classList.toggle('dark');b.style.background=b.classList.contains('dark')?'linear-gradient(135deg,#0a0a0c,#1a1a1e)':'linear-gradient(135deg,#dfe3ea,#f4f4f5)';try{localStorage.setItem('uroo-theme',b.classList.contains('dark')?'dark':'light')}catch(e){};lucide.createIcons();}
+    (function(){const dark=document.documentElement.classList.contains('dark');document.body.style.background=dark?'linear-gradient(135deg,#0a0a0c,#1a1a1e)':'linear-gradient(135deg,#dfe3ea,#f4f4f5)';})();
+    document.getElementById('year').textContent = 'Uroo Dev - ' + new Date().getFullYear();
+
+    function showToast(msg){
+      const t=document.createElement('div');
+      t.className='glass-panel anim-slide-up fixed bottom-6 left-1/2 z-[60] -translate-x-1/2 rounded-xl px-4 py-3 text-sm font-medium text-zinc-800 dark:text-zinc-100';
+      t.textContent=msg;
+      document.body.appendChild(t);
+      setTimeout(()=>{t.style.transition='all .3s';t.style.opacity='0';t.style.transform='translate(-50%,8px)';setTimeout(()=>t.remove(),320);},2400);
+    }
+
+    const inboxMessages=[];
+    function addInboxMessage(){
+      inboxMessages.unshift({from:'Nadia Putri',subject:'Revisi desain halaman beranda sudah saya kirim',time:'2 menit lalu'});
+      renderInbox();
+    }
+    function clearInbox(){inboxMessages.length=0;renderInbox();}
+    function renderInbox(){
+      const list=document.getElementById('inboxList');
+      const empty=document.getElementById('inboxEmpty');
+      list.innerHTML=inboxMessages.map(function(m){
+        return '<div class="flex items-start gap-3 rounded-xl border border-zinc-200/70 bg-white/60 p-4 dark:border-white/10 dark:bg-zinc-800/50">'+
+          '<span class="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-zinc-400 dark:bg-zinc-200"></span>'+
+          '<div class="min-w-0 flex-1">'+
+            '<div class="flex items-baseline justify-between gap-2">'+
+              '<p class="truncate text-sm font-semibold">'+m.from+'</p>'+
+              '<span class="shrink-0 text-xs text-zinc-500 dark:text-zinc-500">'+m.time+'</span>'+
+            '</div>'+
+            '<p class="mt-0.5 truncate text-sm text-zinc-500 dark:text-zinc-400">'+m.subject+'</p>'+
+          '</div>'+
+        '</div>';
+      }).join('');
+      if(inboxMessages.length>0){empty.classList.add('hidden');list.classList.remove('hidden');}
+      else{empty.classList.remove('hidden');list.classList.add('hidden');}
+      lucide.createIcons();
+    }
+  </script>
+<script src="../../assets/js/uroo-copy.js"></script>
+<script src="../../assets/js/uroo-nav.js"></script>
+</body>
+</html>

@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="id" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Uroo UI - Alert</title>
+  <script src="../../assets/js/tailwind.js"></script>
+  <script src="../../assets/js/lucide.js"></script>
+  <script>tailwind.config={darkMode:'class',theme:{extend:{colors:{glass:{light:'rgba(255,255,255,0.65)','light-border':'rgba(255,255,255,0.8)',dark:'rgba(18,18,20,0.65)','dark-border':'rgba(255,255,255,0.1)'}}}}}</script>
+  <link rel="stylesheet" href="../../assets/css/uroo.css">
+  <style>
+    body{background:linear-gradient(135deg,#dfe3ea,#f4f4f5)}
+    .u-bg{position:fixed;inset:0;pointer-events:none;transition:opacity .4s ease}
+    .u-bg-light{background:linear-gradient(135deg,#dfe3ea,#f4f4f5)}
+    .u-bg-dark{background:linear-gradient(135deg,#0a0a0b,#1a1a1e);opacity:0}
+    body.dark .u-bg-light{opacity:0}
+    body.dark .u-bg-dark{opacity:1}
+    .u-glow{position:fixed;border-radius:9999px;filter:blur(90px);pointer-events:none}
+    .u-glow-1{width:420px;height:420px;top:-140px;left:-140px;background:rgba(0,0,0,0.06)}
+    body.dark .u-glow-1{background:rgba(255,255,255,0.05)}
+    .u-glow-2{width:520px;height:520px;bottom:-200px;right:-140px;background:rgba(0,0,0,0.05)}
+    body.dark .u-glow-2{background:rgba(255,255,255,0.05)}
+    .u-glow-3{width:300px;height:300px;top:42%;left:58%;background:rgba(0,0,0,0.04)}
+    body.dark .u-glow-3{background:rgba(255,255,255,0.04)}
+
+    .u-alert{display:flex;gap:.9rem;align-items:flex-start;padding:1rem 1.1rem;border-radius:1.1rem;backdrop-filter:blur(20px) saturate(180%);-webkit-backdrop-filter:blur(20px) saturate(180%);transition:background-color .25s ease,border-color .25s ease,opacity .3s ease,transform .3s ease}
+    body:not(.dark) .u-alert{background:rgba(255,255,255,.55);border:1px solid rgba(255,255,255,.8);box-shadow:0 16px 32px -16px rgba(0,0,0,.08),inset 0 1px 1px 0 rgba(255,255,255,.9)}
+    .dark .u-alert{background:rgba(24,24,27,.55);border:1px solid rgba(255,255,255,.08);box-shadow:0 16px 32px -16px rgba(0,0,0,.5),inset 0 1px 1px 0 rgba(255,255,255,.08)}
+    .u-alert-icon{flex:none;width:2.25rem;height:2.25rem;border-radius:.8rem;display:grid;place-items:center}
+    .u-alert-close{flex:none;width:1.9rem;height:1.9rem;display:grid;place-items:center;border-radius:.65rem;color:#71717a;cursor:pointer;background:transparent;border:0;transition:background-color .2s ease,color .2s ease}
+    body.dark .u-alert-close{color:#a1a1aa}
+    .u-alert-close:hover{background:rgba(0,0,0,.06);color:#18181b}
+    body.dark .u-alert-close:hover{background:rgba(255,255,255,.1);color:#fafafa}
+
+    .u-alert-default .u-alert-icon,.u-alert-info .u-alert-icon{background:rgba(113,113,122,.14);color:#52525b}
+    body.dark .u-alert-default .u-alert-icon,body.dark .u-alert-info .u-alert-icon{background:rgba(161,161,170,.16);color:#d4d4d8}
+    .u-alert-success .u-alert-icon{background:rgba(16,185,129,.14);color:#059669}
+    body.dark .u-alert-success .u-alert-icon{background:rgba(16,185,129,.18);color:#6ee7b7}
+    .u-alert-warning .u-alert-icon{background:rgba(245,158,11,.15);color:#d97706}
+    body.dark .u-alert-warning .u-alert-icon{background:rgba(245,158,11,.2);color:#fcd34d}
+    .u-alert-danger .u-alert-icon{background:rgba(239,68,68,.14);color:#dc2626}
+    body.dark .u-alert-danger .u-alert-icon{background:rgba(239,68,68,.2);color:#fca5a5}
+
+    .u-alert-title{font-weight:700;font-size:.9rem;letter-spacing:-.01em}
+    .u-alert-desc{font-size:.8rem;line-height:1.6;color:#52525b;margin-top:.1rem}
+    body.dark .u-alert-desc{color:#a1a1aa}
+    .u-alert-action{display:inline-flex;align-items:center;gap:.35rem;font-size:.74rem;font-weight:600;padding:.4rem .75rem;border-radius:.6rem;margin-top:.7rem;cursor:pointer;transition:transform .15s ease,background-color .2s ease}
+    .u-alert-action:hover{transform:translateY(-1px)}
+    .u-alert-success .u-alert-action{background:rgba(16,185,129,.14);color:#047857}
+    body.dark .u-alert-success .u-alert-action{background:rgba(16,185,129,.22);color:#a7f3d0}
+    .u-alert-warning .u-alert-action{background:rgba(245,158,11,.16);color:#b45309}
+    body.dark .u-alert-warning .u-alert-action{background:rgba(245,158,11,.24);color:#fde68a}
+    .u-alert-danger .u-alert-action{background:rgba(239,68,68,.15);color:#b91c1c}
+    body.dark .u-alert-danger .u-alert-action{background:rgba(239,68,68,.24);color:#fecaca}
+
+    .u-alert-compact{display:flex;align-items:center;gap:.6rem;padding:.65rem 1rem;border-radius:.9rem;backdrop-filter:blur(20px) saturate(180%);-webkit-backdrop-filter:blur(20px) saturate(180%);font-size:.78rem;font-weight:600}
+    body:not(.dark) .u-alert-compact{background:rgba(255,255,255,.55);border:1px solid rgba(255,255,255,.8);box-shadow:0 12px 24px -14px rgba(0,0,0,.08)}
+    .dark .u-alert-compact{background:rgba(24,24,27,.55);border:1px solid rgba(255,255,255,.08)}
+    .u-alert-compact i.u-ac{flex:none;width:1.25rem;height:1.25rem}
+    .u-alert.compact-success i.u-ac{color:#059669}
+    .body-top{display:block}
+  </style>
+</head>
+<body class="dark min-h-screen p-6 font-sans antialiased text-zinc-800 dark:text-zinc-100" style="background:linear-gradient(135deg,#dfe3ea,#f4f4f5)">
+  <script>(function initTheme(){var saved=null;try{saved=localStorage.getItem('uroo-theme')}catch(e){};var dark=(saved==='dark')||(!saved&&window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches);var de=document.documentElement;if(dark){de.classList.add('dark');de.classList.remove('light');if(document.body){document.body.classList.add('dark');document.body.classList.remove('light');}}else{de.classList.remove('dark');de.classList.add('light');if(document.body){document.body.classList.remove('dark');document.body.classList.add('light');}}})();</script>
+  <div class="u-bg u-bg-light" aria-hidden="true"></div>
+  <div class="u-bg u-bg-dark" aria-hidden="true"></div>
+  <div class="u-glow u-glow-1" aria-hidden="true"></div>
+  <div class="u-glow u-glow-2" aria-hidden="true"></div>
+  <div class="u-glow u-glow-3" aria-hidden="true"></div>
+
+  <main class="relative z-10 mx-auto max-w-4xl">
+
+    <header class="mb-10">
+      <div class="flex items-center gap-4">
+        <div class="glass-panel rounded-2xl p-3 shadow-2xl">
+          <i data-lucide="bell" class="w-6 h-6"></i>
+        </div>
+        <div>
+          <p class="text-[11px] font-bold uppercase tracking-[0.2em] text-zinc-400 dark:text-zinc-500">Uroo UI - Komponen Dasar</p>
+          <h1 class="text-2xl md:text-4xl font-bold tracking-tight">Alert</h1>
+        </div>
+      </div>
+      <p class="mt-4 max-w-2xl text-sm leading-relaxed text-zinc-500 dark:text-zinc-400">
+        Notifikasi ringkas untuk umpan balik kontekstual. Tersedia lima varian, mode kompak,
+        tombol aksi, serta kemampuan menutup setiap alert secara interaktif.
+      </p>
+    </header>
+
+    <div class="grid gap-8">
+
+      <section data-copy class="glass-panel rounded-2xl shadow-2xl p-6 md:p-8 anim-fade-in">
+        <header class="mb-6 flex flex-wrap items-end justify-between gap-3">
+          <div>
+            <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-zinc-400 dark:text-zinc-500">Demo 01 - Varian</p>
+            <h2 class="mt-1 text-lg font-bold tracking-tight">Lima Varian Dasar</h2>
+          </div>
+          <p class="text-xs text-zinc-500 dark:text-zinc-400">Ikon dan aksen berbeda untuk setiap tingkat urgensi</p>
+        </header>
+
+        <div class="space-y-3">
+          <div class="u-alert u-alert-default" role="status">
+            <span class="u-alert-icon"><i data-lucide="megaphone" class="w-5 h-5"></i></span>
+            <div class="flex-1 min-w-0">
+              <p class="u-alert-title">Pengumuman tim</p>
+              <p class="u-alert-desc">Retrospektif Uroo Studio diundur ke Kamis pukul 14.00 WIB di ruang Serambi.</p>
+            </div>
+          </div>
+
+          <div class="u-alert u-alert-info" role="status">
+            <span class="u-alert-icon"><i data-lucide="info" class="w-5 h-5"></i></span>
+            <div class="flex-1 min-w-0">
+              <p class="u-alert-title">Tahukah Anda?</p>
+              <p class="u-alert-desc">Rilis v3.2 telah tersedia. Anda dapat melihat catatan perubahan lengkap pada halaman rilis Uroo UI.</p>
+            </div>
+          </div>
+
+          <div class="u-alert u-alert-success" role="status">
+            <span class="u-alert-icon"><i data-lucide="circle-check" class="w-5 h-5"></i></span>
+            <div class="flex-1 min-w-0">
+              <p class="u-alert-title">Pembayaran diterima</p>
+              <p class="u-alert-desc">Tagihan langganan Uroo Pro sebesar Rp149.000 telah dikonfirmasi pada tanggal 14 Agustus 2026.</p>
+            </div>
+          </div>
+
+          <div class="u-alert u-alert-warning" role="alert">
+            <span class="u-alert-icon"><i data-lucide="triangle-alert" class="w-5 h-5"></i></span>
+            <div class="flex-1 min-w-0">
+              <p class="u-alert-title">Kuota penyimpanan hampir penuh</p>
+              <p class="u-alert-desc">Ruang kerja Anda telah terisi 92%. Hapus berkas lama atau tingkatkan paket agar sinkronisasi tetap berjalan.</p>
+            </div>
+          </div>
+
+          <div class="u-alert u-alert-danger" role="alert">
+            <span class="u-alert-icon"><i data-lucide="circle-alert" class="w-5 h-5"></i></span>
+            <div class="flex-1 min-w-0">
+              <p class="u-alert-title">Gagal menghapus proyek</p>
+              <p class="u-alert-desc">Proyek "Landing Soreida" masih dirujuk oleh tiga milestone aktif. Arsipkan milestone terlebih dahulu lalu coba lagi.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section data-copy class="glass-panel rounded-2xl shadow-2xl p-6 md:p-8 anim-fade-in">
+        <header class="mb-6 flex flex-wrap items-end justify-between gap-3">
+          <div>
+            <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-zinc-400 dark:text-zinc-500">Demo 02 - Tidak Dapat Ditutup? Justru Bisa</p>
+            <h2 class="mt-1 text-lg font-bold tracking-tight">Dapat Ditutup</h2>
+          </div>
+          <p class="text-xs text-zinc-500 dark:text-zinc-400">Klik ikon silang untuk menutup, lalu pulihkan dengan satu tombol</p>
+        </header>
+
+        <div class="space-y-3" id="alert-dismiss-layer">
+          <div class="u-alert u-alert-info" data-alert role="status">
+            <span class="u-alert-icon"><i data-lucide="info" class="w-5 h-5"></i></span>
+            <div class="flex-1 min-w-0">
+              <p class="u-alert-title">Sinkronisasi ruang kerja</p>
+              <p class="u-alert-desc">Perubahan terakhir disinkronkan 2 menit lalu oleh Andi Wijaya.</p>
+            </div>
+            <button type="button" class="u-alert-close" data-dismiss aria-label="Tutup notifikasi"><i data-lucide="x" class="w-4 h-4"></i></button>
+          </div>
+
+          <div class="u-alert u-alert-success" data-alert role="status">
+            <span class="u-alert-icon"><i data-lucide="circle-check" class="w-5 h-5"></i></span>
+            <div class="flex-1 min-w-0">
+              <p class="u-alert-title">Ekspor berhasil</p>
+              <p class="u-alert-desc">Laporan laba rugi Q3 (PDF, 2,4 MB) telah dikirim ke email Anda.</p>
+            </div>
+            <button type="button" class="u-alert-close" data-dismiss aria-label="Tutup notifikasi"><i data-lucide="x" class="w-4 h-4"></i></button>
+          </div>
+
+          <div class="u-alert u-alert-warning" data-alert role="alert">
+            <span class="u-alert-icon"><i data-lucide="triangle-alert" class="w-5 h-5"></i></span>
+            <div class="flex-1 min-w-0">
+              <p class="u-alert-title">Pembaruan tertunda</p>
+              <p class="u-alert-desc">Peramban Anda perlu di-restart agar pembaruan keamanan Uroo diterapkan dengan sempurna.</p>
+            </div>
+            <button type="button" class="u-alert-close" data-dismiss aria-label="Tutup notifikasi"><i data-lucide="x" class="w-4 h-4"></i></button>
+          </div>
+
+          <div class="u-alert u-alert-danger" data-alert role="alert">
+            <span class="u-alert-icon"><i data-lucide="circle-alert" class="w-5 h-5"></i></span>
+            <div class="flex-1 min-w-0">
+              <p class="u-alert-title">Sesi akan berakhir</p>
+              <p class="u-alert-desc">Sesi admin Anda berakhir dalam 5 menit. Simpan pekerjaan agar tidak hilang.</p>
+            </div>
+            <button type="button" class="u-alert-close" data-dismiss aria-label="Tutup notifikasi"><i data-lucide="x" class="w-4 h-4"></i></button>
+          </div>
+        </div>
+
+        <div class="mt-5 flex flex-wrap items-center gap-3">
+          <button type="button" id="alert-restore" class="u-alert-action u-alert-info" style="margin-top:0">
+            <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i> Tampilkan semua notifikasi
+          </button>
+          <p class="text-xs text-zinc-500 dark:text-zinc-400" id="alert-count">4 alert tampil</p>
+        </div>
+      </section>
+
+      <section data-copy class="glass-panel rounded-2xl shadow-2xl p-6 md:p-8 anim-fade-in">
+        <header class="mb-6 flex flex-wrap items-end justify-between gap-3">
+          <div>
+            <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-zinc-400 dark:text-zinc-500">Demo 03 - Aksi</p>
+            <h2 class="mt-1 text-lg font-bold tracking-tight">Dengan Tombol Aksi</h2>
+          </div>
+          <p class="text-xs text-zinc-500 dark:text-zinc-400">Langkah selanjutnya satu klik dari pesan</p>
+        </header>
+
+        <div class="space-y-3">
+          <div class="u-alert u-alert-success" role="status">
+            <span class="u-alert-icon"><i data-lucide="circle-check" class="w-5 h-5"></i></span>
+            <div class="flex-1 min-w-0">
+              <p class="u-alert-title">Rekap performa siap diunduh</p>
+              <p class="u-alert-desc">Rekap angka pertumbuhan Uroo Metrics bulan Juli 2026 telah disusun.</p>
+              <button type="button" class="u-alert-action"><i data-lucide="download" class="w-3.5 h-3.5"></i> Unduh rekap</button>
+            </div>
+          </div>
+
+          <div class="u-alert u-alert-warning" role="alert">
+            <span class="u-alert-icon"><i data-lucide="triangle-alert" class="w-5 h-5"></i></span>
+            <div class="flex-1 min-w-0">
+              <p class="u-alert-title">Perlu pemeriksaan</p>
+              <p class="u-alert-desc">12 tagihan menunggak lebih dari 30 hari dan menunggu keputusan Anda.</p>
+              <button type="button" class="u-alert-action"><i data-lucide="arrow-right" class="w-3.5 h-3.5"></i> Tinjau tagihan</button>
+            </div>
+          </div>
+
+          <div class="u-alert u-alert-danger" role="alert">
+            <span class="u-alert-icon"><i data-lucide="circle-alert" class="w-5 h-5"></i></span>
+            <div class="flex-1 min-w-0">
+              <p class="u-alert-title">Pembaruan diblokir</p>
+              <p class="u-alert-desc">Penerapan rilis v3.2 gagal pada tiga layanan backend sebelumnya.</p>
+              <button type="button" class="u-alert-action"><i data-lucide="arrow-right" class="w-3.5 h-3.5"></i> Lihat log rilis</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section data-copy class="glass-panel rounded-2xl shadow-2xl p-6 md:p-8 anim-fade-in">
+        <header class="mb-6 flex flex-wrap items-end justify-between gap-3">
+          <div>
+            <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-zinc-400 dark:text-zinc-500">Demo 04 - Kompak</p>
+            <h2 class="mt-1 text-lg font-bold tracking-tight">Baris Kompak</h2>
+          </div>
+          <p class="text-xs text-zinc-500 dark:text-zinc-400">Untuk menampilkan banyak status sekaligus</p>
+        </header>
+
+        <div class="grid sm:grid-cols-2 gap-3">
+          <div class="u-alert-compact" role="status">
+            <i data-lucide="circle-check" class="u-ac text-emerald-500"></i>
+            <span class="flex-1">Pembayaran #1029 diterima</span>
+          </div>
+          <div class="u-alert-compact" role="status">
+            <i data-lucide="info" class="u-ac"></i>
+            <span class="flex-1">2 anggota online</span>
+          </div>
+          <div class="u-alert-compact" role="alert">
+            <i data-lucide="circle-alert" class="u-ac text-red-500"></i>
+            <span class="flex-1">Koneksi terputus</span>
+          </div>
+          <div class="u-alert-compact" role="alert">
+            <i data-lucide="triangle-alert" class="u-ac text-amber-500"></i>
+            <span class="flex-1">Kuota API 88% terpakai</span>
+          </div>
+        </div>
+      </section>
+
+      <section data-copy class="glass-panel rounded-2xl shadow-2xl p-6 md:p-8 anim-fade-in">
+        <header class="mb-6 flex flex-wrap items-end justify-between gap-3">
+          <div>
+            <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-zinc-400 dark:text-zinc-500">Demo 05 - Simulasi</p>
+            <h2 class="mt-1 text-lg font-bold tracking-tight">Alert Langsung</h2>
+          </div>
+          <p class="text-xs text-zinc-500 dark:text-zinc-400">Muncul otomatis lalu menutup diri setelah 3,5 detik</p>
+        </header>
+
+        <div class="flex flex-wrap gap-3 mb-5">
+          <button type="button" class="u-alert-action u-alert-success" data-live="success" style="margin-top:0">
+            <i data-lucide="check" class="w-3.5 h-3.5"></i> Simulasi sukses
+          </button>
+          <button type="button" class="u-alert-action u-alert-warning" data-live="warning" style="margin-top:0">
+            <i data-lucide="triangle-alert" class="w-3.5 h-3.5"></i> Simulasi peringatan
+          </button>
+          <button type="button" class="u-alert-action u-alert-danger" data-live="danger" style="margin-top:0">
+            <i data-lucide="circle-alert" class="w-3.5 h-3.5"></i> Simulasi error
+          </button>
+        </div>
+
+        <div class="space-y-3" id="alert-live-layer"></div>
+      </section>
+
+    </div>
+  </main>
+
+  <button onclick="toggleTheme()" class="fixed top-4 right-4 z-50 p-2 rounded-full glass-panel shadow-2xl" title="Toggle theme">
+    <i data-lucide="sun" class="w-4 h-4 hidden dark:block"></i>
+    <i data-lucide="moon" class="w-4 h-4 block dark:hidden"></i>
+  </button>
+
+  <script>
+  lucide.createIcons();
+  function toggleTheme(){const b=document.body;const h=document.documentElement;b.classList.toggle('dark');h.classList.toggle('dark');const saved=b.classList.contains('dark')?'dark':'light';try{localStorage.setItem('uroo-theme',saved)}catch(e){};lucide.createIcons();}
+
+  var layer = document.getElementById('alert-dismiss-layer');
+
+  function refreshCount(){
+    var shown = layer.querySelectorAll('.u-alert').length;
+    document.getElementById('alert-count').textContent = shown + ' alert tampil';
+  }
+
+  document.querySelectorAll('[data-alert]').forEach(function(alert){
+    var btn = alert.querySelector('[data-dismiss]');
+    if(!btn) return;
+    btn.addEventListener('click', function(){
+      alert.style.maxHeight = alert.offsetHeight + 'px';
+      alert.style.overflow = 'hidden';
+      requestAnimationFrame(function(){
+        alert.style.opacity = '0';
+        alert.style.transform = 'translateX(10px)';
+        alert.style.maxHeight = '0';
+        alert.style.marginTop = '0';
+        alert.style.marginBottom = '0';
+        alert.style.paddingTop = '0';
+        alert.style.paddingBottom = '0';
+        alert.style.borderWidth = '0';
+      });
+      setTimeout(function(){ alert.style.display = 'none'; refreshCount(); }, 320);
+    });
+  });
+
+  document.getElementById('alert-restore').addEventListener('click', function(){
+    layer.querySelectorAll('[data-alert]').forEach(function(alert){
+      if(alert.style.display === 'none'){
+        alert.style.display = 'flex';
+        alert.style.opacity = '1';
+        alert.style.transform = 'none';
+        alert.style.maxHeight = '';
+        alert.style.marginTop = '';
+        alert.style.marginBottom = '';
+        alert.style.paddingTop = '';
+        alert.style.paddingBottom = '';
+        alert.style.borderWidth = '';
+        alert.classList.remove('anim-slide-down');
+        void alert.offsetWidth;
+        alert.classList.add('anim-slide-down');
+      }
+    });
+    refreshCount();
+  });
+
+  var liveLayer = document.getElementById('alert-live-layer');
+  var livePool = {
+    success: { variant: 'u-alert-success', icon: 'circle-check', title: 'Operasi berhasil', desc: 'Perubahan pada ruang kerja Uroo Studio telah disimpan dan disinkronkan.' },
+    warning: { variant: 'u-alert-warning', icon: 'triangle-alert', title: 'Perhatian', desc: 'Latensi server naik ke 340 ms. Periksa beban ruang kerja Anda.' },
+    danger:  { variant: 'u-alert-danger',  icon: 'circle-alert',  title: 'Kesalahan terjadi', desc: 'Endpoint "POST /api/v2/invoice" merespons dengan status 500.' }
+  };
+
+  document.querySelectorAll('[data-live]').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var spec = livePool[btn.dataset.live];
+      var alert = document.createElement('div');
+      alert.className = 'u-alert ' + spec.variant + ' anim-slide-down';
+      alert.setAttribute('role', 'alert');
+      alert.style.animationDuration = '0.3s';
+      alert.innerHTML =
+        '<span class="u-alert-icon"><i data-lucide="' + spec.icon + '" class="w-5 h-5"></i></span>' +
+        '<div class="flex-1 min-w-0"><p class="u-alert-title">' + spec.title + '</p><p class="u-alert-desc">' + spec.desc + '</p></div>';
+      liveLayer.prepend(alert);
+      lucide.createIcons();
+      setTimeout(function(){
+        alert.style.opacity = '0';
+        alert.style.transform = 'translateY(-8px)';
+        setTimeout(function(){ alert.remove(); }, 300);
+      }, 3500);
+    });
+  });
+
+  refreshCount();
+  </script>
+<script src="../../assets/js/uroo-copy.js"></script>
+<script src="../../assets/js/uroo-nav.js"></script>
+</body>
+</html>

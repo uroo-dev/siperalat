@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="id" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Uroo UI - Badge</title>
+  <script src="../../assets/js/tailwind.js"></script>
+  <script src="../../assets/js/lucide.js"></script>
+  <script>tailwind.config={darkMode:'class',theme:{extend:{colors:{glass:{light:'rgba(255,255,255,0.65)','light-border':'rgba(255,255,255,0.8)',dark:'rgba(18,18,20,0.65)','dark-border':'rgba(255,255,255,0.1)'}}}}}</script>
+  <link rel="stylesheet" href="../../assets/css/uroo.css">
+  <style>
+    body{background:linear-gradient(135deg,#dfe3ea,#f4f4f5)}
+    .u-bg{position:fixed;inset:0;pointer-events:none;transition:opacity .4s ease}
+    .u-bg-light{background:linear-gradient(135deg,#dfe3ea,#f4f4f5)}
+    .u-bg-dark{background:linear-gradient(135deg,#0a0a0b,#1a1a1e);opacity:0}
+    body.dark .u-bg-light{opacity:0}
+    body.dark .u-bg-dark{opacity:1}
+    .u-glow{position:fixed;border-radius:9999px;filter:blur(90px);pointer-events:none}
+    .u-glow-1{width:420px;height:420px;top:-140px;left:-140px;background:rgba(0,0,0,0.06)}
+    body.dark .u-glow-1{background:rgba(255,255,255,0.05)}
+    .u-glow-2{width:520px;height:520px;bottom:-200px;right:-140px;background:rgba(0,0,0,0.05)}
+    body.dark .u-glow-2{background:rgba(255,255,255,0.05)}
+    .u-glow-3{width:300px;height:300px;top:42%;left:58%;background:rgba(0,0,0,0.04)}
+    body.dark .u-glow-3{background:rgba(255,255,255,0.04)}
+
+    .u-badge{display:inline-flex;align-items:center;gap:.35rem;font-weight:600;line-height:1;border-radius:9999px;letter-spacing:-.01em;white-space:nowrap}
+    .u-badge-sq{border-radius:.55rem}
+    .u-badge-xs{font-size:.63rem;padding:.25rem .55rem}
+    .u-badge-sm{font-size:.7rem;padding:.3rem .65rem}
+    .u-badge-md{font-size:.76rem;padding:.38rem .8rem}
+    .u-badge-lg{font-size:.84rem;padding:.5rem 1rem}
+    .u-badge i{flex:none}
+
+    .u-badge-default{background:rgba(255,255,255,.5);border:1px solid rgba(0,0,0,.1);color:#3f3f46}
+    body.dark .u-badge-default{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);color:#d4d4d8}
+    .u-badge-primary{background:#18181b;color:#fff;box-shadow:0 8px 20px -10px rgba(0,0,0,.45)}
+    body.dark .u-badge-primary{background:#fafafa;color:#18181b;box-shadow:0 8px 20px -10px rgba(0,0,0,.6)}
+    .u-badge-secondary{background:rgba(113,113,122,.16);color:#3f3f46}
+    body.dark .u-badge-secondary{background:rgba(161,161,170,.14);color:#e4e4e7}
+    .u-badge-soft{background:rgba(0,0,0,.06);color:#3f3f46}
+    body.dark .u-badge-soft{background:rgba(255,255,255,.08);color:#e4e4e7}
+    .u-badge-outline{background:transparent;border:1px solid rgba(0,0,0,.22);color:#3f3f46}
+    body.dark .u-badge-outline{background:transparent;border:1px solid rgba(255,255,255,.28);color:#e4e4e7}
+
+    .u-badge-danger{background:rgba(220,38,38,.12);color:#b91c1c}
+    body.dark .u-badge-danger{background:rgba(248,113,113,.16);color:#fca5a5}
+    .u-badge-success{background:rgba(16,185,129,.14);color:#047857}
+    body.dark .u-badge-success{background:rgba(52,211,153,.16);color:#6ee7b7}
+    .u-badge-warning{background:rgba(245,158,11,.16);color:#b45309}
+    body.dark .u-badge-warning{background:rgba(251,191,36,.18);color:#fcd34d}
+    .u-badge-info{background:rgba(59,130,246,.12);color:#1d4ed8}
+    body.dark .u-badge-info{background:rgba(96,165,250,.16);color:#93c5fd}
+    .u-badge-neutral{background:rgba(113,113,122,.16);color:#52525b}
+    body.dark .u-badge-neutral{background:rgba(161,161,170,.18);color:#d4d4d8}
+
+    .u-dot{flex:none;width:.5em;height:.5em;border-radius:9999px}
+    .u-dot-online{background:#10b981}
+    .u-dot-offline{background:#a1a1aa}
+    .u-dot-away{background:#f59e0b}
+    .u-dot-danger{background:#ef4444}
+
+    .u-loop-item{display:flex;align-items:center;gap:.9rem;padding:.9rem 1rem;border-radius:1rem;background:rgba(255,255,255,.45);border:1px solid rgba(0,0,0,.07)}
+    body.dark .u-loop-item{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07)}
+    .u-loop-ico{flex:none;width:2.4rem;height:2.4rem;border-radius:.8rem;display:grid;place-items:center;color:rgba(255,255,255,.85);background:linear-gradient(135deg,#52525b,#18181b)}
+  </style>
+</head>
+<body class="dark min-h-screen p-6 font-sans antialiased text-zinc-800 dark:text-zinc-100" style="background:linear-gradient(135deg,#dfe3ea,#f4f4f5)">
+  <script>(function initTheme(){var saved=null;try{saved=localStorage.getItem('uroo-theme')}catch(e){};var dark=(saved==='dark')||(!saved&&window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches);var de=document.documentElement;if(dark){de.classList.add('dark');de.classList.remove('light');if(document.body){document.body.classList.add('dark');document.body.classList.remove('light');}}else{de.classList.remove('dark');de.classList.add('light');if(document.body){document.body.classList.remove('dark');document.body.classList.add('light');}}})();</script>
+  <div class="u-bg u-bg-light" aria-hidden="true"></div>
+  <div class="u-bg u-bg-dark" aria-hidden="true"></div>
+  <div class="u-glow u-glow-1" aria-hidden="true"></div>
+  <div class="u-glow u-glow-2" aria-hidden="true"></div>
+  <div class="u-glow u-glow-3" aria-hidden="true"></div>
+
+  <main class="relative z-10 mx-auto max-w-4xl">
+
+    <header class="mb-10">
+      <div class="flex items-center gap-4">
+        <div class="glass-panel rounded-2xl p-3 shadow-2xl">
+          <i data-lucide="tag" class="w-6 h-6"></i>
+        </div>
+        <div>
+          <p class="text-[11px] font-bold uppercase tracking-[0.2em] text-zinc-400 dark:text-zinc-500">Uroo UI - Komponen Dasar</p>
+          <h1 class="text-2xl md:text-4xl font-bold tracking-tight">Badge</h1>
+        </div>
+      </div>
+      <p class="mt-4 max-w-2xl text-sm leading-relaxed text-zinc-500 dark:text-zinc-400">
+        Penanda status, hitungan, dan atribut data. Mendukung berbagai varian, empat ukuran,
+        titik status, bentuk pil atau kotak, serta ikon pelengkap.
+      </p>
+    </header>
+
+    <div class="grid gap-8">
+
+      <section data-copy class="glass-panel rounded-2xl shadow-2xl p-6 md:p-8 anim-fade-in">
+        <header class="mb-6 flex flex-wrap items-end justify-between gap-3">
+          <div>
+            <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-zinc-400 dark:text-zinc-500">Demo 01 - Varian</p>
+            <h2 class="mt-1 text-lg font-bold tracking-tight">Sepuluh Varian</h2>
+          </div>
+          <p class="text-xs text-zinc-500 dark:text-zinc-400">Bentuk pil, ukuran sedang</p>
+        </header>
+
+        <div class="flex flex-wrap items-center gap-2.5">
+          <span class="u-badge u-badge-md u-badge-default">Bawaan</span>
+          <span class="u-badge u-badge-md u-badge-primary">Primer</span>
+          <span class="u-badge u-badge-md u-badge-secondary">Sekunder</span>
+          <span class="u-badge u-badge-md u-badge-soft">Lembut</span>
+          <span class="u-badge u-badge-md u-badge-outline">Garis</span>
+          <span class="u-badge u-badge-md u-badge-success">Berhasil</span>
+          <span class="u-badge u-badge-md u-badge-warning">Perhatian</span>
+          <span class="u-badge u-badge-md u-badge-danger">Bahaya</span>
+          <span class="u-badge u-badge-md u-badge-info">Info</span>
+          <span class="u-badge u-badge-md u-badge-neutral">Netral</span>
+        </div>
+      </section>
+
+      <section data-copy class="glass-panel rounded-2xl shadow-2xl p-6 md:p-8 anim-fade-in">
+        <header class="mb-6 flex flex-wrap items-end justify-between gap-3">
+          <div>
+            <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-zinc-400 dark:text-zinc-500">Demo 02 - Ukuran</p>
+            <h2 class="mt-1 text-lg font-bold tracking-tight">Empat Tahap Ukuran</h2>
+          </div>
+          <p class="text-xs text-zinc-500 dark:text-zinc-400">Hasil penskalaan otomatis pada teks dan titik</p>
+        </header>
+
+        <div class="flex flex-wrap items-center gap-3">
+          <span class="u-badge u-badge-xs u-badge-primary">XS</span>
+          <span class="u-badge u-badge-sm u-badge-primary">Kecil</span>
+          <span class="u-badge u-badge-md u-badge-primary">Sedang</span>
+          <span class="u-badge u-badge-lg u-badge-primary">Besar</span>
+          <span class="u-badge u-badge-lg u-badge-primary"><span class="u-dot u-dot-online"></span> Dengan titik</span>
+        </div>
+      </section>
+
+      <section data-copy class="glass-panel rounded-2xl shadow-2xl p-6 md:p-8 anim-fade-in">
+        <header class="mb-6 flex flex-wrap items-end justify-between gap-3">
+          <div>
+            <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-zinc-400 dark:text-zinc-500">Demo 03 - Ikon</p>
+            <h2 class="mt-1 text-lg font-bold tracking-tight">Dengan Ikon</h2>
+          </div>
+          <p class="text-xs text-zinc-500 dark:text-zinc-400">Ikon dibatasi ukurannya dan ikut menyelaraskan diri</p>
+        </header>
+
+        <div class="flex flex-wrap items-center gap-2.5">
+          <span class="u-badge u-badge-md u-badge-primary"><i data-lucide="sparkles" class="w-3.5 h-3.5"></i> Rilis baru</span>
+          <span class="u-badge u-badge-md u-badge-success"><i data-lucide="circle-check" class="w-3.5 h-3.5"></i> Terverifikasi</span>
+          <span class="u-badge u-badge-md u-badge-warning"><i data-lucide="zap" class="w-3.5 h-3.5"></i> Akselerasi</span>
+          <span class="u-badge u-badge-md u-badge-info"><i data-lucide="download" class="w-3.5 h-3.5"></i> Unduh</span>
+          <span class="u-badge u-badge-md u-badge-outline">Hemat 20% <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i></span>
+          <span class="u-badge u-badge-md u-badge-danger"><i data-lucide="ban" class="w-3.5 h-3.5"></i> Diblokir</span>
+          <span class="u-badge u-badge-md u-badge-neutral"><i data-lucide="star" class="w-3.5 h-3.5"></i> Favorit</span>
+        </div>
+      </section>
+
+      <section data-copy class="glass-panel rounded-2xl shadow-2xl p-6 md:p-8 anim-fade-in">
+        <header class="mb-6 flex flex-wrap items-end justify-between gap-3">
+          <div>
+            <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-zinc-400 dark:text-zinc-500">Demo 04 - Status</p>
+            <h2 class="mt-1 text-lg font-bold tracking-tight">Titik Status</h2>
+          </div>
+          <p class="text-xs text-zinc-500 dark:text-zinc-400">Warna titik langsung terbaca</p>
+        </header>
+
+        <div class="flex flex-wrap items-center gap-2.5">
+          <span class="u-badge u-badge-md u-badge-soft"><span class="u-dot u-dot-online"></span> Online</span>
+          <span class="u-badge u-badge-md u-badge-soft"><span class="u-dot u-dot-away"></span> Jauh</span>
+          <span class="u-badge u-badge-md u-badge-soft"><span class="u-dot u-dot-offline"></span> Offline</span>
+          <span class="u-badge u-badge-md u-badge-soft"><span class="u-dot u-dot-danger"></span> Menonaktif</span>
+          <span class="u-badge u-badge-md u-badge-outline"><span class="u-dot u-dot-online"></span> Server aktif</span>
+          <span class="u-badge u-badge-md u-badge-warning"><span class="u-dot u-dot-away"></span> Janji temu</span>
+        </div>
+      </section>
+
+      <section data-copy class="glass-panel rounded-2xl shadow-2xl p-6 md:p-8 anim-fade-in">
+        <header class="mb-6 flex flex-wrap items-end justify-between gap-3">
+          <div>
+            <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-zinc-400 dark:text-zinc-500">Demo 05 - Bentuk</p>
+            <h2 class="mt-1 text-lg font-bold tracking-tight">Pil vs Kotak</h2>
+          </div>
+          <p class="text-xs text-zinc-500 dark:text-zinc-400">Pil untuk tag, kotak untuk label data</p>
+        </header>
+
+        <div class="flex flex-wrap items-center gap-2.5">
+          <span class="u-badge u-badge-md u-badge-primary">Pil</span>
+          <span class="u-badge u-badge-md u-badge-primary u-badge-sq">Kotak</span>
+          <span class="u-badge u-badge-md u-badge-success">v3.2</span>
+          <span class="u-badge u-badge-md u-badge-success u-badge-sq">Rilis stabil</span>
+          <span class="u-badge u-badge-md u-badge-outline">#2026</span>
+          <span class="u-badge u-badge-md u-badge-outline u-badge-sq">Invoice</span>
+        </div>
+      </section>
+
+      <section data-copy class="glass-panel rounded-2xl shadow-2xl p-6 md:p-8 anim-fade-in">
+        <header class="mb-6 flex flex-wrap items-end justify-between gap-3">
+          <div>
+            <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-zinc-400 dark:text-zinc-500">Demo 06 - Interaksi</p>
+            <h2 class="mt-1 text-lg font-bold tracking-tight">Penghitung Nyata</h2>
+          </div>
+          <p class="text-xs text-zinc-500 dark:text-zinc-400">Klik tombol untuk menambah notifikasi, klik badge untuk mengurangi</p>
+        </header>
+
+        <div class="space-y-4">
+          <div class="flex flex-wrap items-center gap-4">
+            <button type="button" id="counter-trigger" class="relative inline-flex items-center justify-center w-11 h-11 rounded-xl text-zinc-600 dark:text-zinc-300 transition cursor-pointer" style="background:rgba(255,255,255,.55);border:1px solid rgba(0,0,0,.1)">
+              <i data-lucide="bell" class="w-5 h-5"></i>
+              <span id="counter-badge" class="u-badge u-badge-xs u-badge-danger" style="position:absolute;top:-6px;right:-6px">4</span>
+            </button>
+            <button type="button" id="counter-add" class="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition cursor-pointer" style="background:#18181b;color:#fff">
+              <i data-lucide="plus" class="w-4 h-4"></i> Notifikasi baru
+            </button>
+            <span class="text-xs text-zinc-500 dark:text-zinc-400" id="counter-hint"></span>
+          </div>
+
+          <div class="space-y-2">
+            <div class="u-loop-item">
+              <span class="u-loop-ico"><i data-lucide="package" class="w-5 h-5"></i></span>
+              <div class="flex-1 min-w-0">
+                <p class="text-sm font-semibold">Soreida - Jakarta</p>
+                <p class="text-xs text-zinc-500 dark:text-zinc-400">Pesanan dikemas, estimasi 2 hari</p>
+              </div>
+              <span class="u-badge u-badge-sm u-badge-info">Dalam proses</span>
+            </div>
+            <div class="u-loop-item">
+              <span class="u-loop-ico"><i data-lucide="truck" class="w-5 h-5"></i></span>
+              <div class="flex-1 min-w-0">
+                <p class="text-sm font-semibold">Uroo Kit - Bandung</p>
+                <p class="text-xs text-zinc-500 dark:text-zinc-400">Sampai hari ini pukul 18.00</p>
+              </div>
+              <div class="flex items-center gap-2">
+                <span class="u-badge u-badge-sm u-badge-success"><span class="u-dot u-dot-online"></span> Dikirim</span>
+                <button type="button" id="mini-step" class="u-badge u-badge-sm u-badge-outline cursor-pointer" style="transition:transform .15s ease">Lanjut status</button>
+              </div>
+            </div>
+            <div class="u-loop-item">
+              <span class="u-loop-ico"><i data-lucide="shield-check" class="w-5 h-5"></i></span>
+              <div class="flex-1 min-w-0">
+                <p class="text-sm font-semibold">Lisensi Uroo Pro</p>
+                <p class="text-xs text-zinc-500 dark:text-zinc-400">Berakhir 28 November 2026</p>
+              </div>
+              <span class="u-badge u-badge-sm u-badge-danger">Akan kedaluwarsa</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <button onclick="toggleTheme()" class="fixed top-4 right-4 z-50 p-2 rounded-full glass-panel shadow-2xl" title="Toggle theme">
+    <i data-lucide="sun" class="w-4 h-4 hidden dark:block"></i>
+    <i data-lucide="moon" class="w-4 h-4 block dark:hidden"></i>
+  </button>
+
+  <script>
+  lucide.createIcons();
+  function toggleTheme(){const b=document.body;const h=document.documentElement;b.classList.toggle('dark');h.classList.toggle('dark');const saved=b.classList.contains('dark')?'dark':'light';try{localStorage.setItem('uroo-theme',saved)}catch(e){};lucide.createIcons();}
+
+  var counter = 4;
+  var badge = document.getElementById('counter-badge');
+  var hint = document.getElementById('counter-hint');
+
+  function renderCounter(){
+    badge.textContent = counter > 9 ? '9+' : counter;
+    if(counter <= 0){
+      badge.style.display = 'none';
+    } else {
+      badge.style.display = 'inline-flex';
+      badge.classList.remove('anim-scale-in');
+      void badge.offsetWidth;
+      badge.classList.add('anim-scale-in');
+    }
+    hint.textContent = counter > 0 ? 'Anda memiliki ' + counter + ' notifikasi belum dibaca.' : 'Semua notifikasi sudah dibaca.';
+  }
+
+  document.getElementById('counter-add').addEventListener('click', function(){
+    counter++;
+    renderCounter();
+  });
+
+  badge.addEventListener('click', function(e){
+    e.stopPropagation();
+    counter = 0;
+    renderCounter();
+  });
+
+  var miniStage = 0;
+  var miniSteps = [
+    ['Mulai diproses', 'u-badge-neutral'],
+    ['Dikemas', 'u-badge-warning'],
+    ['Dalam perjalanan', 'u-badge-info'],
+    ['Terkirim', 'u-badge-success']
+  ];
+  var miniBtn = document.getElementById('mini-step');
+  if(miniBtn){
+    miniBtn.addEventListener('click', function(){
+      miniStage = (miniStage + 1) % miniSteps.length;
+      var s = miniSteps[miniStage];
+      this.textContent = s[0];
+      this.className = 'u-badge u-badge-sm ' + s[1] + ' cursor-pointer';
+    });
+  }
+
+  renderCounter();
+  </script>
+<script src="../../assets/js/uroo-copy.js"></script>
+<script src="../../assets/js/uroo-nav.js"></script>
+</body>
+</html>

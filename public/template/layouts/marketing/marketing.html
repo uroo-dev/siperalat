@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="id" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Uroo UI - Pemasaran</title>
+  <script src="../../assets/js/tailwind.js"></script>
+  <script src="../../assets/js/lucide.js"></script>
+  <script>tailwind.config={darkMode:'class',theme:{extend:{colors:{glass:{light:'rgba(255,255,255,0.65)','light-border':'rgba(255,255,255,0.8)',dark:'rgba(18,18,20,0.65)','dark-border':'rgba(255,255,255,0.1)'}}}}}</script>
+  <link rel="stylesheet" href="../../assets/css/uroo.css">
+  <style>
+    .u-bg{position:fixed;inset:0;z-index:-10;transition:opacity .35s ease}
+    .u-bg-light{background:linear-gradient(135deg,#dfe3ea,#f4f4f5)}
+    .u-bg-dark{background:linear-gradient(135deg,#0a0a0b,#1a1a1e);opacity:0}
+    body.dark .u-bg-light{opacity:0}
+    body.dark .u-bg-dark{opacity:1}
+    .u-glow{position:fixed;border-radius:9999px;filter:blur(90px);z-index:-9;pointer-events:none;transition:background-color .35s ease;background:rgba(0,0,0,0.06)}
+    body.dark .u-glow{background:rgba(255,255,255,0.05)}
+    .u-glow-1{width:420px;height:420px;top:-140px;left:-140px}
+    .u-glow-2{width:520px;height:520px;bottom:-200px;right:-140px}
+    .u-glow-3{width:300px;height:300px;top:42%;left:58%}
+
+    #navbar{transition:background-color .3s ease,border-color .3s ease,backdrop-filter .3s ease,box-shadow .3s ease}
+    #navbar.scrolled{box-shadow:0 20px 40px -15px rgba(0,0,0,0.12),inset 0 1px 1px 0 rgba(255,255,255,0.9)}
+    body.dark #navbar.scrolled{box-shadow:0 20px 40px -15px rgba(0,0,0,0.5),inset 0 1px 1px 0 rgba(255,255,255,0.1)}
+    #navbar.scrolled{background-color:rgba(255,255,255,0.55);border-color:rgba(255,255,255,0.8)}
+    body.dark #navbar.scrolled{background-color:rgba(24,24,27,0.55);border-color:rgba(255,255,255,0.08)}
+    #mobileMenu{transition:max-height .3s cubic-bezier(.16,1,.3,1),opacity .3s;max-height:0!important;overflow:hidden}
+    #mobileMenu.open{max-height:320px!important}
+  </style>
+</head>
+<body class="min-h-screen font-sans antialiased text-zinc-800 dark:text-zinc-100">
+  <script>(function initTheme(){var saved=null;try{saved=localStorage.getItem('uroo-theme')}catch(e){};var dark=(saved==='dark')||(!saved&&window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches);var de=document.documentElement;if(dark){de.classList.add('dark');de.classList.remove('light');if(document.body){document.body.classList.add('dark');document.body.classList.remove('light');}}else{de.classList.remove('dark');de.classList.add('light');if(document.body){document.body.classList.remove('dark');document.body.classList.add('light');}}})();</script>
+
+  <div class="u-bg u-bg-light" aria-hidden="true"></div>
+  <div class="u-bg u-bg-dark" aria-hidden="true"></div>
+  <div class="u-glow u-glow-1" aria-hidden="true"></div>
+  <div class="u-glow u-glow-2" aria-hidden="true"></div>
+  <div class="u-glow u-glow-3" aria-hidden="true"></div>
+
+  <!-- ============================ NAVBAR ============================ -->
+  <header id="navbar" class="fixed top-0 inset-x-0 z-50 glass-panel border-b border-transparent">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16">
+        <a href="#" class="flex items-center gap-2.5">
+          <div class="grid place-items-center w-9 h-9 rounded-xl bg-zinc-900 dark:bg-zinc-50 text-zinc-50 dark:text-zinc-900 shadow-lg">
+            <i data-lucide="layers" class="w-5 h-5"></i>
+          </div>
+          <span class="font-extrabold text-lg tracking-tight">Uroo UI</span>
+        </a>
+
+        <nav class="hidden md:flex items-center gap-1">
+          <a href="#fitur" class="px-4 py-2 rounded-xl text-sm font-semibold text-zinc-600 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-zinc-50 hover:bg-black/5 dark:hover:bg-white/10">Fitur</a>
+          <a href="#produk" class="px-4 py-2 rounded-xl text-sm font-semibold text-zinc-600 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-zinc-50 hover:bg-black/5 dark:hover:bg-white/10">Produk</a>
+          <a href="#harga" class="px-4 py-2 rounded-xl text-sm font-semibold text-zinc-600 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-zinc-50 hover:bg-black/5 dark:hover:bg-white/10">Harga</a>
+          <a href="#testimoni" class="px-4 py-2 rounded-xl text-sm font-semibold text-zinc-600 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-zinc-50 hover:bg-black/5 dark:hover:bg-white/10">Testimoni</a>
+        </nav>
+
+        <div class="flex items-center gap-2">
+          <button onclick="toggleTheme()" class="p-2.5 rounded-xl hover:bg-black/5 dark:hover:bg-white/10 text-zinc-600 dark:text-zinc-300">
+            <i data-lucide="moon" class="w-[18px] h-[18px] hidden dark:block"></i>
+            <i data-lucide="sun" class="w-[18px] h-[18px] block dark:hidden"></i>
+          </button>
+          <a href="#" class="hidden sm:inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-semibold text-zinc-600 dark:text-zinc-300 hover:bg-black/5 dark:hover:bg-white/10">Masuk</a>
+          <a href="#" class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-zinc-900 dark:bg-zinc-50 text-zinc-50 dark:text-zinc-900 text-sm font-bold hover:opacity-90 shadow-lg">
+            Mulai Gratis <i data-lucide="arrow-right" class="w-4 h-4"></i>
+          </a>
+          <button onclick="toggleMenu()" class="md:hidden p-2.5 rounded-xl hover:bg-black/5 dark:hover:bg-white/10 text-zinc-600 dark:text-zinc-300">
+            <i data-lucide="menu" class="w-5 h-5"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mobile menu -->
+    <div id="mobileMenu" class="md:hidden overflow-hidden max-h-0 opacity-0">
+      <nav class="px-4 pb-4 pt-2 space-y-1">
+        <a href="#fitur" onclick="toggleMenu()" class="block px-4 py-2.5 rounded-xl text-sm font-semibold text-zinc-600 dark:text-zinc-300 hover:bg-black/5 dark:hover:bg-white/10">Fitur</a>
+        <a href="#produk" onclick="toggleMenu()" class="block px-4 py-2.5 rounded-xl text-sm font-semibold text-zinc-600 dark:text-zinc-300 hover:bg-black/5 dark:hover:bg-white/10">Produk</a>
+        <a href="#harga" onclick="toggleMenu()" class="block px-4 py-2.5 rounded-xl text-sm font-semibold text-zinc-600 dark:text-zinc-300 hover:bg-black/5 dark:hover:bg-white/10">Harga</a>
+        <a href="#testimoni" onclick="toggleMenu()" class="block px-4 py-2.5 rounded-xl text-sm font-semibold text-zinc-600 dark:text-zinc-300 hover:bg-black/5 dark:hover:bg-white/10">Testimoni</a>
+        <div class="pt-2 border-t border-black/5 dark:border-white/10 mt-2">
+          <a href="#" class="block px-4 py-2.5 rounded-xl text-sm font-bold bg-zinc-900 dark:bg-zinc-50 text-zinc-50 dark:text-zinc-900 text-center">Mulai Gratis</a>
+        </div>
+      </nav>
+    </div>
+  </header>
+
+  <!-- ============================ HERO ============================ -->
+  <section class="pt-32 pb-20 px-4 sm:px-6 lg:px-8 text-center">
+    <div class="max-w-4xl mx-auto">
+      <a href="#" class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full glass-panel text-xs font-bold text-zinc-600 dark:text-zinc-300">
+        <span class="w-2 h-2 rounded-full bg-emerald-500"></span> Terbaru: Uroo UI 2.0 dirilis
+        <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+      </a>
+      <h1 class="mt-8 text-5xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight leading-[1.05]">
+        Bangun antarmuka<br>
+        <span class="text-zinc-400 dark:text-zinc-500">kaca</span> yang elegan.
+      </h1>
+      <p class="mt-6 mx-auto max-w-2xl text-lg text-zinc-500 dark:text-zinc-400 leading-relaxed">
+        Uroo UI adalah sistem desain glassmorphic monokrom untuk web Indonesia modern.
+        Komponen lengkap, tema otomatis, dan performa mulus dari awal.
+      </p>
+      <div class="mt-9 flex flex-col sm:flex-row items-center justify-center gap-3">
+        <a href="#" class="inline-flex items-center gap-2 px-6 py-3.5 rounded-2xl bg-zinc-900 dark:bg-zinc-50 text-zinc-50 dark:text-zinc-900 font-bold hover:opacity-90 shadow-lg text-sm">
+          <i data-lucide="sparkles" class="w-4 h-4"></i> Mulai Membangun
+        </a>
+        <a href="#" class="inline-flex items-center gap-2 px-6 py-3.5 rounded-2xl glass-panel font-bold text-sm">
+          <i data-lucide="play-circle" class="w-4 h-4"></i> Lihat Demo
+        </a>
+      </div>
+      <p class="mt-6 text-xs text-zinc-400">Gratis selamanya. Tanpa kartu kredit. Dibuat di Indonesia.</p>
+    </div>
+  </section>
+
+  <!-- ============================ SOCIAL PROOF ============================ -->
+  <section class="py-10 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-6xl mx-auto glass-panel rounded-2xl px-6 py-8">
+      <p class="text-center text-xs font-bold uppercase tracking-[0.2em] text-zinc-400 mb-6">Dipercaya tim produk terbaik</p>
+      <div class="grid grid-cols-2 md:grid-cols-5 gap-6 items-center text-center text-zinc-400">
+        <span class="font-extrabold text-sm tracking-tight">Tokopedia</span>
+        <span class="font-extrabold text-sm tracking-tight">Gojek</span>
+        <span class="font-extrabold text-sm tracking-tight">Traveloka</span>
+        <span class="font-extrabold text-sm tracking-tight">Shopee</span>
+        <span class="font-extrabold text-sm tracking-tight">Binar</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================ FITUR ============================ -->
+  <section id="fitur" class="py-20 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-7xl mx-auto">
+      <div class="max-w-2xl mb-12">
+        <p class="text-xs font-bold uppercase tracking-[0.2em] text-zinc-400 mb-3">Fitur</p>
+        <h2 class="text-3xl sm:text-4xl font-extrabold tracking-tight">Semua yang Anda butuhkan.</h2>
+        <p class="mt-3 text-zinc-500 dark:text-zinc-400">Komponen siap pakai yang terasa seperti satu kesatuan.</p>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div class="glass-panel rounded-2xl p-6">
+          <span class="grid place-items-center w-11 h-11 rounded-xl bg-zinc-900 dark:bg-zinc-50 text-zinc-50 dark:text-zinc-900 mb-4"><i data-lucide="layers" class="w-5 h-5"></i></span>
+          <h3 class="font-bold text-lg">Komponen Lengkap</h3>
+          <p class="mt-2 text-sm text-zinc-500 dark:text-zinc-400 leading-relaxed">Lebih dari 60 komponen siap pakai, dari tombol hingga tabel kompleks, semuanya konsisten.</p>
+        </div>
+        <div class="glass-panel rounded-2xl p-6">
+          <span class="grid place-items-center w-11 h-11 rounded-xl bg-zinc-900 dark:bg-zinc-50 text-zinc-50 dark:text-zinc-900 mb-4"><i data-lucide="moon-star" class="w-5 h-5"></i></span>
+          <h3 class="font-bold text-lg">Tema Otomatis</h3>
+          <p class="mt-2 text-sm text-zinc-500 dark:text-zinc-400 leading-relaxed">Beralih antara terang dan gelap dengan satu klik. Warna monokrom yang konsisten di mana pun.</p>
+        </div>
+        <div class="glass-panel rounded-2xl p-6">
+          <span class="grid place-items-center w-11 h-11 rounded-xl bg-zinc-900 dark:bg-zinc-50 text-zinc-50 dark:text-zinc-900 mb-4"><i data-lucide="zap" class="w-5 h-5"></i></span>
+          <h3 class="font-bold text-lg">Performa Cepat</h3>
+          <p class="mt-2 text-sm text-zinc-500 dark:text-zinc-400 leading-relaxed">Ringan dan cepat, dirancang untuk pengalaman yang mulus bahkan di perangkat kelas menengah.</p>
+        </div>
+        <div class="glass-panel rounded-2xl p-6">
+          <span class="grid place-items-center w-11 h-11 rounded-xl bg-zinc-900 dark:bg-zinc-50 text-zinc-50 dark:text-zinc-900 mb-4"><i data-lucide="accessible" class="w-5 h-5"></i></span>
+          <h3 class="font-bold text-lg">Aksesibel</h3>
+          <p class="mt-2 text-sm text-zinc-500 dark:text-zinc-400 leading-relaxed">Dibangun dengan standar aksesibilitas, mendukung navigasi keyboard dan pembaca layar.</p>
+        </div>
+        <div class="glass-panel rounded-2xl p-6">
+          <span class="grid place-items-center w-11 h-11 rounded-xl bg-zinc-900 dark:bg-zinc-50 text-zinc-50 dark:text-zinc-900 mb-4"><i data-lucide="palette" class="w-5 h-5"></i></span>
+          <h3 class="font-bold text-lg">Kustomisasi Penuh</h3>
+          <p class="mt-2 text-sm text-zinc-500 dark:text-zinc-400 leading-relaxed">Token desain CSS yang mudah disesuaikan agar sesuai dengan identitas merek Anda.</p>
+        </div>
+        <div class="glass-panel rounded-2xl p-6">
+          <span class="grid place-items-center w-11 h-11 rounded-xl bg-zinc-900 dark:bg-zinc-50 text-zinc-50 dark:text-zinc-900 mb-4"><i data-lucide="globe" class="w-5 h-5"></i></span>
+          <h3 class="font-bold text-lg">Lokalisasi</h3>
+          <p class="mt-2 text-sm text-zinc-500 dark:text-zinc-400 leading-relaxed">Dokumentasi dan konten berbahasa Indonesia, siap untuk pasar lokal.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================ PRODUK ============================ -->
+  <section id="produk" class="py-20 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-7xl mx-auto">
+      <div class="max-w-2xl mb-12">
+        <p class="text-xs font-bold uppercase tracking-[0.2em] text-zinc-400 mb-3">Produk</p>
+        <h2 class="text-3xl sm:text-4xl font-extrabold tracking-tight">Terlihat mahal. Terasa ringan.</h2>
+        <p class="mt-3 text-zinc-500 dark:text-zinc-400">Contoh nyata dari antarmuka yang dibangun dengan Uroo UI.</p>
+      </div>
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <div class="glass-panel rounded-2xl overflow-hidden">
+          <div class="h-56 bg-gradient-to-br from-zinc-100 to-zinc-200 dark:from-zinc-800 dark:to-zinc-900 grid place-items-center p-6">
+            <div class="w-full max-w-sm glass-panel rounded-xl p-4 space-y-3">
+              <div class="flex items-center justify-between">
+                <div class="h-3 w-24 rounded bg-black/20 dark:bg-white/20"></div>
+                <div class="h-6 w-6 rounded-full bg-black/10 dark:bg-white/10"></div>
+              </div>
+              <div class="h-16 rounded-lg bg-black/10 dark:bg-white/10"></div>
+              <div class="flex gap-2">
+                <div class="h-8 flex-1 rounded-lg bg-black/20 dark:bg-white/20"></div>
+                <div class="h-8 w-8 rounded-lg bg-black/10 dark:bg-white/10"></div>
+              </div>
+            </div>
+          </div>
+          <div class="p-6">
+            <h3 class="font-bold text-lg">Dashboard Analitik</h3>
+            <p class="mt-2 text-sm text-zinc-500 dark:text-zinc-400">Layout lengkap dengan KPI, grafik SVG, dan aktivitas realtime.</p>
+          </div>
+        </div>
+        <div class="glass-panel rounded-2xl overflow-hidden">
+          <div class="h-56 bg-gradient-to-br from-zinc-100 to-zinc-200 dark:from-zinc-800 dark:to-zinc-900 grid place-items-center p-6">
+            <div class="w-full max-w-sm glass-panel rounded-xl p-4 space-y-3">
+              <div class="flex items-center gap-2">
+                <div class="h-8 w-8 rounded-full bg-black/20 dark:bg-white/20"></div>
+                <div class="h-3 w-28 rounded bg-black/10 dark:bg-white/10"></div>
+              </div>
+              <div class="flex items-center justify-between gap-2">
+                <div class="h-12 flex-1 rounded-lg bg-black/15 dark:bg-white/15"></div>
+                <div class="h-12 w-12 rounded-lg bg-black/20 dark:bg-white/20"></div>
+              </div>
+              <div class="flex gap-2">
+                <div class="h-8 flex-1 rounded-lg bg-black/10 dark:bg-white/10"></div>
+                <div class="h-8 w-24 rounded-lg bg-black/20 dark:bg-white/20"></div>
+              </div>
+            </div>
+          </div>
+          <div class="p-6">
+            <h3 class="font-bold text-lg">Panel Manajemen</h3>
+            <p class="mt-2 text-sm text-zinc-500 dark:text-zinc-400">Kelola pengguna, peran, dan pengaturan dengan tampilan terorganisir.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================ CTA ============================ -->
+  <section class="py-20 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-5xl mx-auto glass-panel rounded-3xl p-10 sm:p-14 text-center">
+      <i data-lucide="rocket" class="w-10 h-10 mx-auto mb-5 text-zinc-600 dark:text-zinc-300"></i>
+      <h2 class="text-3xl sm:text-5xl font-extrabold tracking-tight">Siap meluncurkan produk Anda?</h2>
+      <p class="mt-4 max-w-xl mx-auto text-zinc-500 dark:text-zinc-400">Bergabung dengan ribuan pengembang Indonesia yang membangun antarmuka modern dengan Uroo UI.</p>
+      <a href="#" class="mt-8 inline-flex items-center gap-2 px-8 py-4 rounded-2xl bg-zinc-900 dark:bg-zinc-50 text-zinc-50 dark:text-zinc-900 font-bold hover:opacity-90 shadow-lg text-sm">
+        Mulai Gratis <i data-lucide="arrow-right" class="w-4 h-4"></i>
+      </a>
+    </div>
+  </section>
+
+  <!-- ============================ HARGA ============================ -->
+  <section id="harga" class="py-20 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-6xl mx-auto">
+      <div class="max-w-2xl mx-auto text-center mb-12">
+        <p class="text-xs font-bold uppercase tracking-[0.2em] text-zinc-400 mb-3">Harga</p>
+        <h2 class="text-3xl sm:text-4xl font-extrabold tracking-tight">Pilih paket Anda.</h2>
+        <p class="mt-3 text-zinc-500 dark:text-zinc-400">Mulai gratis, tingkatkan saat Anda siap.</p>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="glass-panel rounded-2xl p-7">
+          <h3 class="font-bold">Pemula</h3>
+          <p class="mt-1 text-sm text-zinc-500 dark:text-zinc-400">Untuk proyek pribadi</p>
+          <p class="mt-5 text-4xl font-extrabold tracking-tight">Gratis</p>
+          <ul class="mt-6 space-y-3 text-sm">
+            <li class="flex items-center gap-2.5"><i data-lucide="check" class="w-4 h-4 text-emerald-500"></i> 60+ komponen inti</li>
+            <li class="flex items-center gap-2.5"><i data-lucide="check" class="w-4 h-4 text-emerald-500"></i> Tema terang & gelap</li>
+            <li class="flex items-center gap-2.5"><i data-lucide="check" class="w-4 h-4 text-emerald-500"></i> Dukungan komunitas</li>
+          </ul>
+          <a href="#" class="mt-7 block text-center px-4 py-3 rounded-xl glass-panel font-bold text-sm">Mulai</a>
+        </div>
+        <div class="glass-panel rounded-2xl p-7 relative ring-2 ring-zinc-900 dark:ring-zinc-50">
+          <span class="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full bg-zinc-900 dark:bg-zinc-50 text-zinc-50 dark:text-zinc-900 text-[10px] font-bold uppercase tracking-wide">Paling Populer</span>
+          <h3 class="font-bold">Pro</h3>
+          <p class="mt-1 text-sm text-zinc-500 dark:text-zinc-400">Untuk tim profesional</p>
+          <p class="mt-5 text-4xl font-extrabold tracking-tight">Rp 199rb<span class="text-base font-semibold text-zinc-400">/bulan</span></p>
+          <ul class="mt-6 space-y-3 text-sm">
+            <li class="flex items-center gap-2.5"><i data-lucide="check" class="w-4 h-4 text-emerald-500"></i> Semua komponen premium</li>
+            <li class="flex items-center gap-2.5"><i data-lucide="check" class="w-4 h-4 text-emerald-500"></i> Template layout lengkap</li>
+            <li class="flex items-center gap-2.5"><i data-lucide="check" class="w-4 h-4 text-emerald-500"></i> Prioritas dukungan</li>
+          </ul>
+          <a href="#" class="mt-7 block text-center px-4 py-3 rounded-xl bg-zinc-900 dark:bg-zinc-50 text-zinc-50 dark:text-zinc-900 font-bold text-sm shadow-lg">Pilih Pro</a>
+        </div>
+        <div class="glass-panel rounded-2xl p-7">
+          <h3 class="font-bold">Tim</h3>
+          <p class="mt-1 text-sm text-zinc-500 dark:text-zinc-400">Untuk organisasi besar</p>
+          <p class="mt-5 text-4xl font-extrabold tracking-tight">Kustom</p>
+          <ul class="mt-6 space-y-3 text-sm">
+            <li class="flex items-center gap-2.5"><i data-lucide="check" class="w-4 h-4 text-emerald-500"></i> Semua fitur Pro</li>
+            <li class="flex items-center gap-2.5"><i data-lucide="check" class="w-4 h-4 text-emerald-500"></i> SSO & kontrol akses</li>
+            <li class="flex items-center gap-2.5"><i data-lucide="check" class="w-4 h-4 text-emerald-500"></i> Manajer akun</li>
+          </ul>
+          <a href="#" class="mt-7 block text-center px-4 py-3 rounded-xl glass-panel font-bold text-sm">Hubungi Kami</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================ TESTIMONI ============================ -->
+  <section id="testimoni" class="py-20 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-6xl mx-auto">
+      <div class="max-w-2xl mx-auto text-center mb-12">
+        <p class="text-xs font-bold uppercase tracking-[0.2em] text-zinc-400 mb-3">Testimoni</p>
+        <h2 class="text-3xl sm:text-4xl font-extrabold tracking-tight">Dicintai pengembang.</h2>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="glass-panel rounded-2xl p-6">
+          <div class="flex gap-0.5 text-amber-500 mb-4"><i data-lucide="star" class="w-4 h-4 fill-current"></i><i data-lucide="star" class="w-4 h-4 fill-current"></i><i data-lucide="star" class="w-4 h-4 fill-current"></i><i data-lucide="star" class="w-4 h-4 fill-current"></i><i data-lucide="star" class="w-4 h-4 fill-current"></i></div>
+          <p class="text-sm leading-relaxed text-zinc-600 dark:text-zinc-300">"Uroo UI mengubah cara tim kami membangun antarmuka. Komponennya konsisten dan hasilnya selalu elegan. Sangat direkomendasikan."</p>
+          <div class="mt-5 flex items-center gap-3">
+            <span class="grid place-items-center w-9 h-9 rounded-full bg-zinc-200 dark:bg-zinc-700 text-xs font-bold">AY</span>
+            <div><p class="text-sm font-bold">Ayu Lestari</p><p class="text-xs text-zinc-400">Product Lead, Tokopedia</p></div>
+          </div>
+        </div>
+        <div class="glass-panel rounded-2xl p-6">
+          <div class="flex gap-0.5 text-amber-500 mb-4"><i data-lucide="star" class="w-4 h-4 fill-current"></i><i data-lucide="star" class="w-4 h-4 fill-current"></i><i data-lucide="star" class="w-4 h-4 fill-current"></i><i data-lucide="star" class="w-4 h-4 fill-current"></i><i data-lucide="star" class="w-4 h-4 fill-current"></i></div>
+          <p class="text-sm leading-relaxed text-zinc-600 dark:text-zinc-300">"Tema gelapnya luar biasa. Peralihan instan dan menghemat banyak waktu kami dalam pengembangan."</p>
+          <div class="mt-5 flex items-center gap-3">
+            <span class="grid place-items-center w-9 h-9 rounded-full bg-zinc-200 dark:bg-zinc-700 text-xs font-bold">RW</span>
+            <div><p class="text-sm font-bold">Rudi Wijaya</p><p class="text-xs text-zinc-400">Frontend Engineer, Gojek</p></div>
+          </div>
+        </div>
+        <div class="glass-panel rounded-2xl p-6">
+          <div class="flex gap-0.5 text-amber-500 mb-4"><i data-lucide="star" class="w-4 h-4 fill-current"></i><i data-lucide="star" class="w-4 h-4 fill-current"></i><i data-lucide="star" class="w-4 h-4 fill-current"></i><i data-lucide="star" class="w-4 h-4 fill-current"></i><i data-lucide="star" class="w-4 h-4 fill-current"></i></div>
+          <p class="text-sm leading-relaxed text-zinc-600 dark:text-zinc-300">"Dokumentasinya lengkap dan berbahasa Indonesia. Mudah diadopsi oleh seluruh tim kami."</p>
+          <div class="mt-5 flex items-center gap-3">
+            <span class="grid place-items-center w-9 h-9 rounded-full bg-zinc-200 dark:bg-zinc-700 text-xs font-bold">PN</span>
+            <div><p class="text-sm font-bold">Putri Ningsih</p><p class="text-xs text-zinc-400">Design Lead, Traveloka</p></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================ FOOTER CTA ============================ -->
+  <section class="py-20 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-5xl mx-auto glass-panel rounded-3xl p-10 sm:p-14 text-center bg-zinc-900 dark:bg-zinc-50 border-zinc-800 dark:border-zinc-200">
+      <h2 class="text-3xl sm:text-4xl font-extrabold tracking-tight text-zinc-50 dark:text-zinc-900">Mulai hari ini.</h2>
+      <p class="mt-4 max-w-xl mx-auto text-zinc-300 dark:text-zinc-600">Gratis selama-lamanya. Tingkatkan saat Anda siap.</p>
+      <a href="#" class="mt-8 inline-flex items-center gap-2 px-8 py-4 rounded-2xl bg-zinc-50 dark:bg-zinc-900 text-zinc-900 dark:text-zinc-50 font-bold text-sm">
+        Daftar Sekarang <i data-lucide="arrow-right" class="w-4 h-4"></i>
+      </a>
+    </div>
+  </section>
+
+  <!-- ============================ FOOTER ============================ -->
+  <footer class="py-14 px-4 sm:px-6 lg:px-8 border-t border-black/5 dark:border-white/10">
+    <div class="max-w-7xl mx-auto">
+      <div class="grid grid-cols-2 md:grid-cols-5 gap-8">
+        <div class="col-span-2">
+          <a href="#" class="flex items-center gap-2.5">
+            <div class="grid place-items-center w-9 h-9 rounded-xl bg-zinc-900 dark:bg-zinc-50 text-zinc-50 dark:text-zinc-900"><i data-lucide="layers" class="w-5 h-5"></i></div>
+            <span class="font-extrabold text-lg tracking-tight">Uroo UI</span>
+          </a>
+          <p class="mt-4 max-w-xs text-sm text-zinc-500 dark:text-zinc-400 leading-relaxed">Sistem desain glassmorphic monokrom untuk web modern Indonesia.</p>
+        </div>
+        <div>
+          <p class="text-sm font-bold mb-3">Produk</p>
+          <ul class="space-y-2 text-sm text-zinc-500 dark:text-zinc-400">
+            <li><a href="#fitur" class="hover:text-zinc-900 dark:hover:text-zinc-50">Fitur</a></li>
+            <li><a href="#harga" class="hover:text-zinc-900 dark:hover:text-zinc-50">Harga</a></li>
+            <li><a href="#" class="hover:text-zinc-900 dark:hover:text-zinc-50">Dokumentasi</a></li>
+          </ul>
+        </div>
+        <div>
+          <p class="text-sm font-bold mb-3">Perusahaan</p>
+          <ul class="space-y-2 text-sm text-zinc-500 dark:text-zinc-400">
+            <li><a href="#" class="hover:text-zinc-900 dark:hover:text-zinc-50">Tentang</a></li>
+            <li><a href="#" class="hover:text-zinc-900 dark:hover:text-zinc-50">Karier</a></li>
+            <li><a href="#" class="hover:text-zinc-900 dark:hover:text-zinc-50">Blog</a></li>
+          </ul>
+        </div>
+        <div>
+          <p class="text-sm font-bold mb-3">Legal</p>
+          <ul class="space-y-2 text-sm text-zinc-500 dark:text-zinc-400">
+            <li><a href="#" class="hover:text-zinc-900 dark:hover:text-zinc-50">Kebijakan</a></li>
+            <li><a href="#" class="hover:text-zinc-900 dark:hover:text-zinc-50">Syarat</a></li>
+            <li><a href="#" class="hover:text-zinc-900 dark:hover:text-zinc-50">Privasi</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="mt-12 pt-6 border-t border-black/5 dark:border-white/10 flex flex-col sm:flex-row items-center justify-between gap-3">
+        <p class="text-xs text-zinc-400">2026 Uroo UI. Dibuat dengan cinta di Indonesia.</p>
+        <div class="flex gap-2">
+          <a href="#" class="p-2 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 text-zinc-500 dark:text-zinc-400"><i data-lucide="twitter" class="w-4 h-4"></i></a>
+          <a href="#" class="p-2 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 text-zinc-500 dark:text-zinc-400"><i data-lucide="github" class="w-4 h-4"></i></a>
+          <a href="#" class="p-2 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 text-zinc-500 dark:text-zinc-400"><i data-lucide="linkedin" class="w-4 h-4"></i></a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    lucide.createIcons();
+    function toggleTheme(){const b=document.body;const h=document.documentElement;b.classList.toggle('dark');h.classList.toggle('dark');try{localStorage.setItem('uroo-theme',b.classList.contains('dark')?'dark':'light')}catch(e){};lucide.createIcons();}
+    const navbar=document.getElementById('navbar');
+    const menu=document.getElementById('mobileMenu');
+    function onScroll(){
+      if(window.scrollY>10){navbar.classList.add('scrolled');}
+      else{navbar.classList.remove('scrolled');}
+    }
+    window.addEventListener('scroll',onScroll);
+    onScroll();
+    function toggleMenu(){
+      menu.classList.toggle('open');
+      const open=menu.classList.contains('open');
+      menu.style.maxHeight=open?menu.scrollHeight+'px':'0px';
+      menu.style.opacity=open?'1':'0';
+    }
+  </script>
+<script src="../../assets/js/uroo-nav.js"></script>
+</body>
+</html>

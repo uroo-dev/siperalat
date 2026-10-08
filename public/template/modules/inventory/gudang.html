@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="id" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Uroo UI — Lokasi Gudang</title>
+  <script src="../../assets/js/tailwind.js"></script>
+  <script src="../../assets/js/lucide.js"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            glass: {
+              light: 'rgba(255, 255, 255, 0.55)',
+              'light-border': 'rgba(255, 255, 255, 0.8)',
+              dark: 'rgba(24, 24, 27, 0.55)',
+              'dark-border': 'rgba(255, 255, 255, 0.08)'
+            }
+          }
+        }
+      }
+    };
+  </script>
+  <link rel="stylesheet" href="../../assets/css/uroo.css">
+  <style>
+    .glass-panel { backdrop-filter: blur(20px) saturate(180%); -webkit-backdrop-filter: blur(20px) saturate(180%); }
+    .light .glass-panel, html:not(.dark) .glass-panel { background-color: rgba(255,255,255,0.55); border: 1px solid rgba(255,255,255,0.8); box-shadow: 0 20px 40px -15px rgba(0,0,0,0.05), inset 0 1px 1px 0 rgba(255,255,255,0.9); }
+    .dark .glass-panel, html.dark .glass-panel { background-color: rgba(24,24,27,0.55); border: 1px solid rgba(255,255,255,0.08); box-shadow: 0 20px 40px -15px rgba(0,0,0,0.5), inset 0 1px 1px 0 rgba(255,255,255,0.1); }
+    body, div, nav, button, a, input, select, textarea, section, aside, header, main, footer, span, li, table, tr, td, th { transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease, box-shadow 0.3s ease; }
+    #sidebar { width: 16.5rem; transition: transform 0.28s cubic-bezier(0.16,1,0.3,1), width 0.28s cubic-bezier(0.16,1,0.3,1); }
+    #sidebar.collapsed { width: 4.85rem; }
+    #sidebar .nav-label { transition: opacity 0.15s ease, width 0.15s ease; }
+    #sidebar.collapsed .nav-label { opacity: 0; width: 0; overflow: hidden; white-space: nowrap; }
+    #sidebar.collapsed .nav-link { justify-content: center; padding-left: 0; padding-right: 0; }
+    #sidebar.collapsed .nav-text { display: none; }
+    #sidebar.collapsed .logo-text { display: none; }
+    @media (max-width: 1023px) { #sidebar { position: fixed; top: 1rem; bottom: 1rem; left: 1rem; z-index: 50; transform: translateX(-130%); width: 17rem; } #sidebar.open { transform: translateX(0); } }
+    .hover-row:hover { background-color: rgba(0,0,0,0.03); }
+    .dark .hover-row:hover { background-color: rgba(255,255,255,0.04); }
+  </style>
+</head>
+<body class="bg-gray-100 dark:bg-zinc-950 text-zinc-800 dark:text-zinc-100 font-sans min-h-screen antialiased p-3 sm:p-4 lg:p-6">
+  <div id="overlay" class="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm opacity-0 pointer-events-none transition-opacity duration-300 lg:hidden" onclick="closeDrawer()"></div>
+  <div class="fixed top-4 right-6 z-50 flex items-center gap-2 p-1.5 rounded-full glass-panel shadow-2xl">
+    <button onclick="toggleTheme()" class="p-2 rounded-full hover:bg-black/5 dark:hover:bg-white/10 transition" title="Toggle Tema">
+      <i data-lucide="sun" class="w-4 h-4 hidden dark:block text-amber-400"></i>
+      <i data-lucide="moon" class="w-4 h-4 block dark:hidden text-zinc-800"></i>
+    </button>
+  </div>
+  <div class="max-w-[1600px] mx-auto lg:flex lg:gap-6 relative min-h-screen">
+    <!-- SIDEBAR -->
+    <aside id="sidebar" class="glass-panel rounded-3xl p-5 flex flex-col justify-between shrink-0 lg:sticky lg:top-6 lg:h-[calc(100vh-3rem)] z-40">
+      <div class="space-y-6">
+        <div class="flex items-center gap-3 px-2">
+          <div class="w-8 h-8 rounded-xl bg-black dark:bg-white text-white dark:text-black flex items-center justify-center font-black text-lg shadow-sm"><img src="../../assets/img/uroo_ui.png" alt="Uroo UI" class="w-8 h-8 rounded-xl object-cover"></div>
+          <div class="logo-text min-w-0">
+            <div class="flex items-center gap-1.5">
+              <span class="font-bold text-lg tracking-tight text-zinc-900 dark:text-white">Uroo UI</span>
+              <span class="text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-black/5 dark:bg-white/10 text-zinc-700 dark:text-zinc-300">v1.2</span>
+            </div>
+            <p class="text-[10px] font-bold uppercase tracking-[0.16em] text-zinc-500 dark:text-zinc-400">Inventory</p>
+          </div>
+          <button onclick="closeDrawer()" class="ml-auto lg:hidden p-1.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 text-zinc-600 dark:text-zinc-400"><i data-lucide="x" class="w-4 h-4"></i></button>
+        </div>
+        <nav class="space-y-1 overflow-y-auto max-h-[calc(100vh-14rem)] pr-1" aria-label="Menu Inventory">
+          <a href="inventory.html" class="nav-link w-full flex items-center gap-3 px-3 py-2.5 rounded-2xl text-sm font-medium transition text-zinc-600 dark:text-zinc-400 hover:bg-black/5 dark:hover:bg-white/5 hover:text-black dark:hover:text-white">
+            <i data-lucide="layout-dashboard" class="w-4 h-4 shrink-0"></i>
+            <span class="nav-label text-left flex-1">Dashboard</span>
+          </a>
+          <a href="stok-barang.html" class="nav-link w-full flex items-center gap-3 px-3 py-2.5 rounded-2xl text-sm font-medium transition text-zinc-600 dark:text-zinc-400 hover:bg-black/5 dark:hover:bg-white/5 hover:text-black dark:hover:text-white">
+            <i data-lucide="boxes" class="w-4 h-4 shrink-0"></i>
+            <span class="nav-label text-left flex-1">Stok Barang</span>
+          </a>
+          <a href="penerimaan.html" class="nav-link w-full flex items-center gap-3 px-3 py-2.5 rounded-2xl text-sm font-medium transition text-zinc-600 dark:text-zinc-400 hover:bg-black/5 dark:hover:bg-white/5 hover:text-black dark:hover:text-white">
+            <i data-lucide="arrow-down-left" class="w-4 h-4 shrink-0"></i>
+            <span class="nav-label text-left flex-1">Barang Masuk (Inbound)</span>
+          </a>
+          <a href="pengiriman.html" class="nav-link w-full flex items-center gap-3 px-3 py-2.5 rounded-2xl text-sm font-medium transition text-zinc-600 dark:text-zinc-400 hover:bg-black/5 dark:hover:bg-white/5 hover:text-black dark:hover:text-white">
+            <i data-lucide="arrow-up-right" class="w-4 h-4 shrink-0"></i>
+            <span class="nav-label text-left flex-1">Barang Keluar (Outbound)</span>
+          </a>
+          <a href="kategori.html" class="nav-link w-full flex items-center gap-3 px-3 py-2.5 rounded-2xl text-sm font-medium transition text-zinc-600 dark:text-zinc-400 hover:bg-black/5 dark:hover:bg-white/5 hover:text-black dark:hover:text-white">
+            <i data-lucide="tag" class="w-4 h-4 shrink-0"></i>
+            <span class="nav-label text-left flex-1">Kategori Barang</span>
+          </a>
+          <a href="pemasok.html" class="nav-link w-full flex items-center gap-3 px-3 py-2.5 rounded-2xl text-sm font-medium transition text-zinc-600 dark:text-zinc-400 hover:bg-black/5 dark:hover:bg-white/5 hover:text-black dark:hover:text-white">
+            <i data-lucide="truck" class="w-4 h-4 shrink-0"></i>
+            <span class="nav-label text-left flex-1">Vendor &amp; Pemasok</span>
+          </a>
+          <a href="gudang.html" class="nav-link w-full flex items-center gap-3 px-3 py-2.5 rounded-2xl text-sm font-medium transition bg-black text-white dark:bg-white dark:text-black shadow-sm">
+            <i data-lucide="warehouse" class="w-4 h-4 shrink-0"></i>
+            <span class="nav-label text-left flex-1">Lokasi Gudang</span>
+          </a>
+          <a href="transfer-stok.html" class="nav-link w-full flex items-center gap-3 px-3 py-2.5 rounded-2xl text-sm font-medium transition text-zinc-600 dark:text-zinc-400 hover:bg-black/5 dark:hover:bg-white/5 hover:text-black dark:hover:text-white">
+            <i data-lucide="refresh-cw" class="w-4 h-4 shrink-0"></i>
+            <span class="nav-label text-left flex-1">Transfer Antar Gudang</span>
+          </a>
+          <a href="laporan.html" class="nav-link w-full flex items-center gap-3 px-3 py-2.5 rounded-2xl text-sm font-medium transition text-zinc-600 dark:text-zinc-400 hover:bg-black/5 dark:hover:bg-white/5 hover:text-black dark:hover:text-white">
+            <i data-lucide="file-text" class="w-4 h-4 shrink-0"></i>
+            <span class="nav-label text-left flex-1">Laporan Audit Stok</span>
+          </a>
+          <a href="pengaturan.html" class="nav-link w-full flex items-center gap-3 px-3 py-2.5 rounded-2xl text-sm font-medium transition text-zinc-600 dark:text-zinc-400 hover:bg-black/5 dark:hover:bg-white/5 hover:text-black dark:hover:text-white">
+            <i data-lucide="settings" class="w-4 h-4 shrink-0"></i>
+            <span class="nav-label text-left flex-1">Pengaturan</span>
+          </a>
+        </nav>
+      </div>
+      <div class="glass-panel p-4 rounded-2xl border border-black/10 dark:border-white/10 text-center relative overflow-hidden mt-4">
+        <div class="flex items-center gap-2.5 justify-center mb-1">
+          <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+          <p class="font-bold text-xs text-zinc-900 dark:text-white">Kapasitas Rak</p>
+        </div>
+        <p class="text-[11px] font-bold text-zinc-700 dark:text-zinc-300">Gudang Utama: 72% Terisi</p>
+      </div>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="flex-1 min-w-0 space-y-6">
+      <!-- TOPBAR -->
+      <header class="glass-panel rounded-3xl p-3 px-6 flex items-center justify-between sticky top-6 z-30">
+        <div class="flex items-center gap-3">
+          <button onclick="openDrawer()" class="lg:hidden p-2 -ml-2 rounded-xl hover:bg-black/5 dark:hover:bg-white/10 text-zinc-700 dark:text-zinc-300"><i data-lucide="menu" class="w-5 h-5"></i></button>
+          <div class="relative w-64 sm:w-80">
+            <i data-lucide="search" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400"></i>
+            <input type="text" placeholder="Cari lokasi gudang, rak, zona..." class="w-full bg-black/5 dark:bg-white/5 border-none rounded-2xl pl-9 pr-10 py-2 text-sm text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-black/20 dark:focus:ring-white/20">
+            <span class="hidden sm:inline-block absolute right-3 top-1/2 -translate-y-1/2 text-[10px] font-mono text-zinc-400 border border-zinc-300 dark:border-zinc-700 px-1.5 py-0.5 rounded-md">&#8984;K</span>
+          </div>
+        </div>
+        <div class="flex items-center gap-4">
+          <button class="p-2 rounded-2xl hover:bg-black/5 dark:hover:bg-white/5 relative text-zinc-700 dark:text-zinc-300">
+            <i data-lucide="bell" class="w-4 h-4"></i>
+            <span class="w-1.5 h-1.5 bg-black dark:bg-white rounded-full absolute top-2 right-2"></span>
+          </button>
+          <div class="h-6 w-[1px] bg-zinc-200 dark:bg-zinc-800"></div>
+          <div class="flex items-center gap-3 pl-1">
+            <div class="w-9 h-9 rounded-2xl bg-black dark:bg-white text-white dark:text-black font-extrabold text-xs flex items-center justify-center ring-2 ring-black/10 dark:ring-white/10">HB</div>
+            <div class="text-left hidden sm:block">
+              <p class="text-xs font-bold leading-tight text-zinc-900 dark:text-white">Hendra Basri</p>
+              <p class="text-[10px] text-zinc-500 dark:text-zinc-400">Warehouse Master</p>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <!-- VIEW: LOKASI GUDANG -->
+      <div class="space-y-6">
+        <!-- Header -->
+        <div class="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <h1 class="text-2xl font-bold tracking-tight text-zinc-900 dark:text-white">Master Lokasi &amp; Denah Gudang</h1>
+            <p class="text-xs text-zinc-500 dark:text-zinc-400">Pemetaan area penyimpanan, kapasitas rak, dan denah zona seluruh gudang aktif.</p>
+          </div>
+          <button class="px-4 py-2 rounded-2xl bg-black text-white dark:bg-white dark:text-black text-xs font-semibold flex items-center gap-2 hover:opacity-90 shadow-sm">
+            <i data-lucide="plus" class="w-3.5 h-3.5"></i> Tambah Gudang
+          </button>
+        </div>
+
+        <!-- KPI strip -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div class="glass-panel p-5 rounded-3xl space-y-3">
+            <div class="flex justify-between items-start">
+              <span class="text-xs font-medium text-zinc-500 dark:text-zinc-400">Total Gudang</span>
+              <div class="p-2 rounded-2xl bg-black/5 dark:bg-white/5 text-zinc-800 dark:text-zinc-200"><i data-lucide="warehouse" class="w-4 h-4"></i></div>
+            </div>
+            <p class="text-2xl font-bold tracking-tight text-zinc-900 dark:text-white">4 Lokasi</p>
+            <p class="text-[11px] text-zinc-500 dark:text-zinc-400">3 kota &middot; 1 gateway cargo</p>
+          </div>
+          <div class="glass-panel p-5 rounded-3xl space-y-3">
+            <div class="flex justify-between items-start">
+              <span class="text-xs font-medium text-zinc-500 dark:text-zinc-400">Total Kapasitas</span>
+              <div class="p-2 rounded-2xl bg-black/5 dark:bg-white/5 text-zinc-800 dark:text-zinc-200"><i data-lucide="ruler" class="w-4 h-4"></i></div>
+            </div>
+            <p class="text-2xl font-bold tracking-tight text-zinc-900 dark:text-white">18.000 m&sup2;</p>
+            <p class="text-[11px] text-zinc-500 dark:text-zinc-400">Area penyimpanan aktif</p>
+          </div>
+          <div class="glass-panel p-5 rounded-3xl space-y-3">
+            <div class="flex justify-between items-start">
+              <span class="text-xs font-medium text-zinc-500 dark:text-zinc-400">Kapasitas Terpakai</span>
+              <div class="p-2 rounded-2xl bg-amber-500/15 text-amber-600 dark:text-amber-400"><i data-lucide="chart-bar" class="w-4 h-4"></i></div>
+            </div>
+            <p class="text-2xl font-bold tracking-tight text-zinc-900 dark:text-white">12.440 m&sup2;</p>
+            <p class="text-[11px] text-zinc-500 dark:text-zinc-400"><span class="font-semibold text-amber-600 dark:text-amber-400">69%</span> &middot; sisa 5.560 m&sup2; masih kosong</p>
+          </div>
+        </div>
+
+        <!-- Grid: Warehouse Cards + Donut -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <!-- Left: 4 Warehouse Cards (2/3) -->
+          <div class="lg:col-span-2 space-y-4">
+            <!-- Gudang A -->
+            <div class="glass-panel p-5 rounded-3xl hover-row">
+              <div class="flex items-start gap-4">
+                <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-zinc-800 to-zinc-950 dark:from-zinc-200 dark:to-zinc-400 text-white dark:text-zinc-900 font-black text-lg grid place-items-center shrink-0 shadow-sm">A</div>
+                <div class="flex-1 min-w-0 space-y-2">
+                  <div class="flex items-start justify-between gap-3">
+                    <div>
+                      <h3 class="font-bold text-sm text-zinc-900 dark:text-white">Gudang A &middot; Jakarta Sentral</h3>
+                      <p class="text-[11px] font-mono text-zinc-500 dark:text-zinc-400">KSH-JKT</p>
+                    </div>
+                    <span class="text-xs font-bold px-2.5 py-1 rounded-full bg-amber-500/15 text-amber-700 dark:text-amber-400 whitespace-nowrap">72%</span>
+                  </div>
+                  <div class="h-2 w-full rounded-full bg-black/5 dark:bg-white/10 overflow-hidden">
+                    <div class="h-full rounded-full bg-zinc-800 dark:bg-zinc-200" style="width: 72%"></div>
+                  </div>
+                  <div class="flex items-center gap-4 text-[11px] text-zinc-500 dark:text-zinc-400">
+                    <span class="font-medium">6.000 / 8.400 m&sup2;</span>
+                    <span class="w-[1px] h-3 bg-zinc-300 dark:bg-zinc-700"></span>
+                    <span>842 SKU</span>
+                    <span class="w-[1px] h-3 bg-zinc-300 dark:bg-zinc-700"></span>
+                    <span>124 rak</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Gudang B -->
+            <div class="glass-panel p-5 rounded-3xl hover-row">
+              <div class="flex items-start gap-4">
+                <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-zinc-800 to-zinc-950 dark:from-zinc-200 dark:to-zinc-400 text-white dark:text-zinc-900 font-black text-lg grid place-items-center shrink-0 shadow-sm">B</div>
+                <div class="flex-1 min-w-0 space-y-2">
+                  <div class="flex items-start justify-between gap-3">
+                    <div>
+                      <h3 class="font-bold text-sm text-zinc-900 dark:text-white">Gudang B &middot; Surabaya Timur</h3>
+                      <p class="text-[11px] font-mono text-zinc-500 dark:text-zinc-400">KSH-SBY</p>
+                    </div>
+                    <span class="text-xs font-bold px-2.5 py-1 rounded-full bg-amber-500/15 text-amber-700 dark:text-amber-400 whitespace-nowrap">78%</span>
+                  </div>
+                  <div class="h-2 w-full rounded-full bg-black/5 dark:bg-white/10 overflow-hidden">
+                    <div class="h-full rounded-full bg-zinc-800 dark:bg-zinc-200" style="width: 78%"></div>
+                  </div>
+                  <div class="flex items-center gap-4 text-[11px] text-zinc-500 dark:text-zinc-400">
+                    <span class="font-medium">3.100 / 4.000 m&sup2;</span>
+                    <span class="w-[1px] h-3 bg-zinc-300 dark:bg-zinc-700"></span>
+                    <span>516 SKU</span>
+                    <span class="w-[1px] h-3 bg-zinc-300 dark:bg-zinc-700"></span>
+                    <span>61 rak</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Gudang C -->
+            <div class="glass-panel p-5 rounded-3xl hover-row">
+              <div class="flex items-start gap-4">
+                <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-zinc-800 to-zinc-950 dark:from-zinc-200 dark:to-zinc-400 text-white dark:text-zinc-900 font-black text-lg grid place-items-center shrink-0 shadow-sm">C</div>
+                <div class="flex-1 min-w-0 space-y-2">
+                  <div class="flex items-start justify-between gap-3">
+                    <div>
+                      <h3 class="font-bold text-sm text-zinc-900 dark:text-white">Gudang C &middot; Bandung Kopo</h3>
+                      <p class="text-[11px] font-mono text-zinc-500 dark:text-zinc-400">KSH-BDG</p>
+                    </div>
+                    <span class="text-xs font-bold px-2.5 py-1 rounded-full bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 whitespace-nowrap">59%</span>
+                  </div>
+                  <div class="h-2 w-full rounded-full bg-black/5 dark:bg-white/10 overflow-hidden">
+                    <div class="h-full rounded-full bg-zinc-800 dark:bg-zinc-200" style="width: 59%"></div>
+                  </div>
+                  <div class="flex items-center gap-4 text-[11px] text-zinc-500 dark:text-zinc-400">
+                    <span class="font-medium">1.900 / 3.200 m&sup2;</span>
+                    <span class="w-[1px] h-3 bg-zinc-300 dark:bg-zinc-700"></span>
+                    <span>289 SKU</span>
+                    <span class="w-[1px] h-3 bg-zinc-300 dark:bg-zinc-700"></span>
+                    <span>42 rak</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Gudang D -->
+            <div class="glass-panel p-5 rounded-3xl hover-row">
+              <div class="flex items-start gap-4">
+                <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-zinc-800 to-zinc-950 dark:from-zinc-200 dark:to-zinc-400 text-white dark:text-zinc-900 font-black text-lg grid place-items-center shrink-0 shadow-sm">D</div>
+                <div class="flex-1 min-w-0 space-y-2">
+                  <div class="flex items-start justify-between gap-3">
+                    <div>
+                      <h3 class="font-bold text-sm text-zinc-900 dark:text-white">Gudang D &middot; Gateway Medan</h3>
+                      <p class="text-[11px] font-mono text-zinc-500 dark:text-zinc-400">KSH-MDN</p>
+                    </div>
+                    <span class="text-xs font-bold px-2.5 py-1 rounded-full bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 whitespace-nowrap">60%</span>
+                  </div>
+                  <div class="h-2 w-full rounded-full bg-black/5 dark:bg-white/10 overflow-hidden">
+                    <div class="h-full rounded-full bg-zinc-800 dark:bg-zinc-200" style="width: 60%"></div>
+                  </div>
+                  <div class="flex items-center gap-4 text-[11px] text-zinc-500 dark:text-zinc-400">
+                    <span class="font-medium">1.440 / 2.400 m&sup2;</span>
+                    <span class="w-[1px] h-3 bg-zinc-300 dark:bg-zinc-700"></span>
+                    <span>195 SKU</span>
+                    <span class="w-[1px] h-3 bg-zinc-300 dark:bg-zinc-700"></span>
+                    <span>28 rak</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right: Capacity Donut (1/3) -->
+          <div class="space-y-4">
+            <div class="glass-panel p-6 rounded-3xl">
+              <div class="flex items-center justify-between mb-4">
+                <div>
+                  <h3 class="font-bold text-sm text-zinc-900 dark:text-white">Kapasitas Gudang</h3>
+                  <p class="text-[11px] text-zinc-500 dark:text-zinc-400">Persentase terisi per lokasi</p>
+                </div>
+              </div>
+              <!-- SVG Donut Chart -->
+              <div class="flex justify-center">
+                <svg width="200" height="200" viewBox="0 0 200 200">
+                  <!-- Background circle -->
+                  <circle cx="100" cy="100" r="80" fill="none" stroke="currentColor" stroke-width="20" class="text-zinc-100 dark:text-zinc-800" />
+                  <!-- Gudang D - 60% -->
+                  <circle cx="100" cy="100" r="80" fill="none" stroke="currentColor" stroke-width="20" stroke-dasharray="502.65" stroke-dashoffset="201.06" stroke-linecap="round" class="text-zinc-600 dark:text-zinc-400" transform="rotate(-90 100 100)" />
+                  <!-- Gudang C - 59% -->
+                  <circle cx="100" cy="100" r="80" fill="none" stroke="currentColor" stroke-width="20" stroke-dasharray="502.65" stroke-dashoffset="206.09" stroke-linecap="round" class="text-zinc-400 dark:text-zinc-500" transform="rotate(-90 100 100)" />
+                  <!-- Gudang B - 78% -->
+                  <circle cx="100" cy="100" r="80" fill="none" stroke="currentColor" stroke-width="20" stroke-dasharray="502.65" stroke-dashoffset="110.58" stroke-linecap="round" class="text-zinc-500 dark:text-zinc-300" transform="rotate(-90 100 100)" />
+                  <!-- Gudang A - 72% -->
+                  <circle cx="100" cy="100" r="80" fill="none" stroke="currentColor" stroke-width="20" stroke-dasharray="502.65" stroke-dashoffset="140.74" stroke-linecap="round" class="text-zinc-800 dark:text-zinc-100" transform="rotate(-90 100 100)" />
+                  <!-- Center text -->
+                  <text x="100" y="94" text-anchor="middle" class="fill-zinc-900 dark:fill-white text-3xl font-bold" style="font-size: 28px; font-weight: 700;">69%</text>
+                  <text x="100" y="116" text-anchor="middle" class="fill-zinc-500 dark:fill-zinc-400" style="font-size: 11px; font-weight: 500;">Terisi</text>
+                </svg>
+              </div>
+
+              <!-- Legend -->
+              <div class="mt-5 space-y-3">
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center gap-2.5">
+                    <span class="w-3 h-3 rounded-sm bg-zinc-800 dark:bg-zinc-100"></span>
+                    <span class="text-xs font-medium text-zinc-700 dark:text-zinc-300">Gudang A</span>
+                  </div>
+                  <span class="text-xs font-bold text-zinc-900 dark:text-white">72%</span>
+                </div>
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center gap-2.5">
+                    <span class="w-3 h-3 rounded-sm bg-zinc-500 dark:bg-zinc-300"></span>
+                    <span class="text-xs font-medium text-zinc-700 dark:text-zinc-300">Gudang B</span>
+                  </div>
+                  <span class="text-xs font-bold text-zinc-900 dark:text-white">78%</span>
+                </div>
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center gap-2.5">
+                    <span class="w-3 h-3 rounded-sm bg-zinc-400 dark:bg-zinc-500"></span>
+                    <span class="text-xs font-medium text-zinc-700 dark:text-zinc-300">Gudang C</span>
+                  </div>
+                  <span class="text-xs font-bold text-zinc-900 dark:text-white">59%</span>
+                </div>
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center gap-2.5">
+                    <span class="w-3 h-3 rounded-sm bg-zinc-600 dark:bg-zinc-400"></span>
+                    <span class="text-xs font-medium text-zinc-700 dark:text-zinc-300">Gudang D</span>
+                  </div>
+                  <span class="text-xs font-bold text-zinc-900 dark:text-white">60%</span>
+                </div>
+              </div>
+
+              <!-- Warning -->
+              <div class="mt-5 p-4 rounded-2xl bg-amber-500/10 dark:bg-amber-500/10 border border-amber-500/20">
+                <div class="flex items-start gap-2.5">
+                  <i data-lucide="alert-triangle" class="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5"></i>
+                  <div class="space-y-1.5">
+                    <p class="text-xs font-bold text-amber-700 dark:text-amber-300">Hampir penuh</p>
+                    <p class="text-[11px] text-amber-600/80 dark:text-amber-400/70 leading-relaxed">Gudang B zona palletise 88%, Gudang A rak 01-05 81%</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    (function initTheme() {
+      const saved = localStorage.getItem('uroo-theme');
+      if (saved === 'dark' || (!saved && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+        document.documentElement.classList.add('dark');
+        document.documentElement.classList.remove('light');
+      } else {
+        document.documentElement.classList.remove('dark');
+        document.documentElement.classList.add('light');
+      }
+    })();
+    function toggleTheme() {
+      const isDark = document.documentElement.classList.toggle('dark');
+      if (!isDark) { document.documentElement.classList.add('light'); } else { document.documentElement.classList.remove('light'); }
+      try { localStorage.setItem('uroo-theme', isDark ? 'dark' : 'light'); } catch (e) {}
+      lucide.createIcons();
+    }
+    const sidebar = document.getElementById('sidebar');
+    function openDrawer() { sidebar.classList.add('open'); document.getElementById('overlay').classList.remove('opacity-0', 'pointer-events-none'); }
+    function closeDrawer() { sidebar.classList.remove('open'); document.getElementById('overlay').classList.add('opacity-0', 'pointer-events-none'); }
+    document.addEventListener('DOMContentLoaded', () => { lucide.createIcons(); });
+  </script>
+  <script src="../../assets/js/uroo-nav.js"></script>
+</body>
+</html>

@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="id" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Uroo UI - Maintenance</title>
+  <script src="../../assets/js/tailwind.js"></script>
+  <script src="../../assets/js/lucide.js"></script>
+  <script>tailwind.config={darkMode:'class',theme:{extend:{colors:{glass:{light:'rgba(255,255,255,0.65)','light-border':'rgba(255,255,255,0.8)',dark:'rgba(18,18,20,0.65)','dark-border':'rgba(255,255,255,0.1)'}}}}}</script>
+  <link rel="stylesheet" href="../../assets/css/uroo.css">
+  <style>
+    .u-bg{position:fixed;inset:0;z-index:-10;transition:opacity .35s ease}
+    .u-bg-light{background:linear-gradient(135deg,#dfe3ea,#f4f4f5)}
+    .u-bg-dark{background:linear-gradient(135deg,#0a0a0b,#1a1a1e);opacity:0}
+    body.dark .u-bg-light{opacity:0}
+    body.dark .u-bg-dark{opacity:1}
+    .u-glow{position:fixed;border-radius:9999px;filter:blur(90px);z-index:-9;pointer-events:none;background:rgba(0,0,0,0.06);transition:background-color .35s ease}
+    body.dark .u-glow{background:rgba(255,255,255,0.05)}
+    .u-glow-1{width:420px;height:420px;top:-140px;left:-140px}
+    .u-glow-2{width:520px;height:520px;bottom:-200px;right:-140px}
+    .u-glow-3{width:300px;height:300px;top:42%;left:58%}
+  </style>
+</head>
+<body class="min-h-screen font-sans antialiased text-zinc-800 dark:text-zinc-100">
+  <script>(function initTheme(){var saved=null;try{saved=localStorage.getItem('uroo-theme')}catch(e){};var dark=(saved==='dark')||(!saved&&window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches);var de=document.documentElement;if(dark){de.classList.add('dark');de.classList.remove('light');if(document.body){document.body.classList.add('dark');document.body.classList.remove('light');}}else{de.classList.remove('dark');de.classList.add('light');if(document.body){document.body.classList.remove('dark');document.body.classList.add('light');}}})();</script>
+
+  <div class="u-bg u-bg-light"></div>
+  <div class="u-bg u-bg-dark"></div>
+  <div class="u-glow u-glow-1"></div>
+  <div class="u-glow u-glow-2"></div>
+  <div class="u-glow u-glow-3"></div>
+
+  <button onclick="toggleTheme()" class="glass-panel fixed right-4 top-4 z-50 inline-flex items-center justify-center rounded-full p-2.5" aria-label="Ganti tema">
+    <i data-lucide="sun" class="h-5 w-5 text-zinc-700 dark:hidden"></i>
+    <i data-lucide="moon" class="hidden h-5 w-5 text-zinc-200 dark:block"></i>
+  </button>
+
+  <main class="relative mx-auto flex min-h-screen max-w-4xl flex-col items-center justify-center px-6 py-16 text-center">
+    <div class="mb-6 flex items-center gap-2">
+      <div class="flex h-9 w-9 items-center justify-center rounded-xl bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900">
+        <i data-lucide="sparkles" class="h-5 w-5"></i>
+      </div>
+      <span class="text-lg font-bold tracking-tight">Uroo</span>
+    </div>
+
+    <div class="glass-panel anim-slide-up w-full rounded-3xl p-8 md:p-12">
+      <div class="relative mx-auto mb-8 flex h-24 w-24 items-center justify-center">
+        <div class="absolute inset-0 rounded-3xl bg-zinc-400/20 blur-xl dark:bg-zinc-300/10"></div>
+        <div class="relative flex h-20 w-20 items-center justify-center rounded-3xl border border-zinc-200/80 bg-white/70 dark:border-white/10 dark:bg-zinc-800/70">
+          <i data-lucide="wrench" class="h-9 w-9 text-zinc-600 dark:text-zinc-200"></i>
+        </div>
+      </div>
+
+      <p class="inline-flex items-center gap-2 rounded-full border border-amber-500/30 bg-amber-500/10 px-3 py-1 text-xs font-medium text-amber-600 dark:text-amber-400">
+        <i data-lucide="construction" class="h-3.5 w-3.5"></i>Sedang dalam pemeliharaan
+      </p>
+      <h1 class="mt-5 text-3xl font-black tracking-tight text-zinc-900 dark:text-zinc-50 md:text-4xl">
+        Kami sedang menyempurnakan layanan
+      </h1>
+      <p class="mx-auto mt-3 max-w-md text-sm leading-relaxed text-zinc-500 dark:text-zinc-400">
+        Kami sedang melakukan peningkatan untuk memberi pengalaman yang lebih baik.
+        Situs akan kembali dalam hitungan menit. Terima kasih atas kesabaran Anda.
+      </p>
+
+      <div class="mx-auto mt-8 max-w-md">
+        <p class="mb-3 text-xs font-semibold uppercase tracking-[0.2em] text-zinc-500 dark:text-zinc-500">Perkiraan kembali online</p>
+        <div class="glass-panel flex items-center justify-center gap-4 rounded-2xl px-6 py-5">
+          <div class="flex flex-col items-center">
+            <span id="countDays" class="count-num text-3xl font-black tabular-nums text-zinc-900 dark:text-zinc-50">00</span>
+            <span class="mt-1 text-[11px] uppercase tracking-widest text-zinc-500 dark:text-zinc-500">Hari</span>
+          </div>
+          <span class="text-2xl font-light text-zinc-400 dark:text-zinc-600">:</span>
+          <div class="flex flex-col items-center">
+            <span id="countHours" class="count-num text-3xl font-black tabular-nums text-zinc-900 dark:text-zinc-50">00</span>
+            <span class="mt-1 text-[11px] uppercase tracking-widest text-zinc-500 dark:text-zinc-500">Jam</span>
+          </div>
+          <span class="text-2xl font-light text-zinc-400 dark:text-zinc-600">:</span>
+          <div class="flex flex-col items-center">
+            <span id="countMins" class="count-num text-3xl font-black tabular-nums text-zinc-900 dark:text-zinc-50">00</span>
+            <span class="mt-1 text-[11px] uppercase tracking-widest text-zinc-500 dark:text-zinc-500">Menit</span>
+          </div>
+          <span class="text-2xl font-light text-zinc-400 dark:text-zinc-600">:</span>
+          <div class="flex flex-col items-center">
+            <span id="countSecs" class="count-num text-3xl font-black tabular-nums text-zinc-900 dark:text-zinc-50">00</span>
+            <span class="mt-1 text-[11px] uppercase tracking-widest text-zinc-500 dark:text-zinc-500">Detik</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="mx-auto mt-8 max-w-sm">
+        <p class="mb-2 text-xs font-semibold uppercase tracking-[0.2em] text-zinc-500 dark:text-zinc-500">Beri tahu saat kembali online</p>
+        <form onsubmit="signupNotify(event)" class="glass-panel flex items-center gap-1 rounded-xl p-1.5">
+          <i data-lucide="mail" class="ml-2 h-4 w-4 shrink-0 text-zinc-400 dark:text-zinc-500"></i>
+          <input id="notifyEmail" type="email" required placeholder="email@anda.com"
+            class="w-full bg-transparent px-2 text-sm outline-none placeholder:text-zinc-400 dark:placeholder:text-zinc-500">
+          <button type="submit" class="inline-flex shrink-0 items-center gap-1.5 rounded-lg bg-zinc-900 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-zinc-700 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-white">
+            <i data-lucide="bell" class="h-4 w-4"></i>Notifikasi
+          </button>
+        </form>
+      </div>
+
+      <div class="mt-8 flex items-center justify-center gap-3">
+        <a href="#" onclick="socialLink('Twitter')" aria-label="Twitter" class="glass-panel inline-flex h-10 w-10 items-center justify-center rounded-xl text-zinc-500 transition-colors hover:bg-white/70 hover:text-zinc-800 dark:text-zinc-400 dark:hover:bg-white/5 dark:hover:text-zinc-100">
+          <i data-lucide="twitter" class="h-4 w-4"></i>
+        </a>
+        <a href="#" onclick="socialLink('Instagram')" aria-label="Instagram" class="glass-panel inline-flex h-10 w-10 items-center justify-center rounded-xl text-zinc-500 transition-colors hover:bg-white/70 hover:text-zinc-800 dark:text-zinc-400 dark:hover:bg-white/5 dark:hover:text-zinc-100">
+          <i data-lucide="instagram" class="h-4 w-4"></i>
+        </a>
+        <a href="#" onclick="socialLink('LinkedIn')" aria-label="LinkedIn" class="glass-panel inline-flex h-10 w-10 items-center justify-center rounded-xl text-zinc-500 transition-colors hover:bg-white/70 hover:text-zinc-800 dark:text-zinc-400 dark:hover:bg-white/5 dark:hover:text-zinc-100">
+          <i data-lucide="linkedin" class="h-4 w-4"></i>
+        </a>
+        <a href="#" onclick="socialLink('Dribbble')" aria-label="Dribbble" class="glass-panel inline-flex h-10 w-10 items-center justify-center rounded-xl text-zinc-500 transition-colors hover:bg-white/70 hover:text-zinc-800 dark:text-zinc-400 dark:hover:bg-white/5 dark:hover:text-zinc-100">
+          <i data-lucide="dribbble" class="h-4 w-4"></i>
+        </a>
+      </div>
+    </div>
+
+    <footer class="relative mt-8 flex flex-col items-center gap-2 text-xs text-zinc-500 dark:text-zinc-500 sm:flex-row sm:gap-6">
+      <span>&copy; 2026 Uroo Dev</span>
+      <span class="hidden h-3 w-px bg-zinc-400/40 sm:block dark:bg-white/10"></span>
+      <span>Pusat data: Jakarta, Indonesia</span>
+      <span class="hidden h-3 w-px bg-zinc-400/40 sm:block dark:bg-white/10"></span>
+      <span id="maintenanceId"></span>
+    </footer>
+  </main>
+
+  <script>
+    lucide.createIcons();
+    function toggleTheme(){const h=document.documentElement,b=document.body;h.classList.toggle('dark');b.classList.toggle('dark');try{localStorage.setItem('uroo-theme',h.classList.contains('dark')?'dark':'light')}catch(e){};lucide.createIcons();}
+    document.getElementById('maintenanceId').textContent = 'Maintenance #MN-2049';
+
+    const target = new Date().getTime() + (2 * 60 + 35) * 60 * 1000 + 42 * 1000;
+    function pad(n){return String(n).padStart(2,'0');}
+    function updateCountdown(){
+      let diff = target - Date.now();
+      if(diff < 0) diff = 0;
+      const days = Math.floor(diff/(24*3600*1000));
+      const hours = Math.floor(diff/(3600*1000)) - days*24;
+      const mins = Math.floor(diff/(60*1000)) - days*1440 - hours*60;
+      const secs = Math.floor(diff/1000) - days*86400 - hours*3600 - mins*60;
+      document.getElementById('countDays').textContent = pad(days);
+      document.getElementById('countHours').textContent = pad(hours);
+      document.getElementById('countMins').textContent = pad(mins);
+      document.getElementById('countSecs').textContent = pad(secs);
+    }
+    updateCountdown();
+    setInterval(updateCountdown, 1000);
+
+    function signupNotify(e){
+      e.preventDefault();
+      const email=document.getElementById('notifyEmail').value.trim();
+      document.getElementById('notifyEmail').value='';
+      showToast('Terima kasih! Kami akan memberi tahu ' + email + ' saat layanan kembali.');
+    }
+    function socialLink(network){
+      showToast('Membuka ' + network + ' resmi Uroo Dev...');
+    }
+    function showToast(msg){
+      const t=document.createElement('div');
+      t.className='glass-panel anim-toast-in fixed bottom-6 left-1/2 z-[80] -translate-x-1/2 rounded-xl px-4 py-3 text-sm font-medium text-zinc-800 dark:text-zinc-100';
+      t.textContent=msg;
+      document.body.appendChild(t);
+      setTimeout(()=>{t.style.transition='all .3s';t.style.opacity='0';t.style.transform='translate(-50%,8px)';setTimeout(()=>t.remove(),320);},2400);
+    }
+  </script>
+<script src="../../assets/js/uroo-nav.js"></script>
+</body>
+</html>

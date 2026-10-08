@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="id" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Uroo UI - Breadcrumb</title>
+  <script src="../../assets/js/tailwind.js"></script>
+  <script src="../../assets/js/lucide.js"></script>
+  <script>tailwind.config={darkMode:'class',theme:{extend:{colors:{glass:{light:'rgba(255,255,255,0.65)','light-border':'rgba(255,255,255,0.8)',dark:'rgba(18,18,20,0.65)','dark-border':'rgba(255,255,255,0.1)'}}}}}</script>
+  <link rel="stylesheet" href="../../assets/css/uroo.css">
+  <style>
+    body{background:linear-gradient(135deg,#dfe3ea,#f4f4f5)}
+    .u-bg{position:fixed;inset:0;pointer-events:none;transition:opacity .4s ease}
+    .u-bg-light{background:linear-gradient(135deg,#dfe3ea,#f4f4f5)}
+    .u-bg-dark{background:linear-gradient(135deg,#0a0a0b,#1a1a1e);opacity:0}
+    body.dark .u-bg-light{opacity:0}
+    body.dark .u-bg-dark{opacity:1}
+    .u-glow{position:fixed;border-radius:9999px;filter:blur(90px);pointer-events:none}
+    .u-glow-1{width:420px;height:420px;top:-140px;left:-140px;background:rgba(0,0,0,0.06)}
+    body.dark .u-glow-1{background:rgba(255,255,255,0.05)}
+    .u-glow-2{width:520px;height:520px;bottom:-200px;right:-140px;background:rgba(0,0,0,0.05)}
+    body.dark .u-glow-2{background:rgba(255,255,255,0.05)}
+    .u-glow-3{width:300px;height:300px;top:42%;left:58%;background:rgba(0,0,0,0.04)}
+    body.dark .u-glow-3{background:rgba(255,255,255,0.04)}
+
+    .u-crumb{display:flex;align-items:center;flex-wrap:wrap;gap:.4rem;font-size:.85rem}
+    .u-crumb a,.u-crumb button{display:inline-flex;align-items:center;gap:.35rem;color:#52525b;font-weight:500;transition:color .15s ease;background:none;border:0;padding:0;cursor:pointer}
+    body.dark .u-crumb a,body.dark .u-crumb button{color:#a1a1aa}
+    .u-crumb a:hover,.u-crumb button:hover{color:#18181b}
+    body.dark .u-crumb a:hover,body.dark .u-crumb button:hover{color:#fafafa}
+    .u-crumb .u-sep{display:inline-flex;color:#a1a1aa;flex:none}
+    body.dark .u-crumb .u-sep{color:#52525b}
+    .u-crumb .u-current{display:inline-flex;align-items:center;gap:.35rem;padding:.3rem .7rem;border-radius:.55rem;font-weight:700;color:#18181b;background:rgba(0,0,0,.06)}
+    body.dark .u-crumb .u-current{color:#fafafa;background:rgba(255,255,255,.1)}
+    .u-crumb .u-slash-sep{color:#a1a1aa;font-weight:600}
+    body.dark .u-crumb .u-slash-sep{color:#52525b}
+
+    .u-route-pill{display:inline-flex;align-items:center;gap:.4rem;padding:.55rem 1rem;border-radius:.8rem;font-size:.8rem;font-weight:600;cursor:pointer;color:#52525b;background:rgba(255,255,255,.5);border:1px solid rgba(0,0,0,.08);transition:background-color .2s ease,border-color .2s ease,color .2s ease,transform .15s ease}
+    body.dark .u-route-pill{color:#d4d4d8;background:rgba(255,255,255,.05);border-color:rgba(255,255,255,.1)}
+    .u-route-pill:hover{transform:translateY(-1px);border-color:rgba(0,0,0,.2)}
+    body.dark .u-route-pill:hover{border-color:rgba(255,255,255,.25)}
+    .u-route-pill.on{background:#18181b;color:#fff}
+    body.dark .u-route-pill.on{background:#fafafa;color:#18181b}
+  </style>
+</head>
+<body class="dark min-h-screen p-6 font-sans antialiased text-zinc-800 dark:text-zinc-100" style="background:linear-gradient(135deg,#dfe3ea,#f4f4f5)">
+  <script>(function initTheme(){var saved=null;try{saved=localStorage.getItem('uroo-theme')}catch(e){};var dark=(saved==='dark')||(!saved&&window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches);var de=document.documentElement;if(dark){de.classList.add('dark');de.classList.remove('light');if(document.body){document.body.classList.add('dark');document.body.classList.remove('light');}}else{de.classList.remove('dark');de.classList.add('light');if(document.body){document.body.classList.remove('dark');document.body.classList.add('light');}}})();</script>
+  <div class="u-bg u-bg-light" aria-hidden="true"></div>
+  <div class="u-bg u-bg-dark" aria-hidden="true"></div>
+  <div class="u-glow u-glow-1" aria-hidden="true"></div>
+  <div class="u-glow u-glow-2" aria-hidden="true"></div>
+  <div class="u-glow u-glow-3" aria-hidden="true"></div>
+
+  <main class="relative z-10 mx-auto max-w-4xl">
+
+    <header class="mb-10">
+      <div class="flex items-center gap-4">
+        <div class="glass-panel rounded-2xl p-3 shadow-2xl">
+          <i data-lucide="route" class="w-6 h-6"></i>
+        </div>
+        <div>
+          <p class="text-[11px] font-bold uppercase tracking-[0.2em] text-zinc-400 dark:text-zinc-500">Uroo UI - Komponen Dasar</p>
+          <h1 class="text-2xl md:text-4xl font-bold tracking-tight">Breadcrumb</h1>
+        </div>
+      </div>
+      <p class="mt-4 max-w-2xl text-sm leading-relaxed text-zinc-500 dark:text-zinc-400">
+        Jejak navigasi halaman. Mendukung separator chevron, garis miring, ikon penanda,
+        serta item terakhir yang disorot. Panel demo terakhir bersifat interaktif penuh.
+      </p>
+    </header>
+
+    <div class="grid gap-8">
+
+      <section data-copy class="glass-panel rounded-2xl shadow-2xl p-6 md:p-8 anim-fade-in">
+        <header class="mb-6 flex flex-wrap items-end justify-between gap-3">
+          <div>
+            <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-zinc-400 dark:text-zinc-500">Demo 01 - Chevron</p>
+            <h2 class="mt-1 text-lg font-bold tracking-tight">Separator Chevron</h2>
+          </div>
+          <p class="text-xs text-zinc-500 dark:text-zinc-400">Gaya paling umum di produk produk Uroo</p>
+        </header>
+
+        <nav aria-label="Breadcrumb">
+          <ol class="u-crumb">
+            <li><a href="#" onclick="return false">Beranda</a></li>
+            <li aria-hidden="true"><span class="u-sep"><i data-lucide="chevron-right" class="w-3.5 h-3.5"></i></span></li>
+            <li><a href="#" onclick="return false">Komponen</a></li>
+            <li aria-hidden="true"><span class="u-sep"><i data-lucide="chevron-right" class="w-3.5 h-3.5"></i></span></li>
+            <li><a href="#" onclick="return false">Primitif</a></li>
+            <li aria-hidden="true"><span class="u-sep"><i data-lucide="chevron-right" class="w-3.5 h-3.5"></i></span></li>
+            <li aria-current="page"><span class="u-current">Breadcrumb</span></li>
+          </ol>
+        </nav>
+      </section>
+
+      <section data-copy class="glass-panel rounded-2xl shadow-2xl p-6 md:p-8 anim-fade-in">
+        <header class="mb-6 flex flex-wrap items-end justify-between gap-3">
+          <div>
+            <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-zinc-400 dark:text-zinc-500">Demo 02 - Garis Miring</p>
+            <h2 class="mt-1 text-lg font-bold tracking-tight">Separator Slash</h2>
+          </div>
+          <p class="text-xs text-zinc-500 dark:text-zinc-400">Ringkas, cocok untuk antarmuka padat</p>
+        </header>
+
+        <nav aria-label="Breadcrumb">
+          <ol class="u-crumb">
+            <li><a href="#" onclick="return false">Beranda</a></li>
+            <li aria-hidden="true"><span class="u-slash-sep">/</span></li>
+            <li><a href="#" onclick="return false">Produk</a></li>
+            <li aria-hidden="true"><span class="u-slash-sep">/</span></li>
+            <li><a href="#" onclick="return false">Rilis 2026</a></li>
+            <li aria-hidden="true"><span class="u-slash-sep">/</span></li>
+            <li aria-current="page"><span class="u-current">Catatan v3.2</span></li>
+          </ol>
+        </nav>
+      </section>
+
+      <section data-copy class="glass-panel rounded-2xl shadow-2xl p-6 md:p-8 anim-fade-in">
+        <header class="mb-6 flex flex-wrap items-end justify-between gap-3">
+          <div>
+            <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-zinc-400 dark:text-zinc-500">Demo 03 - Ikon</p>
+            <h2 class="mt-1 text-lg font-bold tracking-tight">Dengan Ikon Penanda</h2>
+          </div>
+          <p class="text-xs text-zinc-500 dark:text-zinc-400">Setiap level diberi ikon konteksnya</p>
+        </header>
+
+        <nav aria-label="Breadcrumb">
+          <ol class="u-crumb">
+            <li><a href="#" onclick="return false"><i data-lucide="home" class="w-3.5 h-3.5"></i> Beranda</a></li>
+            <li aria-hidden="true"><span class="u-sep"><i data-lucide="chevron-right" class="w-3.5 h-3.5"></i></span></li>
+            <li><button type="button"><i data-lucide="folder" class="w-3.5 h-3.5"></i> Ruang kerja</button></li>
+            <li aria-hidden="true"><span class="u-sep"><i data-lucide="chevron-right" class="w-3.5 h-3.5"></i></span></li>
+            <li><button type="button"><i data-lucide="file-text" class="w-3.5 h-3.5"></i> Dokumen</button></li>
+            <li aria-hidden="true"><span class="u-sep"><i data-lucide="chevron-right" class="w-3.5 h-3.5"></i></span></li>
+            <li aria-current="page"><span class="u-current"><i data-lucide="settings" class="w-3.5 h-3.5"></i> Pengaturan halaman</span></li>
+          </ol>
+        </nav>
+      </section>
+
+      <section data-copy class="glass-panel rounded-2xl shadow-2xl p-6 md:p-8 anim-fade-in">
+        <header class="mb-6 flex flex-wrap items-end justify-between gap-3">
+          <div>
+            <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-zinc-400 dark:text-zinc-500">Demo 04 - Lapisan</p>
+            <h2 class="mt-1 text-lg font-bold tracking-tight">Situs Bergerak</h2>
+          </div>
+          <p class="text-xs text-zinc-500 dark:text-zinc-400">Satu level di dalam panel kaca</p>
+        </header>
+
+        <nav aria-label="Breadcrumb" class="inline-block rounded-xl bg-black/5 dark:bg-white/5 px-4 py-2.5">
+          <ol class="u-crumb">
+            <li><button type="button"><i data-lucide="layout-dashboard" class="w-3.5 h-3.5"></i> Dasbor</button></li>
+            <li aria-hidden="true"><span class="u-sep"><i data-lucide="chevron-right" class="w-3.5 h-3.5"></i></span></li>
+            <li><button type="button"><i data-lucide="database" class="w-3.5 h-3.5"></i> Penyimpanan</button></li>
+            <li aria-hidden="true"><span class="u-sep"><i data-lucide="chevron-right" class="w-3.5 h-3.5"></i></span></li>
+            <li aria-current="page"><span class="u-current">Rencana penggunaan</span></li>
+          </ol>
+        </nav>
+      </section>
+
+      <section data-copy class="glass-panel rounded-2xl shadow-2xl p-6 md:p-8 anim-fade-in">
+        <header class="mb-6 flex flex-wrap items-end justify-between gap-3">
+          <div>
+            <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-zinc-400 dark:text-zinc-500">Demo 05 - Arah</p>
+            <h2 class="mt-1 text-lg font-bold tracking-tight">Navigasi Data Dinamis</h2>
+          </div>
+          <p class="text-xs text-zinc-500 dark:text-zinc-400">Pilih rute, lalu gelombang pada item jejaknya untuk mundur</p>
+        </header>
+
+        <div class="flex flex-wrap gap-2.5 mb-5" id="route-switcher">
+          <button type="button" class="u-route-pill on" data-route="dashboard"><i data-lucide="layout-dashboard" class="w-3.5 h-3.5"></i> Dasbor</button>
+          <button type="button" class="u-route-pill" data-route="produk"><i data-lucide="package" class="w-3.5 h-3.5"></i> Produk</button>
+          <button type="button" class="u-route-pill" data-route="produk-baru"><i data-lucide="plus" class="w-3.5 h-3.5"></i> Produk baru</button>
+          <button type="button" class="u-route-pill" data-route="pengaturan-tim"><i data-lucide="settings" class="w-3.5 h-3.5"></i> Pengaturan tim</button>
+          <button type="button" class="u-route-pill" data-route="laporan-keuangan"><i data-lucide="wallet" class="w-3.5 h-3.5"></i> Laporan</button>
+        </div>
+
+        <div class="rounded-2xl bg-black/5 dark:bg-white/5 p-5">
+          <nav aria-label="Breadcrumb">
+            <ol class="u-crumb" id="dynamic-crumb"></ol>
+          </nav>
+          <p class="mt-4 text-xs text-zinc-500 dark:text-zinc-400" id="crumb-status">
+            Anda saat ini berada di: <span class="font-semibold text-zinc-700 dark:text-zinc-200" data-current></span>
+          </p>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <button onclick="toggleTheme()" class="fixed top-4 right-4 z-50 p-2 rounded-full glass-panel shadow-2xl" title="Toggle theme">
+    <i data-lucide="sun" class="w-4 h-4 hidden dark:block"></i>
+    <i data-lucide="moon" class="w-4 h-4 block dark:hidden"></i>
+  </button>
+
+  <script>
+  lucide.createIcons();
+  function toggleTheme(){const b=document.body;const h=document.documentElement;b.classList.toggle('dark');h.classList.toggle('dark');const saved=b.classList.contains('dark')?'dark':'light';try{localStorage.setItem('uroo-theme',saved)}catch(e){};lucide.createIcons();}
+
+  var routes = {
+    dashboard:        { icon: 'layout-dashboard', trail: ['Beranda', 'Dasbor'] },
+    produk:           { icon: 'package',          trail: ['Beranda', 'Produk'] },
+    'produk-baru':    { icon: 'plus',             trail: ['Beranda', 'Produk', 'Tambah produk'] },
+    'pengaturan-tim': { icon: 'users',            trail: ['Beranda', 'Pengaturan', 'Keanggotaan'] },
+    'laporan-keuangan':{ icon: 'chart-line',      trail: ['Beranda', 'Analitik', 'Laporan keuangan'] }
+  };
+
+  var crumb = document.getElementById('dynamic-crumb');
+  var statusTarget = document.querySelector('[data-current]');
+  var currentRoute = 'dashboard';
+
+  function iconEl(name, cls){
+    var i = document.createElement('i');
+    i.setAttribute('data-lucide', name);
+    i.className = cls || 'w-3.5 h-3.5';
+    return i;
+  }
+
+  function buildCrumb(depth){
+    crumb.innerHTML = '';
+    var spec = routes[currentRoute];
+    var trail = spec.trail.slice(0, depth);
+    trail.forEach(function(label, idx){
+      var isLast = (idx === trail.length - 1);
+      var li = document.createElement('li');
+
+      if(isLast){
+        var cur = document.createElement('span');
+        cur.className = 'u-current anim-scale-in';
+        cur.appendChild(iconEl(spec.icon));
+        cur.appendChild(document.createTextNode(label));
+        li.appendChild(cur);
+      } else {
+        var b = document.createElement('button');
+        b.type = 'button';
+        if(idx === 0) b.appendChild(iconEl('home'));
+        b.appendChild(document.createTextNode(label));
+        b.addEventListener('click', function(){ buildCrumb(idx + 1); });
+        li.appendChild(b);
+      }
+      crumb.appendChild(li);
+
+      if(!isLast){
+        var sepLi = document.createElement('li');
+        sepLi.setAttribute('aria-hidden', 'true');
+        var sep = document.createElement('span');
+        sep.className = 'u-sep';
+        sep.appendChild(iconEl('chevron-right'));
+        sepLi.appendChild(sep);
+        crumb.appendChild(sepLi);
+      }
+    });
+    statusTarget.textContent = trail[trail.length - 1] + (depth < spec.trail.length ? ' (level ' + depth + ')' : '');
+    lucide.createIcons();
+  }
+
+  document.querySelectorAll('#route-switcher .u-route-pill').forEach(function(pill){
+    pill.addEventListener('click', function(){
+      currentRoute = pill.dataset.route;
+      document.querySelectorAll('#route-switcher .u-route-pill').forEach(function(p){
+        p.classList.toggle('on', p === pill);
+      });
+      buildCrumb(routes[currentRoute].trail.length);
+    });
+  });
+
+  buildCrumb(routes[currentRoute].trail.length);
+  </script>
+<script src="../../assets/js/uroo-copy.js"></script>
+<script src="../../assets/js/uroo-nav.js"></script>
+</body>
+</html>

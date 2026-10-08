@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="id" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Uroo UI — Examples</title>
+  <script src="../assets/js/tailwind.js"></script>
+  <script src="../assets/js/lucide.js"></script>
+  <script>
+    tailwind.config = { darkMode: 'class', theme: { extend: { colors: { glass: {
+      light: 'rgba(255,255,255,0.65)', 'light-border': 'rgba(255,255,255,0.8)',
+      dark: 'rgba(18,18,20,0.65)', 'dark-border': 'rgba(255,255,255,0.1)'
+    } } } } };
+  </script>
+  <link rel="stylesheet" href="../assets/css/uroo.css">
+  <style>
+    .u-bg{position:fixed;inset:0;z-index:-10;transition:opacity .35s ease}
+    .u-bg-light{background:linear-gradient(135deg,#dfe3ea,#f4f4f5)}
+    .u-bg-dark{background:linear-gradient(135deg,#0a0a0b,#1a1a1e);opacity:0}
+    body.dark .u-bg-light{opacity:0}
+    body.dark .u-bg-dark{opacity:1}
+    .u-glow{position:fixed;border-radius:9999px;filter:blur(90px);z-index:-9;pointer-events:none;background:rgba(0,0,0,0.06);transition:background-color .35s ease}
+    body.dark .u-glow{background:rgba(255,255,255,0.05)}
+    .u-glow-1{width:420px;height:420px;top:-140px;left:-140px}
+    .u-glow-2{width:520px;height:520px;bottom:-200px;right:-140px}
+    .u-glow-3{width:300px;height:300px;top:42%;left:58%}
+    .ecard{transition:transform .2s ease}
+    .ecard:hover{transform:translateY(-2px)}
+  </style>
+</head>
+<body class="min-h-screen font-sans antialiased text-zinc-800 dark:text-zinc-100">
+  <script>(function initTheme(){var saved=null;try{saved=localStorage.getItem('uroo-theme')}catch(e){};var dark=(saved==='dark')||(!saved&&window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches);var de=document.documentElement;if(dark){de.classList.add('dark');de.classList.remove('light');if(document.body){document.body.classList.add('dark');document.body.classList.remove('light');}}else{de.classList.remove('dark');de.classList.add('light');if(document.body){document.body.classList.remove('dark');document.body.classList.add('light');}}})();</script>
+
+  <div class="u-bg u-bg-light" aria-hidden="true"></div>
+  <div class="u-bg u-bg-dark" aria-hidden="true"></div>
+  <div class="u-glow u-glow-1" aria-hidden="true"></div>
+  <div class="u-glow u-glow-2" aria-hidden="true"></div>
+  <div class="u-glow u-glow-3" aria-hidden="true"></div>
+
+  <button onclick="toggleTheme()" class="fixed top-4 right-4 z-50 p-2 rounded-full glass-panel shadow-2xl" title="Toggle tema">
+    <i data-lucide="sun" class="w-4 h-4 hidden dark:block"></i>
+    <i data-lucide="moon" class="w-4 h-4 block dark:hidden"></i>
+  </button>
+
+  <main class="max-w-5xl mx-auto px-6 py-12">
+    <nav class="mb-8">
+      <a href="../index.html" class="inline-flex items-center gap-2 text-sm text-zinc-500 hover:text-black dark:hover:text-white transition">
+        <i data-lucide="arrow-left" class="w-4 h-4"></i> Kembali ke Hub
+      </a>
+    </nav>
+
+    <header class="mb-10">
+      <h1 class="text-3xl font-extrabold tracking-tight">Contoh (Examples)</h1>
+      <p class="text-zinc-500 dark:text-zinc-400 mt-2">Gabungan komponen Uroo UI menjadi halaman utuh yang siap dipakai.</p>
+    </header>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+
+      <a href="dashboard-showcase.html" class="glass-panel ecard rounded-3xl p-6 block">
+        <div class="p-2 rounded-2xl bg-black/5 dark:bg-white/5 w-fit mb-4"><i data-lucide="layout-dashboard" class="w-5 h-5"></i></div>
+        <h2 class="font-bold">Dashboard Showcase</h2>
+        <p class="text-sm text-zinc-500 dark:text-zinc-400 mt-2">KPI, line chart, donut, tabel, kanban, activity, toast.</p>
+      </a>
+
+      <a href="auth-flow.html" class="glass-panel ecard rounded-3xl p-6 block">
+        <div class="p-2 rounded-2xl bg-black/5 dark:bg-white/5 w-fit mb-4"><i data-lucide="shield-check" class="w-5 h-5"></i></div>
+        <h2 class="font-bold">Auth Flow</h2>
+        <p class="text-sm text-zinc-500 dark:text-zinc-400 mt-2">Login → Register → OTP → 2FA dalam satu alur bertab.</p>
+      </a>
+
+      <a href="ecommerce-storefront.html" class="glass-panel ecard rounded-3xl p-6 block">
+        <div class="p-2 rounded-2xl bg-black/5 dark:bg-white/5 w-fit mb-4"><i data-lucide="shopping-bag" class="w-5 h-5"></i></div>
+        <h2 class="font-bold">Ecommerce Storefront</h2>
+        <p class="text-sm text-zinc-500 dark:text-zinc-400 mt-2">Navbar, hero, produk grid, cart drawer live total.</p>
+      </a>
+
+    </div>
+
+    <section class="mt-12 glass-panel rounded-3xl p-6">
+      <h3 class="font-bold mb-2">Butuh lebih banyak contoh?</h3>
+      <p class="text-sm text-zinc-500 dark:text-zinc-400">
+        Jelajahi folder <span class="font-mono text-xs">pages/</span> (31 halaman penuh) dan
+        <span class="font-mono text-xs">modules/</span> (8 modul fungsional) untuk referensi lebih banyak.
+      </p>
+    </section>
+  </main>
+
+  <script>
+    lucide.createIcons();
+    function toggleTheme() {
+      const h = document.documentElement, b = document.body;
+      h.classList.toggle('dark'); b.classList.toggle('dark');
+      try { localStorage.setItem('uroo-theme', b.classList.contains('dark') ? 'dark' : 'light'); } catch (e) {}
+      lucide.createIcons();
+    }
+  </script>
+<script src="../assets/js/uroo-nav.js"></script>
+</body>
+</html>

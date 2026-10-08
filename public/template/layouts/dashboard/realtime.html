@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="id" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Real-time - Dashboard</title>
+  <script src="../../assets/js/tailwind.js"></script>
+  <script src="../../assets/js/lucide.js"></script>
+  <script>tailwind.config={darkMode:'class',theme:{extend:{colors:{glass:{light:'rgba(255,255,255,0.65)','light-border':'rgba(255,255,255,0.8)',dark:'rgba(18,18,20,0.65)','dark-border':'rgba(255,255,255,0.1)'}}}}}</script>
+  <link rel="stylesheet" href="../../assets/css/uroo.css">
+  <style>
+    .u-bg{position:fixed;inset:0;z-index:-10;transition:opacity .35s ease}
+    .u-bg-light{background:linear-gradient(135deg,#dfe3ea,#f4f4f5)}
+    .u-bg-dark{background:linear-gradient(135deg,#0a0a0b,#1a1a1e);opacity:0}
+    body.dark .u-bg-light{opacity:0}
+    body.dark .u-bg-dark{opacity:1}
+    .u-glow{position:fixed;border-radius:9999px;filter:blur(90px);z-index:-9;pointer-events:none;background:rgba(0,0,0,0.06);transition:background-color .35s ease}
+    body.dark .u-glow{background:rgba(255,255,255,0.05)}
+    .u-glow-1{width:420px;height:420px;top:-140px;left:-140px}
+    .u-glow-2{width:520px;height:520px;bottom:-200px;right:-140px}
+    .u-glow-3{width:300px;height:300px;top:42%;left:58%}
+    #sidebar{width:16rem;transition:transform .28s cubic-bezier(.16,1,.3,1),width .28s cubic-bezier(.16,1,.3,1)}
+    #sidebar.collapsed{width:4.75rem}
+    #sidebar .nav-label{transition:opacity .15s ease,width .15s ease}
+    #sidebar.collapsed .nav-label{opacity:0;width:0;overflow:hidden;white-space:nowrap}
+    #sidebar.collapsed .nav-link{justify-content:center;padding-left:0;padding-right:0}
+    #sidebar.collapsed .group-title{justify-content:center;padding-left:0;padding-right:0}
+    #sidebar.collapsed .nav-text{display:none}
+    #sidebar.collapsed .logo-text{display:none}
+    #sidebar .badge-dot{transition:opacity .15s}
+    #sidebar.collapsed .badge-dot{opacity:0}
+    @media (max-width:767px){
+      #sidebar{position:fixed;top:1rem;bottom:1rem;left:1rem;z-index:50;transform:translateX(-130%);}
+      #sidebar.open{transform:translateX(0);}
+    }
+    :root{--u-chart:#18181b;--u-chart-mid:#71717a}
+    .dark{--u-chart:#fafafa;--u-chart-mid:#a1a1aa}
+    .live-dot{position:relative;width:10px;height:10px}
+    .live-dot::before{content:'';position:absolute;inset:0;border-radius:9999px;background:#10b981;box-shadow:0 0 0 0 rgba(16,185,129,0.5)}
+    .live-dot::after{content:'';position:absolute;inset:0;border-radius:9999px;background:#10b981;animation:pulse-ring 1.6s cubic-bezier(.16,1,.3,1) infinite}
+    @keyframes pulse-ring{0%{transform:scale(1);opacity:0.7}70%{transform:scale(2.6);opacity:0}100%{transform:scale(2.6);opacity:0}}
+    .feed-item{animation:feed-in .45s cubic-bezier(.16,1,.3,1)}
+    @keyframes feed-in{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:none}}
+    .count-flip{display:inline-block;transition:transform .25s cubic-bezier(.16,1,.3,1)}
+  </style>
+</head>
+<body class="min-h-screen font-sans antialiased text-zinc-800 dark:text-zinc-100">
+  <script>(function initTheme(){var saved=null;try{saved=localStorage.getItem('uroo-theme')}catch(e){};var dark=(saved==='dark')||(!saved&&window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches);var de=document.documentElement;if(dark){de.classList.add('dark');de.classList.remove('light');if(document.body){document.body.classList.add('dark');document.body.classList.remove('light');}}else{de.classList.remove('dark');de.classList.add('light');if(document.body){document.body.classList.remove('dark');document.body.classList.add('light');}}})();</script>
+  <div class="u-bg u-bg-light" aria-hidden="true"></div>
+  <div class="u-bg u-bg-dark" aria-hidden="true"></div>
+  <div class="u-glow u-glow-1" aria-hidden="true"></div>
+  <div class="u-glow u-glow-2" aria-hidden="true"></div>
+  <div class="u-glow u-glow-3" aria-hidden="true"></div>
+
+  <div id="overlay" class="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm opacity-0 pointer-events-none transition-opacity duration-300 md:hidden" onclick="closeDrawer()"></div>
+
+  <div class="md:flex md:gap-4 md:p-4 min-h-screen">
+    <aside id="sidebar" class="glass-panel rounded-2xl flex flex-col overflow-hidden shrink-0 md:sticky md:top-4 md:h-[calc(100vh-2rem)]">
+      <div class="flex items-center gap-3 px-5 h-16 border-b border-black/5 dark:border-white/10 shrink-0">
+        <img src="../../assets/img/uroo_ui.png" alt="Uroo UI" class="w-9 h-9 rounded-xl object-cover shadow-lg shrink-0">
+        <div class="logo-text min-w-0">
+          <p class="font-extrabold text-[15px] leading-none tracking-tight">Uroo UI</p>
+          <p class="mt-0.5 text-[10px] font-semibold uppercase tracking-[0.18em] text-zinc-400 dark:text-zinc-500">Dashboard</p>
+        </div>
+        <button onclick="closeDrawer()" class="ml-auto md:hidden p-1.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/10"><i data-lucide="x" class="w-4 h-4"></i></button>
+        <button onclick="toggleSidebar()" class="hidden md:block ml-auto p-1.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 text-zinc-400"><i data-lucide="panel-left-close" class="w-4 h-4"></i></button>
+      </div>
+
+      <nav class="flex-1 overflow-y-auto px-3 py-4 space-y-6">
+        <div>
+          <p class="group-title flex items-center nav-label px-3 mb-2 text-[10px] font-bold uppercase tracking-[0.18em] text-zinc-400 dark:text-zinc-500">Navigasi</p>
+          <div class="space-y-1">
+            <a href="dashboard.html" class="nav-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-50 hover:bg-black/5 dark:hover:bg-white/10"><i data-lucide="layout-dashboard" class="w-[18px] h-[18px] shrink-0"></i><span class="nav-label">Overview</span></a>
+            <a href="analitik.html" class="nav-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-50 hover:bg-black/5 dark:hover:bg-white/10"><i data-lucide="bar-chart-3" class="w-[18px] h-[18px] shrink-0"></i><span class="nav-label">Analitik</span></a>
+            <a href="laporan.html" class="nav-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-50 hover:bg-black/5 dark:hover:bg-white/10"><i data-lucide="file-text" class="w-[18px] h-[18px] shrink-0"></i><span class="nav-label">Laporan</span></a>
+            <a href="tim.html" class="nav-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-50 hover:bg-black/5 dark:hover:bg-white/10"><i data-lucide="users" class="w-[18px] h-[18px] shrink-0"></i><span class="nav-label">Tim</span></a>
+          </div>
+        </div>
+        <div>
+          <p class="group-title flex items-center nav-label px-3 mb-2 text-[10px] font-bold uppercase tracking-[0.18em] text-zinc-400 dark:text-zinc-500">Wawasan</p>
+          <div class="space-y-1">
+            <a href="konversi.html" class="nav-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-50 hover:bg-black/5 dark:hover:bg-white/10"><i data-lucide="target" class="w-[18px] h-[18px] shrink-0"></i><span class="nav-label">Konversi</span></a>
+            <a href="retensi.html" class="nav-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-50 hover:bg-black/5 dark:hover:bg-white/10"><i data-lucide="mouse-pointer-click" class="w-[18px] h-[18px] shrink-0"></i><span class="nav-label">Retensi</span></a>
+            <a href="realtime.html" class="nav-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold bg-zinc-900 text-zinc-50 dark:bg-zinc-50 dark:text-zinc-900 shadow-lg"><i data-lucide="zap" class="w-[18px] h-[18px] shrink-0"></i><span class="nav-label">Real-time</span><span class="badge-dot nav-text ml-auto w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span></a>
+          </div>
+        </div>
+        <div>
+          <p class="group-title flex items-center nav-label px-3 mb-2 text-[10px] font-bold uppercase tracking-[0.18em] text-zinc-400 dark:text-zinc-500">Sistem</p>
+          <div class="space-y-1">
+            <a href="pengaturan.html" class="nav-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-50 hover:bg-black/5 dark:hover:bg-white/10"><i data-lucide="settings" class="w-[18px] h-[18px] shrink-0"></i><span class="nav-label">Pengaturan</span></a>
+            <a href="bantuan.html" class="nav-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-50 hover:bg-black/5 dark:hover:bg-white/10"><i data-lucide="help-circle" class="w-[18px] h-[18px] shrink-0"></i><span class="nav-label">Bantuan</span></a>
+          </div>
+        </div>
+      </nav>
+
+      <div class="p-3 border-t border-black/5 dark:border-white/10 shrink-0">
+        <button class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-50 hover:bg-black/5 dark:hover:bg-white/10">
+          <span class="grid place-items-center w-8 h-8 rounded-full bg-gradient-to-br from-zinc-500 to-zinc-800 dark:from-zinc-300 dark:to-zinc-600 text-white dark:text-zinc-900 text-xs font-bold shrink-0">DB</span>
+          <span class="nav-label text-left min-w-0">
+            <span class="block font-bold text-[13px] leading-tight">Dita Baskoro</span>
+            <span class="block text-[11px] font-normal text-zinc-400 leading-tight">Administrator</span>
+          </span>
+        </button>
+      </div>
+    </aside>
+
+    <main class="flex-1 py-6 min-w-0">
+      <div class="mb-6 flex flex-wrap items-center justify-between gap-3">
+        <div class="flex items-center gap-3">
+          <div>
+            <p class="text-[11px] font-bold uppercase tracking-[0.2em] text-zinc-400 dark:text-zinc-500">Wawasan / Langsung</p>
+            <div class="flex items-center gap-2.5 mt-1">
+              <span class="live-dot" aria-hidden="true"></span>
+              <h1 class="text-2xl md:text-3xl font-bold tracking-tight">Aktivitas Langsung</h1>
+            </div>
+            <p class="mt-1 text-sm text-zinc-500 dark:text-zinc-400">Aktivitas mengalir otomatis dari seluruh toko · detik ini.</p>
+          </div>
+        </div>
+        <div class="flex items-center gap-2">
+          <button id="pauseBtn" onclick="toggleFeed()" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border border-black/10 dark:border-white/15 text-sm font-bold text-zinc-700 dark:text-zinc-200 hover:bg-black/5 dark:hover:bg-white/10 active:scale-[0.98] transition-transform"><i data-lucide="pause" class="w-4 h-4"></i> Jeda</button>
+          <button onclick="clearFeed()" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border border-black/10 dark:border-white/15 text-sm font-bold text-zinc-700 dark:text-zinc-200 hover:bg-black/5 dark:hover:bg-white/10 active:scale-[0.98] transition-transform"><i data-lucide="trash-2" class="w-4 h-4"></i> Bersihkan</button>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        <!-- Live feed -->
+        <div class="lg:col-span-2 glass-panel rounded-2xl overflow-hidden">
+          <div class="flex items-center justify-between px-5 py-4 border-b border-black/5 dark:border-white/10">
+            <div>
+              <h2 class="font-bold tracking-tight">Aliran Aktivitas</h2>
+              <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">Menampilkan 12 peristiwa terbaru</p>
+            </div>
+            <span class="inline-flex items-center gap-2 text-[11px] font-extrabold px-3 py-1.5 rounded-full bg-emerald-500/15 text-emerald-600 dark:text-emerald-400"><i data-lucide="activity" class="w-3.5 h-3.5"></i> <span id="perMin" class="count-flip">42</span>/menit</span>
+          </div>
+          <div id="feed" class="divide-y divide-black/5 dark:divide-white/10 max-h-[560px] overflow-y-auto"></div>
+          <div id="feedEmpty" class="px-5 py-16 text-center">
+            <span class="grid place-items-center w-14 h-14 mx-auto rounded-2xl bg-black/5 dark:bg-white/10 text-zinc-400 mb-3"><i data-lucide="radio" class="w-6 h-6"></i></span>
+            <p class="font-bold text-zinc-500 dark:text-zinc-300">Menunggu aktivitas baru</p>
+            <p class="text-sm text-zinc-400 mt-1">Peristiwa pencatatan akan tampil di sini secara otomatis.</p>
+          </div>
+        </div>
+
+        <!-- Right rail -->
+        <div class="space-y-4">
+          <div class="glass-panel rounded-2xl p-5">
+            <div class="flex items-center justify-between mb-1">
+              <h3 class="font-bold tracking-tight">Online Sekarang</h3>
+              <span class="live-dot" aria-hidden="true"></span>
+            </div>
+            <p class="mt-2 text-4xl font-extrabold tracking-tight"><span id="onlineCount" class="count-flip">2.348</span></p>
+            <p class="text-xs text-zinc-400 mt-1">pengunjung aktif di semua halaman</p>
+            <div class="mt-4 pt-4 border-t border-black/5 dark:border-white/10">
+              <p class="text-[11px] font-bold uppercase tracking-[0.15em] text-zinc-400 mb-3">Sebaran Peristiwa</p>
+              <ul class="space-y-3 text-sm">
+                <li><div class="flex justify-between mb-1.5"><span class="text-zinc-500 dark:text-zinc-400">Pembelian</span><span class="font-bold">42%</span></div><div class="bg-black/5 dark:bg-white/10 h-2 rounded-full overflow-hidden"><i class="block h-full w-[42%] rounded-full bg-emerald-500"></i></div></li>
+                <li><div class="flex justify-between mb-1.5"><span class="text-zinc-500 dark:text-zinc-400">Registrasi</span><span class="font-bold">27%</span></div><div class="bg-black/5 dark:bg-white/10 h-2 rounded-full overflow-hidden"><i class="block h-full w-[27%] rounded-full bg-sky-500"></i></div></li>
+                <li><div class="flex justify-between mb-1.5"><span class="text-zinc-500 dark:text-zinc-400">Keranjang</span><span class="font-bold">17%</span></div><div class="bg-black/5 dark:bg-white/10 h-2 rounded-full overflow-hidden"><i class="block h-full w-[17%] rounded-full bg-amber-500"></i></div></li>
+                <li><div class="flex justify-between mb-1.5"><span class="text-zinc-500 dark:text-zinc-400">Ulasan</span><span class="font-bold">9%</span></div><div class="bg-black/5 dark:bg-white/10 h-2 rounded-full overflow-hidden"><i class="block h-full w-[9%] rounded-full bg-violet-500"></i></div></li>
+                <li><div class="flex justify-between mb-1.5"><span class="text-zinc-500 dark:text-zinc-400">Lainnya</span><span class="font-bold">5%</span></div><div class="bg-black/5 dark:bg-white/10 h-2 rounded-full overflow-hidden"><i class="block h-full w-[5%] rounded-full bg-zinc-400"></i></div></li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="glass-panel rounded-2xl p-5">
+            <h3 class="font-bold tracking-tight mb-3">Peristiwa per Menit</h3>
+            <svg viewBox="0 0 260 84" class="w-full h-24" aria-hidden="true">
+              <defs><linearGradient id="perMinGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="var(--u-chart)" stop-opacity="0.22"/><stop offset="100%" stop-color="var(--u-chart)" stop-opacity="0"/></linearGradient></defs>
+              <path d="M0 62 C20 58 36 40 58 44 C80 48 96 26 118 30 C140 34 158 18 180 22 C202 26 238 10 260 8 L260 84 L0 84 Z" fill="url(#perMinGrad)"/>
+              <path d="M0 62 C20 58 36 40 58 44 C80 48 96 26 118 30 C140 34 158 18 180 22 C202 26 238 10 260 8" fill="none" stroke="var(--u-chart)" stroke-width="2.5" stroke-linecap="round"/>
+            </svg>
+            <div class="flex justify-between text-[11px] font-bold text-zinc-400 mt-1"><span>09:00</span><span>09:15</span><span>09:30</span><span>09:45</span><span>10:00</span></div>
+          </div>
+
+          <button onclick="toast('Pembaruan statistik berhasil disimpan','settings-2')" class="w-full glass-panel rounded-2xl p-4 flex items-center gap-3 text-left hover:opacity-95 transition-opacity">
+            <span class="grid place-items-center w-10 h-10 rounded-xl bg-zinc-900 dark:bg-zinc-50 text-zinc-50 dark:text-zinc-900 shrink-0"><i data-lucide="settings-2" class="w-5 h-5"></i></span>
+            <span class="min-w-0"><span class="block font-bold text-sm">Atur Pemberitahuan</span><span class="block text-xs text-zinc-400 mt-0.5">Terima alert saat penjualan turun drastis.</span></span>
+            <i data-lucide="chevron-right" class="w-4 h-4 text-zinc-400 ml-auto shrink-0"></i>
+          </button>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <button onclick="toggleTheme()" class="fixed top-5 right-5 z-[80] p-2.5 rounded-full glass-panel shadow-2xl text-zinc-600 dark:text-zinc-300 md:top-[1.6rem] md:right-[1.6rem]">
+    <i data-lucide="moon" class="w-4 h-4 hidden dark:block"></i>
+    <i data-lucide="sun" class="w-4 h-4 block dark:hidden"></i>
+  </button>
+
+  <script>
+    lucide.createIcons();
+    function toggleTheme(){document.documentElement.classList.toggle('dark');document.body.classList.toggle('dark');try{localStorage.setItem('uroo-theme',document.documentElement.classList.contains('dark')?'dark':'light')}catch(e){};lucide.createIcons();}
+    const sidebar=document.getElementById('sidebar');
+    function toggleSidebar(){
+      if(window.innerWidth>=768){sidebar.classList.toggle('collapsed');}
+      else{sidebar.classList.toggle('open');document.getElementById('overlay').classList.toggle('opacity-0',!sidebar.classList.contains('open'));document.getElementById('overlay').classList.toggle('pointer-events-none',!sidebar.classList.contains('open'));}
+    }
+    function openDrawer(){sidebar.classList.add('open');document.getElementById('overlay').classList.remove('opacity-0','pointer-events-none');}
+    function closeDrawer(){sidebar.classList.remove('open');document.getElementById('overlay').classList.add('opacity-0','pointer-events-none');}
+    function toast(msg,type){
+      const t=document.createElement('div');
+      t.className='fixed bottom-5 right-5 z-[85] glass-panel rounded-xl px-4 py-3 text-sm font-semibold shadow-2xl anim-toast-in flex items-center gap-2.5 pointer-events-none max-w-sm';
+      t.innerHTML='<i data-lucide="'+(type||'check-circle')+'" class="w-4 h-4 shrink-0"></i><span>'+msg+'</span>';
+      document.body.appendChild(t);lucide.createIcons();
+      setTimeout(()=>{t.style.opacity='0';t.style.transition='opacity .3s';setTimeout(()=>t.remove(),320)},2600);
+    }
+
+    const EVENTS=[
+      {type:'pembelian',icon:'shopping-cart',tint:'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400',tag:'Pembelian',tagCls:'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400',actor:'Ulya Azizah',action:'membeli',item:'Kursi Ergonomis E-290',amount:'Rp 1.499.000'},
+      {type:'pembelian',icon:'shopping-cart',tint:'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400',tag:'Pembelian',tagCls:'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400',actor:'Rizky Fadhil',action:'membeli',item:'Lampu Meja LED',amount:'Rp 329.000'},
+      {type:'registrasi',icon:'user-plus',tint:'bg-sky-500/15 text-sky-600 dark:text-sky-400',tag:'Registrasi',tagCls:'bg-sky-500/15 text-sky-600 dark:text-sky-400',actor:'Putri Maharani',action:'membuat akun baru',item:'dari iklan Instagram'},
+      {type:'keranjang',icon:'shopping-cart',tint:'bg-amber-500/15 text-amber-600 dark:text-amber-400',tag:'Keranjang',tagCls:'bg-amber-500/15 text-amber-600 dark:text-amber-400',actor:'Andi Saputra',action:'menambahkan',item:'Tas Ransel X',amount:'Rp 899.000'},
+      {type:'ulasan',icon:'star',tint:'bg-violet-500/15 text-violet-600 dark:text-violet-400',tag:'Ulasan',tagCls:'bg-violet-500/15 text-violet-600 dark:text-violet-400',actor:'Dewi Lestari',action:'memberi ulasan 5★',item:'untuk Skincare Kit'},
+      {type:'pembayaran',icon:'credit-card',tint:'bg-teal-500/15 text-teal-600 dark:text-teal-400',tag:'Pembayaran',tagCls:'bg-teal-500/15 text-teal-600 dark:text-teal-400',actor:'Bagus Prakoso',action:'melunasi pesanan',item:'Rp 2.199.000'},
+      {type:'keranjang',icon:'shopping-cart',tint:'bg-amber-500/15 text-amber-600 dark:text-amber-400',tag:'Keranjang',tagCls:'bg-amber-500/15 text-amber-600 dark:text-amber-400',actor:'Salsabila N.',action:'menambahkan',item:'Headphone BT-77'},
+      {type:'registrasi',icon:'user-plus',tint:'bg-sky-500/15 text-sky-600 dark:text-sky-400',tag:'Registrasi',tagCls:'bg-sky-500/15 text-sky-600 dark:text-sky-400',actor:'Farid Ramadhan',action:'membuat akun baru',item:'via rekomendasi'},
+      {type:'pembelian',icon:'shopping-cart',tint:'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400',tag:'Pembelian',tagCls:'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400',actor:'Ninda Anjani',action:'membeli',item:'Keyboard Mekanik 87',amount:'Rp 1.199.000'},
+      {type:'ulasan',icon:'star',tint:'bg-violet-500/15 text-violet-600 dark:text-violet-400',tag:'Ulasan',tagCls:'bg-violet-500/15 text-violet-600 dark:text-violet-400',actor:'Hendra Wijaya',action:'memberi ulasan 4★',item:'untuk Meja Lipat Pro'},
+      {type:'pembayaran',icon:'credit-card',tint:'bg-teal-500/15 text-teal-600 dark:text-teal-400',tag:'Pembayaran',tagCls:'bg-teal-500/15 text-teal-600 dark:text-teal-400',actor:'Mega Aprillia',action:'melunasi pesanan',item:'Rp 765.000'},
+      {type:'keranjang',icon:'shopping-cart',tint:'bg-amber-500/15 text-amber-600 dark:text-amber-400',tag:'Keranjang',tagCls:'bg-amber-500/15 text-amber-600 dark:text-amber-400',actor:'Rangga Kurnia',action:'menambahkan',item:'Sepeda Gunung MTB'},
+      {type:'registrasi',icon:'user-plus',tint:'bg-sky-500/15 text-sky-600 dark:text-sky-400',tag:'Registrasi',tagCls:'bg-sky-500/15 text-sky-600 dark:text-sky-400',actor:'Wulan Sari',action:'membuat akun baru',item:'dari blog'}
+    ];
+
+    const ACTIONS={'pembelian':'membeli','registrasi':'mendaftar','keranjang':'menambahkan','ulasan':'memberi ulasan','pembayaran':'melunasi pesanan'};
+    let timer=null;
+    let running=true;
+    let onlineNow=2348;
+
+    function setBtnLive(){
+      const b=document.getElementById('pauseBtn');
+      b.innerHTML='<i data-lucide="'+(running?'pause':'play')+'" class="w-4 h-4"></i> '+(running?'Jeda':'Lanjut');
+      lucide.createIcons();
+    }
+    function startFeed(){if(timer)return;timer=setInterval(pushEvent,2600);}
+    function stopFeed(){if(timer){clearInterval(timer);timer=null;}}
+    function toggleFeed(){
+      running=!running;
+      if(running){startFeed();}else{stopFeed();}
+      setBtnLive();
+      toast(running?'Aliran aktivitas dilanjutkan':'Aliran aktivitas dijeda','pause');
+    }
+    function clock(){const d=new Date();return d.toTimeString().slice(0,8);}
+    function pushEvent(){
+      const ev=EVENTS[Math.floor(Math.random()*EVENTS.length)];
+      const tag='<span class="text-[10px] font-extrabold px-2 py-1 rounded-full '+ev.tagCls+' shrink-0">'+ev.tag+'</span>';
+      const desc=ev.type==='ulasan'||ev.type==='registrasi'
+        ?'<b>'+ev.actor+'</b> '+ev.action+' <b>'+ev.item+'</b>'
+        :'<b>'+ev.actor+'</b> '+ev.action+' <b>'+ev.item+(ev.amount?' ('+ev.amount+')':'')+'</b>';
+      const node=document.createElement('div');
+      node.className='feed-item flex items-center gap-3 px-5 py-4';
+      node.innerHTML=
+        '<span class="grid place-items-center w-9 h-9 rounded-xl '+ev.tint+' shrink-0"><i data-lucide="'+ev.icon+'" class="w-4 h-4"></i></span>'+
+        '<div class="min-w-0 flex-1 text-sm text-zinc-600 dark:text-zinc-300">'+desc+
+          '<span class="block text-[11px] text-zinc-400 mt-0.5 tabular-nums">'+clock()+' WIB</span>'+
+        '</div>'+tag;
+      const feed=document.getElementById('feed');
+      feed.prepend(node);
+      while(feed.children.length>12){feed.lastChild.remove();}
+      lucide.createIcons();
+      document.getElementById('feedEmpty').style.display='none';
+      updateLiveStats();
+    }
+    function updateLiveStats(){
+      const drift=Math.floor(Math.random()*49)-24;
+      onlineNow=Math.max(1800,Math.min(2900,onlineNow+drift));
+      const el=document.getElementById('onlineCount');
+      el.textContent=onlineNow.toLocaleString('id-ID');
+      const pm=document.getElementById('perMin');
+      pm.textContent=Math.max(24,Math.min(78,42+Math.floor(Math.random()*25)-12));
+    }
+    function clearFeed(){
+      stopFeed();
+      document.getElementById('feed').innerHTML='';
+      document.getElementById('feedEmpty').style.display='block';
+      toast('Aliran aktivitas dibersihkan','trash-2');
+      running=false;
+      setBtnLive();
+    }
+    document.getElementById('feedEmpty').style.display='block';
+    startFeed();
+  </script>
+<script src="../../assets/js/uroo-nav.js"></script>
+</body>
+</html>
