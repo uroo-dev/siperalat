@@ -157,20 +157,11 @@ class AuthController extends Controller
     public function user_store(Request $request)
     {
         $validated = $request->validate([
-            'username' => ['required', 'string', 'max:50', 'unique:users,username'],
-            'email' => ['required', 'email', 'max:100', 'unique:users,email'],
-            'password' => ['required', 'string', 'min:6'],
-            'role' => ['required', 'in:admin,petugas,peminjam'],
-            'status' => ['required', 'in:aktif,nonaktif'],
-        ], [
-            'username.required' => 'Username wajib diisi.',
-            'username.unique' => 'Username sudah terdaftar.',
-            'email.required' => 'Email wajib diisi.',
-            'email.unique' => 'Email sudah terdaftar.',
-            'password.required' => 'Password wajib diisi.',
-            'password.min' => 'Password minimal 6 karakter.',
-            'role.required' => 'Role wajib dipilih.',
-            'status.required' => 'Status wajib dipilih.',
+            'username' => 'required',
+            'email' => 'required',
+            'password' => 'required',
+            'role' => 'required',
+            'status' => 'required',
         ]);
 
         $user = User::create([
@@ -200,29 +191,11 @@ class AuthController extends Controller
         $user = User::findOrFail($id);
 
         $validated = $request->validate([
-            'username' => [
-                'required',
-                'string',
-                'max:50',
-                Rule::unique('users', 'username')->ignore($user->id),
-            ],
-            'email' => [
-                'required',
-                'email',
-                'max:100',
-                Rule::unique('users', 'email')->ignore($user->id),
-            ],
-            'password' => ['nullable', 'string', 'min:6'],
-            'role' => ['required', 'in:admin,petugas,peminjam'],
-            'status' => ['required', 'in:aktif,nonaktif'],
-        ], [
-            'username.required' => 'Username wajib diisi.',
-            'username.unique' => 'Username sudah terdaftar untuk pengguna lain.',
-            'email.required' => 'Email wajib diisi.',
-            'email.unique' => 'Email sudah terdaftar untuk pengguna lain.',
-            'password.min' => 'Password baru minimal 6 karakter.',
-            'role.required' => 'Role wajib dipilih.',
-            'status.required' => 'Status wajib dipilih.',
+            'username' => 'required',
+            'email' => 'required',
+            'password' => 'required',
+            'role' => 'required',
+            'status' => 'required',
         ]);
 
         $user->username = $validated['username'];

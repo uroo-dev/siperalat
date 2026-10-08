@@ -35,7 +35,7 @@
                     <span class="nav-label flex-1">Peminjaman</span>
                     <span class="nav-label inline-flex items-center justify-center px-2 py-0.5 text-[10px] font-bold rounded-full bg-amber-500/15 text-amber-600 dark:text-amber-400">7 Baru</span>
                 </a>
-                <a href="{{ route('admin.dashboard') }}#tabel-alat" class="nav-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-50 hover:bg-black/5 dark:hover:bg-white/10">
+                <a href="{{ route('admin.alat.index') }}" class="nav-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold {{ request()->routeIs('admin.alat.*') ? 'bg-zinc-900 text-zinc-50 dark:bg-zinc-50 dark:text-zinc-900 shadow-md' : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-50 hover:bg-black/5 dark:hover:bg-white/10' }}">
                     <i data-lucide="box" class="w-[18px] h-[18px] shrink-0"></i>
                     <span class="nav-label">Data Inventaris</span>
                 </a>
@@ -54,7 +54,11 @@
                 </a>
                 <a href="{{ route('admin.kategori.index') }}" class="nav-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold {{ request()->routeIs('admin.kategori.*') ? 'bg-zinc-900 text-zinc-50 dark:bg-zinc-50 dark:text-zinc-900 shadow-md' : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-50 hover:bg-black/5 dark:hover:bg-white/10' }}">
                     <i data-lucide="tag" class="w-[18px] h-[18px] shrink-0"></i>
-                    <span class="nav-label">Kategori Alat</span>
+                    <span class="nav-label">Kelola Kategori</span>
+                </a>
+                <a href="{{ route('admin.alat.index') }}" class="nav-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold {{ request()->routeIs('admin.alat.*') ? 'bg-zinc-900 text-zinc-50 dark:bg-zinc-50 dark:text-zinc-900 shadow-md' : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-50 hover:bg-black/5 dark:hover:bg-white/10' }}">
+                    <i data-lucide="command" class="w-[18px] h-[18px] shrink-0"></i>
+                    <span class="nav-label">Kelola Alat</span>
                 </a>
             </div>
         </div>

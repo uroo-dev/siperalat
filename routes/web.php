@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AdminDashboardContrller;
+use App\Http\Controllers\AlatController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\KategoriController;
@@ -36,6 +37,12 @@ Route::middleware(['auth'])->group(function () {
     Route::post('admin/kategori', [KategoriController::class, 'store'])->name('admin.kategori.store');
     Route::put('admin/kategori/{kategori}', [KategoriController::class, 'update'])->name('admin.kategori.update');
     Route::delete('admin/kategori/{kategori}', [KategoriController::class, 'destroy'])->name('admin.kategori.destroy');
+
+    // Alat Management
+    Route::get('admin/alat', [AlatController::class, 'index'])->name('admin.alat.index');
+    Route::post('admin/alat', [AlatController::class, 'store'])->name('admin.alat.store');
+    Route::put('admin/alat/{alat}', [AlatController::class, 'update'])->name('admin.alat.update');
+    Route::delete('admin/alat/{alat}', [AlatController::class, 'destroy'])->name('admin.alat.destroy');
 
     // Logout Process
     Route::post('/logout', [AuthController::class, 'logout_proses'])->name('logout');
