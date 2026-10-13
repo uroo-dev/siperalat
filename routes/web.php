@@ -46,6 +46,8 @@ Route::middleware(['auth'])->group(function () {
         // Transaksi Pengembalian
         Route::get('admin/pengembalian', [PengembalianController::class, 'index'])->name('admin.pengembalian.index');
         Route::post('admin/pengembalian', [PengembalianController::class, 'store'])->name('admin.pengembalian.store');
+        Route::get('admin/pengembalian/{id}/struk', [PengembalianController::class, 'struk'])->name('admin.pengembalian.struk');
+        Route::get('admin/peminjaman/{id}/struk-pengembalian', [PeminjamanController::class, 'struk_pengembalian'])->name('admin.peminjaman.struk');
         Route::delete('admin/pengembalian/{id}', [PengembalianController::class, 'destroy'])->name('admin.pengembalian.destroy');
 
         // Laporan Rekap

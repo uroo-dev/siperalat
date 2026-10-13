@@ -7,6 +7,7 @@ use App\Models\DetailPeminjaman;
 use App\Models\Pengembalian;
 use App\Models\DetailPengembalian;
 use App\Models\KondisiAlat;
+use App\Models\JenisDenda;
 use App\Models\Peminjam;
 use App\Models\Alat;
 use App\Models\User;
@@ -37,11 +38,13 @@ class PeminjamanController extends Controller
             );
         }
 
-        $peminjamans = Peminjaman::with(['peminjam.user', 'detailPeminjaman.alat', 'disetujuiOleh'])->latest()->paginate(10);
+        $peminjamans = Peminjaman::with(['peminjam.user', 'detailPeminjaman.alat', 'disetujuiOleh', 'pengembalian'])->latest()->paginate(10);
         $peminjams = Peminjam::with('user')->where('status_peminjam', 'aktif')->get();
         $alats = Alat::where('status', 'tersedia')->where('stok_tersedia', '>', 0)->get();
+        $kondisis = KondisiAlat::all();
+        $jenisDendas = JenisDenda::where('status', 'aktif')->get();
 
-        return view('Admin.Peminjaman.index', compact('peminjamans', 'peminjams', 'alats'));
+        return view('Admin.Peminjaman.index', compact('peminjamans', 'peminjams', 'alats', 'kondisis', 'jenisDendas'));
     }
 
     /**
@@ -214,7 +217,16 @@ class PeminjamanController extends Controller
 
         Log::record('Update Status Peminjaman', "Mengubah status transaksi {$peminjaman->kode_transaksi} dari {$statusLama} menjadi {$statusBaru}");
 
-        return redirect()->back()->with('success', 'Status Peminjaman Berhasil Diperbarui');
+        $pesan = 'Status Peminjaman Berhasil Diperbarui';
+        if ($statusBaru === 'disetujui') {
+            $pesan = "Transaksi {$peminjaman->kode_transaksi} berhasil disetujui (Siap diambil).";
+        } elseif ($statusBaru === 'dipinjam') {
+            $pesan = "Alat untuk transaksi {$peminjaman->kode_transaksi} berhasil diserahkan ke peminjam (Status: Sedang Dipinjam).";
+        } elseif ($statusBaru === 'ditolak') {
+            $pesan = "Pengajuan peminjaman {$peminjaman->kode_transaksi} telah ditolak.";
+        }
+
+        return redirect()->back()->with('success', $pesan);
     }
 
     /**
@@ -251,6 +263,21 @@ class PeminjamanController extends Controller
     {
         $peminjaman = Peminjaman::with(['peminjam.user', 'detailPeminjaman.alat', 'disetujuiOleh'])->findOrFail($id);
         return view('Admin.Peminjaman.nota', compact('peminjaman'));
+    }
+
+    /**
+     * Tampilkan struk pengembalian untuk transaksi peminjaman ini.
+     */
+    public function struk_pengembalian($id)
+    {
+        $peminjaman = Peminjaman::with('pengembalian')->findOrFail($id);
+        $lastPengembalian = $peminjaman->pengembalian()->latest()->first();
+
+        if (!$lastPengembalian) {
+            return redirect()->back()->with('error', 'Belum ada data riwayat pengembalian untuk transaksi ini.');
+        }
+
+        return redirect()->route('admin.pengembalian.struk', $lastPengembalian->id_pengembalian);
     }
 }
 

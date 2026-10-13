@@ -20,7 +20,7 @@
                 Data Pengembalian Alat
             </h1>
             <p class="text-xs sm:text-sm text-zinc-500 dark:text-zinc-400 mt-0.5">
-                Proses pengembalian alat inventaris, pengecekan kondisi fisik, dan pemulihan stok.
+                Proses pengembalian alat inventaris, pengecekan kondisi fisik, pemulihan stok, serta penerbitan struk.
             </p>
         </div>
 
@@ -90,6 +90,7 @@
                         <th class="py-3 px-4 rounded-l-xl">Kode & Peminjam</th>
                         <th class="py-3 px-4">Tgl Kembali</th>
                         <th class="py-3 px-4">Item & Kondisi</th>
+                        <th class="py-3 px-4">Denda</th>
                         <th class="py-3 px-4">Diproses Oleh</th>
                         <th class="py-3 px-4">Status</th>
                         <th class="py-3 px-4 text-right rounded-r-xl">Aksi</th>
@@ -134,6 +135,13 @@
                                     @endforeach
                                 </div>
                             </td>
+                            <td class="py-3.5 px-4 font-mono">
+                                @if($pg->total_denda > 0)
+                                    <span class="font-bold text-rose-600">Rp {{ number_format($pg->total_denda, 0, ',', '.') }}</span>
+                                @else
+                                    <span class="text-zinc-400">Rp 0</span>
+                                @endif
+                            </td>
                             <td class="py-3.5 px-4">
                                 <div class="text-zinc-800 dark:text-zinc-200 font-medium">
                                     {{ $pg->diprosesOleh ? $pg->diprosesOleh->username : 'Admin/Petugas' }}
@@ -151,18 +159,24 @@
                                 @endif
                             </td>
                             <td class="py-3.5 px-4 text-right">
-                                <form action="{{ route('admin.pengembalian.destroy', $pg->id_pengembalian) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus data pengembalian {{ $pg->kode_pengembalian }}?');" class="inline">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="p-1.5 rounded-lg hover:bg-rose-500/10 text-rose-500" title="Hapus Riwayat">
-                                        <i data-lucide="trash-2" class="w-4 h-4"></i>
-                                    </button>
-                                </form>
+                                <div class="inline-flex items-center gap-1">
+                                    <a href="{{ route('admin.pengembalian.struk', $pg->id_pengembalian) }}" target="_blank" class="p-1.5 rounded-lg hover:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400" title="Cetak Struk Pengembalian">
+                                        <i data-lucide="receipt" class="w-4 h-4"></i>
+                                    </a>
+
+                                    <form action="{{ route('admin.pengembalian.destroy', $pg->id_pengembalian) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus data pengembalian {{ $pg->kode_pengembalian }}?');" class="inline">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="p-1.5 rounded-lg hover:bg-rose-500/10 text-rose-500" title="Hapus Riwayat">
+                                            <i data-lucide="trash-2" class="w-4 h-4"></i>
+                                        </button>
+                                    </form>
+                                </div>
                             </td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="6" class="py-8 text-center text-zinc-400 text-xs">
+                            <td colspan="7" class="py-8 text-center text-zinc-400 text-xs">
                                 Belum ada riwayat pengembalian alat.
                             </td>
                         </tr>
@@ -180,18 +194,18 @@
 @endsection
 
 @push('modals')
-<!-- Modal Proses Pengembalian -->
+<!-- Modal Proses Pengembalian Lengkap -->
 <div id="modal-proses-pengembalian" class="modal-container" role="dialog" aria-modal="true">
     <div class="modal-backdrop" onclick="closeModal('modal-proses-pengembalian')"></div>
-    <div class="modal-panel modal-lg glass-panel">
-        <div class="modal-head">
+    <div class="modal-panel modal-lg glass-panel max-h-[90vh] overflow-y-auto">
+        <div class="modal-head sticky top-0 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-md z-10">
             <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-xl bg-zinc-900 text-white dark:bg-white dark:text-zinc-900 grid place-items-center font-bold">
+                <div class="w-10 h-10 rounded-xl bg-amber-500 text-white grid place-items-center font-bold">
                     <i data-lucide="corner-down-left" class="w-5 h-5"></i>
                 </div>
                 <div>
                     <h3 class="text-base font-bold text-zinc-900 dark:text-white">Proses Pengembalian Alat</h3>
-                    <p class="text-xs text-zinc-500 dark:text-zinc-400">Pilih transaksi aktif untuk memproses pengembalian barang.</p>
+                    <p class="text-xs text-zinc-500 dark:text-zinc-400">Inspeksi fisik barang, hitung denda jika ada, dan perbarui stok.</p>
                 </div>
             </div>
             <button onclick="closeModal('modal-proses-pengembalian')" class="p-1.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 text-zinc-400">
@@ -208,7 +222,10 @@
                         <select name="id_peminjaman" id="selectPeminjaman" required class="u-select" onchange="loadPeminjamanDetails(this.value)">
                             <option value="">-- Pilih Transaksi Aktif --</option>
                             @foreach($peminjamanAktif as $pa)
-                                <option value="{{ $pa->id_peminjaman }}" data-details="{{ json_encode($pa->detailPeminjaman) }}">
+                                <option value="{{ $pa->id_peminjaman }}" 
+                                    data-details="{{ json_encode($pa->detailPeminjaman) }}"
+                                    data-rencana="{{ $pa->tanggal_kembali_rencana ? $pa->tanggal_kembali_rencana->format('Y-m-d') : '' }}"
+                                    data-subtotal="{{ $pa->subtotal }}">
                                     {{ $pa->kode_transaksi }} - {{ $pa->peminjam ? ($pa->peminjam->user->username ?? $pa->peminjam->nama) : 'Peminjam' }}
                                 </option>
                             @endforeach
@@ -216,26 +233,75 @@
                     </div>
                     <div>
                         <label class="u-field-label">Tanggal Pengembalian <span class="u-req">*</span></label>
-                        <input type="date" name="tanggal_pengembalian" value="{{ date('Y-m-d') }}" required class="u-input font-mono" />
+                        <input type="date" name="tanggal_pengembalian" id="inputTglKembali" value="{{ date('Y-m-d') }}" required class="u-input font-mono" onchange="checkLateDays()" />
                     </div>
                 </div>
 
+                <!-- Alert Keterlambatan -->
+                <div id="alertKeterlambatan" class="hidden p-3 rounded-xl bg-amber-500/15 border border-amber-500/30 text-amber-800 dark:text-amber-300 text-xs flex items-center gap-2">
+                    <i data-lucide="alert-triangle" class="w-4 h-4 text-amber-500"></i>
+                    <span>Terlambat <b id="lateDaysCount">0</b> hari dari batas rencana pengembalian. Denda keterlambatan disiapkan otomatis.</span>
+                </div>
+
+                <!-- Bagian Item Fisik -->
                 <div>
-                    <label class="u-field-label">Item Alat yang Dikembalikan <span class="u-req">*</span></label>
+                    <label class="u-field-label">Item Alat &amp; Cek Kondisi Fisik <span class="u-req">*</span></label>
                     <div id="items-return-container" class="space-y-3 p-3 rounded-xl bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/10">
                         <p class="text-xs text-zinc-400 text-center py-4">Silakan pilih transaksi peminjaman di atas terlebih dahulu.</p>
                     </div>
                 </div>
 
+                <!-- Bagian Denda -->
+                <div class="p-4 rounded-xl bg-rose-500/5 border border-rose-500/20 space-y-3 text-xs">
+                    <div class="flex items-center gap-1.5 font-bold text-zinc-900 dark:text-white text-xs">
+                        <i data-lucide="alert-circle" class="w-4 h-4 text-rose-500"></i>
+                        Cek Denda Tambahan (Keterlambatan / Kerusakan)
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                            <label class="text-[11px] font-semibold text-zinc-700 dark:text-zinc-300">Denda Keterlambatan (Rp)</label>
+                            <input type="number" name="denda_terlambat" id="inputDendaTerlambat" value="0" min="0" class="u-input font-mono text-xs" oninput="updateSummaryModal()" />
+                            <input type="hidden" name="hari_terlambat" id="inputHariTerlambat" value="0">
+                        </div>
+                        <div>
+                            <label class="text-[11px] font-semibold text-zinc-700 dark:text-zinc-300">Denda Kerusakan / Ganti Rugi (Rp)</label>
+                            <input type="number" name="denda_kerusakan" id="inputDendaKerusakan" value="0" min="0" class="u-input font-mono text-xs" oninput="updateSummaryModal()" />
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="text-[11px] font-semibold text-zinc-700 dark:text-zinc-300">Alasan Denda Kerusakan (Opsional)</label>
+                        <input type="text" name="alasan_denda_kerusakan" placeholder="Misal: Lensa tergores / komponen retak..." class="u-input text-xs" />
+                    </div>
+                </div>
+
+                <!-- Ringkasan Tagihan Baru -->
+                <div class="p-3.5 rounded-xl bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/10 text-xs space-y-1.5">
+                    <span class="font-bold text-zinc-700 dark:text-zinc-300 block mb-1">Rincian Tagihan Akhir Transaksi:</span>
+                    <div class="flex justify-between text-zinc-500">
+                        <span>Biaya Sewa Pokok:</span>
+                        <span class="font-mono" id="subtotalModalText">Rp 0</span>
+                    </div>
+                    <div class="flex justify-between text-rose-500 font-semibold">
+                        <span>Total Denda Pengembalian:</span>
+                        <span class="font-mono" id="dendaModalText">Rp 0</span>
+                    </div>
+                    <div class="flex justify-between text-sm font-bold text-zinc-900 dark:text-white pt-1.5 border-t border-black/5 dark:border-white/10">
+                        <span>Total Tagihan Baru:</span>
+                        <span class="font-mono text-base" id="totalModalText">Rp 0</span>
+                    </div>
+                </div>
+
                 <div>
                     <label class="u-field-label">Catatan Pengembalian (Opsional)</label>
-                    <textarea name="catatan" rows="2" placeholder="Catatan kondisi fisik atau serah terima barang..." class="u-textarea"></textarea>
+                    <textarea name="catatan" rows="2" placeholder="Catatan kondisi fisik atau serah terima barang..." class="u-textarea text-xs"></textarea>
                 </div>
             </div>
             <div class="modal-foot">
                 <button type="button" onclick="closeModal('modal-proses-pengembalian')" class="u-btn u-btn-ghost u-btn-sm">Batal</button>
-                <button type="submit" class="u-btn u-btn-primary u-btn-sm">
-                    <i data-lucide="check" class="w-3.5 h-3.5"></i> Simpan Pengembalian
+                <button type="submit" class="u-btn bg-emerald-600 hover:bg-emerald-700 text-white u-btn-sm">
+                    <i data-lucide="check" class="w-3.5 h-3.5"></i> Simpan &amp; Terbitkan Struk
                 </button>
             </div>
         </form>
@@ -246,17 +312,24 @@
 @push('script')
 <script>
     const kondisisData = @json($kondisis);
+    let selectedSubtotal = 0;
+    let selectedRencana = '';
 
     function loadPeminjamanDetails(peminjamanId) {
         const container = document.getElementById('items-return-container');
         if (!peminjamanId) {
             container.innerHTML = '<p class="text-xs text-zinc-400 text-center py-4">Silakan pilih transaksi peminjaman di atas terlebih dahulu.</p>';
+            selectedSubtotal = 0;
+            selectedRencana = '';
+            checkLateDays();
             return;
         }
 
         const select = document.getElementById('selectPeminjaman');
         const selectedOption = select.options[select.selectedIndex];
         const details = JSON.parse(selectedOption.getAttribute('data-details') || '[]');
+        selectedRencana = selectedOption.getAttribute('data-rencana') || '';
+        selectedSubtotal = parseFloat(selectedOption.getAttribute('data-subtotal') || 0);
 
         if (details.length === 0) {
             container.innerHTML = '<p class="text-xs text-rose-500 text-center py-4">Tidak ada item alat pada transaksi ini.</p>';
@@ -266,7 +339,7 @@
         let html = '';
         let validItemCount = 0;
 
-        details.forEach((d, idx) => {
+        details.forEach((d) => {
             const sisa = d.jumlah - (d.jumlah_dikembalikan || 0);
             if (sisa > 0) {
                 validItemCount++;
@@ -278,10 +351,10 @@
                 });
 
                 html += `
-                    <div class="p-3 rounded-lg bg-white/50 dark:bg-black/20 border border-black/5 dark:border-white/10 space-y-2">
+                    <div class="p-3 rounded-xl bg-white/60 dark:bg-black/20 border border-black/5 dark:border-white/10 space-y-2">
                         <input type="hidden" name="id_detail[]" value="${d.id_detail}">
-                        <div class="flex items-center justify-between">
-                            <span class="font-bold text-xs text-zinc-900 dark:text-white">${namaAlat}</span>
+                        <div class="flex items-center justify-between text-xs">
+                            <span class="font-bold text-zinc-900 dark:text-white">${namaAlat}</span>
                             <span class="text-[11px] text-zinc-400">Total Pinjam: ${d.jumlah} | Belum Kembali: <b class="text-zinc-700 dark:text-zinc-200">${sisa}</b></span>
                         </div>
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
@@ -297,7 +370,7 @@
                             </div>
                         </div>
                         <div>
-                            <input type="text" name="keterangan_kondisi[]" placeholder="Keterangan kondisi tambahan (opsional)" class="u-input text-xs" />
+                            <input type="text" name="keterangan_kondisi[]" placeholder="Keterangan kondisi fisik jika ada cacat (opsional)" class="u-input text-xs" />
                         </div>
                     </div>
                 `;
@@ -310,9 +383,59 @@
             container.innerHTML = html;
         }
 
+        checkLateDays();
+
         if (window.lucide) {
             lucide.createIcons();
         }
+    }
+
+    function checkLateDays() {
+        const tglKembali = document.getElementById('inputTglKembali').value;
+        const alertBox = document.getElementById('alertKeterlambatan');
+        const lateDaysEl = document.getElementById('lateDaysCount');
+        const inputDenda = document.getElementById('inputDendaTerlambat');
+        const inputHari = document.getElementById('inputHariTerlambat');
+
+        if (!selectedRencana || !tglKembali) {
+            alertBox.classList.add('hidden');
+            inputDenda.value = 0;
+            inputHari.value = 0;
+            updateSummaryModal();
+            return;
+        }
+
+        const rencana = new Date(selectedRencana);
+        const kembali = new Date(tglKembali);
+        rencana.setHours(0,0,0,0);
+        kembali.setHours(0,0,0,0);
+
+        const diffTime = kembali - rencana;
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+        if (diffDays > 0) {
+            alertBox.classList.remove('hidden');
+            lateDaysEl.innerText = diffDays;
+            inputHari.value = diffDays;
+            inputDenda.value = diffDays * 10000;
+        } else {
+            alertBox.classList.add('hidden');
+            inputHari.value = 0;
+            inputDenda.value = 0;
+        }
+
+        updateSummaryModal();
+    }
+
+    function updateSummaryModal() {
+        const dendaTerlambat = parseFloat(document.getElementById('inputDendaTerlambat').value || 0);
+        const dendaKerusakan = parseFloat(document.getElementById('inputDendaKerusakan').value || 0);
+        const totalDenda = dendaTerlambat + dendaKerusakan;
+        const totalTagihan = selectedSubtotal + totalDenda;
+
+        document.getElementById('subtotalModalText').innerText = 'Rp ' + selectedSubtotal.toLocaleString('id-ID');
+        document.getElementById('dendaModalText').innerText = 'Rp ' + totalDenda.toLocaleString('id-ID');
+        document.getElementById('totalModalText').innerText = 'Rp ' + totalTagihan.toLocaleString('id-ID');
     }
 </script>
 @endpush

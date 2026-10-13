@@ -1,514 +1,270 @@
-# SIPERALAT (Sistem Informasi Peminjaman Peralatan)
+# SIPERALAT - Sistem Informasi Peminjaman & Pengembalian Alat Inventaris
 
-> Dokumentasi teknis dan panduan penggunaan aplikasi Sistem Informasi Peminjaman dan Manajemen Peralatan Laboratorium & Inventaris Outdoor.
+[![Laravel 13](https://img.shields.io/badge/Laravel-13.x-FF2D20?style=for-the-badge&logo=laravel&logoColor=white)](https://laravel.com)
+[![PHP 8.5+](https://img.shields.io/badge/PHP-8.5%2B-777BB4?style=for-the-badge&logo=php&logoColor=white)](https://php.net)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-3.x-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)](https://tailwindcss.com)
+[![MySQL 8 / MariaDB](https://img.shields.io/badge/Database-MySQL%20%2F%20MariaDB-4479A1?style=for-the-badge&logo=mysql&logoColor=white)](https://mysql.com)
+[![PHPUnit Tests](https://img.shields.io/badge/PHPUnit-8%20Passed-44CC11?style=for-the-badge&logo=php&logoColor=white)](https://phpunit.de)
 
-**Live Demo:** https://siperalat.uroo.my.id  
-**Repository:** https://github.com/uroo-dev/siperalat  
-**Status:** Production Ready  
-**Versi:** 1.0.0  
-**Terakhir diperbarui:** 13 Oktober 2026  
+Aplikasi web terintegrasi untuk pengelolaan peminjaman, serah terima, inspeksi fisik kondisi barang, kalkulasi denda, serta pencatatan pengembalian alat inventaris (laboratorium dan peralatan *outdoor/camping*). Dibangun dengan fokus pada **alur bisnis peminjaman yang realistis**, **transisi status satu-klik tanpa hambatan**, **perhitungan otomatis denda keterlambatan dan kerusakan**, serta **penerbitan struk & nota resmi**.
 
----
-
-## 1. Ringkasan Aplikasi
-
-### 1.1 Deskripsi
-
-**SIPERALAT** adalah aplikasi berbasis web yang dibangun dengan Laravel 11 untuk mendigitalisasi proses peminjaman peralatan laboratorium dan perlengkapan outdoor. Aplikasi ini memungkinkan pengguna publik melihat katalog peralatan dengan gambar beresolusi tinggi, mengecek ketersediaan stok aktual, dan mengajukan peminjaman secara mandiri. Administrator dan petugas operasional dapat mengelola master kategori dan alat, memvalidasi permohonan, memproses serah terima dan pengembalian unit, mencetak nota transaksi, serta memantau log audit sistem secara menyeluruh.
-
-### 1.2 Masalah yang Diselesaikan
-
-- **Pencatatan Manual yang Rentan Hilang:** Menggantikan buku log fisik atau spreadsheet yang rawan inkonsistensi data, duplikasi, dan sulit diaudit.
-- **Kesulitan Mengetahui Stok Nyata:** Mencegah peminjaman ganda (*double booking*) dengan sinkronisasi stok otomatis (*tersedia*, *dipinjam*, dan *rusak*).
-- **Kurangnya Visibilitas Pelanggan:** Peminjam sering kali tidak mengetahui apakah unit alat tersedia atau apakah permohonan mereka telah disetujui.
-- **Ketiadaan Bukti Transaksi Resmi:** Mempermudah pembuatan bukti nota peminjaman dan berita acara serah terima alat siap cetak.
-
-### 1.3 Pengguna Aplikasi
-
-| Role | Deskripsi | Hak Akses Utama |
-|---|---|---|
-| **Admin** | Administrator sistem utama | Mengelola semua master data alat, kategori, staf, pelanggan, menyetujui transaksi, cetak nota/laporan, dan monitoring log. |
-| **Petugas** | Staf operasional laboratorium / gudang | Memverifikasi fisik alat, menyetujui/menolak pengajuan, memproses pengembalian, mencatat kondisi alat dan denda. |
-| **Peminjam** | Pengguna akhir (Mahasiswa / Pelanggan) | Menjelajahi katalog alat, mengajukan peminjaman online, memantau status tiket transaksi mandiri. |
-
-### 1.4 Tujuan Aplikasi
-
-- Mengotomatiskan alur pengajuan, verifikasi, hingga pengembalian unit inventaris secara transparan.
-- Menyediakan katalog interaktif lengkap dengan galeri foto alat dan informasi spesifikasi teknis.
-- Menyajikan rekapitulasi laporan transaksi dan pencatatan audit log untuk akuntabilitas operasional.
+Live Demo: [https://siperalat.uroo.my.id](https://siperalat.uroo.my.id)  
+Repository: [https://github.com/uroo-dev/siperalat](https://github.com/uroo-dev/siperalat)
 
 ---
 
-## 2. Tech Stack
-
-| Kategori | Teknologi |
-|---|---|
-| **Backend** | PHP 8.3+, Laravel 11 |
-| **Database** | MariaDB 11 / MySQL 8.0 |
-| **Frontend** | Blade Templates, Tailwind CSS, Lucide Icons, Vanilla JavaScript |
-| **Authentication** | Laravel Session & Custom Role-Based Middleware |
-| **Upload File** | Laravel Storage (`public` disk symlink) |
-| **Print / Export** | Native CSS `@media print` Responsive Document Views |
-| **Testing** | PHPUnit 11 |
-| **Deployment** | Nginx, PHP-FPM, Linux VPS, Git |
-| **Tools** | Composer, npm, Git, Artisan CLI |
-
----
-
-## 3. Fitur Aplikasi
-
-### 3.1 Autentikasi & Otorisasi
-- Registrasi akun khusus peminjam baru dengan enkripsi kata sandi Bcrypt.
-- Login multi-role dengan pengalihan otomatis: Admin/Petugas diarahkan ke `/dashboard`, Peminjam diarahkan ke katalog `/`.
-- Pembaruan stempel waktu `last_login_at` dan pencatatan log aktivitas masuk/keluar sistem.
-- Proteksi route menggunakan middleware `auth`, `guest`, dan middleware otorisasi `role.admin`.
-- Fitur blokir akun: pengguna dengan status `nonaktif` dicegah masuk ke dalam sistem.
-
-### 3.2 Katalog Publik & Peminjaman Mandiri
-- Katalog alat modern dengan filter kategori instan (*category chips*) dan pencarian nama/kode alat secara realtime.
-- Tampilan foto produk dengan kartu responsif, badge status stok (*Tersedia*, *Stok Habis*), dan tarif sewa per hari.
-- Modal Detail Alat yang menampilkan foto resolusi tinggi, spesifikasi lengkap, dan kondisi unit.
-- Formulir pengajuan peminjaman langsung dengan validasi tanggal pinjam, batas maksimum stok unit, dan kalkulasi biaya.
-- Pelacakan status tiket transaksi (`TRX-XXXXXX`) secara mandiri pada section Cek Status.
-
-### 3.3 Dashboard Administrasi & Monitoring
-- Statistik ringkasan: Total Jenis Alat, Unit Siap Pakai, Transaksi Sedang Dipinjam, Menunggu Approval, dan Riwayat Pengembalian.
-- Banner alert dinamis untuk mendeteksi transaksi jatuh tempo (*overdue*) dan permohonan baru yang memerlukan tindakan.
-- Feed realtime Log Aktivitas Pengguna & Sistem.
-- Tabel peminjaman terbaru dan inventaris alat dengan tautan cepat ke modul transaksi.
-
-### 3.4 Manajemen Master Data (Alat & Kategori)
-- CRUD Kategori Alat dilengkapi status aktif dan deskripsi.
-- CRUD Master Alat lengkap dengan kode alat unik, nama, tarif sewa harian, nilai ganti rugi, dan alokasi stok.
-- Dukungan unggah file foto alat (JPG, PNG, WEBP hingga 4MB) dengan penghapusan otomatis file lama saat diganti atau dihapus.
-- Thumbnail foto alat ditampilkan langsung pada tabel manajemen dan modal pengeditan.
-
-### 3.5 Transaksi Peminjaman & Pengembalian
-- Alur persetujuan permohonan: status `menunggu`, `disetujui`, `dipinjam`, `ditolak`, atau `dibatalkan`.
-- Penyesuaian stok unit inventaris secara otomatis saat transaksi disetujui atau dibatalkan.
-- Pembuatan dan pencetakan Bukti Nota Peminjaman resmi berformat faktur standar cetak.
-- Formulir pengembalian alat dengan inspeksi kondisi unit (*Baik*, *Rusak Ringan*, *Rusak Berat*).
-- Penambahan stok rusak dan pemulihan stok siap pakai secara cerdas berdasarkan kondisi fisik saat dikembalikan.
-
-### 3.6 Laporan Rekapitulasi & Log Audit
-- Rekapitulasi data transaksi berdasarkan filter tanggal, jenis (peminjaman / pengembalian), dan status transaksi.
-- Halaman cetak laporan resmi berformat tabel siap ekspor ke PDF via browser print.
-- Pencatatan jejak audit sistem (*system audit trail*) pada setiap aktivitas penting dalam aplikasi.
+## Daftar Isi
+- [Gambaran Umum](#gambaran-umum)
+- [Akun Demo](#akun-demo)
+- [Fitur Utama](#fitur-utama)
+- [Keunggulan Arsitektur & Rekayasa Teknis](#keunggulan-arsitektur--rekayasa-teknis)
+- [Tech Stack](#tech-stack)
+- [Struktur Database & Relasi](#struktur-database--relasi)
+- [Instalasi Lokal](#instalasi-lokal)
+- [Pengujian Otomatis (Testing)](#pengujian-otomatis-testing)
+- [Struktur Direktori](#struktur-direktori)
+- [Batasan & Rencana Pengembangan](#batasan--rencana-pengembangan)
+- [Tentang Pengembang](#tentang-pengembang)
 
 ---
 
-## 4. Alur Aplikasi
+## Gambaran Umum
 
-### 4.1 Alur Request Laravel
+**SIPERALAT** mendigitalkan seluruh ekosistem peminjaman dan penyewaan alat inventaris dari hulu ke hilir. 
 
-```text
-Browser / Pengguna
-  ↓
-Route (routes/web.php)
-  ↓
-Middleware (auth / role.admin / guest)
-  ↓
-Controller (Request Validation)
-  ↓
-Model / Eloquent ORM & Storage Disk
-  ↓
-Database (MariaDB)
-  ↓
-Controller (Data Collection / Compact)
-  ↓
-Blade View Engine
-  ↓
-Browser Rendering (HTML / Tailwind CSS / Lucide)
-```
-
-### 4.2 Alur Transaksi Peminjaman Publik
-
-```text
-Peminjam memilih alat dari katalog publik (/)
-  ↓
-Peminjam menekan tombol "Pinjam Langsung"
-  ↓
-Sistem memvalidasi login (jika belum login, dialihkan ke /login)
-  ↓
-Peminjam melengkapi formulir (identitas, jadwal pinjam, keperluan)
-  ↓
-Sistem memverifikasi ketersediaan stok aktual
-  ↓
-Sistem membuat transaksi status "menunggu" & menerbitkan kode tiket TRX-XXXXXX
-  ↓
-Admin / Petugas memeriksa pengajuan di panel admin (/admin/peminjaman)
-  ↓
-Admin menyetujui transaksi → Stok unit dipotong otomatis menjadi "dipinjam"
-  ↓
-Peminjam mengambil alat fisik dengan menunjukkan kode tiket & bukti nota
-```
-
-### 4.3 Alur Pengembalian Alat
-
-```text
-Peminjam mengembalikan alat ke laboratorium
-  ↓
-Petugas membuka menu Pengembalian (/admin/pengembalian)
-  ↓
-Petugas memilih nomor transaksi peminjaman aktif
-  ↓
-Petugas memeriksa kondisi fisik alat (Baik / Rusak Ringan / Rusak Berat)
-  ↓
-Sistem mencatat data pengembalian & memperbarui stok (tersedia / rusak)
-  ↓
-Status peminjaman beralih menjadi "dikembalikan" (selesai)
-```
+Pengunjung dapat menjelajahi katalog ketersediaan alat secara publik, melihat stok aktual dan spesifikasi alat, serta mengajukan pemesanan pinjam secara mandiri. Dari sisi operasional, administrator dan petugas dapat menyetujui peminjaman dalam satu klik, menyerahkan alat fisik, melakukan pemeriksaan fisik (*quality check*) saat pengembalian, mengenakan denda keterlambatan atau kerusakan jika ada, serta mencetak struk pengembalian dan nota bukti transaksi resmi.
 
 ---
 
-## 5. Arsitektur Aplikasi
+## Akun Demo
 
-### 5.1 Struktur MVC
-
-| Layer | Lokasi | Tanggung Jawab |
-|---|---|---|
-| **Route** | `routes/web.php` | Mendefinisikan seluruh endpoint publik, autentikasi, dan panel admin. |
-| **Middleware** | `app/Http/Middleware/RoleAdminPetugas.php` | Memproteksi akses khusus untuk pengguna dengan hak akses admin dan petugas. |
-| **Controller** | `app/Http/Controllers/` | Menangani logika bisnis, alur data, validasi, dan transaksi database. |
-| **Model** | `app/Models/` | Mendefinisikan entitas database, fillable, casting, dan relasi Eloquent. |
-| **View** | `resources/views/` | Merender antarmuka pengguna berbasis Blade template responsif. |
-| **Migration** | `database/migrations/` | Mendefinisikan skema tabel database dan integritas relasi foreign key. |
-| **Seeder** | `database/seeders/DatabaseSeeder.php` | Memuat master data awal, akun demo, produk sampel, dan riwayat transaksi. |
-| **Test** | `tests/Feature/` | Menguji fungsionalitas katalog, autentikasi, hak akses, dan transaksi. |
-
-### 5.2 Keputusan Teknis
-
-| Keputusan | Alasan |
-|---|---|
-| **Penyimpanan Gambar di `storage/app/public`** | Mengikuti standar keamanan Laravel; file dapat diakses publik via symlink tanpa mengekspos direktori aplikasi internal. |
-| **Relasi Eloquent dengan Cascade Deletes / Constraints** | Memastikan integritas referensial data tetap konsisten antara transaksi induk dan rincian item. |
-| **CSS `@media print` untuk Nota & Laporan** | Menghasilkan dokumen cetak tajam tanpa dependensi library eksternal yang berat seperti headless browser. |
-| **Pencatatan Audit Trail Log Terpusat** | Setiap aksi mutasi data penting (tambah, ubah, hapus, status transaksi) otomatis tercatat di tabel `logs`. |
-| **Penggunaan Tailwind Lokal & Lucide Lokal** | Menjamin aplikasi dapat berjalan sempurna di lingkungan intranet maupun offline tanpa dependensi CDN luar. |
-
----
-
-## 6. Desain Database
-
-### 6.1 Ringkasan Relasi
-
-```text
-users
- ├── peminjam (1 to 1)
- │    └── peminjaman (1 to Many)
- │         ├── detail_peminjaman (1 to Many)
- │         │    └── alat (Many to 1)
- │         └── pengembalian (1 to 1)
- │              └── detail_pengembalian (1 to Many)
- │                   └── kondisi_alat (Many to 1)
-
-kategori
- └── alat (1 to Many)
-
-jenis_denda
- └── denda (1 to Many)
-```
-
-### 6.2 Daftar Tabel
-
-| Tabel | Fungsi |
-|---|---|
-| `users` | Menyimpan data akun pengguna dan role (`admin`, `petugas`, `peminjam`). |
-| `peminjam` | Menyimpan profil identitas peminjam (NIK/NIM, telepon, alamat). |
-| `kategori` | Menyimpan data kategori peralatan. |
-| `kondisi_alat` | Menyimpan master parameter kelayakan kondisi unit alat fisik. |
-| `alat` | Menyimpan data katalog peralatan, stok, tarif sewa, dan path foto. |
-| `peminjaman` | Menyimpan header data transaksi peminjaman dan kode tiket. |
-| `detail_peminjaman` | Menyimpan rincian item alat yang dipinjam dalam transaksi. |
-| `pengembalian` | Menyimpan data transaksi serah terima pengembalian alat. |
-| `detail_pengembalian` | Menyimpan rincian status fisik dan jumlah alat yang dikembalikan. |
-| `jenis_denda` | Menyimpan konfigurasi skema perhitungan denda. |
-| `denda` | Menyimpan catatan penagihan denda keterlambatan/kerusakan. |
-| `logs` | Menyimpan catatan aktivitas sistem dan riwayat tindakan pengguna. |
-
-### 6.3 Struktur Tabel Utama
-
-#### `users`
-| Kolom | Tipe Data | Keterangan |
-|---|---|---|
-| `id` | BIGINT UNSIGNED | Primary Key |
-| `username` | VARCHAR(255) | Nama pengguna unik |
-| `email` | VARCHAR(255) | Alamat email unik |
-| `password` | VARCHAR(255) | Password terenkripsi Bcrypt |
-| `role` | ENUM | `admin`, `petugas`, `peminjam` |
-| `status` | ENUM | `aktif`, `nonaktif` |
-| `last_login_at`| TIMESTAMP | Waktu terakhir pengguna masuk |
-
-#### `alat`
-| Kolom | Tipe Data | Keterangan |
-|---|---|---|
-| `id_alat` | BIGINT UNSIGNED | Primary Key |
-| `id_kategori` | BIGINT UNSIGNED | Foreign Key ke `kategori` |
-| `kode_alat` | VARCHAR(50) | Kode inventaris unik |
-| `nama_alat` | VARCHAR(150) | Nama peralatan |
-| `deskripsi` | TEXT | Keterangan spesifikasi alat |
-| `harga_sewa` | DECIMAL(12,2) | Tarif sewa per hari |
-| `stok_total` | INT | Jumlah total unit alat |
-| `stok_tersedia` | INT | Jumlah unit siap dipinjam |
-| `stok_dipinjam` | INT | Jumlah unit sedang dipinjam |
-| `stok_rusak` | INT | Jumlah unit dalam perbaikan |
-| `nilai_penggantian` | DECIMAL(12,2) | Biaya penggantian jika unit hilang |
-| `foto` | VARCHAR(255) | Path penyimpanan file foto di storage |
-| `status` | ENUM | `tersedia`, `habis`, `maintenance`, `nonaktif` |
-
-#### `peminjaman`
-| Kolom | Tipe Data | Keterangan |
-|---|---|---|
-| `id_peminjaman` | BIGINT UNSIGNED | Primary Key |
-| `kode_transaksi` | VARCHAR(50) | Kode transaksi tiket unik (`TRX-XXXXXX`) |
-| `id_peminjam` | BIGINT UNSIGNED | Foreign Key ke `peminjam` |
-| `tanggal_pinjam` | DATE | Tanggal mulai pinjam |
-| `tanggal_kembali_rencana` | DATE | Batas tanggal rencana kembali |
-| `lama_pinjam` | INT | Durasi pinjam dalam satuan hari |
-| `total_tagihan` | DECIMAL(12,2) | Total biaya sewa |
-| `status` | ENUM | `menunggu`, `disetujui`, `dipinjam`, `ditolak`, `dikembalikan`, `dibatalkan` |
-| `disetujui_oleh` | BIGINT UNSIGNED | ID petugas yang menyetujui transaksi |
-
----
-
-## 7. Keamanan
-
-### 7.1 Autentikasi dan Otorisasi
-- Kata sandi disimpan dengan algoritma hashing satu arah Bcrypt.
-- Sesi pengguna diregenerasi setiap kali login (`$request->session()->regenerate()`) untuk mencegah serangan *Session Fixation*.
-- Proteksi route berbasis middleware memisahkan hak akses panel petugas dari pengguna publik.
-- Akun nonaktif langsung dibatalkan sesinya dan dilarang masuk ke sistem.
-
-### 7.2 Validasi dan Integritas Data
-- Seluruh input form divalidasi ketat di sisi server (tipe data, format tanggal, rentang stok, ukuran file).
-- Perlindungan bawaan CSRF (*Cross-Site Request Forgery*) aktif pada seluruh metode request `POST`, `PUT`, `PATCH`, dan `DELETE`.
-- Penggunaan Eloquent ORM dengan *parameterized queries* mencegah kerentanan SQL Injection.
-- Filter unggah berkas memvalidasi tipe MIME gambar (`jpeg`, `png`, `webp`) dengan batas maksimal 4MB.
-
-### 7.3 Pengamanan Konfigurasi
-- Kredensial database dan kunci enkripsi aplikasi (`APP_KEY`) terisolasi di dalam berkas `.env` dan diabaikan oleh Git.
-- Tersedia template `.env.example` yang aman untuk replikasi lingkungan pengembangan.
-
----
-
-## 8. Instalasi Lokal
-
-### 8.1 Prasyarat Sistem
-- PHP >= 8.2 (dengan ekstensi `pdo_mysql`, `mbstring`, `fileinfo`, `gd`, `openssl`)
-- Composer >= 2.0
-- MariaDB >= 10.4 atau MySQL >= 8.0
-- Node.js >= 18.x dan npm
-- Git
-
-### 8.2 Langkah Instalasi
-
-1. **Clone repository:**
-   ```bash
-   git clone https://github.com/uroo-dev/siperalat.git
-   cd siperalat
-   ```
-
-2. **Pasang dependensi PHP:**
-   ```bash
-   composer install
-   ```
-
-3. **Konfigurasi Environment:**
-   Salin berkas `.env.example` menjadi `.env`:
-   ```bash
-   cp .env.example .env
-   php artisan key:generate
-   ```
-
-4. **Konfigurasi Database:**
-   Sesuaikan pengaturan koneksi database pada berkas `.env`:
-   ```env
-   DB_CONNECTION=mysql
-   DB_HOST=127.0.0.1
-   DB_PORT=3306
-   DB_DATABASE=siperalat_db
-   DB_USERNAME=root
-   DB_PASSWORD=
-   ```
-
-5. **Hubungkan Symlink Storage:**
-   ```bash
-   php artisan storage:link
-   ```
-
-6. **Jalankan Migrasi dan Seeder:**
-   ```bash
-   php artisan migrate:fresh --seed
-   ```
-
-7. **Jalankan Server Aplikasi:**
-   ```bash
-   php artisan serve
-   ```
-   Aplikasi dapat diakses melalui peramban di: `http://127.0.0.1:8000`
-
-### 8.3 Akun Pengujian (Demo Accounts)
-
-| Role | Username | Email | Password | Akses URL |
+| Peran (Role) | Username | Email | Password | Hak Akses Utama |
 |---|---|---|---|---|
-| **Admin** | `uroo` | `uroo@gmail.com` | `password` | `/dashboard` |
-| **Petugas** | `petugas` | `petugas@gmail.com` | `password` | `/dashboard` |
-| **Peminjam** | `peminjam` | `peminjam@gmail.com` | `password` | `/` (Katalog Publik) |
-| **Peminjam 2** | `budi_santoso` | `budi@gmail.com` | `password` | `/` (Katalog Publik) |
+| **Super Admin** | `uroo` | `uroo@gmail.com` | `password` | Akses penuh dashboard, transaksi peminjaman & pengembalian, manajemen alat & kategori, manajemen pengguna, laporan rekapitulasi, dan audit log |
+| **Petugas** | `petugas` | `petugas@gmail.com` | `password` | Pengelolaan data peminjaman, serah terima alat, inspeksi pengembalian & denda, inventaris alat, serta pencetakan struk dan laporan |
+| **Peminjam 1** | `peminjam` | `peminjam@gmail.com` | `password` | Eksplorasi katalog publik, reservasi peminjaman alat online, riwayat pengajuan |
+| **Peminjam 2** | `dimas` | `dimas@gmail.com` | `password` | Peminjaman alat outdoor, pengecekan nota dan status berjalan |
 
-> **Catatan:** Akun demo di atas diinisialisasi otomatis oleh `DatabaseSeeder`. Harap ubah kata sandi saat menggunakan aplikasi di lingkungan produksi.
+> **Catatan**: Data akun demo di atas diinisialisasi secara otomatis melalui database seeder (`DatabaseSeeder.php`). Jangan gunakan kredensial demo ini di lingkungan *production*.
 
 ---
 
-## 9. Pengujian (Testing)
+## Fitur Utama
 
-Aplikasi telah dilengkapi dengan serangkaian pengujian fitur (*Feature Tests*) menggunakan PHPUnit untuk memastikan stabilitas fungsionalitas inti.
+### 🏕️ Peminjam & Publik
+- **Katalog Alat Inventaris Publik**: Menjelajahi katalog alat lengkap dengan foto resolusi tinggi, ketersediaan stok aktual, tarif sewa per hari, dan spesifikasi teknis.
+- **Pengajuan Peminjaman Mandiri**: Formulir reservasi cepat yang terintegrasi dengan penghitungan estimasi biaya sewa berdasarkan durasi hari peminjaman.
+- **Penerbitan Kode Tiket Transaksi**: Menghasilkan kode tiket unik `TRX-XXXXXX` sebagai bukti validasi saat mengambil alat di pos operasional.
+- **Nota Bukti Peminjaman**: Akses cetak lembar nota peminjaman yang memuat jadwal pinjam, tenggat pengembalian, dan rincian peralatan.
 
-### 9.1 Menjalankan Test Suite
+### 🛡️ Administrator & Petugas
+- **Dashboard Ringkasan Operasional**: Statistik total inventaris alat, transaksi aktif berjalan, unit yang sedang dipinjam, unit rusak, serta log aktivitas sistem terkini.
+- **Alur Status Peminjaman Instan (One-Click Action)**:
+  - **Tahap 1 (`Menunggu Konfirmasi`)**: Verifikasi cepat pengajuan. Tombol *Setujui* langsung mengonversi transaksi ke status disetujui, atau tombol *Tolak* dengan input alasan penolakan.
+  - **Tahap 2 (`Disetujui / Siap Ambil`)**: Tombol *Serahkan Alat* satu-klik untuk serah terima barang fisik ke peminjam, otomatis memotong stok tersedia dan menambah stok dipinjam.
+  - **Tahap 3 (`Sedang Dipinjam` / `Sebagian Dikembalikan`)**: Tombol *Pengembalian* langsung memicu modal inspeksi fisik dan denda.
+  - **Tahap 4 (`Selesai Dikembalikan`)**: Transaksi final selesai dengan akses langsung cetak struk pengembalian.
+- **Inspeksi Fisik & Perhitungan Denda Realistis**:
+  - Pengecekan unit alat per baris: input jumlah kembali dan penetapan kondisi fisik (*Baik*, *Rusak Ringan*, *Rusak Berat*).
+  - Pemulihan stok cerdas: unit *Baik* kembali ke stok siap pakai (`stok_tersedia`), sedangkan unit cacat/rusak otomatis dipindahkan ke `stok_rusak`.
+  - Deteksi keterlambatan otomatis: menghitung selisih hari pengembalian dari batas rencana dan mengkalkulasi estimasi denda per hari keterlambatan.
+  - Input denda kerusakan/perbaikan jika alat dikembalikan dalam kondisi cacat fisik.
+  - Akumulasi live total tagihan akhir (`Tagihan = Subtotal Sewa + Total Denda`).
+- **Struk Pengembalian & Dokumen Siap Cetak**:
+  - Halaman struk digital resmi siap cetak berformat standar slip pengembalian inventaris.
+  - Lengkap dengan rincian hasil cek fisik alat, breakdown denda keterlambatan/kerusakan, dan kolom tanda tangan kedua belah pihak.
+- **Manajemen Inventaris Alat & Kategori**: CRUD alat inventaris lengkap dengan upload foto, penentuan tarif sewa, stok total, stok rusak, dan nilai penggantian unit.
+- **Laporan Rekapitulasi & Log Audit**: Rekapitulasi transaksi berdasarkan rentang tanggal dan status dengan fitur cetak laporan berformat tabel bersih.
+
+---
+
+## Keunggulan Arsitektur & Rekayasa Teknis
+
+1. **Integritas Inventaris Stok Multi-Kondisi**:
+   - Stok terkelola secara ketat dalam 3 state dinamis: `stok_tersedia`, `stok_dipinjam`, dan `stok_rusak`. Setiap perubahan status peminjaman dan kondisi pengembalian secara atomik memperbarui stok guna mencegah *over-lending* atau *phantom stock*.
+2. **Eliminasi N+1 Query dengan Eager Loading**:
+   - Seluruh pemanggilan relasi dioptimalkan menggunakan *Eager Loading* (`with(['peminjam.user', 'detailPeminjaman.alat', 'pengembalian.denda', 'disetujuiOleh'])`) guna menjamin efisiensi eksekusi database.
+3. **Pencatatan Denda Transparan & Finansial Akurat**:
+   - Setiap denda (keterlambatan maupun kerusakan) dicatat sebagai record tersendiri pada tabel `denda` berelasi dengan master `jenis_denda`, serta terakumulasi pada kolom `total_denda` dan `total_tagihan` transaksi.
+4. **Keamanan Otorisasi Berbasis Middleware & Hashing**:
+   - Proteksi route panel admin menggunakan custom middleware `RoleAdminPetugas` (`role.admin`), memastikan peminjam biasa tidak dapat memanipulasi stok, mengubah status, atau menghapus data.
+5. **Clean Monolithic Architecture**:
+   - Menggunakan prinsip *thin controller*, pemisahan tanggung jawab yang jelas pada layer Model Eloquent, Form Request Validation yang ketat, dan layout modular Blade.
+
+---
+
+## Tech Stack
+
+- **Backend**: PHP 8.5+, Laravel 13 Framework (v13.35.0)
+- **Database**: MySQL 8.0 / MariaDB 11.x (Database session, cache, dan queue driver)
+- **Frontend**: Blade Templating, Tailwind CSS, Lucide Icons, Vanilla JavaScript
+- **Autentikasi & Otorisasi**: Laravel Session Auth, Custom Role-Based Middleware (`role.admin`)
+- **Penyimpanan Berkas (Upload File)**: Laravel Storage (`public` disk symlink)
+- **Cetak Dokumen**: Responsive Native CSS `@media print` untuk Nota Peminjaman, Struk Pengembalian, dan Laporan Rekap
+- **Testing**: PHPUnit 11 / Laravel Feature Testing Suite
+- **Tools**: Composer 2.10+, npm, Git, Artisan CLI
+
+---
+
+## Struktur Database & Relasi
+
+```mermaid
+erDiagram
+    USERS ||--o{ PEMINJAM : "has profile"
+    USERS ||--o{ PEMINJAMAN : "approves"
+    USERS ||--o{ PENGEMBALIAN : "processes"
+    USERS ||--o{ LOGS : "generates"
+    PEMINJAM ||--o{ PEMINJAMAN : "applies"
+    KATEGORI ||--o{ ALAT : "contains"
+    KONDISI_ALAT ||--o{ DETAIL_PENGEMBALIAN : "classifies"
+    ALAT ||--o{ DETAIL_PEMINJAMAN : "borrowed in"
+    PEMINJAMAN ||--o{ DETAIL_PEMINJAMAN : "has items"
+    PEMINJAMAN ||--o{ PENGEMBALIAN : "returned via"
+    PENGEMBALIAN ||--o{ DETAIL_PENGEMBALIAN : "has details"
+    DETAIL_PEMINJAMAN ||--o{ DETAIL_PENGEMBALIAN : "tracked by"
+    JENIS_DENDA ||--o{ DENDA : "defines"
+    PENGEMBALIAN ||--o{ DENDA : "incurs"
+    DETAIL_PENGEMBALIAN ||--o{ DENDA : "referenced in"
+```
+
+### Penjelasan Relasi Kunci:
+- `users ➔ peminjam`: Relasi akun pengguna bertipe `peminjam` dengan profil identitas (KTP, no telepon, alamat).
+- `peminjaman ➔ detail_peminjaman ➔ alat`: Many-to-Many transaksi peminjaman dengan snapshot harga per hari dan jumlah unit pinjam.
+- `peminjaman ➔ pengembalian ➔ detail_pengembalian`: Mendukung pengembalian alat secara bertahap (*partial return*) maupun selesai penuh.
+- `detail_pengembalian ➔ kondisi_alat`: Klasifikasi kondisi fisik saat kembali (*Baik*, *Rusak Ringan*, *Rusak Berat*) untuk menentukan pemulihan stok.
+- `pengembalian ➔ denda ➔ jenis_denda`: Pencatatan denda keterlambatan dan kerusakan fisik alat secara terperinci.
+- `logs`: Jejak audit aktivitas perubahan data penting pada sistem.
+
+---
+
+## Instalasi Lokal
+
+### Prasyarat
+- PHP >= 8.3 (disarankan PHP 8.4 atau PHP 8.5)
+- Ekstensi PHP: `pdo_mysql`, `mbstring`, `fileinfo`, `gd`, `openssl`
+- Composer >= 2.x
+- MySQL >= 8.0 atau MariaDB >= 10.6
+- Node.js >= 18.x dan npm
+
+### Langkah-langkah
+
+```bash
+# 1. Clone repository
+git clone https://github.com/uroo-dev/siperalat.git
+cd siperalat
+
+# 2. Pasang dependensi PHP & Node
+composer install
+npm install
+
+# 3. Konfigurasi file environment
+cp .env.example .env
+php artisan key:generate
+
+# 4. Sesuaikan konfigurasi database di .env
+# DB_CONNECTION=mysql
+# DB_HOST=localhost
+# DB_PORT=3306
+# DB_DATABASE=siperalat
+# DB_USERNAME=root
+# DB_PASSWORD=
+
+# 5. Jalankan migrasi dan data seeder lengkap
+php artisan migrate:fresh --seed
+
+# 6. Buat symbolic link storage berkas gambar
+php artisan storage:link
+
+# 7. Jalankan build aset frontend dan jalankan web server
+npm run dev
+php artisan serve
+```
+
+Buka peramban Anda di: **`http://127.0.0.1:8000`**
+
+---
+
+## Pengujian Otomatis (Testing)
+
+Proyek ini dilengkapi dengan suite pengujian otomatis (*Feature Tests*) menggunakan PHPUnit yang memverifikasi integritas autentikasi, otorisasi, transisi status peminjaman, serta alur pengembalian dan struk:
 
 ```bash
 php artisan test
 ```
 
-### 9.2 Cakupan Pengujian
-
-| Pengujian | Deskripsi Skenario |
-|---|---|
-| `test_public_home_page_can_be_rendered` | Memverifikasi katalog alat publik dapat diakses dan menampilkan nama peralatan dengan benar. |
-| `test_user_can_login_as_admin` | Memverifikasi login administrator berhasil dan dialihkan ke panel dashboard. |
-| `test_guest_cannot_access_admin_dashboard` | Memverifikasi tamu tanpa autentikasi dicegah mengakses panel dashboard admin. |
-| `test_admin_can_access_admin_dashboard` | Memverifikasi pengguna role admin memiliki izin penuh mengakses dashboard. |
-| `test_authenticated_user_can_submit_borrow_request` | Memverifikasi alur pengajuan peminjaman mandiri tersimpan ke database berstatus `menunggu`. |
-
----
-
-## 10. Panduan Deployment Production
-
-### 10.1 Persiapan Server Production
-- Server Linux (Ubuntu 22.04 LTS / 24.04 LTS)
-- Web Server Nginx terkonfigurasi dengan PHP 8.3-FPM
-- MariaDB Server aktif
-- Sertifikat SSL/TLS gratis melalui Let's Encrypt Certbot
-
-### 10.2 Langkah Deployment
-
-```bash
-# 1. Masuk ke direktori web server
-cd /var/www/siperalat
-
-# 2. Ambil pembaruan kode terbaru
-git pull origin main
-
-# 3. Pasang dependensi production tanpa dev package
-composer install --no-dev --optimize-autoloader
-
-# 4. Jalankan migrasi database
-php artisan migrate --force
-
-# 5. Hubungkan symlink storage
-php artisan storage:link
-
-# 6. Bersihkan dan buat cache konfigurasi untuk kecepatan optimal
-php artisan config:cache
-php artisan route:cache
-php artisan view:cache
-
-# 7. Sesuaikan kepemilikan permission direktori storage dan bootstrap/cache
-sudo chown -R www-data:www-data storage bootstrap/cache
-sudo chmod -R 775 storage bootstrap/cache
-```
-
-### 10.3 Aturan Keselamatan Production
-- Jangan pernah menjalankan `php artisan migrate:fresh` atau `db:wipe` di server produksi.
-- Selalu lakukan *database backup* berkala sebelum melakukan *update* versi aplikasi.
-- Pastikan opsi `APP_DEBUG=false` pada berkas `.env` server produksi.
+### Hasil Cakupan Pengujian:
+- ✅ Penelusuran katalog alat inventaris publik tanpa login.
+- ✅ Autentikasi dan otorisasi login sebagai administrator.
+- ✅ Pembatasan akses *Guest* dari halaman panel administrasi.
+- ✅ Verifikasi hak akses administrator ke dashboard admin.
+- ✅ Alur pengajuan peminjaman alat mandiri oleh pengguna peminjam.
+- ✅ Alur transisi status satu-klik: *Menunggu Konfirmasi* ➔ *Disetujui* ➔ *Sedang Dipinjam* (serah terima barang).
+- ✅ Alur proses pengembalian alat: inspeksi fisik kondisi alat, perhitungan denda keterlambatan & kerusakan, dan pembaruan tagihan.
+- ✅ Akses dan verifikasi halaman Struk Pengembalian Alat resmi.
 
 ---
 
-## 11. Struktur Direktori Proyek
+## Struktur Direktori
 
 ```text
 siperalat/
- ├── app/
- │   ├── Http/
- │   │   ├── Controllers/        # AlatController, PeminjamanController, PublicController, dll.
- │   │   └── Middleware/         # RoleAdminPetugas.php
- │   └── Models/                 # Alat.php, Peminjaman.php, User.php, Kategori.php, dll.
- ├── config/                     # Konfigurasi aplikasi, auth, database, filesystems
- ├── database/
- │   ├── migrations/             # Skema tabel database (14 file migrasi)
- │   └── seeders/                # DatabaseSeeder.php (Master data & demo)
- ├── public/
- │   ├── index.php               # Front controller aplikasi
- │   ├── storage/                # Symlink ke storage/app/public/
- │   └── template/               # Aset UI lokal (CSS, JS, Font, Lucide Icons)
- ├── resources/
- │   └── views/
- │       ├── Admin/              # View panel admin (Alat, Kategori, Transaksi, Laporan, Log)
- │       ├── Auth/               # View login dan registrasi
- │       └── Public/             # View katalog utama dan modal peminjaman publik
- ├── routes/
- │   └── web.php                 # Definisi routing aplikasi
- ├── storage/
- │   └── app/
- │       └── public/
- │           └── alat/           # Direktori penyimpanan unggahan foto alat
- └── tests/
-     └── Feature/                # Unit & Feature Test Suite
+├── app/
+│   ├── Http/
+│   │   ├── Controllers/
+│   │   │   ├── AdminDashboardContrller.php  # Metrik statistik dashboard
+│   │   │   ├── AlatController.php            # Manajemen inventaris alat & upload foto
+│   │   │   ├── AuthController.php            # Login, register, logout, & user management
+│   │   │   ├── KategoriController.php        # Kategori alat
+│   │   │   ├── LaporanController.php         # Laporan rekapitulasi & cetak
+│   │   │   ├── LogController.php             # Jejak audit aktivitas sistem
+│   │   │   ├── PeminjamController.php        # Data peminjam / pelanggan
+│   │   │   ├── PeminjamanController.php      # Transaksi pinjam, nota, & status satu-klik
+│   │   │   ├── PengembalianController.php    # Inspeksi fisik, denda, & struk pengembalian
+│   │   │   └── PublicController.php          # Katalog publik & pengajuan pinjam online
+│   │   └── Middleware/
+│   │       ├── RoleAdminPetugas.php          # Guard otorisasi role admin & petugas
+│   │       └── RolePeminjam.php              # Guard pengguna peminjam
+│   └── Models/                               # Alat, Peminjaman, Pengembalian, Denda, dll.
+├── database/
+│   ├── migrations/                           # Skema 11 tabel relasional & foreign keys
+│   └── seeders/                              # DatabaseSeeder (Akun demo, kategori, alat, denda)
+├── public/
+│   ├── template/                             # Aset UI, CSS, icons, & template gambar
+│   └── storage/                              # Symlink storage foto alat
+├── resources/
+│   └── views/
+│       ├── Admin/
+│       │   ├── Alat/                         # CRUD inventaris alat
+│       │   ├── Dashboard/                    # Dashboard statistik
+│       │   ├── Kategori/                     # Manajemen kategori
+│       │   ├── Laporan/                      # Rekapitulasi & cetak laporan
+│       │   ├── Logs/                         # Log sistem
+│       │   ├── Pelanggan/                    # Data profil peminjam
+│       │   ├── Peminjaman/                   # Tabel peminjaman, nota pinjam, & modal
+│       │   ├── Pengembalian/                 # Tabel pengembalian & struk pengembalian
+│       │   └── Users/                        # Manajemen akun petugas & admin
+│       ├── Auth/                             # Halaman login & register
+│       └── Public/                           # Landing page katalog & form pengajuan
+├── routes/
+│   └── web.php                               # Definisi seluruh endpoint web
+└── tests/
+    └── Feature/                              # Automated Feature Tests
 ```
 
 ---
 
-## 12. Keterbatasan Saat Ini (Known Limitations)
+## Batasan & Rencana Pengembangan
 
-- Verifikasi transaksi saat ini dilakukan secara manual oleh petugas di laboratorium sebelum serah terima alat.
-- Sistem notifikasi saat ini masih mengandalkan pembaruan status di web aplikasi dan belum terintegrasi dengan gateway WhatsApp API atau email SMTP pihak ketiga.
-- Pembayaran sewa dilakukan secara tunai / transfer manual saat serah terima unit di tempat.
-
----
-
-## 13. Rencana Pengembangan (Future Improvements)
-
-- Integrasi Payment Gateway (Midtrans / Xendit) untuk pembayaran deposit dan sewa instan otomatis.
-- Notifikasi status transaksi via WhatsApp Gateway atau Notifikasi Email real-time.
-- Fitur pemindaian QR Code / Barcode pada unit alat untuk mempermudah inventarisasi fisik di laboratorium.
-- Ekspor laporan rekapitulasi ke format spreadsheet Excel (`.xlsx`).
+- **Penyimpanan Digital Tanda Tangan**: Penambahan kanvas tanda tangan digital (*e-signature*) langsung dari layar tablet/ponsel petugas saat serah terima alat.
+- **Notifikasi Pesan Otomatis**: Pengiriman reminder tenggat pengembalian via WhatsApp Gateway atau Email agar peminjam tidak terlambat mengembalikan alat.
+- **Barcode / QR Code Scanner**: Pemindaian QR code pada fisik alat untuk proses serah terima dan pengembalian barang yang lebih cepat.
 
 ---
 
-## 14. Riwayat Perubahan (Changelog)
-
-### [1.0.0] - 2026-10-13
-
-#### Added
-- Rilis awal aplikasi sistem informasi peminjaman alat SIPERALAT.
-- Modul Katalog Publik responsif lengkap dengan pencarian, filter kategori, dan modal detail gambar.
-- Fitur unggah, simpan, perbarui, dan hapus foto alat inventaris terintegrasi dengan Laravel Storage.
-- Modul transaksi peminjaman mandiri dengan kalkulasi tarif harian dan batas stok unit.
-- Modul persetujuan peminjaman petugas dengan pemotongan stok dan pemulihan otomatis saat pembatalan.
-- Modul cetak Bukti Nota Peminjaman dan Laporan Rekapitulasi transaksi.
-- Manajemen Akun Admin, Petugas, Pelanggan, dan Kategori Alat.
-- Log audit aktivitas pengguna dan sistem.
-- Database seeder lengkap dengan akun demo dan peralatan contoh bergambar nyata.
-- Rangkaian pengujian otomatis PHPUnit Feature Tests.
-
-#### Fixed
-- Perbaikan koneksi database MariaDB socket pada lingkungan Linux.
-- Perbaikan sinkronisasi symlink storage untuk rendering gambar produk.
-- Pembersihan dependensi eksternal CDN untuk keandalan pencetakan nota dan laporan.
-
----
-
-## 15. Penulis & Pengembang
+## Tentang Pengembang
 
 **Dimas Euro Dwi Prasetyo**  
-Laravel Developer | UROO.DEV  
-
-- **GitHub:** https://github.com/uroo-dev  
-- **Portfolio:** https://uroo.my.id  
-- **Email:** contact@uroo.my.id  
-- **LinkedIn:** https://linkedin.com/in/dimas-euro  
-
----
-
-*Hak Cipta © 2026 SIPERALAT - UROO.DEV. Dikembangkan untuk efisiensi pengelolaan inventaris dan peminjaman alat.*
+*Full-Stack Laravel Developer | UROO.DEV*  
+- **GitHub**: [github.com/uroo-dev](https://github.com/uroo-dev)  
+- **Portfolio**: [uroo.my.id](https://uroo.my.id)  
+- **Email**: `uroodev@gmail.com`
