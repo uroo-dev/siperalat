@@ -6,6 +6,7 @@ use App\Models\Alat;
 use App\Models\Kategori;
 use App\Models\Log;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class AlatController extends Controller
 {
@@ -52,11 +53,15 @@ class AlatController extends Controller
         $data['stok_dipinjam'] = $data['stok_dipinjam'] ?? 0;
         $data['stok_rusak'] = $data['stok_rusak'] ?? 0;
 
+        if ($request->hasFile('foto')) {
+            $data['foto'] = $request->file('foto')->store('alat', 'public');
+        }
+
         $alat = Alat::create($data);
 
         Log::record('Tambah Alat', "Menambahkan alat inventaris baru: {$alat->nama_alat} ({$alat->kode_alat})");
 
-        return redirect()->back()->with('success', 'Data Alat Berhasil Di Tambahkan');
+        return redirect()->back()->with('success', 'Data Alat Berhasil Ditambahkan');
     }
 
     /**
@@ -98,11 +103,20 @@ class AlatController extends Controller
         $data['stok_dipinjam'] = $data['stok_dipinjam'] ?? 0;
         $data['stok_rusak'] = $data['stok_rusak'] ?? 0;
 
+        if ($request->hasFile('foto')) {
+            if ($alat->foto && Storage::disk('public')->exists($alat->foto)) {
+                Storage::disk('public')->delete($alat->foto);
+            }
+            $data['foto'] = $request->file('foto')->store('alat', 'public');
+        } else {
+            unset($data['foto']);
+        }
+
         $alat->update($data);
 
         Log::record('Update Alat', "Memperbarui data alat inventaris: {$alat->nama_alat} ({$alat->kode_alat})");
 
-        return redirect()->back()->with('success', 'Data Alat Berhail Di Ubah');
+        return redirect()->back()->with('success', 'Data Alat Berhasil Diubah');
     }
 
     /**
@@ -112,6 +126,11 @@ class AlatController extends Controller
     {
         $namaAlat = $alat->nama_alat;
         $kodeAlat = $alat->kode_alat;
+
+        if ($alat->foto && Storage::disk('public')->exists($alat->foto)) {
+            Storage::disk('public')->delete($alat->foto);
+        }
+
         $alat->delete();
 
         Log::record('Hapus Alat', "Menghapus alat inventaris: {$namaAlat} ({$kodeAlat})");

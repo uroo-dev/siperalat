@@ -101,8 +101,12 @@
                         <tr class="hover:bg-black/5 dark:hover:bg-white/5 transition-colors">
                             <td class="py-3.5 px-4">
                                 <div class="flex items-center gap-3">
-                                    <div class="w-8 h-8 rounded-xl bg-zinc-800 text-white dark:bg-zinc-200 dark:text-zinc-900 grid place-items-center font-bold text-xs shrink-0">
-                                        <i data-lucide="wrench" class="w-4 h-4"></i>
+                                    <div class="w-10 h-10 rounded-xl bg-zinc-800 text-white dark:bg-zinc-200 dark:text-zinc-900 grid place-items-center font-bold text-xs shrink-0 overflow-hidden border border-black/5 dark:border-white/10">
+                                        @if($a->foto)
+                                            <img src="{{ asset('storage/' . $a->foto) }}" alt="{{ $a->nama_alat }}" class="w-full h-full object-cover" onerror="this.onerror=null; this.parentElement.innerHTML='<i data-lucide=\'wrench\' class=\'w-4 h-4\'></i>';" />
+                                        @else
+                                            <i data-lucide="wrench" class="w-4 h-4"></i>
+                                        @endif
                                     </div>
                                     <div>
                                         <div class="font-bold text-zinc-900 dark:text-white">{{ $a->nama_alat }}</div>
@@ -158,7 +162,7 @@
                             </td>
                             <td class="py-3.5 px-4 text-right">
                                 <div class="inline-flex items-center gap-1">
-                                    <button onclick="openEditAlatModal({{ $a->id_alat }}, {{ $a->id_kategori }}, '{{ addslashes($a->kode_alat) }}', '{{ addslashes($a->nama_alat) }}', '{{ addslashes($a->deskripsi ?? '') }}', {{ $a->harga_sewa }}, {{ $a->stok_total }}, {{ $a->stok_tersedia }}, {{ $a->stok_dipinjam }}, {{ $a->stok_rusak }}, {{ $a->nilai_penggantian }}, '{{ $a->status }}')" class="p-1.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 text-zinc-500" title="Edit Alat">
+                                    <button onclick="openEditAlatModal({{ $a->id_alat }}, {{ $a->id_kategori }}, '{{ addslashes($a->kode_alat) }}', '{{ addslashes($a->nama_alat) }}', '{{ addslashes($a->deskripsi ?? '') }}', {{ $a->harga_sewa }}, {{ $a->stok_total }}, {{ $a->stok_tersedia }}, {{ $a->stok_dipinjam }}, {{ $a->stok_rusak }}, {{ $a->nilai_penggantian }}, '{{ $a->status }}', '{{ $a->foto ? asset('storage/' . $a->foto) : '' }}')" class="p-1.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 text-zinc-500" title="Edit Alat">
                                         <i data-lucide="edit-3" class="w-4 h-4"></i>
                                     </button>
 
@@ -211,7 +215,7 @@
             </button>
         </div>
 
-        <form action="{{ route('admin.alat.store') }}" method="POST">
+        <form action="{{ route('admin.alat.store') }}" method="POST" enctype="multipart/form-data">
             @csrf
             <div class="modal-body space-y-4">
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -240,6 +244,12 @@
                 <div>
                     <label class="u-field-label">Deskripsi & Spesifikasi</label>
                     <textarea name="deskripsi" rows="2" placeholder="Keterangan singkat kondisi dan kegunaan alat..." class="u-textarea">{{ old('deskripsi') }}</textarea>
+                </div>
+
+                <div>
+                    <label class="u-field-label">Foto Alat (Opsional)</label>
+                    <input type="file" name="foto" accept="image/*" class="u-input file:mr-3 file:py-1 file:px-2.5 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-zinc-900 file:text-white dark:file:bg-white dark:file:text-zinc-900" />
+                    <p class="text-[11px] text-zinc-400 mt-1">Format: JPG, PNG, WEBP (Maksimal 4MB)</p>
                 </div>
 
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -298,7 +308,7 @@
             </button>
         </div>
 
-        <form id="editAlatForm" method="POST">
+        <form id="editAlatForm" method="POST" enctype="multipart/form-data">
             @csrf
             @method('PUT')
             <div class="modal-body space-y-4">
@@ -325,6 +335,16 @@
                 <div>
                     <label class="u-field-label">Deskripsi & Spesifikasi</label>
                     <textarea id="editDeskripsiAlat" name="deskripsi" rows="2" class="u-textarea"></textarea>
+                </div>
+
+                <div>
+                    <label class="u-field-label">Foto Alat</label>
+                    <div id="editCurrentFotoContainer" class="hidden mb-2 flex items-center gap-3 p-2 rounded-xl bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/10">
+                        <img id="editCurrentFotoImg" src="" alt="Foto Alat" class="w-12 h-12 rounded-lg object-cover" />
+                        <span class="text-xs text-zinc-500">Foto aktif saat ini. Unggah file baru di bawah jika ingin mengganti.</span>
+                    </div>
+                    <input type="file" name="foto" accept="image/*" class="u-input file:mr-3 file:py-1 file:px-2.5 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-zinc-900 file:text-white dark:file:bg-white dark:file:text-zinc-900" />
+                    <p class="text-[11px] text-zinc-400 mt-1">Biarkan kosong jika tidak ingin mengubah foto. Maks 4MB.</p>
                 </div>
 
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -380,7 +400,7 @@
 
 @push('script')
 <script>
-    function openEditAlatModal(id, idKategori, kode, nama, deskripsi, hargaSewa, stokTotal, stokTersedia, stokDipinjam, stokRusak, nilaiGanti, status) {
+    function openEditAlatModal(id, idKategori, kode, nama, deskripsi, hargaSewa, stokTotal, stokTersedia, stokDipinjam, stokRusak, nilaiGanti, status, fotoUrl) {
         document.getElementById('editIdKategori').value = idKategori;
         document.getElementById('editKodeAlat').value = kode;
         document.getElementById('editNamaAlat').value = nama;
@@ -393,6 +413,18 @@
         document.getElementById('editStokRusak').value = stokRusak;
         document.getElementById('editStatusAlat').value = status;
         document.getElementById('editAlatForm').action = "{{ url('/admin/alat') }}/" + id;
+
+        const fotoContainer = document.getElementById('editCurrentFotoContainer');
+        const fotoImg = document.getElementById('editCurrentFotoImg');
+        if (fotoUrl && fotoUrl.trim() !== '') {
+            fotoImg.src = fotoUrl;
+            fotoContainer.classList.remove('hidden');
+            fotoContainer.classList.add('flex');
+        } else {
+            fotoContainer.classList.add('hidden');
+            fotoContainer.classList.remove('flex');
+        }
+
         openModal('modal-edit-alat');
     }
 </script>

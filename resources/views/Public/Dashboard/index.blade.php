@@ -152,7 +152,7 @@
                     </div>
 
                     <div class="flex items-center gap-2 mt-5 pt-4 border-t border-black/5 dark:border-white/10">
-                        <button onclick="showToolDetail('{{ addslashes($alt->nama_alat) }}', '{{ $alt->kode_alat }}', '{{ $alt->kategori ? addslashes($alt->kategori->nama_kategori) : 'Umum' }}', '{{ $alt->stok_tersedia }} Unit Tersedia', '{{ number_format($alt->harga_sewa, 0, ',', '.') }}', '{{ addslashes($alt->deskripsi ?? '-') }}', {{ $alt->id_alat }})" class="u-btn u-btn-ghost u-btn-sm flex-1">
+                        <button onclick="showToolDetail('{{ addslashes($alt->nama_alat) }}', '{{ $alt->kode_alat }}', '{{ $alt->kategori ? addslashes($alt->kategori->nama_kategori) : 'Umum' }}', '{{ $alt->stok_tersedia }} Unit Tersedia', '{{ number_format($alt->harga_sewa, 0, ',', '.') }}', '{{ addslashes($alt->deskripsi ?? '-') }}', {{ $alt->id_alat }}, '{{ $alt->foto ? asset('storage/' . $alt->foto) : '' }}')" class="u-btn u-btn-ghost u-btn-sm flex-1">
                             <i data-lucide="info" class="w-3.5 h-3.5"></i> Detail
                         </button>
 
@@ -326,6 +326,10 @@
             </button>
         </div>
         <div class="modal-body space-y-4 text-xs sm:text-sm">
+            <div id="detImgWrapper" class="relative h-44 rounded-xl overflow-hidden bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/10 hidden">
+                <img id="detImg" src="" alt="Detail Foto Alat" class="w-full h-full object-cover" />
+            </div>
+
             <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 bg-black/5 dark:bg-white/5 p-4 rounded-xl">
                 <div>
                     <span class="text-zinc-400 block text-[11px]">Kategori</span>
@@ -451,7 +455,7 @@
     }
 
     // Open Detail Modal
-    function showToolDetail(name, code, category, stock, price, specs, idAlat) {
+    function showToolDetail(name, code, category, stock, price, specs, idAlat, fotoUrl) {
         currentDetailTool = { name, code, stock, idAlat, price };
         document.getElementById('detTitle').innerText = name;
         document.getElementById('detCode').innerText = `KODE ALAT: ${code}`;
@@ -459,6 +463,16 @@
         document.getElementById('detStock').innerText = stock;
         document.getElementById('detPrice').innerText = 'Rp ' + price + '/hari';
         document.getElementById('detSpecs').innerText = specs;
+
+        const imgWrapper = document.getElementById('detImgWrapper');
+        const img = document.getElementById('detImg');
+        if (fotoUrl && fotoUrl.trim() !== '') {
+            img.src = fotoUrl;
+            imgWrapper.classList.remove('hidden');
+        } else {
+            imgWrapper.classList.add('hidden');
+        }
+
         openModal('modal-detail-alat');
     }
 

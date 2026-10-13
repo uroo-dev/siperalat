@@ -35,39 +35,51 @@
     </div>
 
     <!-- ALERT COMPONENT NOTIFICATIONS -->
+    @if(($overdueCount ?? 0) > 0 || ($menungguApproval ?? 0) > 0)
     <div class="space-y-3">
+        @if(($overdueCount ?? 0) > 0)
         <!-- Alert Peringatan Terlambat -->
         <div class="u-alert u-alert-danger">
             <div class="u-alert-icon">
                 <i data-lucide="alert-octagon" class="w-5 h-5"></i>
             </div>
             <div class="flex-1 min-w-0">
-                <h4 class="u-alert-title text-zinc-900 dark:text-zinc-100">3 Peminjaman Melewati Batas Waktu (Jatuh Tempo)</h4>
+                <h4 class="u-alert-title text-zinc-900 dark:text-zinc-100">{{ $overdueCount }} Peminjaman Melewati Batas Waktu</h4>
                 <p class="u-alert-desc">
-                    Terdapat peminjaman alat kategori <strong>Drone DJI Mavic</strong> dan <strong>Total Station</strong> yang belum dikembalikan melewati batas waktu. Harap hubungi kontak peminjam.
+                    Terdapat transaksi peminjaman yang telah melewati batas tanggal rencana pengembalian. Harap tindak lanjuti ke peminjam.
                 </p>
             </div>
+            <a href="{{ route('admin.peminjaman.index') }}" class="u-btn u-btn-danger u-btn-sm text-xs shrink-0">
+                Lihat Data
+            </a>
             <button onclick="this.closest('.u-alert').remove()" class="text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200 p-1">
                 <i data-lucide="x" class="w-4 h-4"></i>
             </button>
         </div>
+        @endif
 
+        @if(($menungguApproval ?? 0) > 0)
         <!-- Alert Info Pengajuan Baru -->
         <div class="u-alert u-alert-info">
             <div class="u-alert-icon">
                 <i data-lucide="bell" class="w-5 h-5"></i>
             </div>
             <div class="flex-1 min-w-0">
-                <h4 class="u-alert-title text-zinc-900 dark:text-zinc-100">7 Pengajuan Peminjaman Baru Menunggu Verifikasi</h4>
+                <h4 class="u-alert-title text-zinc-900 dark:text-zinc-100">{{ $menungguApproval }} Pengajuan Peminjaman Baru Menunggu Verifikasi</h4>
                 <p class="u-alert-desc">
-                    Mahasiswa dan staf telah mengajukan pinjam alat praktikum. Silakan periksa kelengkapan form pada tabel pengajuan di bawah.
+                    Permohonan pinjam alat telah masuk dan memerlukan persetujuan petugas.
                 </p>
             </div>
+            <a href="{{ route('admin.peminjaman.index') }}" class="u-btn u-btn-primary u-btn-sm text-xs shrink-0">
+                Periksa Sekarang
+            </a>
             <button onclick="this.closest('.u-alert').remove()" class="text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200 p-1">
                 <i data-lucide="x" class="w-4 h-4"></i>
             </button>
         </div>
+        @endif
     </div>
+    @endif
 
     <!-- STAT CARDS (4 COLUMNS) -->
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -218,126 +230,65 @@
                 </thead>
                 <tbody class="divide-y divide-black/5 dark:divide-white/5" id="peminjamanTableBody">
 
-                    <!-- Row 1: Menunggu Approval -->
-                    <tr class="hover:bg-black/5 dark:hover:bg-white/5 transition-colors" data-status="Menunggu">
+                    @forelse($recentPeminjamans ?? [] as $rp)
+                    <tr class="hover:bg-black/5 dark:hover:bg-white/5 transition-colors" data-status="{{ ucfirst($rp->status) }}">
                         <td class="py-3.5 px-4 font-mono font-bold text-zinc-900 dark:text-white">
-                            PINJAM-2026-0091
+                            {{ $rp->kode_transaksi }}
                         </td>
                         <td class="py-3.5 px-4">
-                            <div class="font-bold text-zinc-900 dark:text-white">Rian Pratama</div>
-                            <div class="text-[11px] text-zinc-400">NIM: 2205356041 • Teknik Elektro</div>
+                            <div class="font-bold text-zinc-900 dark:text-white">{{ $rp->peminjam ? $rp->peminjam->nama : '-' }}</div>
+                            <div class="text-[11px] text-zinc-400">ID: {{ $rp->peminjam ? $rp->peminjam->no_identitas : '-' }} • Telp: {{ $rp->peminjam ? $rp->peminjam->no_telepon : '-' }}</div>
                         </td>
                         <td class="py-3.5 px-4">
-                            <div class="font-semibold text-zinc-900 dark:text-white">Oscilloscope Rigol DS1054Z</div>
-                            <div class="text-[11px] text-zinc-400">1 Unit • Praktikum DSP</div>
+                            @if($rp->detailPeminjaman && $rp->detailPeminjaman->isNotEmpty())
+                                @php $d = $rp->detailPeminjaman->first(); @endphp
+                                <div class="font-semibold text-zinc-900 dark:text-white">{{ $d->alat ? $d->alat->nama_alat : '-' }}</div>
+                                <div class="text-[11px] text-zinc-400">{{ $d->jumlah }} Unit @if($rp->detailPeminjaman->count() > 1) (+{{ $rp->detailPeminjaman->count() - 1 }} lainnya) @endif</div>
+                            @else
+                                <span class="text-zinc-400">-</span>
+                            @endif
                         </td>
                         <td class="py-3.5 px-4">
-                            <div>08 Okt 2026</div>
-                            <div class="text-zinc-400 text-[11px]">s/d 10 Okt 2026</div>
+                            <div>{{ \Carbon\Carbon::parse($rp->tanggal_pinjam)->translatedFormat('d M Y') }}</div>
+                            <div class="text-[11px] text-zinc-400">s/d {{ \Carbon\Carbon::parse($rp->tanggal_kembali_rencana)->translatedFormat('d M Y') }}</div>
                         </td>
                         <td class="py-3.5 px-4">
-                            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold bg-amber-500/15 text-amber-600 dark:text-amber-400">
-                                <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span> Menunggu Approval
-                            </span>
+                            @if($rp->status === 'menunggu')
+                                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold bg-amber-500/15 text-amber-600 dark:text-amber-400">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span> Menunggu Approval
+                                </span>
+                            @elseif($rp->status === 'disetujui' || $rp->status === 'dipinjam')
+                                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold bg-sky-500/15 text-sky-600 dark:text-sky-400">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-sky-500"></span> Dipinjam
+                                </span>
+                            @elseif($rp->status === 'dikembalikan')
+                                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold bg-emerald-500/15 text-emerald-600 dark:text-emerald-400">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Selesai
+                                </span>
+                            @else
+                                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold bg-rose-500/15 text-rose-600 dark:text-rose-400">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span> {{ ucfirst($rp->status) }}
+                                </span>
+                            @endif
                         </td>
                         <td class="py-3.5 px-4 text-right">
-                            <div class="inline-flex items-center gap-1">
-                                <button onclick="openApprovalModal('PINJAM-2026-0091', 'Rian Pratama', 'Oscilloscope Rigol DS1054Z (1 Unit)')" class="u-btn u-btn-success u-btn-sm py-1 px-2.5 text-[11px]" title="Setujui Pengajuan">
-                                    <i data-lucide="check" class="w-3.5 h-3.5"></i> Setujui
-                                </button>
-                                <button onclick="rejectLoan('PINJAM-2026-0091')" class="u-btn u-btn-danger u-btn-sm py-1 px-2 text-[11px]" title="Tolak">
-                                    <i data-lucide="x" class="w-3.5 h-3.5"></i>
-                                </button>
+                            <div class="inline-flex items-center gap-1.5">
+                                <a href="{{ route('admin.peminjaman.nota', $rp->id_peminjaman) }}" class="p-1.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 text-zinc-500" title="Cetak Nota">
+                                    <i data-lucide="printer" class="w-4 h-4"></i>
+                                </a>
+                                <a href="{{ route('admin.peminjaman.index') }}" class="p-1.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 text-zinc-500" title="Kelola Transaksi">
+                                    <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                                </a>
                             </div>
                         </td>
                     </tr>
-
-                    <!-- Row 2: Sedang Dipinjam -->
-                    <tr class="hover:bg-black/5 dark:hover:bg-white/5 transition-colors" data-status="Dipinjam">
-                        <td class="py-3.5 px-4 font-mono font-bold text-zinc-900 dark:text-white">
-                            PINJAM-2026-0088
-                        </td>
-                        <td class="py-3.5 px-4">
-                            <div class="font-bold text-zinc-900 dark:text-white">Siti Nurhaliza</div>
-                            <div class="text-[11px] text-zinc-400">NIM: 2105346012 • Fablab</div>
-                        </td>
-                        <td class="py-3.5 px-4">
-                            <div class="font-semibold text-zinc-900 dark:text-white">3D Printer Ender 3 V2</div>
-                            <div class="text-[11px] text-zinc-400">1 Unit • Tugas Akhir</div>
-                        </td>
-                        <td class="py-3.5 px-4">
-                            <div>06 Okt 2026</div>
-                            <div class="text-emerald-500 font-semibold text-[11px]">s/d 09 Okt 2026</div>
-                        </td>
-                        <td class="py-3.5 px-4">
-                            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold bg-sky-500/15 text-sky-600 dark:text-sky-400">
-                                <span class="w-1.5 h-1.5 rounded-full bg-sky-500"></span> Sedang Dipinjam
-                            </span>
-                        </td>
-                        <td class="py-3.5 px-4 text-right">
-                            <button onclick="openReturnModal('PINJAM-2026-0088', 'Siti Nurhaliza', '3D Printer Ender 3 V2')" class="u-btn u-btn-ghost u-btn-sm py-1 px-2.5 text-[11px] border border-black/10 dark:border-white/10">
-                                <i data-lucide="corner-down-left" class="w-3.5 h-3.5"></i> Kembalikan
-                            </button>
+                    @empty
+                    <tr>
+                        <td colspan="6" class="py-8 text-center text-zinc-400 text-xs">
+                            Belum ada riwayat transaksi peminjaman terbaru.
                         </td>
                     </tr>
-
-                    <!-- Row 3: Terlambat -->
-                    <tr class="hover:bg-black/5 dark:hover:bg-white/5 transition-colors bg-rose-500/5" data-status="Terlambat">
-                        <td class="py-3.5 px-4 font-mono font-bold text-rose-600 dark:text-rose-400">
-                            PINJAM-2026-0074
-                        </td>
-                        <td class="py-3.5 px-4">
-                            <div class="font-bold text-zinc-900 dark:text-white">Bagas Wicaksono</div>
-                            <div class="text-[11px] text-zinc-400">NIM: 2005336029 • UKM Robotika</div>
-                        </td>
-                        <td class="py-3.5 px-4">
-                            <div class="font-semibold text-zinc-900 dark:text-white">Drone DJI Mavic 3</div>
-                            <div class="text-[11px] text-zinc-400">1 Unit • Dokumentasi Lomba</div>
-                        </td>
-                        <td class="py-3.5 px-4">
-                            <div>01 Okt 2026</div>
-                            <div class="text-rose-500 font-bold text-[11px]">Jatuh Tempo: 05 Okt 2026</div>
-                        </td>
-                        <td class="py-3.5 px-4">
-                            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold bg-rose-500/15 text-rose-600 dark:text-rose-400">
-                                <span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span> Telat 3 Hari
-                            </span>
-                        </td>
-                        <td class="py-3.5 px-4 text-right">
-                            <button onclick="openReturnModal('PINJAM-2026-0074', 'Bagas Wicaksono', 'Drone DJI Mavic 3', 3)" class="u-btn u-btn-danger u-btn-sm py-1 px-2.5 text-[11px]">
-                                <i data-lucide="corner-down-left" class="w-3.5 h-3.5"></i> Proses Sanksi
-                            </button>
-                        </td>
-                    </tr>
-
-                    <!-- Row 4: Selesai -->
-                    <tr class="hover:bg-black/5 dark:hover:bg-white/5 transition-colors" data-status="Selesai">
-                        <td class="py-3.5 px-4 font-mono font-bold text-zinc-400">
-                            PINJAM-2026-0062
-                        </td>
-                        <td class="py-3.5 px-4">
-                            <div class="font-bold text-zinc-900 dark:text-white">Dewi Lestari</div>
-                            <div class="text-[11px] text-zinc-400">NIP: 19880121 • Lab Jaringan</div>
-                        </td>
-                        <td class="py-3.5 px-4">
-                            <div class="font-semibold text-zinc-900 dark:text-white">Fusion Splicer Fujikura</div>
-                            <div class="text-[11px] text-zinc-400">1 Unit • Instalasi Fiber</div>
-                        </td>
-                        <td class="py-3.5 px-4">
-                            <div>02 Okt 2026</div>
-                            <div class="text-zinc-400 text-[11px]">Dikembalikan 04 Okt</div>
-                        </td>
-                        <td class="py-3.5 px-4">
-                            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold bg-emerald-500/15 text-emerald-600 dark:text-emerald-400">
-                                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Selesai (Tepat Waktu)
-                            </span>
-                        </td>
-                        <td class="py-3.5 px-4 text-right">
-                            <button onclick="toast('Log detail peminjaman PINJAM-2026-0062 diarsip', 'archive')" class="u-btn u-btn-ghost u-btn-sm py-1 px-2 text-[11px]" title="Detail Arsip">
-                                <i data-lucide="eye" class="w-3.5 h-3.5"></i>
-                            </button>
-                        </td>
-                    </tr>
+                    @endforelse
 
                 </tbody>
             </table>
@@ -352,10 +303,12 @@
                     <i data-lucide="boxes" class="w-5 h-5 text-zinc-500"></i>
                     Inventaris & Stok Fisik Alat
                 </h3>
-                <p class="text-xs text-zinc-500 dark:text-zinc-400">Daftar master alat, lokasi rak penyimpanan, dan status kelayakan pakai.</p>
+                <p class="text-xs text-zinc-500 dark:text-zinc-400">Daftar master alat, ketersediaan unit, biaya sewa, dan status alat.</p>
             </div>
             <div class="flex items-center gap-2">
-                <input type="text" id="searchToolTable" onkeyup="filterInventoryTable()" placeholder="Cari nama / kode alat..." class="u-input py-1.5 px-3 text-xs w-48 sm:w-60" />
+                <a href="{{ route('admin.alat.index') }}" class="u-btn u-btn-primary u-btn-sm text-xs">
+                    <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i> Lihat Semua Alat
+                </a>
             </div>
         </div>
 
@@ -367,75 +320,58 @@
                         <th class="py-3 px-4">Nama Alat</th>
                         <th class="py-3 px-4">Kategori</th>
                         <th class="py-3 px-4">Stok (Tersedia / Total)</th>
-                        <th class="py-3 px-4">Kondisi</th>
-                        <th class="py-3 px-4">Lokasi Rak</th>
+                        <th class="py-3 px-4">Status</th>
+                        <th class="py-3 px-4">Tarif Sewa</th>
                         <th class="py-3 px-4 text-right rounded-r-xl">Aksi</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-black/5 dark:divide-white/5" id="inventoryTableBody">
 
+                    @forelse($recentAlats ?? [] as $ra)
                     <tr class="hover:bg-black/5 dark:hover:bg-white/5 transition-colors">
-                        <td class="py-3 px-4 font-mono font-bold text-zinc-900 dark:text-white">OSC-0102</td>
-                        <td class="py-3 px-4 font-bold text-zinc-900 dark:text-white">Oscilloscope Rigol DS1054Z 50MHz</td>
-                        <td class="py-3 px-4">Alat Ukur</td>
-                        <td class="py-3 px-4 font-semibold text-emerald-600 dark:text-emerald-400">3 / 4 Unit</td>
+                        <td class="py-3 px-4 font-mono font-bold text-zinc-900 dark:text-white">{{ $ra->kode_alat }}</td>
                         <td class="py-3 px-4">
-                            <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/15 text-emerald-600">Sangat Baik</span>
-                        </td>
-                        <td class="py-3 px-4 text-zinc-400">Rak Lab E-02</td>
-                        <td class="py-3 px-4 text-right">
-                            <div class="inline-flex items-center gap-1">
-                                <button onclick="editToolModal('OSC-0102', 'Oscilloscope Rigol DS1054Z', 'Alat Ukur', 4, 'Rak Lab E-02')" class="p-1 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 text-zinc-500" title="Edit Data">
-                                    <i data-lucide="edit-3" class="w-4 h-4"></i>
-                                </button>
-                                <button onclick="confirmDeleteModal('Oscilloscope Rigol DS1054Z (OSC-0102)')" class="p-1 rounded-lg hover:bg-rose-500/10 text-rose-500" title="Hapus Data">
-                                    <i data-lucide="trash-2" class="w-4 h-4"></i>
-                                </button>
+                            <div class="flex items-center gap-2.5">
+                                <div class="w-8 h-8 rounded-lg overflow-hidden bg-zinc-800 text-white dark:bg-zinc-200 dark:text-zinc-900 grid place-items-center shrink-0">
+                                    @if($ra->foto)
+                                        <img src="{{ asset('storage/' . $ra->foto) }}" alt="{{ $ra->nama_alat }}" class="w-full h-full object-cover" onerror="this.onerror=null; this.parentElement.innerHTML='<i data-lucide=\'wrench\' class=\'w-3.5 h-3.5\'></i>';" />
+                                    @else
+                                        <i data-lucide="wrench" class="w-3.5 h-3.5"></i>
+                                    @endif
+                                </div>
+                                <span class="font-bold text-zinc-900 dark:text-white">{{ $ra->nama_alat }}</span>
                             </div>
                         </td>
+                        <td class="py-3 px-4">{{ $ra->kategori ? $ra->kategori->nama_kategori : '-' }}</td>
+                        <td class="py-3 px-4 font-semibold text-emerald-600 dark:text-emerald-400">{{ $ra->stok_tersedia }} / {{ $ra->stok_total }} Unit</td>
+                        <td class="py-3 px-4">
+                            @if($ra->status === 'tersedia')
+                                <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/15 text-emerald-600">Tersedia</span>
+                            @elseif($ra->status === 'habis')
+                                <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-500/15 text-rose-600">Habis</span>
+                            @else
+                                <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/15 text-amber-600">{{ ucfirst($ra->status) }}</span>
+                            @endif
+                        </td>
+                        <td class="py-3 px-4 text-zinc-600 dark:text-zinc-300 font-mono">Rp {{ number_format($ra->harga_sewa, 0, ',', '.') }}/hari</td>
+                        <td class="py-3 px-4 text-right">
+                            <a href="{{ route('admin.alat.index') }}" class="u-btn u-btn-ghost u-btn-sm py-1 px-2.5 text-[11px]" title="Kelola di Menu Alat">
+                                <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i> Kelola
+                            </a>
+                        </td>
                     </tr>
+                    @empty
+                    <tr>
+                        <td colspan="7" class="py-8 text-center text-zinc-400 text-xs">
+                            Belum ada inventaris alat terdaftar.
+                        </td>
+                    </tr>
+                    @endforelse
 
-                    <tr class="hover:bg-black/5 dark:hover:bg-white/5 transition-colors">
-                        <td class="py-3 px-4 font-mono font-bold text-zinc-900 dark:text-white">3DP-0021</td>
-                        <td class="py-3 px-4 font-bold text-zinc-900 dark:text-white">3D Printer Creality Ender 3 V2</td>
-                        <td class="py-3 px-4">Fabrikasi</td>
-                        <td class="py-3 px-4 font-semibold text-emerald-600 dark:text-emerald-400">2 / 3 Unit</td>
-                        <td class="py-3 px-4">
-                            <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/15 text-emerald-600">Baik</span>
-                        </td>
-                        <td class="py-3 px-4 text-zinc-400">Ruang Fablab F-01</td>
-                        <td class="py-3 px-4 text-right">
-                            <div class="inline-flex items-center gap-1">
-                                <button onclick="editToolModal('3DP-0021', '3D Printer Ender 3 V2', 'Fabrikasi', 3, 'Ruang Fablab F-01')" class="p-1 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 text-zinc-500" title="Edit Data">
-                                    <i data-lucide="edit-3" class="w-4 h-4"></i>
-                                </button>
-                                <button onclick="confirmDeleteModal('3D Printer Ender 3 V2 (3DP-0021)')" class="p-1 rounded-lg hover:bg-rose-500/10 text-rose-500" title="Hapus Data">
-                                    <i data-lucide="trash-2" class="w-4 h-4"></i>
-                                </button>
-                            </div>
-                        </td>
-                    </tr>
-
-                    <tr class="hover:bg-black/5 dark:hover:bg-white/5 transition-colors">
-                        <td class="py-3 px-4 font-mono font-bold text-zinc-900 dark:text-white">DRN-0005</td>
-                        <td class="py-3 px-4 font-bold text-zinc-900 dark:text-white">Drone DJI Mavic 3 Enterprise</td>
-                        <td class="py-3 px-4">Multimedia</td>
-                        <td class="py-3 px-4 font-semibold text-rose-500">0 / 1 Unit</td>
-                        <td class="py-3 px-4">
-                            <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/15 text-amber-600">Dipinjam</span>
-                        </td>
-                        <td class="py-3 px-4 text-zinc-400">Gudang Inventaris</td>
-                        <td class="py-3 px-4 text-right">
-                            <div class="inline-flex items-center gap-1">
-                                <button onclick="editToolModal('DRN-0005', 'Drone DJI Mavic 3 Enterprise', 'Multimedia', 1, 'Gudang Inventaris')" class="p-1 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 text-zinc-500" title="Edit Data">
-                                    <i data-lucide="edit-3" class="w-4 h-4"></i>
-                                </button>
-                                <button onclick="confirmDeleteModal('Drone DJI Mavic 3 (DRN-0005)')" class="p-1 rounded-lg hover:bg-rose-500/10 text-rose-500" title="Hapus Data">
-                                    <i data-lucide="trash-2" class="w-4 h-4"></i>
-                                </button>
-                            </div>
-                        </td>
-                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
 
                 </tbody>
             </table>

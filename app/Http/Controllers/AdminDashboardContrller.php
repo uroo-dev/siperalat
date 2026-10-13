@@ -21,10 +21,12 @@ class AdminDashboardContrller extends Controller
         $totalDipinjam = Peminjaman::whereIn('status', ['dipinjam', 'sebagian_dikembalikan'])->count();
         $menungguApproval = Peminjaman::where('status', 'menunggu')->count();
         $totalPengembalian = Pengembalian::count();
+        $overdueCount = Peminjaman::whereIn('status', ['dipinjam', 'disetujui'])->where('tanggal_kembali_rencana', '<', now()->toDateString())->count();
 
+        $kategoris = \App\Models\Kategori::where('status', 'aktif')->get();
         $recentLogs = Log::latest()->take(8)->get();
         $recentPeminjamans = Peminjaman::with(['peminjam.user', 'detailPeminjaman.alat'])->latest()->take(5)->get();
-        $recentAlats = Alat::with('kategori')->latest()->take(5)->get();
+        $recentAlats = Alat::with('kategori')->latest()->take(6)->get();
 
         return view('Admin.Dashboard.index', compact(
             'totalAlat',
@@ -32,6 +34,8 @@ class AdminDashboardContrller extends Controller
             'totalDipinjam',
             'menungguApproval',
             'totalPengembalian',
+            'overdueCount',
+            'kategoris',
             'recentLogs',
             'recentPeminjamans',
             'recentAlats'
